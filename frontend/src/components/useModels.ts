@@ -6,6 +6,8 @@ const MODELS_ENDPOINT = `${BASE_API_URL}/models`;
 export type Model = {
   id: number;
   name: string;
+  created: string;
+  elo: number;
 };
 
 export function useModels() {

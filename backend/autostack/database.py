@@ -1,5 +1,6 @@
 from contextlib import contextmanager
 from pathlib import Path
+from random import random
 from typing import Iterator
 
 import duckdb
@@ -24,13 +25,15 @@ def migrate_database(conn: duckdb.DuckDBPyConnection) -> None:
         CREATE TABLE IF NOT EXISTS model (
             id INTEGER PRIMARY KEY DEFAULT nextval('model_id'),
             name TEXT NOT NULL,
+            created TIMESTAMPTZ NOT NULL DEFAULT get_current_timestamp(),
+            elo DOUBLE NOT NULL DEFAULT 0
         )
     """)
     conn.execute(
         """
-        INSERT INTO model(name) VALUES (?), (?), (?)
+        INSERT INTO model(name, elo) VALUES (?, ?), (?, ?), (?, ?)
     """,
-        [generate_slug(2) for _ in range(3)],
+        [item for t in [(generate_slug(2), 1000 + 500 * (0.5 - random())) for _ in range(3)] for item in t],
     )
 
 

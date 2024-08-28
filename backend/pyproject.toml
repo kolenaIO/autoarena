@@ -11,6 +11,8 @@ fastapi = "^0.112.2"
 pandas = "^2.2.2"
 numpy = "^2.1.0"
 uvicorn = "^0.30.6"
+duckdb = "^1.0.0"
+coolname = "^2.2.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

@@ -23,3 +23,9 @@ repos:
     hooks:
       - id: check-hooks-apply
       - id: check-useless-excludes
+  - repo: local
+    hooks:
+      - id: yarn-lint-fix
+        name: yarn lint:fix
+        entry: /usr/bin/env bash -c 'pushd frontend; yarn lint:fix; popd'
+        language: script

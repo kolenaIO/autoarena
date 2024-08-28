@@ -21,18 +21,7 @@ const theme = createTheme({
       '#522aa1',
       '#46238e',
     ],
-    ice: [
-      '#deffff',
-      '#cafeff',
-      '#99faff',
-      '#64f8ff',
-      '#3df5fe',
-      '#26f4fe',
-      '#09f3ff',
-      '#00d8e4',
-      '#00c1cb',
-      '#00a7b1',
-    ],
+    ice: ['#deffff', '#cafeff', '#99faff', '#64f8ff', '#3df5fe', '#26f4fe', '#09f3ff', '#00d8e4', '#00c1cb', '#00a7b1'],
   },
 });
 

@@ -1,0 +1,15 @@
+.MarkdownContent {
+  word-break: break-word;
+
+  code {
+    word-break: break-word;
+  }
+}
+
+.MarkdownContent > *:first-child {
+  margin-top: 0px;
+}
+
+.MarkdownContent > *:last-child {
+  margin-bottom: 0px;
+}

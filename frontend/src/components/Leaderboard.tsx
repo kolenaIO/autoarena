@@ -1,16 +1,44 @@
 import { useMemo, useState } from 'react';
-import { Button, Card, Center, Checkbox, Code, Group, Paper, Portal, Stack, Table, Text, Tooltip } from '@mantine/core';
+import {
+  Button,
+  Card,
+  Checkbox,
+  Code,
+  Group,
+  Paper,
+  Portal,
+  Select,
+  Stack,
+  Table,
+  Text,
+  TextInput,
+  Tooltip,
+} from '@mantine/core';
 import { IconCrown } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useModels } from './useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
 
+const JUDGES = [
+  'All',
+  'Human Ratings Only',
+  'Custom', // TODO
+];
+
 export function Leaderboard() {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
+  const [filterValue, setFilterValue] = useState('');
   const { data: models } = useModels();
   const navigate = useNavigate();
 
   const modelsSorted = useMemo(() => (models ?? []).sort((a, b) => b.elo - a.elo), [models]);
+  const modelsFiltered = useMemo(
+    () =>
+      modelsSorted.filter(
+        ({ id, name }) => selectedRows.includes(id) || name.toLowerCase().includes(filterValue.toLowerCase())
+      ),
+    [modelsSorted, filterValue, selectedRows]
+  );
   const globalLo = modelsSorted[modelsSorted.length - 1]?.q025 ?? 0;
   const globalHi = modelsSorted[0]?.q975 ?? 0;
 
@@ -28,7 +56,17 @@ export function Leaderboard() {
   }
 
   return (
-    <Center p="lg">
+    <Stack p="lg" align="center">
+      <Group justify="space-between" w={1080}>
+        <TextInput
+          label="Filter Models"
+          placeholder="Enter filter value..."
+          value={filterValue}
+          onChange={event => setFilterValue(event.currentTarget.value)}
+          flex={1}
+        />
+        <Select label="Judge" data={JUDGES} defaultValue={JUDGES[0]} />
+      </Group>
       <Paper radius="md" withBorder w={1080}>
         <Table striped highlightOnHover horizontalSpacing="xs">
           {selectedRows.length > 0 && (
@@ -40,7 +78,7 @@ export function Leaderboard() {
                   position: 'fixed',
                   zIndex: 10,
                   width: 400,
-                  top: 88,
+                  bottom: 24,
                   right: 'calc(50% - 200px)',
                   left: 'calc(50% - 200px)',
                 }}
@@ -83,7 +121,7 @@ export function Leaderboard() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {modelsSorted.map((model, i) => (
+            {modelsFiltered.map((model, i) => (
               <Table.Tr
                 key={i}
                 bg={selectedRows.includes(model.id) ? 'var(--mantine-color-kolena-light)' : undefined}
@@ -137,6 +175,6 @@ export function Leaderboard() {
           </Table.Tbody>
         </Table>
       </Paper>
-    </Center>
+    </Stack>
   );
 }

@@ -8,6 +8,9 @@ export type Model = {
   name: string;
   created: string;
   elo: number;
+  q025: number;
+  q975: number;
+  votes: number;
 };
 
 export function useModels() {

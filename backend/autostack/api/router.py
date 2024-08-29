@@ -1,22 +1,39 @@
+from dataclasses import dataclass
+from datetime import datetime
+
 from fastapi import APIRouter
 
-import autostack.api.api as API
+from autostack.database import get_df_models
 
-from autostack.database import get_database_connection
+
+@dataclass(frozen=True)
+class Model:
+    id: int
+    name: str
+    created: datetime
+    elo: float
+    q025: float
+    q975: float
+    votes: int
 
 
 def router() -> APIRouter:
     r = APIRouter()
 
-    @r.get("")
-    @r.get("/")
-    def get_root() -> str:
-        return "root"
-
     @r.get("/models")
-    def get_models() -> list[API.Model]:
-        with get_database_connection() as conn:
-            models = conn.execute("SELECT id, name, created, elo FROM model").fetchall()
-        return [API.Model(id=id, name=name, created=created, elo=elo) for id, name, created, elo in models]
+    def get_models() -> list[Model]:
+        df_models = get_df_models()
+        return [
+            Model(
+                id=r.rank_true,
+                name=r.model,
+                created=datetime.utcnow(),  # r.created, TODO
+                elo=r.elo_true,
+                q025=r.q025_true,
+                q975=r.q975_true,
+                votes=r.count_true,
+            )
+            for r in df_models.itertuples()
+        ]
 
     return r

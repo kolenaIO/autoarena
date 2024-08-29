@@ -5,6 +5,7 @@ import {
   Checkbox,
   Code,
   Group,
+  LoadingOverlay,
   Paper,
   Portal,
   Select,
@@ -16,14 +17,31 @@ import {
 } from '@mantine/core';
 import { IconCrown } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useModels } from './useModels.ts';
+import { v4 as uuidv4 } from 'uuid';
+import { Model, useModels } from './useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { JUDGES } from './Judges.tsx';
+
+const LOADING_MODELS: Model[] = Array(16)
+  .fill(null)
+  .map((_, i) => {
+    const elo = 1000 + (0.5 - Math.random()) * 1000;
+    return {
+      id: i,
+      name: uuidv4().substring(0, 10 + Math.random() * 25),
+      created: 'TODO',
+      elo,
+      q025: elo - Math.random() * 50,
+      q975: elo + Math.random() * 50,
+      votes: Math.floor(elo),
+    };
+  })
+  .sort((a, b) => b.elo - a.elo);
 
 export function Leaderboard() {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [filterValue, setFilterValue] = useState('');
-  const { data: models } = useModels();
+  const { data: models, isLoading } = useModels();
   const navigate = useNavigate();
 
   const availableJudges = ['All', ...JUDGES.filter(({ enabled }) => enabled).map(({ label }) => label)];
@@ -36,8 +54,9 @@ export function Leaderboard() {
       ),
     [modelsSorted, filterValue, selectedRows]
   );
-  const globalLo = modelsSorted[modelsSorted.length - 1]?.q025 ?? 0;
-  const globalHi = modelsSorted[0]?.q975 ?? 0;
+  const displayModels = isLoading ? LOADING_MODELS : modelsFiltered;
+  const globalLo = displayModels[displayModels.length - 1]?.q025 ?? 0;
+  const globalHi = displayModels[0]?.q975 ?? 0;
 
   function getModelById(modelId: number) {
     return (models ?? []).find(({ id }) => id === modelId);
@@ -61,10 +80,11 @@ export function Leaderboard() {
           value={filterValue}
           onChange={event => setFilterValue(event.currentTarget.value)}
           flex={1}
+          disabled={isLoading}
         />
         <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} />
       </Group>
-      <Paper radius="md" withBorder w={1080}>
+      <Paper radius="md" pos="relative" withBorder w={1080}>
         <Table striped highlightOnHover horizontalSpacing="xs">
           {selectedRows.length > 0 && (
             <Portal>
@@ -105,6 +125,7 @@ export function Leaderboard() {
               </Card>
             </Portal>
           )}
+          <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: 'md', blur: 4 }} />
           <Table.Thead style={{ top: 56 /* TODO: parametrize, this is the header height */ }}>
             <Table.Tr>
               <Table.Th />
@@ -118,7 +139,7 @@ export function Leaderboard() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {modelsFiltered.map((model, i) => (
+            {displayModels.map((model, i) => (
               <Table.Tr key={i} bg={selectedRows.includes(model.id) ? 'var(--mantine-color-kolena-light)' : undefined}>
                 <Table.Td>
                   <Checkbox

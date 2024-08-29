@@ -1,6 +1,14 @@
-import { Accordion, Button, Center, Group, Pill, Stack, Text } from '@mantine/core';
-import { ReactNode } from 'react';
-import { IconBrandMeta, IconBrandOpenai, IconPlus, IconRobot, IconUsers } from '@tabler/icons-react';
+import { Accordion, Button, Center, Checkbox, Group, PasswordInput, Pill, Stack, Text } from '@mantine/core';
+import { ReactNode, useState } from 'react';
+import {
+  IconBrandGoogleFilled,
+  IconBrandMeta,
+  IconBrandOpenai,
+  IconPlus,
+  IconRobot,
+  IconUsers,
+} from '@tabler/icons-react';
+import { Link } from 'react-router-dom';
 
 type Judge = {
   id: string;
@@ -9,16 +17,19 @@ type Judge = {
   icon: ReactNode;
   enabled?: boolean;
   custom?: boolean;
+  thirdParty?: boolean;
+  fineTuningDetails?: { [key: string]: string };
 };
 const JUDGE_ICON_PROPS = { width: 20, height: 20, color: 'var(--mantine-color-gray-8)' };
+const HUMAN_JUDGE: Judge = {
+  id: 'human-ratings',
+  label: 'Human Ratings',
+  description: "Manual ratings submitted via the 'Head-to-Head' tab",
+  icon: <IconUsers {...JUDGE_ICON_PROPS} />,
+  enabled: true,
+};
 export const JUDGES: Judge[] = [
-  {
-    id: 'human-ratings',
-    label: 'Human Ratings',
-    description: "Manual ratings submitted via the 'Head-to-Head' tab",
-    icon: <IconUsers {...JUDGE_ICON_PROPS} />,
-    enabled: true,
-  },
+  HUMAN_JUDGE,
   {
     id: 'custom-giga-gorilla-20240828',
     label: 'Giga Gorilla (2024/08/28)',
@@ -28,17 +39,25 @@ export const JUDGES: Judge[] = [
     custom: true,
   },
   {
+    id: 'custom-vengeful-hare-20240826',
+    label: 'Vengeful Hare (2024/08/26)',
+    description: 'Custom judge model fine-tuned using 742 of your ratings submitted on AutoStack',
+    icon: <IconRobot {...JUDGE_ICON_PROPS} />,
+    custom: true,
+  },
+  {
     id: 'gpt-4o',
     label: 'GPT-4o',
     description: 'Full-featured, best-in-class frontier model from OpenAI',
     icon: <IconBrandOpenai {...JUDGE_ICON_PROPS} />,
+    thirdParty: true,
   },
   {
     id: 'gpt-4o-mini',
     label: 'GPT-4o mini',
     description: 'Cost-effective and low-latency frontier model from OpenAI',
     icon: <IconBrandOpenai {...JUDGE_ICON_PROPS} />,
-    enabled: true,
+    thirdParty: true,
   },
   {
     id: 'llama-3.1-70b',
@@ -52,6 +71,13 @@ export const JUDGES: Judge[] = [
     description: 'Faster and less capable open-source model from Meta and run by AutoStack',
     icon: <IconBrandMeta {...JUDGE_ICON_PROPS} />,
   },
+  {
+    id: 'gemini-1.5-pro',
+    label: 'Gemini 1.5 Pro',
+    description: 'Highly competitive frontier model from Google',
+    icon: <IconBrandGoogleFilled {...JUDGE_ICON_PROPS} />,
+    thirdParty: true,
+  },
 ];
 
 export function Judges() {
@@ -59,32 +85,8 @@ export function Judges() {
     <Center p="lg">
       <Stack>
         <Accordion variant="contained" w={1080}>
-          {JUDGES.map(({ id, label, description, icon, enabled = false, custom = false }) => (
-            <Accordion.Item key={id} value={id}>
-              <Accordion.Control icon={icon}>
-                <Group justify="space-between" pl="xs" pr="lg">
-                  <Stack gap={0}>
-                    <Text>{label}</Text>
-                    <Text c="dimmed" size="xs">
-                      {description}
-                    </Text>
-                  </Stack>
-                  <Group>
-                    {custom && (
-                      <Pill bg="kolena.1" c="gray.8">
-                        Custom
-                      </Pill>
-                    )}
-                    {enabled && (
-                      <Pill bg="ice.0" c="gray.8">
-                        Enabled
-                      </Pill>
-                    )}
-                  </Group>
-                </Group>
-              </Accordion.Control>
-              <Accordion.Panel>{description}</Accordion.Panel>
-            </Accordion.Item>
+          {JUDGES.map(judge => (
+            <JudgeAccordionItem key={judge.id} judge={judge} />
           ))}
         </Accordion>
         <Center>
@@ -92,5 +94,67 @@ export function Judges() {
         </Center>
       </Stack>
     </Center>
+  );
+}
+
+export function JudgeAccordionItem({
+  judge: { id, icon, label, description, enabled, custom, thirdParty },
+}: {
+  judge: Judge;
+}) {
+  const [isEnabled, setIsEnabled] = useState(enabled);
+  return (
+    <Accordion.Item key={id} value={id}>
+      <Accordion.Control icon={icon}>
+        <Group justify="space-between" pl="xs" pr="lg">
+          <Stack gap={0}>
+            <Text>{label}</Text>
+            <Text c="dimmed" size="xs">
+              {description}
+            </Text>
+          </Stack>
+          <Group>
+            {custom && (
+              <Pill bg="kolena.1" c="gray.8">
+                Custom
+              </Pill>
+            )}
+            {thirdParty && (
+              <Pill bg="orange.1" c="gray.8">
+                3rd Party
+              </Pill>
+            )}
+            {isEnabled && (
+              <Pill bg="ice.0" c="gray.8">
+                Enabled
+              </Pill>
+            )}
+          </Group>
+        </Group>
+      </Accordion.Control>
+      <Accordion.Panel>
+        <Stack pl="xl">
+          {id !== HUMAN_JUDGE.id ? (
+            <Checkbox label="Enable as judge" checked={isEnabled} onChange={() => setIsEnabled(prev => !prev)} />
+          ) : (
+            <Text>
+              Visit the{' '}
+              <Link to="/compare">
+                <Text span c="kolena.8">
+                  Head-to-Head
+                </Text>
+              </Link>{' '}
+              tab to provide ratings on head-to-head matchups between models.
+            </Text>
+          )}
+          {thirdParty && (
+            <Group align="flex-end" justify="space-between" w="100%">
+              <PasswordInput label="API Key" placeholder="Enter API key" flex={1} />
+              <Button variant="light">Save</Button>
+            </Group>
+          )}
+        </Stack>
+      </Accordion.Panel>
+    </Accordion.Item>
   );
 }

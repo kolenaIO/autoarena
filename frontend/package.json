@@ -35,6 +35,7 @@
     "react-router-dom": "^6.26.1",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
+    "uuid": "^10.0.0",
     "zustand": "^4.5.4"
   },
   "devDependencies": {

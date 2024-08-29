@@ -9,6 +9,7 @@ const theme = createTheme({
   primaryColor: 'kolena',
   focusRing: 'auto',
   defaultRadius: 'md',
+  cursorType: 'pointer',
   colors: {
     kolena: [
       '#f4eeff',

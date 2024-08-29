@@ -1,13 +1,14 @@
+import '@mantine/core/styles.css';
+import './App.module.css';
 import { createTheme, MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import { Home } from './components/Home';
-import '@mantine/core/styles.css';
+import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD, TAB_STATISTICS } from './components/Page.tsx';
 
 const theme = createTheme({
   primaryColor: 'kolena',
   focusRing: 'auto',
-  defaultRadius: 'xl',
+  defaultRadius: 'md',
   colors: {
     kolena: [
       '#f4eeff',
@@ -27,7 +28,12 @@ const theme = createTheme({
 
 const queryClient = new QueryClient({});
 
-const router = createBrowserRouter([{ path: '/', element: <Home /> }]);
+const router = createBrowserRouter([
+  { path: '/', element: <Page tab={TAB_LEADERBOARD} /> },
+  { path: '/compare', element: <Page tab={TAB_COMPARISON} /> },
+  { path: '/statistics', element: <Page tab={TAB_STATISTICS} /> },
+  { path: '/judges', element: <Page tab={TAB_JUDGES} /> },
+]);
 
 function App() {
   return (

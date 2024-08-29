@@ -1,9 +1,10 @@
-import { Group, Select, Tabs, Text } from '@mantine/core';
-import { IconColumns2, IconCrown, IconDeviceDesktopAnalytics, IconGavel } from '@tabler/icons-react';
+import { Button, Flex, Group, Select, Tabs, Text } from '@mantine/core';
+import { IconColumns2, IconCpu, IconCrown, IconGavel } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { HeadToHead } from './HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard.tsx';
 import { KolenaLogo } from './KolenaLogo.tsx';
+import { Judges } from './Judges.tsx';
 
 export const DUMMY_DEFAULT_PROJECT = 'LMsys Rankings';
 
@@ -11,15 +12,14 @@ export const TAB_LEADERBOARD = 'Leaderboard';
 export const TAB_COMPARISON = 'Head-to-Head';
 export const TAB_STATISTICS = 'Statistics';
 export const TAB_JUDGES = 'Judges';
-type Tab = typeof TAB_LEADERBOARD | typeof TAB_COMPARISON | typeof TAB_STATISTICS;
+type Tab = typeof TAB_LEADERBOARD | typeof TAB_COMPARISON | typeof TAB_STATISTICS | typeof TAB_JUDGES;
 type Props = {
   tab: Tab;
 };
 export function Page({ tab }: Props) {
   const navigate = useNavigate();
-  const iconStyle = { width: 20, height: 20, color: 'var(--mantine-color-kolena-8)' };
 
-  function setTab(newTab: Tab) {
+  function setTab(newTab: string | null) {
     switch (newTab) {
       case TAB_LEADERBOARD:
         navigate('/');
@@ -36,6 +36,7 @@ export function Page({ tab }: Props) {
     }
   }
 
+  const iconProps = { width: 20, height: 20, color: 'var(--mantine-color-kolena-8)' };
   return (
     <Tabs value={tab} onChange={setTab} keepMounted={false}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
@@ -53,18 +54,23 @@ export function Page({ tab }: Props) {
           />
         </Group>
         <div style={{ width: 96 }} />
-        <Tabs.Tab value={TAB_LEADERBOARD} leftSection={<IconCrown {...iconStyle} />}>
+        <Tabs.Tab value={TAB_LEADERBOARD} leftSection={<IconCrown {...iconProps} />}>
           {TAB_LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_COMPARISON} leftSection={<IconColumns2 {...iconStyle} />}>
+        <Tabs.Tab value={TAB_COMPARISON} leftSection={<IconColumns2 {...iconProps} />}>
           {TAB_COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_STATISTICS} leftSection={<IconDeviceDesktopAnalytics {...iconStyle} />}>
+        {/* <Tabs.Tab value={TAB_STATISTICS} leftSection={<IconDeviceDesktopAnalytics {...iconProps} />}>
           {TAB_STATISTICS}
-        </Tabs.Tab>
-        <Tabs.Tab value={TAB_JUDGES} leftSection={<IconGavel {...iconStyle} />}>
+        </Tabs.Tab> */}
+        <Tabs.Tab value={TAB_JUDGES} leftSection={<IconGavel {...iconProps} />}>
           {TAB_JUDGES}
         </Tabs.Tab>
+        <Flex align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
+          <Button variant="light" leftSection={<IconCpu {...iconProps} />}>
+            Jobs
+          </Button>
+        </Flex>
       </Tabs.List>
 
       <Tabs.Panel value={TAB_LEADERBOARD}>
@@ -74,7 +80,9 @@ export function Page({ tab }: Props) {
         <HeadToHead />
       </Tabs.Panel>
       <Tabs.Panel value={TAB_STATISTICS}>Stats</Tabs.Panel>
-      <Tabs.Panel value={TAB_JUDGES}>Judges</Tabs.Panel>
+      <Tabs.Panel value={TAB_JUDGES}>
+        <Judges />
+      </Tabs.Panel>
     </Tabs>
   );
 }

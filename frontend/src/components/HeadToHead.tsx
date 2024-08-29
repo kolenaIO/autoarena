@@ -1,8 +1,10 @@
 import { useSearchParams } from 'react-router-dom';
 import { Button, Center, Group, Divider, Select, Stack } from '@mantine/core';
 import { useMemo } from 'react';
+import { IconClick } from '@tabler/icons-react';
 import { useModels } from './useModels.ts';
 import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
+import { NonIdealState } from './NonIdealState.tsx';
 
 export function HeadToHead() {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -21,6 +23,9 @@ export function HeadToHead() {
   const modelB = models?.find(({ id }) => Number(urlModelBId) === id);
 
   function onChange(position: 'A' | 'B', newId: number | undefined) {
+    if (Number.isNaN(newId)) {
+      return;
+    }
     const existingParams =
       position === 'A'
         ? urlModelBId != null
@@ -30,7 +35,8 @@ export function HeadToHead() {
           ? { modelA: urlModelAId }
           : {};
     const newParams = newId == null ? {} : position === 'A' ? { modelA: newId } : { modelB: newId };
-    setSearchParams(new URLSearchParams({ ...existingParams, ...newParams }));
+    const newSearchParams = { ...existingParams, ...newParams } as Record<string, string>; // TODO: casting...
+    setSearchParams(new URLSearchParams(newSearchParams));
   }
 
   function onRandomize(position: 'A' | 'B') {
@@ -55,7 +61,7 @@ export function HeadToHead() {
                     )
               }
               value={modelA != null ? String(modelA.id) : undefined}
-              onChange={value => onChange('A', value)}
+              onChange={value => onChange('A', Number(value))}
               searchable
               flex={1}
             />
@@ -75,7 +81,7 @@ export function HeadToHead() {
                     )
               }
               value={modelB != null ? String(modelB.id) : undefined}
-              onChange={value => onChange('B', value)}
+              onChange={value => onChange('B', Number(value))}
               searchable
               flex={1}
             />
@@ -84,11 +90,11 @@ export function HeadToHead() {
             </Button>
           </Group>
         </Group>
-        {modelA != null && modelB != null && (
-          <>
-            <Divider />
-            <HeadToHeadBattle modelAId={modelA.id} modelBId={modelB.id} />
-          </>
+        <Divider />
+        {modelA != null && modelB != null ? (
+          <HeadToHeadBattle modelAId={modelA.id} modelBId={modelB.id} />
+        ) : (
+          <NonIdealState IconComponent={IconClick} description="Select two models to compare head-to-head" />
         )}
       </Stack>
     </Center>

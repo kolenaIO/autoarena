@@ -1,9 +1,10 @@
-import { Button, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
-import { IconArrowLeft, IconArrowRight, IconBalloon, IconCactus, IconHeartHandshake } from '@tabler/icons-react';
+import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from '@mantine/hooks';
 import { useHeadToHeadBattles } from './useHeadToHeadBattles.ts';
 import { MarkdownContent } from './MarkdownContent.tsx';
+import { NonIdealState } from './NonIdealState.tsx';
 
 type Props = {
   modelAId: number;
@@ -28,37 +29,36 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
 
   useHotkeys([
     ['ArrowLeft', submitVote('A')],
-    ['Space', submitVote('neither')],
+    ['ArrowDown', submitVote('neither')],
     ['ArrowRight', submitVote('B')],
   ]);
 
   const nBattles = battles?.length ?? 0;
   const iconProps = { size: 18 };
   return !isLoading && nBattles === 0 ? (
-    <Stack align="center" p="xl">
-      <IconCactus size={64} color="var(--mantine-color-kolena-8)" />
-      <Text c="dimmed">No head-to-head battles between selected models</Text>
-    </Stack>
-  ) : battleIndex > nBattles - 1 ? (
-    <Stack align="center" p="xl">
-      <IconBalloon size={64} color="var(--mantine-color-kolena-8)" />
-      <Text c="dimmed">Voted on all {nBattles.toLocaleString()} head-to-head battles between selected models</Text>
-    </Stack>
-  ) : (
+    <NonIdealState IconComponent={IconCactus} description="No head-to-head battles between selected models" />
+  ) : !isLoading && battleIndex > nBattles - 1 ? (
+    <NonIdealState
+      IconComponent={IconBalloon}
+      description={`Voted on all ${nBattles.toLocaleString()} head-to-head battles between selected models`}
+    />
+  ) : !isLoading ? (
     <>
       <Stack pb={100}>
-        <Text c="dimmed" size="sm" fs="italic">
-          Showing {nBattles} head-to-head battle{nBattles > 1 && 's'} between selected models
-        </Text>
+        <Group justify="flex-end">
+          <Text c="dimmed" size="sm" fs="italic">
+            {nBattles} head-to-head battle{nBattles > 1 && 's'} between selected models
+          </Text>
+        </Group>
         <Paper withBorder p="md">
           <MarkdownContent>{`**Prompt:** ${battle?.prompt}`}</MarkdownContent>
         </Paper>
         <SimpleGrid cols={2}>
           <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
-            <MarkdownContent>{`**Response A:** ${battle?.response_a}`}</MarkdownContent>
+            <MarkdownContent>{`**Response A:**\n\n${battle?.response_a}`}</MarkdownContent>
           </Paper>
           <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
-            <MarkdownContent>{`**Response B:** ${battle?.response_b}`}</MarkdownContent>
+            <MarkdownContent>{`**Response B:**\n\n${battle?.response_b}`}</MarkdownContent>
           </Paper>
         </SimpleGrid>
       </Stack>
@@ -70,12 +70,20 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
         <Stack align="center" gap="xs">
           <Text fw="bold">Which response is better?</Text>
           <SimpleGrid cols={3} spacing="xs">
-            <Button leftSection={<IconArrowLeft {...iconProps} />}>Left</Button>
-            <Button leftSection={<IconHeartHandshake {...iconProps} />}>Tie</Button>
-            <Button rightSection={<IconArrowRight {...iconProps} />}>Right</Button>
+            <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')}>
+              Left
+            </Button>
+            <Button leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('neither')}>
+              Tie
+            </Button>
+            <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')}>
+              Right
+            </Button>
           </SimpleGrid>
         </Stack>
       </Stack>
     </>
+  ) : (
+    <></>
   );
 }

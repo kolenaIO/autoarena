@@ -18,18 +18,15 @@ import { IconCrown } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useModels } from './useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
-
-const JUDGES = [
-  'All',
-  'Human Ratings Only',
-  'Custom', // TODO
-];
+import { JUDGES } from './Judges.tsx';
 
 export function Leaderboard() {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models } = useModels();
   const navigate = useNavigate();
+
+  const availableJudges = ['All', ...JUDGES.filter(({ enabled }) => enabled).map(({ label }) => label)];
 
   const modelsSorted = useMemo(() => (models ?? []).sort((a, b) => b.elo - a.elo), [models]);
   const modelsFiltered = useMemo(
@@ -52,7 +49,7 @@ export function Leaderboard() {
     if (modelA == null || modelB == null) {
       return;
     }
-    navigate(`/compare?${new URLSearchParams({ modelA: modelA.id, modelB: modelB.id })}`);
+    navigate(`/compare?${new URLSearchParams({ modelA: String(modelA.id), modelB: String(modelB.id) })}`);
   }
 
   return (
@@ -65,7 +62,7 @@ export function Leaderboard() {
           onChange={event => setFilterValue(event.currentTarget.value)}
           flex={1}
         />
-        <Select label="Judge" data={JUDGES} defaultValue={JUDGES[0]} />
+        <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} />
       </Group>
       <Paper radius="md" withBorder w={1080}>
         <Table striped highlightOnHover horizontalSpacing="xs">
@@ -87,7 +84,7 @@ export function Leaderboard() {
                   <Text>
                     Compare{' '}
                     <Text span inherit c="blue.6">
-                      {getModelById(selectedRows[0])?.name}
+                      {getModelById(selectedRows[0] ?? -1)?.name}
                     </Text>{' '}
                     with{' '}
                     {selectedRows.length < 2 ? (
@@ -96,7 +93,7 @@ export function Leaderboard() {
                       </Text>
                     ) : (
                       <Text span inherit c="orange.6">
-                        {getModelById(selectedRows[1])?.name}
+                        {getModelById(selectedRows[1] ?? -1)?.name}
                       </Text>
                     )}
                     :
@@ -122,13 +119,7 @@ export function Leaderboard() {
           </Table.Thead>
           <Table.Tbody>
             {modelsFiltered.map((model, i) => (
-              <Table.Tr
-                key={i}
-                bg={selectedRows.includes(model.id) ? 'var(--mantine-color-kolena-light)' : undefined}
-                onclick={() => {
-                  console.log('clicked', model.id);
-                }}
-              >
+              <Table.Tr key={i} bg={selectedRows.includes(model.id) ? 'var(--mantine-color-kolena-light)' : undefined}>
                 <Table.Td>
                   <Checkbox
                     checked={selectedRows.includes(model.id)}

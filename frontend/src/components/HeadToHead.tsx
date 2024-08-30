@@ -8,7 +8,7 @@ import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 
 export function HeadToHead() {
-  const { projectId } = useUrlState();
+  const { projectId = -1 } = useUrlState();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlModelAId = searchParams.get('modelA');
   const urlModelBId = searchParams.get('modelB');

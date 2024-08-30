@@ -76,7 +76,7 @@ def setup_database(battles_parquet: str) -> None:
             FROM df_model
             ON CONFLICT (project_id, name) DO NOTHING
         """)
-        df_model = conn.execute("SELECT id, name FROM model WHERE project_id = ?", [project_id]).df()
+        df_model = conn.execute("SELECT id, name, elo FROM model WHERE project_id = ?", [project_id]).df()
 
         # 5. seed with results
         result_cols_a = ["model_a", "prompt", "response_a"]
@@ -120,19 +120,20 @@ def setup_database(battles_parquet: str) -> None:
         """)
 
         # 7. seed with elo scores
-        df_elo = compute_elo(df_battle)
-        df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
-        conn.execute(
-            """
-            INSERT INTO model (project_id, name, elo, q025, q975)
-            SELECT ?, model, elo, q025, q975
-            FROM df_elo
-            ON CONFLICT (project_id, name) DO UPDATE SET
-                elo = EXCLUDED.elo,
-                q025 = EXCLUDED.q025,
-                q975 = EXCLUDED.q975;
-        """,
-            [project_id],
-        )
+        if df_model["elo"].isnull().any():
+            df_elo = compute_elo(df_battle)
+            df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
+            conn.execute(
+                """
+                INSERT INTO model (project_id, name, elo, q025, q975)
+                SELECT ?, model, elo, q025, q975
+                FROM df_elo
+                ON CONFLICT (project_id, name) DO UPDATE SET
+                    elo = EXCLUDED.elo,
+                    q025 = EXCLUDED.q025,
+                    q975 = EXCLUDED.q975;
+            """,
+                [project_id],
+            )
 
         conn.commit()

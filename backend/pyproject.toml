@@ -15,6 +15,7 @@ duckdb = "^1.0.0"
 coolname = "^2.2.0"
 pyarrow = "^17.0.0"
 tqdm = "^4.66.5"
+python-multipart = "^0.0.9"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

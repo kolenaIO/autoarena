@@ -12,7 +12,7 @@ type Props = {
   modelBId: number;
 };
 export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
-  const { projectId } = useUrlState();
+  const { projectId = -1 } = useUrlState();
   // TODO: loading state?
   const { data: battles, isLoading } = useHeadToHeadBattles({ projectId, modelAId, modelBId });
   const [battleIndex, setBattleIndex] = useState(0);

@@ -1,7 +1,11 @@
 from dataclasses import dataclass
 from datetime import datetime
+from io import BytesIO
+from typing import Annotated
 
-from fastapi import APIRouter
+import pandas as pd
+import numpy as np
+from fastapi import APIRouter, UploadFile, Form
 
 from autostack.store.database import get_database_connection
 
@@ -23,9 +27,9 @@ class Model:
     id: int
     name: str
     created: datetime
-    elo: float
-    q025: float
-    q975: float
+    elo: float | None
+    q025: float | None
+    q975: float | None
     votes: int
 
 
@@ -97,6 +101,7 @@ def router() -> APIRouter:
             """,
                 [project_id],
             ).df()
+        df_model = df_model.replace({np.nan: None})
         return [
             Model(
                 id=r.id,
@@ -109,6 +114,40 @@ def router() -> APIRouter:
             )
             for r in df_model.itertuples()
         ]
+
+    @r.post("/model")
+    async def upload_model_results(
+        file: UploadFile,
+        new_model_name: Annotated[str, Form()],
+        project_id: Annotated[int, Form()],
+    ) -> str:
+        contents = await file.read()
+        if file.content_type == "text/csv":
+            df = pd.read_csv(BytesIO(contents))
+        else:
+            raise ValueError(f"unsupported file type: {file.content_type}")
+
+        required_columns = {"prompt", "response"}
+        missing_columns = required_columns - set(df.columns)
+        if len(missing_columns) > 0:
+            raise ValueError(f"missing required column(s): {missing_columns}")
+
+        with get_database_connection() as conn:
+            params = dict(project_id=project_id, model_name=new_model_name)
+            conn.execute("INSERT INTO model (project_id, name) VALUES ($project_id, $model_name)", params)
+            ((new_model_id,),) = conn.execute(
+                "SELECT id FROM model WHERE project_id = $project_id AND name = $model_name",
+                params,
+            ).fetchall()
+            df["model_id"] = new_model_id
+            out = conn.execute("""
+                INSERT INTO result (model_id, prompt, response)
+                SELECT model_id, prompt, response
+                FROM df
+            """)
+
+        print(out)
+        return "foobar"
 
     @r.put("/battles")
     def get_battles(request: BattlesRequest) -> list[Battle]:

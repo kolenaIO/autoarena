@@ -24,6 +24,7 @@ import { useUrlState } from '../hooks/useUrlState.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { JUDGES } from './Judges.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
+import { AddModel } from './AddModel.tsx';
 
 const LOADING_MODELS: Model[] = Array(16)
   .fill(null)
@@ -42,7 +43,7 @@ const LOADING_MODELS: Model[] = Array(16)
   .sort((a, b) => b.elo - a.elo);
 
 export function Leaderboard() {
-  const { projectId } = useUrlState();
+  const { projectId = -1 } = useUrlState();
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading } = useModels(projectId);
@@ -51,7 +52,7 @@ export function Leaderboard() {
   const availableJudges = ['All', ...JUDGES.filter(({ enabled }) => enabled).map(({ label }) => label)];
 
   const allModels = isLoading ? LOADING_MODELS : (models ?? []);
-  const modelsSorted = useMemo(() => allModels.sort((a, b) => b.elo - a.elo), [allModels]);
+  const modelsSorted = useMemo(() => allModels.sort((a, b) => (b.elo ?? 0) - (a.elo ?? 0)), [allModels]);
   const modelsFiltered = useMemo(
     () =>
       modelsSorted.filter(
@@ -78,7 +79,7 @@ export function Leaderboard() {
 
   return (
     <Stack p="lg" align="center">
-      <Group justify="space-between" w={1080}>
+      <Group justify="space-between" w={1080} align="flex-end">
         <TextInput
           label="Filter Models"
           placeholder="Enter filter value..."
@@ -88,6 +89,7 @@ export function Leaderboard() {
           disabled={isLoading}
         />
         <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} />
+        <AddModel />
       </Group>
       <Paper radius="md" pos="relative" withBorder w={1080}>
         <Table striped highlightOnHover horizontalSpacing="xs">
@@ -179,21 +181,23 @@ export function Leaderboard() {
                 </Table.Td>
                 {/* <Table.Td>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Table.Td> */}
                 <Table.Td>
-                  <EloWidget
-                    elo={model.elo}
-                    qLo={model.q025}
-                    qHi={model.q975}
-                    globalLo={globalLo}
-                    globalHi={globalHi}
-                  />
+                  {model.elo != null && model.q025 != null && model.q975 != null && (
+                    <EloWidget
+                      elo={model.elo}
+                      qLo={model.q025}
+                      qHi={model.q975}
+                      globalLo={globalLo}
+                      globalHi={globalHi}
+                    />
+                  )}
                 </Table.Td>
+                <Table.Td>{model.elo != null && <Code>{model.elo?.toFixed(1)}</Code>}</Table.Td>
                 <Table.Td>
-                  <Code>{model.elo.toFixed(1)}</Code>
-                </Table.Td>
-                <Table.Td>
-                  <Code>
-                    +{(model.q975 - model.elo).toFixed(0)} / -{(model.elo - model.q025).toFixed(0)}
-                  </Code>
+                  {model.elo != null && model.q025 != null && model.q975 != null && (
+                    <Code>
+                      +{(model.q975 - model.elo).toFixed(0)} / -{(model.elo - model.q025).toFixed(0)}
+                    </Code>
+                  )}
                 </Table.Td>
                 <Table.Td>{model.votes.toLocaleString()}</Table.Td>
               </Table.Tr>

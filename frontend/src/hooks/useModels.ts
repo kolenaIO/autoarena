@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from './paths.ts';
+import { BASE_API_URL } from '../components/paths.ts';
 
 const MODELS_ENDPOINT = `${BASE_API_URL}/models`;
 

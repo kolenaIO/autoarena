@@ -6,6 +6,9 @@ __pycache__/
 dist/
 .DS_Store
 
+database.duckdb
+*.parquet
+
 *.swp
 *.swo
 *.swn

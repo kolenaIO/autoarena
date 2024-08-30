@@ -2,10 +2,10 @@ import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from '@mantine/hooks';
-import { useHeadToHeadBattles } from './useHeadToHeadBattles.ts';
+import { useHeadToHeadBattles } from '../hooks/useHeadToHeadBattles.ts';
+import { useUrlState } from '../hooks/useUrlState.ts';
 import { MarkdownContent } from './MarkdownContent.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
-import { useUrlState } from './useUrlState.ts';
 
 type Props = {
   modelAId: number;

@@ -19,11 +19,11 @@ import {
 import { IconCrown } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
-import { Model, useModels } from './useModels.ts';
+import { Model, useModels } from '../hooks/useModels.ts';
+import { useUrlState } from '../hooks/useUrlState.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { JUDGES } from './Judges.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
-import { useUrlState } from './useUrlState.ts';
 
 const LOADING_MODELS: Model[] = Array(16)
   .fill(null)

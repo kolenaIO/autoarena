@@ -1,7 +1,7 @@
 import { Select } from '@mantine/core';
 import { useMemo } from 'react';
-import { useProjects } from './useProjects.ts';
-import { useUrlState } from './useUrlState.ts';
+import { useProjects } from '../hooks/useProjects.ts';
+import { useUrlState } from '../hooks/useUrlState.ts';
 
 export function ProjectSelect() {
   const { projectId, setProjectId } = useUrlState();

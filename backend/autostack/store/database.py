@@ -6,7 +6,7 @@ import pandas as pd
 
 from autostack.elo import compute_elo, add_rank_and_confidence_intervals
 
-DATABASE_DIRECTORY = (Path(__file__).parent / ".." / ".." / ".data").resolve()
+DATABASE_DIRECTORY = (Path(__file__).parent / ".." / "..").resolve()
 DATABASE_FILE = DATABASE_DIRECTORY / "database.duckdb"
 SCHEMA_FILE = Path(__file__).parent / "schema.sql"
 

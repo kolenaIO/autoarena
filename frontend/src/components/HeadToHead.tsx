@@ -2,10 +2,10 @@ import { useSearchParams } from 'react-router-dom';
 import { Button, Center, Group, Divider, Select, Stack } from '@mantine/core';
 import { useMemo } from 'react';
 import { IconClick } from '@tabler/icons-react';
-import { useModels } from './useModels.ts';
+import { useModels } from '../hooks/useModels.ts';
+import { useUrlState } from '../hooks/useUrlState.ts';
 import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
-import { useUrlState } from './useUrlState.ts';
 
 export function HeadToHead() {
   const { projectId } = useUrlState();

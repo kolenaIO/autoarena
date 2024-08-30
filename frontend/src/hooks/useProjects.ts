@@ -1,7 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from './paths.ts';
+import { BASE_API_URL } from '../components/paths.ts';
 
 const PROJECTS_ENDPOINT = `${BASE_API_URL}/projects`;
+export const PROJECTS_QUERY_KEY = [PROJECTS_ENDPOINT];
 
 export type Project = {
   id: number;

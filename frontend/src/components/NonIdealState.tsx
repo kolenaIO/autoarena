@@ -5,7 +5,7 @@ import { ReactNode } from 'react';
 type Props = {
   IconComponent?: TablerIcon;
   icon?: ReactNode;
-  description: string;
+  description: string | ReactNode;
 };
 export function NonIdealState({ IconComponent = IconSparkles, icon, description }: Props) {
   return (

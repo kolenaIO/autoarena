@@ -14,6 +14,11 @@ class Project:
 
 
 @dataclass(frozen=True)
+class CreateProjectRequest:
+    name: str
+
+
+@dataclass(frozen=True)
 class Model:
     id: int
     name: str
@@ -47,6 +52,17 @@ def router() -> APIRouter:
         with get_database_connection() as conn:
             df_project = conn.execute("SELECT id, name, created FROM project").df()
         return [Project(id=r.id, name=r.name, created=r.created) for r in df_project.itertuples()]
+
+    @r.put("/project")
+    def create_project(request: CreateProjectRequest) -> Project:
+        with get_database_connection() as conn:
+            params = dict(name=request.name)
+            conn.execute("INSERT INTO project (name) VALUES ($name)", params)
+            ((project_id, name, created),) = conn.execute(
+                "SELECT id, name, created FROM project WHERE name = $name",
+                params,
+            ).fetchall()
+        return Project(id=project_id, name=name, created=created)
 
     @r.get("/models/{project_id}")
     def get_models(project_id: int) -> list[Model]:

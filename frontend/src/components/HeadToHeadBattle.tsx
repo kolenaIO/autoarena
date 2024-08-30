@@ -2,8 +2,9 @@ import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from '@mantine/hooks';
-import { useHeadToHeadBattles } from '../hooks/useHeadToHeadBattles.ts';
+import { useHeadToHeads } from '../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useSubmitHeadToHeadJudgement } from '../hooks/useSubmitHeadToHeadJudgement.ts';
 import { MarkdownContent } from './MarkdownContent.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 
@@ -14,7 +15,8 @@ type Props = {
 export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
   const { projectId = -1 } = useUrlState();
   // TODO: loading state?
-  const { data: battles, isLoading } = useHeadToHeadBattles({ projectId, modelAId, modelBId });
+  const { data: battles, isLoading } = useHeadToHeads({ projectId, modelAId, modelBId });
+  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
   const [battleIndex, setBattleIndex] = useState(0);
   const battle = useMemo(() => battles?.[battleIndex], [battles, battleIndex]);
 
@@ -22,16 +24,24 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     setBattleIndex(0);
   }, [modelAId, modelBId]);
 
-  function submitVote(vote: 'A' | 'B' | 'neither') {
+  function submitVote(vote: 'A' | 'B' | '-') {
     return () => {
-      console.log(`vote: ${vote} (index: ${battleIndex})`);
-      setBattleIndex(prev => prev + 1);
+      if (battle != null) {
+        submitJudgement({
+          project_id: projectId,
+          judge_name: 'Human', // TODO
+          result_a_id: battle?.result_a_id,
+          result_b_id: battle?.result_b_id,
+          winner: vote,
+        });
+        setBattleIndex(prev => prev + 1);
+      }
     };
   }
 
   useHotkeys([
     ['ArrowLeft', submitVote('A')],
-    ['ArrowDown', submitVote('neither')],
+    ['ArrowDown', submitVote('-')],
     ['ArrowRight', submitVote('B')],
   ]);
 
@@ -75,7 +85,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')}>
               Left
             </Button>
-            <Button leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('neither')}>
+            <Button leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('-')}>
               Tie
             </Button>
             <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')}>

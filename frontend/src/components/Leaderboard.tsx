@@ -52,7 +52,7 @@ export function Leaderboard() {
   const availableJudges = ['All', ...JUDGES.filter(({ enabled }) => enabled).map(({ label }) => label)];
 
   const allModels = isLoading ? LOADING_MODELS : (models ?? []);
-  const modelsSorted = useMemo(() => allModels.sort((a, b) => (b.elo ?? 0) - (a.elo ?? 0)), [allModels]);
+  const modelsSorted = useMemo(() => allModels.sort((a, b) => b.elo - a.elo), [allModels]);
   const modelsFiltered = useMemo(
     () =>
       modelsSorted.filter(
@@ -168,11 +168,11 @@ export function Leaderboard() {
                     }}
                   />
                 </Table.Td>
-                <Table.Td>{i + 1}</Table.Td>
+                <Table.Td>{model.elo > 0 ? i + 1 : <Text c="dimmed">-</Text>}</Table.Td>
                 <Table.Td>
                   <Group align="center">
                     <Text size="md">{model.name}</Text>
-                    {i === 0 && (
+                    {i === 0 && model.votes > 0 && (
                       <Tooltip openDelay={200} label="Champion">
                         <IconCrown size={18} color="var(--mantine-color-yellow-6)" />
                       </Tooltip>
@@ -181,7 +181,7 @@ export function Leaderboard() {
                 </Table.Td>
                 {/* <Table.Td>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Table.Td> */}
                 <Table.Td>
-                  {model.elo != null && model.q025 != null && model.q975 != null && (
+                  {model.q025 != null && model.q975 != null && (
                     <EloWidget
                       elo={model.elo}
                       qLo={model.q025}
@@ -191,7 +191,9 @@ export function Leaderboard() {
                     />
                   )}
                 </Table.Td>
-                <Table.Td>{model.elo != null && <Code>{model.elo?.toFixed(1)}</Code>}</Table.Td>
+                <Table.Td>
+                  <Code>{model.elo?.toFixed(1)}</Code>
+                </Table.Td>
                 <Table.Td>
                   {model.elo != null && model.q025 != null && model.q975 != null && (
                     <Code>

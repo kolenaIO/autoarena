@@ -16,10 +16,10 @@ export function useCreateProject({
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: [CREATE_PROJECT_ENDPOINT],
-    mutationFn: async (data: CreateProjectRequest) => {
+    mutationFn: async (request: CreateProjectRequest) => {
       const response = await fetch(CREATE_PROJECT_ENDPOINT, {
         method: 'PUT',
-        body: JSON.stringify(data),
+        body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
       });
       const result: Project = await response.json();

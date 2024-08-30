@@ -119,9 +119,10 @@ def setup_database(battles_parquet: str) -> None:
             ON CONFLICT (result_a_id, result_b_id, judge_id) DO NOTHING
         """)
 
-        # 7. seed with elo scores
-        if df_model["elo"].isnull().any():
-            df_elo = compute_elo(df_battle)
+        # 7. seed with elo scores (when necessary)
+        default_elo_score = 1000
+        if (df_model["elo"] == default_elo_score).all():
+            df_elo = compute_elo(df_battle, init_rating=default_elo_score)
             df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
             conn.execute(
                 """

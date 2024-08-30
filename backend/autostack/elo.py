@@ -1,7 +1,24 @@
 from collections import defaultdict
+from typing import Literal
 
 import pandas as pd
 from tqdm import tqdm
+
+
+def compute_elo_single(
+    elo_a: float,
+    elo_b: float,
+    winner: Literal["A", "B", "-"],
+    k: int = 4,
+    scale: int = 400,
+    base: int = 10,
+) -> tuple[float, float]:
+    expected_a = 1 / (1 + base ** ((elo_b - elo_a) / scale))
+    expected_b = 1 / (1 + base ** ((elo_a - elo_b) / scale))
+    score_a = 1 if winner == "A" else 0 if winner == "B" else 0.5
+    elo_a += k * (score_a - expected_a)
+    elo_b += k * (1 - score_a - expected_b)
+    return elo_a, elo_b
 
 
 # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
@@ -14,13 +31,9 @@ def compute_elo(
 ) -> pd.DataFrame:
     rating: dict[str, float] = defaultdict(lambda: init_rating)
     for _, model_a, model_b, winner in df_battles[["model_a", "model_b", "winner"]].itertuples():
-        rating_a = rating[model_a]
-        rating_b = rating[model_b]
-        expected_a = 1 / (1 + base ** ((rating_b - rating_a) / scale))
-        expected_b = 1 / (1 + base ** ((rating_a - rating_b) / scale))
-        score_a = 1 if winner == "A" else 0 if winner == "B" else 0.5
-        rating[model_a] += k * (score_a - expected_a)
-        rating[model_b] += k * (1 - score_a - expected_b)
+        elo_a, elo_b = compute_elo_single(rating[model_a], rating[model_b], winner, k=k, scale=scale, base=base)
+        rating[model_a] = elo_a
+        rating[model_b] = elo_b
     df_elos = pd.DataFrame(dict(rating).items(), columns=["model", "elo"])
     return df_elos.sort_values(by="elo", ascending=False)
 

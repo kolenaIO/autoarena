@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
 
-const BATTLES_ENDPOINT = `${BASE_API_URL}/battles`;
+const HEAD_TO_HEADS_ENDPOINT = `${BASE_API_URL}/head-to-heads`;
 
-export type Battle = {
-  id: number;
+export type HeadToHead = {
   prompt: string;
+  result_a_id: number;
   response_a: string;
+  result_b_id: number;
   response_b: string;
 };
 
@@ -15,12 +16,12 @@ type Params = {
   modelAId: number;
   modelBId: number;
 };
-export function useHeadToHeadBattles({ projectId, modelAId, modelBId }: Params) {
+export function useHeadToHeads({ projectId, modelAId, modelBId }: Params) {
   return useQuery({
-    queryKey: [BATTLES_ENDPOINT, modelAId, modelBId],
+    queryKey: [HEAD_TO_HEADS_ENDPOINT, modelAId, modelBId],
     queryFn: async () => {
       const body = { project_id: projectId, model_a_id: modelAId, model_b_id: modelBId };
-      const response = await fetch(BATTLES_ENDPOINT, {
+      const response = await fetch(HEAD_TO_HEADS_ENDPOINT, {
         method: 'PUT',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },
@@ -28,7 +29,7 @@ export function useHeadToHeadBattles({ projectId, modelAId, modelBId }: Params) 
       if (!response.ok) {
         return;
       }
-      const result: Battle[] = await response.json();
+      const result: HeadToHead[] = await response.json();
       return result;
     },
   });

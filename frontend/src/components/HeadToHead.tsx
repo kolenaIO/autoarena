@@ -44,7 +44,7 @@ export function HeadToHead() {
   function onRandomize(position: 'A' | 'B') {
     const randomIndex = Math.floor(Math.random() * (models?.length ?? 0));
     const randomId = models?.[randomIndex]?.id;
-    onChange(position, randomId);
+    onChange(position, randomId); // TODO: should ensure this doesn't conflict with the other model
   }
 
   return (

@@ -2,6 +2,7 @@ import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useHotkeys } from '@mantine/hooks';
+import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads } from '../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useSubmitHeadToHeadJudgement } from '../hooks/useSubmitHeadToHeadJudgement.ts';
@@ -14,6 +15,7 @@ type Props = {
 };
 export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
   const { projectId = -1 } = useUrlState();
+  const navigate = useNavigate();
   // TODO: loading state?
   const { data: battles, isLoading } = useHeadToHeads({ projectId, modelAId, modelBId });
   const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
@@ -52,7 +54,12 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
   ) : !isLoading && battleIndex > nBattles - 1 ? (
     <NonIdealState
       IconComponent={IconBalloon}
-      description={`Voted on all ${nBattles.toLocaleString()} head-to-head battles between selected models`}
+      description={
+        <Stack>
+          <Text>Judged all {nBattles.toLocaleString()} head-to-head battles between selected models</Text>
+          <Button onClick={() => navigate(`/project/${projectId}`)}>View Leaderboard</Button>
+        </Stack>
+      }
     />
   ) : !isLoading ? (
     <>

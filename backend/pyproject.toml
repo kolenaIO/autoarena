@@ -16,6 +16,7 @@ coolname = "^2.2.0"
 pyarrow = "^17.0.0"
 tqdm = "^4.66.5"
 python-multipart = "^0.0.9"
+openai = "^1.43.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

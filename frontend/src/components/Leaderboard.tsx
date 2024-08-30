@@ -60,8 +60,8 @@ export function Leaderboard() {
       ),
     [modelsSorted, filterValue, selectedRows]
   );
-  const globalLo = allModels[allModels.length - 1]?.q025 ?? 0;
-  const globalHi = allModels[0]?.q975 ?? 0;
+  const globalLo = Math.min(...allModels.map(({ elo, q025 }) => Math.min(elo, q025 ?? Infinity)));
+  const globalHi = Math.max(...allModels.map(({ elo, q975 }) => Math.max(elo, q975 ?? 0)));
 
   function getModelById(modelId: number) {
     return (models ?? []).find(({ id }) => id === modelId);

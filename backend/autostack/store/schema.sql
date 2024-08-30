@@ -55,3 +55,14 @@ CREATE TABLE IF NOT EXISTS battle (
     -- TODO: allow duplicate ratings from same judge (e.g. human)? Unique for now for convenience
     UNIQUE (result_a_id, result_b_id, judge_id)
 );
+
+CREATE SEQUENCE IF NOT EXISTS task_id START 1;
+CREATE TABLE IF NOT EXISTS task (
+    id INTEGER PRIMARY KEY DEFAULT nextval('task_id'),
+    project_id INTEGER NOT NULL,
+    task_type TEXT NOT NULL, -- e.g. 'fine-tune', 'auto-judge', 'recompute-confidence-intervals'
+    created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
+    progress DOUBLE PRECISION NOT NULL DEFAULT 0, -- on [0,1]
+    status TEXT NOT NULL DEFAULT 'Started', -- freeform
+    FOREIGN KEY (project_id) REFERENCES project (id)
+);

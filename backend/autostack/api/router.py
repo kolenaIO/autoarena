@@ -1,88 +1,42 @@
 import dataclasses
-from dataclasses import dataclass
-from datetime import datetime
 from io import BytesIO
-from typing import Annotated, Literal
+from typing import Annotated
 
 import pandas as pd
 import numpy as np
-from fastapi import APIRouter, UploadFile, Form
+from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 
+from autostack.api import api as API
 from autostack.elo import compute_elo_single
+from autostack.tasks import recompute_confidence_intervals, auto_judge
 from autostack.store.database import get_database_connection
-
-
-@dataclass(frozen=True)
-class Project:
-    id: int
-    name: str
-    created: datetime
-
-
-@dataclass(frozen=True)
-class CreateProjectRequest:
-    name: str
-
-
-@dataclass(frozen=True)
-class Model:
-    id: int
-    name: str
-    created: datetime
-    elo: float
-    q025: float | None
-    q975: float | None
-    votes: int
-
-
-@dataclass(frozen=True)
-class HeadToHeadsRequest:
-    project_id: int  # TODO: is this required given that models are scoped to projects?
-    model_a_id: int
-    model_b_id: int
-
-
-@dataclass(frozen=True)
-class HeadToHead:
-    prompt: str
-    result_a_id: int
-    response_a: str
-    result_b_id: int
-    response_b: str
-    # TODO: also add voting history from any judgements already made?
-
-
-@dataclass(frozen=True)
-class HeadToHeadJudgementRequest:
-    project_id: int
-    judge_name: str  # TODO: id..?
-    result_a_id: int
-    result_b_id: int
-    winner: Literal["A", "B", "-"]
 
 
 def router() -> APIRouter:
     r = APIRouter()
 
     @r.get("/projects")
-    def get_projects() -> list[Project]:
+    def get_projects() -> list[API.Project]:
         with get_database_connection() as conn:
             df_project = conn.execute("SELECT id, name, created FROM project").df()
-        return [Project(id=r.id, name=r.name, created=r.created) for r in df_project.itertuples()]
+        return [API.Project(id=r.id, name=r.name, created=r.created) for r in df_project.itertuples()]
 
     @r.put("/project")
-    def create_project(request: CreateProjectRequest) -> Project:
+    def create_project(request: API.CreateProjectRequest) -> API.Project:
         with get_database_connection() as conn:
             params = dict(name=request.name)
-            conn.execute("INSERT INTO project (name) VALUES ($name)", params)
             ((project_id, name, created),) = conn.execute(
-                "SELECT id, name, created FROM project WHERE name = $name",
+                """
+                INSERT INTO project (name)
+                VALUES ($name)
+                RETURNING id, name, created
+                """,
                 params,
             ).fetchall()
-        return Project(id=project_id, name=name, created=created)
+        return API.Project(id=project_id, name=name, created=created)
 
     @r.get("/models/{project_id}")
-    def get_models(project_id: int) -> list[Model]:
+    def get_models(project_id: int) -> list[API.Model]:
         with get_database_connection() as conn:
             df_model = conn.execute(
                 """
@@ -116,7 +70,7 @@ def router() -> APIRouter:
             ).df()
         df_model = df_model.replace({np.nan: None})
         return [
-            Model(
+            API.Model(
                 id=r.id,
                 name=r.name,
                 created=r.created,
@@ -133,7 +87,8 @@ def router() -> APIRouter:
         file: UploadFile,
         new_model_name: Annotated[str, Form()],
         project_id: Annotated[int, Form()],
-    ) -> str:
+        background_tasks: BackgroundTasks,
+    ) -> None:  # TODO: return new model?
         contents = await file.read()
         if file.content_type == "text/csv":
             df = pd.read_csv(BytesIO(contents))
@@ -147,23 +102,25 @@ def router() -> APIRouter:
 
         with get_database_connection() as conn:
             params = dict(project_id=project_id, model_name=new_model_name)
-            conn.execute("INSERT INTO model (project_id, name) VALUES ($project_id, $model_name)", params)
             ((new_model_id,),) = conn.execute(
-                "SELECT id FROM model WHERE project_id = $project_id AND name = $model_name",
+                """
+                INSERT INTO model (project_id, name)
+                VALUES ($project_id, $model_name)
+                RETURNING id
+                """,
                 params,
             ).fetchall()
             df["model_id"] = new_model_id
-            out = conn.execute("""
+            conn.execute("""
                 INSERT INTO result (model_id, prompt, response)
                 SELECT model_id, prompt, response
                 FROM df
             """)
 
-        print(out)
-        return "foobar"
+        background_tasks.add_task(auto_judge, project_id, new_model_id)
 
     @r.put("/head-to-heads")
-    def get_head_to_heads(request: HeadToHeadsRequest) -> list[HeadToHead]:
+    def get_head_to_heads(request: API.HeadToHeadsRequest) -> list[API.HeadToHead]:
         with get_database_connection() as conn:
             df_h2h = conn.execute(
                 """
@@ -182,7 +139,7 @@ def router() -> APIRouter:
             ).df()
 
         return [
-            HeadToHead(
+            API.HeadToHead(
                 prompt=r.prompt,
                 result_a_id=r.result_a_id,
                 response_a=r.response_a,
@@ -193,7 +150,9 @@ def router() -> APIRouter:
         ]
 
     @r.post("/head-to-head/judgement")
-    def submit_head_to_head_judgement(request: HeadToHeadJudgementRequest) -> None:
+    def submit_head_to_head_judgement(
+        request: API.HeadToHeadJudgementRequest, background_tasks: BackgroundTasks
+    ) -> None:
         with get_database_connection() as conn:
             # 1. create judge if necessary
             out = conn.execute(
@@ -244,6 +203,20 @@ def router() -> APIRouter:
             for model_id, elo in [(model_a.id, elo_a), (model_b.id, elo_b)]:
                 conn.execute("UPDATE model SET elo = $elo WHERE id = $model_id", dict(model_id=model_id, elo=elo))
 
-            # TODO: recompute confidence interval...?
+        # TODO: is this too expensive to run like this? probably
+        # 4. recompute confidence intervals in the background
+        background_tasks.add_task(recompute_confidence_intervals, request.project_id)
+
+    @r.get("/tasks/{project_id}")
+    def get_tasks(project_id: int) -> list[API.Task]:
+        with get_database_connection() as conn:
+            df_task = conn.execute(
+                "SELECT id, task_type, created, progress, status FROM task WHERE project_id = $project_id",
+                dict(project_id=project_id),
+            )
+        return [
+            API.Task(id=r.id, task_type=r.task_type, created=r.created, progress=r.progress, status=r.status)
+            for r in df_task.itertuples()
+        ]
 
     return r

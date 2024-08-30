@@ -213,7 +213,7 @@ def router() -> APIRouter:
             df_task = conn.execute(
                 "SELECT id, task_type, created, progress, status FROM task WHERE project_id = $project_id",
                 dict(project_id=project_id),
-            )
+            ).df()
         return [
             API.Task(id=r.id, task_type=r.task_type, created=r.created, progress=r.progress, status=r.status)
             for r in df_task.itertuples()

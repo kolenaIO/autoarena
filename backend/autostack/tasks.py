@@ -17,16 +17,17 @@ def _insert_task(project_id: int, task_type: TaskType) -> int:
     return task_id
 
 
-def _finish_task(task_id: int) -> None:
+def _finish_task(task_id: int, status: str = "Done") -> None:
     with get_database_connection() as conn:
-        conn.execute("UPDATE task SET progress = 1, status = 'Done' WHERE id = $id", dict(id=task_id))
+        params = dict(id=task_id, status=status)
+        conn.execute("UPDATE task SET progress = 1, status = $status WHERE id = $id", params)
 
 
 def recompute_confidence_intervals(project_id: int) -> None:
     task_id = _insert_task(project_id, "recompute-confidence-intervals")
     try:
-        # TODO: implement me, see elo.py
-        ...
+        with get_database_connection() as conn:
+            reseed_elo_scores(conn, project_id)
     finally:
         _finish_task(task_id)
 
@@ -100,5 +101,7 @@ def auto_judge(project_id: int, model_id: int) -> None:
             reseed_elo_scores(conn, project_id)
 
         print(f"done judging {project_id}, {model_id}")
+    except Exception as e:
+        _finish_task(task_id, f"Crashed ({e})")
     finally:
         _finish_task(task_id)

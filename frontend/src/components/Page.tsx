@@ -1,5 +1,5 @@
-import { Button, Flex, Group, Stack, Tabs, Text } from '@mantine/core';
-import { IconClick, IconColumns2, IconCpu, IconCrown, IconGavel } from '@tabler/icons-react';
+import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
+import { IconClick, IconColumns2, IconCrown, IconGavel } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { HeadToHead } from './HeadToHead.tsx';
@@ -9,6 +9,7 @@ import { Judges } from './Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 import { CreateNewProject } from './CreateNewProject.tsx';
+import { TasksDrawer } from './TasksDrawer.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';
 export const TAB_COMPARISON = 'Head-to-Head';
@@ -65,9 +66,7 @@ export function Page({ tab }: Props) {
           {TAB_JUDGES}
         </Tabs.Tab>
         <Flex align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
-          <Button variant="light" leftSection={<IconCpu {...iconProps} />}>
-            Jobs
-          </Button>
+          <TasksDrawer />
         </Flex>
       </Tabs.List>
 

@@ -72,7 +72,8 @@ export function Leaderboard() {
     if (modelA == null || modelB == null) {
       return;
     }
-    navigate(`/compare?${new URLSearchParams({ modelA: String(modelA.id), modelB: String(modelB.id) })}`);
+    const params = new URLSearchParams({ modelA: String(modelA.id), modelB: String(modelB.id) });
+    navigate(`/project/${projectId}/compare?${params}`);
   }
 
   return (
@@ -186,13 +187,15 @@ export function Leaderboard() {
                     globalHi={globalHi}
                   />
                 </Table.Td>
-                <Table.Td>{model.elo.toFixed(1)}</Table.Td>
+                <Table.Td>
+                  <Code>{model.elo.toFixed(1)}</Code>
+                </Table.Td>
                 <Table.Td>
                   <Code>
                     +{(model.q975 - model.elo).toFixed(0)} / -{(model.elo - model.q025).toFixed(0)}
                   </Code>
                 </Table.Td>
-                <Table.Td>{model.votes}</Table.Td>
+                <Table.Td>{model.votes.toLocaleString()}</Table.Td>
               </Table.Tr>
             ))}
           </Table.Tbody>

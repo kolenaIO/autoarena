@@ -7,6 +7,13 @@ from autostack.store.database import get_database_connection
 
 
 @dataclass(frozen=True)
+class Project:
+    id: int
+    name: str
+    created: datetime
+
+
+@dataclass(frozen=True)
 class Model:
     id: int
     name: str
@@ -34,6 +41,12 @@ class Battle:
 
 def router() -> APIRouter:
     r = APIRouter()
+
+    @r.get("/projects")
+    def get_projects() -> list[Project]:
+        with get_database_connection() as conn:
+            df_project = conn.execute("SELECT id, name, created FROM project").df()
+        return [Project(id=r.id, name=r.name, created=r.created) for r in df_project.itertuples()]
 
     @r.get("/models/{project_id}")
     def get_models(project_id: int) -> list[Model]:
@@ -89,9 +102,7 @@ def router() -> APIRouter:
                 SELECT
                     b.id AS battle_id,
                     ma.id AS model_a_id,
-                    ma.name AS model_a_name,
                     mb.id AS model_b_id,
-                    mb.name AS model_b_name,
                     ra.prompt AS prompt,
                     ra.response AS response_a,
                     rb.response AS response_b,
@@ -102,19 +113,16 @@ def router() -> APIRouter:
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
                 JOIN judge j ON b.judge_id = j.id
-                WHERE j.project_id = ?
-                AND ma.id IN (?, ?)
-                AND mb.id IN (?, ?)
+                WHERE j.project_id = $project_id
+                AND ma.id IN ($model_a_id, $model_b_id)
+                AND mb.id IN ($model_a_id, $model_b_id)
             """,
-                [request.project_id, request.model_a_id, request.model_b_id, request.model_a_id, request.model_b_id],
+                dict(project_id=request.project_id, model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             ).df()
 
-        for condition in [
-            df_battle["model_b_id"] == request.model_a_id,
-            df_battle["model_a_id"] == request.model_b_id,
-        ]:
-            cols = ["response_a", "response_b"]
-            df_battle.loc[condition, cols] = df_battle.loc[condition, cols[::-1]].values
+        condition = (df_battle["model_b_id"] == request.model_a_id) & (df_battle["model_a_id"] == request.model_b_id)
+        columns = ["response_a", "response_b"]
+        df_battle.loc[condition, columns] = df_battle.loc[condition, columns[::-1]].values
         return [
             Battle(id=r.battle_id, prompt=r.prompt, response_a=r.response_a, response_b=r.response_b)
             for r in df_battle.itertuples()

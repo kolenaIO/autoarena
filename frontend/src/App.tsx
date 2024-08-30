@@ -4,6 +4,7 @@ import { createTheme, MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD, TAB_STATISTICS } from './components/Page.tsx';
+import { PageNotFound } from './components/PageNotFound.tsx';
 
 const theme = createTheme({
   primaryColor: 'kolena',
@@ -31,9 +32,11 @@ const queryClient = new QueryClient({});
 
 const router = createBrowserRouter([
   { path: '/', element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: '/compare', element: <Page tab={TAB_COMPARISON} /> },
-  { path: '/statistics', element: <Page tab={TAB_STATISTICS} /> },
-  { path: '/judges', element: <Page tab={TAB_JUDGES} /> },
+  { path: '/project/:projectId', element: <Page tab={TAB_LEADERBOARD} /> },
+  { path: '/project/:projectId/compare', element: <Page tab={TAB_COMPARISON} /> },
+  { path: '/project/:projectId/statistics', element: <Page tab={TAB_STATISTICS} /> },
+  { path: '/project/:projectId/judges', element: <Page tab={TAB_JUDGES} /> },
+  { path: '*', element: <PageNotFound /> },
 ]);
 
 function App() {

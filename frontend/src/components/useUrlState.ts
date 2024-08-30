@@ -1,6 +1,13 @@
+import { useNavigate, useParams } from 'react-router-dom';
+
 export function useUrlState() {
-  // TODO: actually set this up, e.g. /<project_id>, /<project_id>/compare
-  return {
-    projectId: 1,
-  };
+  const { projectId: projectIdFromUrl } = useParams();
+  const navigate = useNavigate();
+
+  const projectId = projectIdFromUrl != null ? Number(projectIdFromUrl) : undefined;
+  function setProjectId(newProjectId: number | null) {
+    navigate(newProjectId != null ? `/project/${newProjectId}` : '/');
+  }
+
+  return { projectId, setProjectId };
 }

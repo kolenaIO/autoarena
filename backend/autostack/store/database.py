@@ -4,6 +4,8 @@ from pathlib import Path
 import duckdb
 import pandas as pd
 
+from autostack.elo import compute_elo, add_rank_and_confidence_intervals
+
 DATABASE_DIRECTORY = (Path(__file__).parent / ".." / ".." / ".data").resolve()
 DATABASE_FILE = DATABASE_DIRECTORY / "database.duckdb"
 SCHEMA_FILE = Path(__file__).parent / "schema.sql"
@@ -117,31 +119,20 @@ def setup_database(battles_parquet: str) -> None:
             ON CONFLICT (result_a_id, result_b_id, judge_id) DO NOTHING
         """)
 
-        conn.commit()
-
-
-def get_df_battle(project_id: int) -> pd.DataFrame:
-    with get_database_connection() as conn:
-        df_battle = conn.execute(
+        # 7. seed with elo scores
+        df_elo = compute_elo(df_battle)
+        df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
+        conn.execute(
             """
-            SELECT
-                b.id AS battle_id,
-                ma.id AS model_a_id,
-                ma.name AS model_a_name,
-                mb.id AS model_b_id,
-                mb.name AS model_b_name,
-                ra.prompt AS prompt,
-                ra.response AS response_a,
-                rb.response AS response_b,
-                b.winner
-            FROM battle b
-            JOIN result ra ON b.result_a_id = ra.id
-            JOIN result rb ON b.result_b_id = rb.id
-            JOIN model ma ON ra.model_id = ma.id
-            JOIN model mb ON rb.model_id = mb.id
-            JOIN judge j ON b.judge_id = j.id
-            WHERE j.project_id = ?
+            INSERT INTO model (project_id, name, elo, q025, q975)
+            SELECT ?, model, elo, q025, q975
+            FROM df_elo
+            ON CONFLICT (project_id, name) DO UPDATE SET
+                elo = EXCLUDED.elo,
+                q025 = EXCLUDED.q025,
+                q975 = EXCLUDED.q975;
         """,
             [project_id],
-        ).df()
-        return df_battle
+        )
+
+        conn.commit()

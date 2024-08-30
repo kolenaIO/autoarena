@@ -50,7 +50,8 @@ export function Leaderboard() {
 
   const availableJudges = ['All', ...JUDGES.filter(({ enabled }) => enabled).map(({ label }) => label)];
 
-  const modelsSorted = useMemo(() => (models ?? []).sort((a, b) => b.elo - a.elo), [models]);
+  const allModels = isLoading ? LOADING_MODELS : (models ?? []);
+  const modelsSorted = useMemo(() => allModels.sort((a, b) => b.elo - a.elo), [allModels]);
   const modelsFiltered = useMemo(
     () =>
       modelsSorted.filter(
@@ -58,9 +59,8 @@ export function Leaderboard() {
       ),
     [modelsSorted, filterValue, selectedRows]
   );
-  const displayModels = isLoading ? LOADING_MODELS : modelsFiltered;
-  const globalLo = displayModels[displayModels.length - 1]?.q025 ?? 0;
-  const globalHi = displayModels[0]?.q975 ?? 0;
+  const globalLo = allModels[allModels.length - 1]?.q025 ?? 0;
+  const globalHi = allModels[0]?.q975 ?? 0;
 
   function getModelById(modelId: number) {
     return (models ?? []).find(({ id }) => id === modelId);
@@ -150,7 +150,7 @@ export function Leaderboard() {
             </Table.Tr>
           </Table.Thead>
           <Table.Tbody>
-            {displayModels.map((model, i) => (
+            {modelsFiltered.map((model, i) => (
               <Table.Tr key={i} bg={selectedRows.includes(model.id) ? 'var(--mantine-color-kolena-light)' : undefined}>
                 <Table.Td>
                   <Checkbox

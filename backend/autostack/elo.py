@@ -1,23 +1,7 @@
-import functools
 from collections import defaultdict
-from dataclasses import dataclass
-from datetime import datetime
 
 import pandas as pd
 from tqdm import tqdm
-
-from autostack.store.database import get_df_battle
-
-
-@dataclass(frozen=True)
-class Model:
-    id: int
-    name: str
-    created: datetime
-    elo: float
-    q025: float
-    q975: float
-    votes: int
 
 
 # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
@@ -29,7 +13,7 @@ def compute_elo(
     init_rating: int = 1_000,
 ) -> pd.DataFrame:
     rating: dict[str, float] = defaultdict(lambda: init_rating)
-    for _, model_a, model_b, winner in df_battles[["model_a_name", "model_b_name", "winner"]].itertuples():
+    for _, model_a, model_b, winner in df_battles[["model_a", "model_b", "winner"]].itertuples():
         rating_a = rating[model_a]
         rating_b = rating[model_b]
         expected_a = 1 / (1 + base ** ((rating_b - rating_a) / scale))
@@ -52,7 +36,7 @@ def get_bootstrap_result(df_battles: pd.DataFrame, num_round: int = 1_000) -> pd
 
 def add_rank_and_confidence_intervals(df_elos: pd.DataFrame, df_battles: pd.DataFrame) -> pd.DataFrame:
     df_elos["rank"] = df_elos["elo"].rank(ascending=False).astype(int)
-    battle_counts = df_battles["model_a_name"].value_counts() + df_battles["model_b_name"].value_counts()
+    battle_counts = df_battles["model_a"].value_counts() + df_battles["model_b"].value_counts()
     df_elos = df_elos.merge(battle_counts, left_on="model", right_index=True)
     df_bootstrap = get_bootstrap_result(df_battles, num_round=100)  # TODO: should precompute this
     df_elos = df_elos.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
@@ -61,22 +45,3 @@ def add_rank_and_confidence_intervals(df_elos: pd.DataFrame, df_battles: pd.Data
     df_elos["elo"] = df_elos.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
     df_elos["ci95"] = df_elos["q975"] - df_elos["q025"]
     return df_elos
-
-
-@functools.lru_cache(maxsize=1)
-def compute_all_model_elos(project_id: int) -> list[Model]:
-    df_battle = get_df_battle(project_id)
-    df_elo = compute_elo(df_battle)
-    df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
-    return [
-        Model(
-            id=int(r.rank),  # TODO: shouldn't use rank as ID...
-            name=r.model,
-            created=datetime.utcnow(),  # r.created, TODO
-            elo=r.elo,
-            q025=r.q025,
-            q975=r.q975,
-            votes=r.count,
-        )
-        for r in df_elo.itertuples()
-    ]

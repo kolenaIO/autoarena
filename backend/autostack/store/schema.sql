@@ -22,7 +22,9 @@ CREATE TABLE IF NOT EXISTS model (
     project_id INTEGER NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     name TEXT NOT NULL,
-    elo DOUBLE NOT NULL DEFAULT 1000, -- TODO: should this default be set elsewhere?
+    elo DOUBLE PRECISION,
+    q025 DOUBLE PRECISION,
+    q975 DOUBLE PRECISION,
     FOREIGN KEY (project_id) REFERENCES project (id),
     UNIQUE (project_id, name)
 );

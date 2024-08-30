@@ -4,6 +4,7 @@ __pycache__/
 .ruff_cache/
 .data/
 dist/
+.DS_Store
 
 *.swp
 *.swo

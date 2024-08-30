@@ -6,7 +6,7 @@ from datetime import datetime
 import pandas as pd
 from tqdm import tqdm
 
-from autostack.database import get_df_battles
+from autostack.store.database import get_df_battle
 
 
 @dataclass(frozen=True)
@@ -26,10 +26,10 @@ def compute_elo(
     k: int = 4,
     scale: int = 400,
     base: int = 10,
-    init_rating: int = 1000,
+    init_rating: int = 1_000,
 ) -> pd.DataFrame:
     rating: dict[str, float] = defaultdict(lambda: init_rating)
-    for _, model_a, model_b, winner in df_battles[["model_a", "model_b", "winner"]].itertuples():
+    for _, model_a, model_b, winner in df_battles[["model_a_name", "model_b_name", "winner"]].itertuples():
         rating_a = rating[model_a]
         rating_b = rating[model_b]
         expected_a = 1 / (1 + base ** ((rating_b - rating_a) / scale))
@@ -41,7 +41,7 @@ def compute_elo(
     return df_elos.sort_values(by="elo", ascending=False)
 
 
-def get_bootstrap_result(df_battles: pd.DataFrame, num_round: int = 1000) -> pd.DataFrame:
+def get_bootstrap_result(df_battles: pd.DataFrame, num_round: int = 1_000) -> pd.DataFrame:
     rows = []
     for _ in tqdm(range(num_round), desc="bootstrap"):
         tmp_battles = df_battles.sample(frac=1.0, replace=True)
@@ -52,9 +52,9 @@ def get_bootstrap_result(df_battles: pd.DataFrame, num_round: int = 1000) -> pd.
 
 def add_rank_and_confidence_intervals(df_elos: pd.DataFrame, df_battles: pd.DataFrame) -> pd.DataFrame:
     df_elos["rank"] = df_elos["elo"].rank(ascending=False).astype(int)
-    battle_counts = df_battles["model_a"].value_counts() + df_battles["model_b"].value_counts()
+    battle_counts = df_battles["model_a_name"].value_counts() + df_battles["model_b_name"].value_counts()
     df_elos = df_elos.merge(battle_counts, left_on="model", right_index=True)
-    df_bootstrap = get_bootstrap_result(df_battles)
+    df_bootstrap = get_bootstrap_result(df_battles, num_round=100)  # TODO: should precompute this
     df_elos = df_elos.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
     df_elos = df_elos.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
     # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
@@ -64,17 +64,13 @@ def add_rank_and_confidence_intervals(df_elos: pd.DataFrame, df_battles: pd.Data
 
 
 @functools.lru_cache(maxsize=1)
-def compute_all_model_elos() -> list[Model]:
-    df_battles = get_df_battles()
-    df_battles["winner"] = df_battles.apply(
-        lambda r: "A" if r.winner_model_a > 0 else "B" if r.winner_model_b > 0 else "-",
-        axis=1,
-    )
-    df_elos = compute_elo(df_battles)
-    df_elos = add_rank_and_confidence_intervals(df_elos, df_battles)
+def compute_all_model_elos(project_id: int) -> list[Model]:
+    df_battle = get_df_battle(project_id)
+    df_elo = compute_elo(df_battle)
+    df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
     return [
         Model(
-            id=int(r.rank),
+            id=int(r.rank),  # TODO: shouldn't use rank as ID...
             name=r.model,
             created=datetime.utcnow(),  # r.created, TODO
             elo=r.elo,
@@ -82,5 +78,5 @@ def compute_all_model_elos() -> list[Model]:
             q975=r.q975,
             votes=r.count,
         )
-        for r in df_elos.itertuples()
+        for r in df_elo.itertuples()
     ]

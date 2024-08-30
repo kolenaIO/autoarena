@@ -5,12 +5,14 @@ import { IconClick } from '@tabler/icons-react';
 import { useModels } from './useModels.ts';
 import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
+import { useUrlState } from './useUrlState.ts';
 
 export function HeadToHead() {
+  const { projectId } = useUrlState();
   const [searchParams, setSearchParams] = useSearchParams();
   const urlModelAId = searchParams.get('modelA');
   const urlModelBId = searchParams.get('modelB');
-  const { data: models } = useModels();
+  const { data: models } = useModels(projectId);
   const allSelectModels = useMemo(
     () =>
       (models ?? []).map(({ id, name }) => ({

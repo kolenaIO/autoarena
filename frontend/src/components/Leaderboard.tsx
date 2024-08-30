@@ -5,6 +5,7 @@ import {
   Checkbox,
   Code,
   Group,
+  Loader,
   LoadingOverlay,
   Paper,
   Portal,
@@ -21,6 +22,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { Model, useModels } from './useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { JUDGES } from './Judges.tsx';
+import { NonIdealState } from './NonIdealState.tsx';
+import { useUrlState } from './useUrlState.ts';
 
 const LOADING_MODELS: Model[] = Array(16)
   .fill(null)
@@ -39,9 +42,10 @@ const LOADING_MODELS: Model[] = Array(16)
   .sort((a, b) => b.elo - a.elo);
 
 export function Leaderboard() {
+  const { projectId } = useUrlState();
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [filterValue, setFilterValue] = useState('');
-  const { data: models, isLoading } = useModels();
+  const { data: models, isLoading } = useModels(projectId);
   const navigate = useNavigate();
 
   const availableJudges = ['All', ...JUDGES.filter(({ enabled }) => enabled).map(({ label }) => label)];
@@ -82,7 +86,7 @@ export function Leaderboard() {
           flex={1}
           disabled={isLoading}
         />
-        <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} />
+        <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} />
       </Group>
       <Paper radius="md" pos="relative" withBorder w={1080}>
         <Table striped highlightOnHover horizontalSpacing="xs">
@@ -125,7 +129,14 @@ export function Leaderboard() {
               </Card>
             </Portal>
           )}
-          <LoadingOverlay visible={isLoading} zIndex={1000} overlayProps={{ radius: 'md', blur: 4 }} />
+          <LoadingOverlay
+            visible={isLoading}
+            zIndex={1000}
+            overlayProps={{ radius: 'md', blur: 4 }}
+            loaderProps={{
+              children: <NonIdealState icon={<Loader />} description="Crunching leaderboard rankings..." />,
+            }}
+          />
           <Table.Thead style={{ top: 56 /* TODO: parametrize, this is the header height */ }}>
             <Table.Tr>
               <Table.Th />

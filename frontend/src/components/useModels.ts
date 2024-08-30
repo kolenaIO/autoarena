@@ -13,11 +13,12 @@ export type Model = {
   votes: number;
 };
 
-export function useModels() {
+export function useModels(projectId: number) {
   return useQuery({
-    queryKey: [MODELS_ENDPOINT],
+    queryKey: [MODELS_ENDPOINT, projectId],
     queryFn: async () => {
-      const response = await fetch(MODELS_ENDPOINT);
+      const url = `${MODELS_ENDPOINT}/${projectId}`;
+      const response = await fetch(url);
       if (!response.ok) {
         return;
       }

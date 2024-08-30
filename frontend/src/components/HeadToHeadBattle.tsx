@@ -5,14 +5,16 @@ import { useHotkeys } from '@mantine/hooks';
 import { useHeadToHeadBattles } from './useHeadToHeadBattles.ts';
 import { MarkdownContent } from './MarkdownContent.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
+import { useUrlState } from './useUrlState.ts';
 
 type Props = {
   modelAId: number;
   modelBId: number;
 };
 export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
+  const { projectId } = useUrlState();
   // TODO: loading state?
-  const { data: battles, isLoading } = useHeadToHeadBattles({ modelAId, modelBId });
+  const { data: battles, isLoading } = useHeadToHeadBattles({ projectId, modelAId, modelBId });
   const [battleIndex, setBattleIndex] = useState(0);
   const battle = useMemo(() => battles?.[battleIndex], [battles, battleIndex]);
 

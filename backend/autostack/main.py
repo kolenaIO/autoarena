@@ -1,3 +1,4 @@
+import argparse
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
@@ -5,12 +6,17 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from autostack.api.router import router
-from autostack.database import setup_database
+from autostack.store.database import setup_database
+
+
+ap = argparse.ArgumentParser()
+ap.add_argument("battles_parquet", help="Path to parquet file containing battles to seed project")
+args = ap.parse_args()
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    setup_database()
+    setup_database(args.battles_parquet)
     yield
 
 

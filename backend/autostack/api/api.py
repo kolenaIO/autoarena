@@ -45,9 +45,8 @@ class HeadToHead:
 
 
 @dataclass(frozen=True)
-class HeadToHeadJudgementRequest:
+class HeadToHeadJudgementRequest:  # this is always coming from humans
     project_id: int
-    judge_name: str  # TODO: id..?
     result_a_id: int
     result_b_id: int
     winner: Literal["A", "B", "-"]
@@ -63,3 +62,16 @@ class Task:
     created: datetime
     progress: float  # on [0,1]
     status: str
+
+
+JudgeType = Literal["human", "ollama", "openai"]
+
+
+@dataclass(frozen=True)
+class Judge:
+    id: int
+    judge_type: JudgeType
+    created: datetime
+    name: str
+    description: str
+    enabled: bool

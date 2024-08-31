@@ -1,14 +1,17 @@
-import { Accordion, Button, Center, Checkbox, Group, PasswordInput, Pill, Stack, Text } from '@mantine/core';
+import { Accordion, Button, Center, Checkbox, Group, PasswordInput, Pill, Stack, Text, Title } from '@mantine/core';
 import { ReactNode, useState } from 'react';
 import {
   IconBrandGoogleFilled,
   IconBrandMeta,
   IconBrandOpenai,
+  IconDevices2,
   IconPlus,
   IconRobot,
   IconUsers,
 } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
+import { useUrlState } from '../hooks/useUrlState.ts';
+import { useJudges } from '../hooks/useJudges.ts';
 
 type Judge = {
   id: string;
@@ -23,12 +26,12 @@ type Judge = {
 const JUDGE_ICON_PROPS = { width: 20, height: 20, color: 'var(--mantine-color-gray-8)' };
 const HUMAN_JUDGE: Judge = {
   id: 'human-ratings',
-  label: 'Human Ratings',
-  description: "Manual ratings submitted via the 'Head-to-Head' tab",
+  label: 'Human',
+  description: "Manual ratings submitted via the 'Head-to-Head' tab. Always enabled.",
   icon: <IconUsers {...JUDGE_ICON_PROPS} />,
   enabled: true,
 };
-export const JUDGES: Judge[] = [
+const JUDGES: Judge[] = [
   HUMAN_JUDGE,
   {
     id: 'custom-vengeful-hare-20240826',
@@ -78,14 +81,31 @@ export const JUDGES: Judge[] = [
     icon: <IconBrandGoogleFilled {...JUDGE_ICON_PROPS} />,
     thirdParty: true,
   },
+  {
+    id: 'ollama-local',
+    label: 'Ollama (local)',
+    description: 'Any model runnable locally with Ollama',
+    icon: <IconDevices2 {...JUDGE_ICON_PROPS} />,
+  },
 ];
 
 export function Judges() {
+  const { projectId } = useUrlState();
+  const { data: judges } = useJudges(projectId);
   return (
     <Center p="lg">
       <Stack>
+        {JSON.stringify(judges)}
+        <Title order={4}>Enabled Judges</Title>
+        <Text>Enabled judge</Text>
         <Accordion variant="contained" w={1080}>
-          {JUDGES.map(judge => (
+          {[HUMAN_JUDGE].map(judge => (
+            <JudgeAccordionItem key={judge.id} judge={judge} />
+          ))}
+        </Accordion>
+
+        <Accordion variant="contained" w={1080}>
+          {JUDGES.slice(1, JUDGES.length).map(judge => (
             <JudgeAccordionItem key={judge.id} judge={judge} />
           ))}
         </Accordion>

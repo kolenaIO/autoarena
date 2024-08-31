@@ -6,8 +6,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from autostack.api.router import router
-from autostack.store.database import setup_database
-
+from autostack.store.seed import setup_database
 
 ap = argparse.ArgumentParser()
 ap.add_argument("battles_parquet", help="Path to parquet file containing battles to seed project")

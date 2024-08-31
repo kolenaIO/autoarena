@@ -9,9 +9,11 @@ CREATE SEQUENCE IF NOT EXISTS judge_id START 1;
 CREATE TABLE IF NOT EXISTS judge (
     id INTEGER PRIMARY KEY DEFAULT nextval('judge_id'),
     project_id INTEGER NOT NULL,
+    judge_type TEXT NOT NULL, -- e.g. 'human', 'ollama', 'openai'
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     name TEXT NOT NULL,
     description TEXT NOT NULL,
+    enabled BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (project_id) REFERENCES project (id),
     UNIQUE (project_id, name)
 );

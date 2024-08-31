@@ -12,15 +12,39 @@ from autostack.api import api as API
 class Judge(metaclass=ABCMeta):
     @property
     @abstractmethod
-    def name(self) -> str: ...
+    def judge_type(self) -> str:
+        """Enum type for this judge, e.g. 'human' or 'ollama'"""
 
     @property
     @abstractmethod
-    def description(self) -> str: ...
+    def name(self) -> str:
+        """Human-readable name for this judge, e.g. 'GPT-4o mini'"""
+
+    @property
+    @abstractmethod
+    def description(self) -> str:
+        """Freeform description for this judge, usually ending without a period"""
 
     @abstractmethod
     def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
         ...
+
+
+class HumanJudge(Judge):
+    @property
+    def judge_type(self) -> str:
+        return "human"
+
+    @property
+    def name(self) -> str:
+        return "Human"
+
+    @property
+    def description(self) -> str:
+        return "Manual ratings submitted via the 'Head-to-Head' tab"
+
+    def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
+        raise NotImplementedError
 
 
 BASIC_SYSTEM_PROMPT = """\
@@ -45,6 +69,10 @@ USER_PROMPT_TEMPLATE = """\
 class ABShufflingJudge(Judge):
     def __init__(self, judge: Judge):
         self.judge = judge
+
+    @property
+    def judge_type(self) -> str:
+        return self.judge.judge_type
 
     @property
     def name(self) -> str:
@@ -81,6 +109,10 @@ class OpenAIJudge(Judge):
         self.model = model
 
     @property
+    def judge_type(self) -> str:
+        return "openai"
+
+    @property
     def name(self) -> str:
         return self.model
 
@@ -111,6 +143,10 @@ class OpenAIJudge(Judge):
 class OllamaJudge(Judge):
     def __init__(self, model: str) -> None:
         self.model = model
+
+    @property
+    def judge_type(self) -> str:
+        return "ollama"
 
     @property
     def name(self) -> str:

@@ -21,6 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { Model, useModels } from '../hooks/useModels.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useJudges } from '../hooks/useJudges.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 import { AddModel } from './AddModel.tsx';
@@ -47,18 +48,21 @@ export function Leaderboard() {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading } = useModels(projectId);
+  const { data: judges } = useJudges(projectId);
   const navigate = useNavigate();
 
-  const availableJudges = ['All', 'Human', 'gpt-4o-mini']; // TODO: plug in
+  const availableJudges = useMemo(() => ['All', ...(judges ?? []).map(({ name }) => name)], [judges]);
 
   const allModels = isLoading ? LOADING_MODELS : (models ?? []);
   const modelsSorted = useMemo(() => allModels.sort((a, b) => b.elo - a.elo), [allModels]);
+  // TODO: should assign the same rank to models with equal scores
+  const modelsRanked = useMemo(() => modelsSorted.map((model, i) => ({ ...model, rank: i + 1 })), [modelsSorted]);
   const modelsFiltered = useMemo(
     () =>
-      modelsSorted.filter(
+      modelsRanked.filter(
         ({ id, name }) => selectedRows.includes(id) || name.toLowerCase().includes(filterValue.toLowerCase())
       ),
-    [modelsSorted, filterValue, selectedRows]
+    [modelsRanked, filterValue, selectedRows]
   );
   const globalLo = Math.min(...allModels.map(({ elo, q025 }) => Math.min(elo, q025 ?? Infinity)));
   const globalHi = Math.max(...allModels.map(({ elo, q975 }) => Math.max(elo, q975 ?? 0)));
@@ -185,10 +189,18 @@ export function Leaderboard() {
                       }}
                     />
                   </Table.Td>
-                  <Table.Td>{model.elo > 0 ? i + 1 : <Text c="dimmed">-</Text>}</Table.Td>
+                  <Table.Td>{model.elo > 0 ? model.rank : <Text c="dimmed">-</Text>}</Table.Td>
                   <Table.Td>
                     <Group align="center">
-                      <Text size="md">{model.name}</Text>
+                      {model.votes > 0 ? (
+                        <Text size="md">{model.name}</Text>
+                      ) : (
+                        <Tooltip openDelay={200} label="No votes yet">
+                          <Text size="md" c="dimmed" fs="italic">
+                            {model.name}
+                          </Text>
+                        </Tooltip>
+                      )}
                       {i === 0 && model.votes > 0 && (
                         <Tooltip openDelay={200} label="Champion">
                           <IconCrown size={18} color="var(--mantine-color-yellow-6)" />

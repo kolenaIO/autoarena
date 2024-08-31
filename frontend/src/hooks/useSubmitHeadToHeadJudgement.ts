@@ -10,7 +10,6 @@ function getSubmitHeadToHeadJudgementQueryKey(projectId: number) {
 
 type HeadToHeadJudgementRequest = {
   project_id: number;
-  judge_name: string;
   result_a_id: number;
   result_b_id: number;
   winner: 'A' | 'B' | '-';

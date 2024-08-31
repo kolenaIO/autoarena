@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
 
 const TASKS_ENDPOINT = `${BASE_API_URL}/tasks`;
@@ -15,7 +15,11 @@ export type Task = {
   status: string;
 };
 
-export function useTasks(projectId: number | undefined) {
+type Params = {
+  projectId: number | undefined;
+  options?: Partial<UseQueryOptions<Task[]>>;
+};
+export function useTasks({ projectId, options = {} }: Params) {
   return useQuery({
     queryKey: getTasksQueryKey(projectId ?? -1),
     queryFn: async () => {
@@ -28,6 +32,6 @@ export function useTasks(projectId: number | undefined) {
       return result;
     },
     enabled: projectId != null,
-    refetchInterval: 5_000,
+    ...options,
   });
 }

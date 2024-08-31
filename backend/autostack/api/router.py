@@ -1,13 +1,15 @@
 import dataclasses
 from io import BytesIO
+from random import randint
 from typing import Annotated
 
 import pandas as pd
-import numpy as np
 from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 
-from autostack.api import api as API
+from autostack.api import api
+from autostack.api.service import ProjectService, JudgeService, TaskService, ModelService
 from autostack.elo import compute_elo_single
+from autostack.judge import HumanJudge
 from autostack.tasks import recompute_confidence_intervals, auto_judge
 from autostack.store.database import get_database_connection
 
@@ -16,67 +18,16 @@ def router() -> APIRouter:
     r = APIRouter()
 
     @r.get("/projects")
-    def get_projects() -> list[API.Project]:
-        with get_database_connection() as conn:
-            df_project = conn.execute("SELECT id, name, created FROM project").df()
-        return [API.Project(id=r.id, name=r.name, created=r.created) for r in df_project.itertuples()]
+    def get_projects() -> list[api.Project]:
+        return ProjectService.get_all()
 
     @r.put("/project")
-    def create_project(request: API.CreateProjectRequest) -> API.Project:
-        with get_database_connection() as conn:
-            params = dict(name=request.name)
-            ((project_id, name, created),) = conn.execute(
-                """
-                INSERT INTO project (name)
-                VALUES ($name)
-                RETURNING id, name, created
-                """,
-                params,
-            ).fetchall()
-        return API.Project(id=project_id, name=name, created=created)
+    def create_project(request: api.CreateProjectRequest) -> api.Project:
+        return ProjectService.create_idempotent(request)
 
     @r.get("/models/{project_id}")
-    def get_models(project_id: int) -> list[API.Model]:
-        with get_database_connection() as conn:
-            df_model = conn.execute(
-                """
-                WITH datapoint_count AS (
-                    SELECT m.id AS model_id, COUNT(1) AS datapoint_count
-                    FROM model m
-                    JOIN result r ON m.id = r.model_id
-                    GROUP BY m.id
-                ), vote_count_a AS (
-                    SELECT m.id AS model_id, COUNT(1) AS vote_count
-                    FROM model m
-                    JOIN result r ON r.model_id = m.id
-                    JOIN battle b ON r.id = b.result_a_id
-                    GROUP BY m.id
-                ), vote_count_b AS (
-                    SELECT m.id AS model_id, COUNT(1) AS vote_count
-                    FROM model m
-                    JOIN result r ON r.model_id = m.id
-                    JOIN battle b ON r.id = b.result_b_id
-                    GROUP BY m.id
-                )
-                SELECT
-                    id,
-                    name,
-                    created,
-                    elo,
-                    q025,
-                    q975,
-                    IFNULL(dc.datapoint_count, 0) AS datapoints,
-                    IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
-                FROM model m
-                LEFT JOIN datapoint_count dc ON m.id = dc.model_id
-                LEFT JOIN vote_count_a vca ON m.id = vca.model_id
-                LEFT JOIN vote_count_b vcb ON m.id = vcb.model_id
-                WHERE project_id = ?
-            """,
-                [project_id],
-            ).df()
-        df_model = df_model.replace({np.nan: None})
-        return [API.Model(**r) for _, r in df_model.iterrows()]
+    def get_models(project_id: int) -> list[api.Model]:
+        return ModelService.get_all(project_id)
 
     @r.post("/model")
     async def upload_model_results(
@@ -84,7 +35,7 @@ def router() -> APIRouter:
         new_model_name: Annotated[str, Form()],
         project_id: Annotated[int, Form()],
         background_tasks: BackgroundTasks,
-    ) -> API.Model:
+    ) -> api.Model:
         contents = await file.read()
         if file.content_type == "text/csv":
             df = pd.read_csv(BytesIO(contents))
@@ -113,14 +64,14 @@ def router() -> APIRouter:
                 FROM df
             """)
 
-        models = get_models(project_id)
+        models = ModelService.get_all(project_id)
         new_model = [model for model in models if model.id == new_model_id][0]
         background_tasks.add_task(auto_judge, project_id, new_model_id, new_model.name)
         return new_model
 
     @r.put("/head-to-heads")
-    def get_head_to_heads(request: API.HeadToHeadsRequest) -> list[API.HeadToHead]:
-        with get_database_connection() as conn:
+    def get_head_to_heads(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
+        with get_database_connection(read_only=True) as conn:
             df_h2h = conn.execute(
                 """
                 SELECT
@@ -136,39 +87,16 @@ def router() -> APIRouter:
             """,
                 dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             ).df()
-
-        return [
-            API.HeadToHead(
-                prompt=r.prompt,
-                result_a_id=r.result_a_id,
-                response_a=r.response_a,
-                result_b_id=r.result_b_id,
-                response_b=r.response_b,
-            )
-            for r in df_h2h.itertuples()
-        ]
+        return [api.HeadToHead(**r) for _, r in df_h2h.iterrows()]
 
     @r.post("/head-to-head/judgement")
     def submit_head_to_head_judgement(
-        request: API.HeadToHeadJudgementRequest, background_tasks: BackgroundTasks
+        request: api.HeadToHeadJudgementRequest, background_tasks: BackgroundTasks
     ) -> None:
         with get_database_connection() as conn:
-            # 1. create judge if necessary
-            out = conn.execute(
-                """
-                SELECT 1
-                FROM judge j
-                WHERE j.project_id = $project_id
-                AND j.name = $judge_name;
-            """,
-                dict(project_id=request.project_id, judge_name=request.judge_name),
-            ).fetchall()
-            if len(out) == 0:
-                print(f"Adding judge '{request.judge_name}'...")
-                conn.execute(
-                    "INSERT INTO judge (project_id, name, description) VALUES ($project_id, $judge_name, '')",
-                    dict(project_id=request.project_id, judge_name=request.judge_name),
-                )
+            # 1. create human judge if necessary
+            human_judge = HumanJudge()
+            JudgeService.create_idempotent(request.project_id, human_judge)
 
             # 2. insert battle record
             conn.execute(
@@ -180,7 +108,7 @@ def router() -> APIRouter:
                 AND j.name = $judge_name
                 ON CONFLICT (result_a_id, result_b_id, judge_id) DO UPDATE SET winner = EXCLUDED.winner
             """,
-                dataclasses.asdict(request),
+                dict(**dataclasses.asdict(request), judge_name=human_judge.name),
             )
 
             # 3. adjust elo scores
@@ -202,20 +130,17 @@ def router() -> APIRouter:
             for model_id, elo in [(model_a.id, elo_a), (model_b.id, elo_b)]:
                 conn.execute("UPDATE model SET elo = $elo WHERE id = $model_id", dict(model_id=model_id, elo=elo))
 
-        # TODO: is this too expensive to run like this? probably
+        # TODO: this is a dirty hack but it's too expensive to run this on every vote
         # 4. recompute confidence intervals in the background
-        background_tasks.add_task(recompute_confidence_intervals, request.project_id)
+        if randint(0, 10) == 0:
+            background_tasks.add_task(recompute_confidence_intervals, request.project_id)
 
     @r.get("/tasks/{project_id}")
-    def get_tasks(project_id: int) -> list[API.Task]:
-        with get_database_connection() as conn:
-            df_task = conn.execute(
-                "SELECT id, task_type, created, progress, status FROM task WHERE project_id = $project_id",
-                dict(project_id=project_id),
-            ).df()
-        return [
-            API.Task(id=r.id, task_type=r.task_type, created=r.created, progress=r.progress, status=r.status)
-            for r in df_task.itertuples()
-        ]
+    def get_tasks(project_id: int) -> list[api.Task]:
+        return TaskService.get_all(project_id)
+
+    @r.get("/judges/{project_id}")
+    def get_judges(project_id: int) -> list[api.Judge]:
+        return JudgeService.get_all(project_id)
 
     return r

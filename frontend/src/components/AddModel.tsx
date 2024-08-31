@@ -1,9 +1,10 @@
-import { Button, Code, FileInput, Modal, TextInput, Text, Stack, Group, ButtonVariant } from '@mantine/core';
+import { Button, Code, FileInput, Modal, TextInput, Text, Stack, ButtonVariant } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 import { useUploadModelResults } from '../hooks/useUploadModelResults.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
 type Props = {
   variant?: ButtonVariant;
@@ -15,6 +16,13 @@ export function AddModel({ variant }: Props) {
 
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');
+
+  function handleSubmit() {
+    if (file != null) {
+      uploadModelResults([file, name]);
+    }
+    close();
+  }
 
   const isDisabled = file == null || name === '';
   return (
@@ -54,23 +62,7 @@ export function AddModel({ variant }: Props) {
             onChange={event => setName(event.currentTarget.value)}
             flex={1}
           />
-          <Group justify="space-between">
-            <Button variant="default" onClick={close} flex={1}>
-              Cancel
-            </Button>
-            <Button
-              onClick={() => {
-                if (file != null) {
-                  uploadModelResults([file, name]);
-                }
-                close();
-              }}
-              disabled={isDisabled}
-              flex={1}
-            >
-              Upload
-            </Button>
-          </Group>
+          <ConfirmOrCancelBar onCancel={close} onConfirm={isDisabled ? undefined : handleSubmit} action="Upload" />
         </Stack>
       </Modal>
     </>

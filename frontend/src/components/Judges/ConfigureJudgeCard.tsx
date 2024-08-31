@@ -5,12 +5,13 @@ import { judgeTypeIconComponent, judgeTypeToCoverImageUrl, judgeTypeToHumanReada
 type Props = {
   judgeType: Judge['judge_type'];
   description: string;
+  onClick?: () => void; // TODO: shouldn't be optional
 };
-export function ConfigureJudgeCard({ judgeType, description }: Props) {
+export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {
   const IconComponent = judgeTypeIconComponent(judgeType);
   const imageUrl = judgeTypeToCoverImageUrl(judgeType);
   return (
-    <UnstyledButton onClick={() => console.log('configure me!')}>
+    <UnstyledButton onClick={onClick}>
       <Card withBorder h="100%">
         {imageUrl != null && (
           <Card.Section>

@@ -1,6 +1,8 @@
-from dataclasses import dataclass
 from datetime import datetime
+from enum import Enum
 from typing import Literal
+
+from pydantic.dataclasses import dataclass
 
 
 @dataclass(frozen=True)
@@ -64,7 +66,14 @@ class Task:
     status: str
 
 
-JudgeType = Literal["human", "ollama", "openai"]
+class JudgeType(str, Enum):
+    HUMAN = "human"
+    OLLAMA = "ollama"
+    OPENAI = "openai"
+    ANTHROPIC = "anthropic"
+    COHERE = "cohere"
+    GEMINI = "gemini"
+    CUSTOM = "custom"
 
 
 @dataclass(frozen=True)
@@ -75,6 +84,14 @@ class Judge:
     name: str
     description: str
     enabled: bool
+
+
+@dataclass(frozen=True)
+class CreateJudgeRequest:
+    project_id: int
+    judge_type: JudgeType
+    name: str
+    description: str
 
 
 @dataclass(frozen=True)

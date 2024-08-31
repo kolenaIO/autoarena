@@ -1,15 +1,31 @@
-import { Accordion, Center, Checkbox, Divider, Group, Pill, SimpleGrid, Stack, Text, Title } from '@mantine/core';
+import {
+  Accordion,
+  Button,
+  Center,
+  Checkbox,
+  Divider,
+  Group,
+  Pill,
+  SimpleGrid,
+  Stack,
+  Text,
+  Title,
+} from '@mantine/core';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { Judge, useJudges } from '../../hooks/useJudges.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
+import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
+import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
 
 export function Judges() {
   const { projectId } = useUrlState();
   const { data: judges } = useJudges(projectId);
+  const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);
   return (
     <Center p="lg">
       <Stack>
@@ -24,7 +40,11 @@ export function Judges() {
 
         <Title order={5}>Configure New Judge</Title>
         <SimpleGrid cols={3} w={1080}>
-          <ConfigureJudgeCard judgeType="ollama" description="Configure any local Ollama model as a judge" />
+          <ConfigureJudgeCard
+            judgeType="ollama"
+            description="Configure any local Ollama model as a judge"
+            onClick={toggleOllama}
+          />
           <ConfigureJudgeCard
             judgeType="openai"
             description="Configure an OpenAI model like GPT-4o or GPT-4o mini as a judge"
@@ -40,6 +60,8 @@ export function Judges() {
             description="Configure Command R or Command R+ from Cohere as a judge"
           />
         </SimpleGrid>
+
+        <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
       </Stack>
     </Center>
   );
@@ -49,6 +71,7 @@ export function JudgeAccordionItem({ judge: { id, judge_type, name, description,
   const { projectId = -1 } = useUrlState();
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectId });
+  const { mutate: deleteJudge } = useDeleteJudge({ projectId });
 
   function handleToggleEnabled() {
     updateJudge({ project_id: projectId, judge_id: id, enabled: !enabled });
@@ -80,7 +103,12 @@ export function JudgeAccordionItem({ judge: { id, judge_type, name, description,
       <Accordion.Panel>
         <Stack pl="xl">
           {judge_type !== 'human' ? (
-            <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
+            <Group justify="space-between">
+              <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
+              <Button color="red" variant="light" onClick={() => deleteJudge(id)}>
+                Delete
+              </Button>
+            </Group>
           ) : (
             <Text>
               Visit the{' '}

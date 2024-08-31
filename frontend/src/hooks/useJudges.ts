@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
+import { JudgeType } from '../components/Judges/types.ts';
 
 const JUDGES_ENDPOINT = `${BASE_API_URL}/judges`;
 
@@ -9,7 +10,7 @@ export function getJudgesQueryKey(projectId: number) {
 
 export type Judge = {
   id: number;
-  judge_type: 'human' | 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'cohere' | 'custom';
+  judge_type: JudgeType;
   created: string;
   name: string;
   description: string;

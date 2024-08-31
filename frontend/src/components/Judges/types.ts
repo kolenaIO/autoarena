@@ -7,9 +7,10 @@ import {
   IconRobot,
   IconUsers,
 } from '@tabler/icons-react';
-import { Judge } from '../../hooks/useJudges.ts';
 
-export function judgeTypeIconComponent(judgeType: Judge['judge_type']) {
+export type JudgeType = 'human' | 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'cohere' | 'custom';
+
+export function judgeTypeIconComponent(judgeType: JudgeType) {
   switch (judgeType) {
     case 'human':
       return IconUsers;
@@ -29,7 +30,7 @@ export function judgeTypeIconComponent(judgeType: Judge['judge_type']) {
   }
 }
 
-export function judgeTypeToCoverImageUrl(judgeType: Judge['judge_type']) {
+export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
   switch (judgeType) {
     case 'ollama':
       return '/assets/ollama.jpg';
@@ -49,7 +50,7 @@ export function judgeTypeToCoverImageUrl(judgeType: Judge['judge_type']) {
   }
 }
 
-export function judgeTypeToHumanReadableName(judgeType: Judge['judge_type']) {
+export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
   switch (judgeType) {
     case 'ollama':
       return 'Ollama';

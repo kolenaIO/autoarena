@@ -6,13 +6,14 @@ import ollama
 from openai import OpenAI
 from tqdm import tqdm
 
-from autostack.api import api as API
+from autostack.api import api
+from autostack.api.api import JudgeType
 
 
 class Judge(metaclass=ABCMeta):
     @property
     @abstractmethod
-    def judge_type(self) -> str:
+    def judge_type(self) -> JudgeType:
         """Enum type for this judge, e.g. 'human' or 'ollama'"""
 
     @property
@@ -26,14 +27,14 @@ class Judge(metaclass=ABCMeta):
         """Freeform description for this judge, usually ending without a period"""
 
     @abstractmethod
-    def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
         ...
 
 
 class HumanJudge(Judge):
     @property
-    def judge_type(self) -> str:
-        return "human"
+    def judge_type(self) -> JudgeType:
+        return JudgeType.HUMAN
 
     @property
     def name(self) -> str:
@@ -43,7 +44,7 @@ class HumanJudge(Judge):
     def description(self) -> str:
         return "Manual ratings submitted via the 'Head-to-Head' tab"
 
-    def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
         raise NotImplementedError
 
 
@@ -71,7 +72,7 @@ class ABShufflingJudge(Judge):
         self.judge = judge
 
     @property
-    def judge_type(self) -> str:
+    def judge_type(self) -> JudgeType:
         return self.judge.judge_type
 
     @property
@@ -82,15 +83,15 @@ class ABShufflingJudge(Judge):
     def description(self) -> str:
         return self.judge.description
 
-    def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         shuffles = np.random.randint(2, size=len(batch)) < 1
         shuffled_batch = [h2h if shuffle else self._shuffle_h2h(h2h) for h2h, shuffle in zip(batch, shuffles)]
         winners = self.judge.judge_batch(shuffled_batch)
         return [winner if shuffle else self._shuffle_winner(winner) for winner, shuffle in zip(winners, shuffles)]
 
     @staticmethod
-    def _shuffle_h2h(h2h: API.HeadToHead) -> API.HeadToHead:
-        return API.HeadToHead(
+    def _shuffle_h2h(h2h: api.HeadToHead) -> api.HeadToHead:
+        return api.HeadToHead(
             prompt=h2h.prompt,
             result_a_id=h2h.result_b_id,
             response_a=h2h.response_b,
@@ -109,8 +110,8 @@ class OpenAIJudge(Judge):
         self.model = model
 
     @property
-    def judge_type(self) -> str:
-        return "openai"
+    def judge_type(self) -> JudgeType:
+        return JudgeType.OPENAI
 
     @property
     def name(self) -> str:
@@ -120,11 +121,11 @@ class OpenAIJudge(Judge):
     def description(self) -> str:
         return f"OpenAI judge model '{self.model}'"
 
-    def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         name = f"{self.__class__.__name__}({self.model})"
         return [self._judge_one(h2h) for h2h in tqdm(batch, desc=name)]
 
-    def _judge_one(self, h2h: API.HeadToHead) -> str:
+    def _judge_one(self, h2h: api.HeadToHead) -> str:
         user_prompt = USER_PROMPT_TEMPLATE.format(
             prompt=h2h.prompt,
             response_a=h2h.response_a,
@@ -145,8 +146,8 @@ class OllamaJudge(Judge):
         self.model = model
 
     @property
-    def judge_type(self) -> str:
-        return "ollama"
+    def judge_type(self) -> JudgeType:
+        return JudgeType.OLLAMA
 
     @property
     def name(self) -> str:
@@ -156,11 +157,11 @@ class OllamaJudge(Judge):
     def description(self) -> str:
         return f"Ollama model '{self.model}'"
 
-    def judge_batch(self, batch: list[API.HeadToHead]) -> list[str]:
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         name = f"{self.__class__.__name__}({self.model})"
         return [self._judge_one(h2h) for h2h in tqdm(batch, desc=name)]
 
-    def _judge_one(self, h2h: API.HeadToHead) -> str:
+    def _judge_one(self, h2h: api.HeadToHead) -> str:
         user_prompt = USER_PROMPT_TEMPLATE.format(
             prompt=h2h.prompt,
             response_a=h2h.response_a,
@@ -174,6 +175,16 @@ class OllamaJudge(Judge):
             ],
         )
         return response["message"]["content"]
+
+
+def judge_factory(judge: api.Judge) -> Judge:
+    if judge.judge_type is JudgeType.HUMAN:
+        return HumanJudge()
+    if judge.judge_type is JudgeType.OLLAMA:
+        return OllamaJudge(judge.name)  # TODO: should this be stored elsewhere?
+    if judge.judge_type is JudgeType.OPENAI:
+        return OpenAIJudge(judge.name)  # type: ignore
+    raise ValueError(f"unable to instantiate judge: {judge}")
 
 
 # TODO: remove this little script, convenience for running prompts

@@ -143,8 +143,16 @@ def router() -> APIRouter:
     def get_judges(project_id: int) -> list[api.Judge]:
         return JudgeService.get_all(project_id)
 
+    @r.post("/judge")
+    def create_judge(request: api.CreateJudgeRequest) -> api.Judge:
+        return JudgeService.create(request)
+
     @r.put("/judge")
     def update_judge(request: api.UpdateJudgeRequest) -> api.Judge:
         return JudgeService.update(request)
+
+    @r.delete("/judge/{judge_id}")
+    def delete_judge(judge_id: int) -> None:
+        return JudgeService.delete(judge_id)
 
     return r

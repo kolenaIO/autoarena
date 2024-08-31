@@ -1,8 +1,9 @@
 import numpy as np
 
 from autostack.api import api as API
+from autostack.api.api import JudgeType
 from autostack.api.service import TaskService, JudgeService
-from autostack.judge import ABShufflingJudge, OllamaJudge
+from autostack.judge import ABShufflingJudge, judge_factory
 from autostack.store.database import get_database_connection
 from autostack.store.seed import reseed_elo_scores
 
@@ -42,11 +43,18 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
         status = f"Found {len(df_h2h)} battles with {len(set(df_h2h["model_b_id"]))} models to judge"
         TaskService.update(task_id, status=status, progress=0)
 
-        # TODO: actually implement judge selection logic
+        # TODO: implement multi-judge?
         # 2. get judge(s) configured for judging
-        base_judge = OllamaJudge("gemma2:9b")  # OpenAIJudge("gpt-4o-mini")
-        judge = ABShufflingJudge(base_judge)
-        judge_id = JudgeService.create_idempotent(project_id, judge).id
+        all_judges = JudgeService.get_all(project_id)
+        enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
+        if len(enabled_auto_judges) == 0:
+            raise RuntimeError("no auto-judges configured")
+        if len(enabled_auto_judges) > 1:
+            status = f"Ignoring {len(enabled_auto_judges) - 1} judges in favor of first"
+            TaskService.update(task_id, status=status, progress=0)
+        base_judge = enabled_auto_judges[0]
+        judge = ABShufflingJudge(judge_factory(base_judge))
+        judge_id = base_judge.id
         TaskService.update(task_id, status=f"Using judge '{judge.name}'", progress=0)
 
         # 3. stream judgement requests

@@ -37,7 +37,7 @@ const LOADING_MODELS: Model[] = Array(16)
       elo,
       q025: elo - Math.random() * 50,
       q975: elo + Math.random() * 50,
-      datapoints: 500 + Math.random * 1000,
+      datapoints: 500 + Math.random() * 1000,
       votes: Math.floor(elo),
     };
   })

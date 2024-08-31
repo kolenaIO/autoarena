@@ -75,3 +75,10 @@ class Judge:
     name: str
     description: str
     enabled: bool
+
+
+@dataclass(frozen=True)
+class UpdateJudgeRequest:
+    project_id: int
+    judge_id: int
+    enabled: bool

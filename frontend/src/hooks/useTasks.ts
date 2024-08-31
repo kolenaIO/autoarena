@@ -26,7 +26,7 @@ export function useTasks({ projectId, options = {} }: Params) {
       const url = `${TASKS_ENDPOINT}/${projectId}`;
       const response = await fetch(url);
       if (!response.ok) {
-        return;
+        return [];
       }
       const result: Task[] = await response.json();
       return result;

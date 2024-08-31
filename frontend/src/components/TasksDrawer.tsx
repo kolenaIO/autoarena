@@ -100,7 +100,7 @@ function TaskAccordionItem({ task }: { task: Task }) {
       <Accordion.Panel>
         <Stack>
           <Progress value={task.progress * 100} striped={task.progress < 1} animated={task.progress < 1} />
-          <Code block size="xs">
+          <Code block fs="xs">
             {task.status}
           </Code>
         </Stack>

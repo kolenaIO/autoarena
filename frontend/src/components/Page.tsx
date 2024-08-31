@@ -5,7 +5,7 @@ import { useUrlState } from '../hooks/useUrlState.ts';
 import { HeadToHead } from './HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard.tsx';
 import { KolenaLogo } from './KolenaLogo.tsx';
-import { Judges } from './Judges.tsx';
+import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 import { CreateNewProject } from './CreateNewProject.tsx';

@@ -25,9 +25,11 @@ export function useCreateProject({
       const result: Project = await response.json();
       return result;
     },
-    onSettled: project => {
+    onSuccess: (project: Project) => {
+      navigate(`/project/${project.id}`);
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
-      navigate(`/project/${project?.id}`);
     },
     ...options,
   });

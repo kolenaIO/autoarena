@@ -52,6 +52,15 @@ class JudgeService:
         # TODO: this is a little lazy but ¯\_(ツ)_/¯
         return [j for j in JudgeService.get_all(project_id) if j.name == judge.name][0]
 
+    @staticmethod
+    def update(request: api.UpdateJudgeRequest) -> api.Judge:
+        with get_database_connection() as conn:
+            conn.execute(
+                "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",
+                dict(judge_id=request.judge_id, enabled=request.enabled),
+            )
+        return [j for j in JudgeService.get_all(request.project_id) if j.name == request.judge_id][0]
+
 
 class TaskService:
     @staticmethod
@@ -80,7 +89,7 @@ class TaskService:
     def update(task_id: int, status: str, progress: float) -> None:
         with get_database_connection() as conn:
             conn.execute(
-                "UPDATE task set progress = $progress, status = status || '\n' || $status WHERE id = $id",
+                "UPDATE task SET progress = $progress, status = status || '\n' || $status WHERE id = $id",
                 dict(id=task_id, status=f"{TaskService._time_slug()} {status}", progress=progress),
             )
 

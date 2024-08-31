@@ -143,4 +143,8 @@ def router() -> APIRouter:
     def get_judges(project_id: int) -> list[api.Judge]:
         return JudgeService.get_all(project_id)
 
+    @r.put("/judge")
+    def update_judge(request: api.UpdateJudgeRequest) -> api.Judge:
+        return JudgeService.update(request)
+
     return r

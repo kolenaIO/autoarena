@@ -9,9 +9,11 @@ export function getJudgesQueryKey(projectId: number) {
 
 export type Judge = {
   id: number;
+  judge_type: 'human' | 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'cohere' | 'custom';
   created: string;
   name: string;
   description: string;
+  enabled: boolean;
 };
 
 export function useJudges(projectId: number | undefined) {

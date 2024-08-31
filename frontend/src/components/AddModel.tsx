@@ -1,11 +1,14 @@
-import { Button, Code, FileInput, Modal, TextInput, Text, Stack, Group } from '@mantine/core';
+import { Button, Code, FileInput, Modal, TextInput, Text, Stack, Group, ButtonVariant } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
 import { useUploadModelResults } from '../hooks/useUploadModelResults.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 
-export function AddModel() {
+type Props = {
+  variant?: ButtonVariant;
+};
+export function AddModel({ variant }: Props) {
   const { projectId = -1 } = useUrlState(); // TODO: handle unset state?
   const [isOpen, { toggle, close }] = useDisclosure(false);
   const { mutate: uploadModelResults } = useUploadModelResults({ projectId });
@@ -16,7 +19,7 @@ export function AddModel() {
   const isDisabled = file == null || name === '';
   return (
     <>
-      <Button variant="light" leftSection={<IconPlus size={18} />} onClick={toggle}>
+      <Button variant={variant} leftSection={<IconPlus size={18} />} onClick={toggle}>
         Add Model
       </Button>
       <Modal
@@ -37,7 +40,12 @@ export function AddModel() {
             placeholder="Select model results file..."
             accept="text/csv"
             value={file}
-            onChange={setFile}
+            onChange={f => {
+              if (f != null && name == '') {
+                setName(f.name.slice(0, -4));
+              }
+              setFile(f);
+            }}
           />
           <TextInput
             label="Model Name"

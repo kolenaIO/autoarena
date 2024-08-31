@@ -1,6 +1,8 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { BASE_API_URL } from '../components/paths.ts';
 import { getModelsQueryKey, Model } from './useModels.ts';
+import { getTasksQueryKey } from './useTasks.ts';
 
 const UPLOAD_MODEL_RESULTS_ENDPOINT = `${BASE_API_URL}/model`;
 
@@ -25,8 +27,16 @@ export function useUploadModelResults({ projectId, options }: Params) {
       const result: Model = await response.json();
       return result;
     },
+    onSuccess: model => {
+      notifications.show({
+        title: 'Added model',
+        message: `Created model '${model.name}' with ${model.datapoints.toLocaleString()} datapoints.`,
+        color: 'green.6',
+      });
+    },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectId) });
+      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectId) });
     },
     ...options,
   });

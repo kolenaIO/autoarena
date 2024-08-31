@@ -24,6 +24,7 @@
     "@mantine/core": "^7.11.2",
     "@mantine/form": "^7.12.0",
     "@mantine/hooks": "^7.11.2",
+    "@mantine/notifications": "^7.12.2",
     "@tabler/icons-react": "^3.11.0",
     "@tanstack/react-query": "^5.51.16",
     "@types/uuid": "^10.0.0",

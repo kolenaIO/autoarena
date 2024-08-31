@@ -14,6 +14,7 @@ export type Model = {
   elo: number;
   q025?: number; // these are only set once models have been rated
   q975?: number;
+  datapoints: number;
   votes: number;
 };
 

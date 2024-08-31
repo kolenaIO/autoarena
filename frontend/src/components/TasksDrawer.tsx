@@ -1,41 +1,64 @@
-import { Accordion, Button, Drawer, Stack, Text } from '@mantine/core';
+import { Accordion, Button, Code, Collapse, Drawer, Progress, Stack, Text } from '@mantine/core';
 import { IconBooks, IconCalculator, IconCpu, IconGavel } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
 import { useMemo } from 'react';
 import { Task, useTasks } from '../hooks/useTasks.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { pluralize } from '../lib/string.ts';
 
 export function TasksDrawer() {
   const { projectId } = useUrlState();
-  const [isOpen, { toggle, close }] = useDisclosure(false);
+  const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+  const [isCompletedTasksOpen, { toggle: toggleCompletedTasks }] = useDisclosure(false);
   const { data: tasks } = useTasks(projectId);
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
+  const tasksInProgress = useMemo(() => tasksSorted.filter(({ progress }) => progress < 1), [tasksSorted]);
+  const tasksCompleted = useMemo(() => tasksSorted.filter(({ progress }) => progress >= 1), [tasksSorted]);
   return (
     <>
       <Button
         variant="light"
-        onClick={toggle}
+        onClick={toggleDrawer}
         leftSection={<IconCpu width={20} height={20} color="var(--mantine-color-kolena-8)" />}
       >
         Tasks
       </Button>
       <Drawer
-        opened={isOpen}
-        onClose={close}
+        opened={isDrawerOpen}
+        onClose={closeDrawer}
         position="right"
+        size="lg"
         transitionProps={{ duration: 200 }}
         title={
           <Text fs="italic" c="dimmed" size="sm">
-            Showing {tasksSorted.length.toLocaleString()} task{tasksSorted.length > 1 && 's'}
+            {tasksInProgress.length > 0
+              ? `Showing ${pluralize(tasksInProgress.length, 'in-progress task')}`
+              : 'No in-progress tasks'}
           </Text>
         }
       >
-        <Accordion>
-          {(tasks ?? []).map((task, i) => (
-            <TaskAccordionItem key={i} task={task} />
-          ))}
-        </Accordion>
+        <Stack>
+          <Accordion>
+            {tasksInProgress.map((task, i) => (
+              <TaskAccordionItem key={i} task={task} />
+            ))}
+          </Accordion>
+          {tasksCompleted.length > 0 && (
+            <>
+              <Button variant="light" color="gray" onClick={toggleCompletedTasks}>
+                {isCompletedTasksOpen ? 'Hide' : 'Show'} {pluralize(tasksCompleted.length, 'completed task')}
+              </Button>
+              <Collapse in={isCompletedTasksOpen}>
+                <Accordion>
+                  {tasksCompleted.map((task, i) => (
+                    <TaskAccordionItem key={i} task={task} />
+                  ))}
+                </Accordion>
+              </Collapse>
+            </>
+          )}
+        </Stack>
       </Drawer>
     </>
   );
@@ -55,9 +78,15 @@ function TaskAccordionItem({ task }: { task: Task }) {
       : task.task_type === 'auto-judge'
         ? 'Automated Head-to-Head Judging'
         : 'Custom Judge Fine-Tuning';
+  const iconColor =
+    task.task_type === 'recompute-confidence-intervals'
+      ? 'var(--mantine-color-blue-6)'
+      : task.task_type === 'auto-judge'
+        ? 'var(--mantine-color-orange-6)'
+        : 'var(--mantine-color-green-6)';
   return (
     <Accordion.Item value={slug}>
-      <Accordion.Control icon={<IconComponent size={24} color="var(--mantine-color-gray-8)" />}>
+      <Accordion.Control icon={<IconComponent size={24} color={iconColor} />}>
         <Stack gap={0}>
           <Text>{taskTitle}</Text>
           <Text size="xs" c="dimmed">
@@ -65,7 +94,14 @@ function TaskAccordionItem({ task }: { task: Task }) {
           </Text>
         </Stack>
       </Accordion.Control>
-      <Accordion.Panel>{task.status}</Accordion.Panel>
+      <Accordion.Panel>
+        <Stack>
+          <Progress value={task.progress * 100} striped={task.progress < 1} animated={task.progress < 1} />
+          <Code block size="xs">
+            {task.status}
+          </Code>
+        </Stack>
+      </Accordion.Panel>
     </Accordion.Item>
   );
 }

@@ -28,5 +28,6 @@ export function useTasks(projectId: number | undefined) {
       return result;
     },
     enabled: projectId != null,
+    refetchInterval: 5_000,
   });
 }

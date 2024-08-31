@@ -40,7 +40,12 @@ def router() -> APIRouter:
         with get_database_connection() as conn:
             df_model = conn.execute(
                 """
-                WITH vote_count_a AS (
+                WITH datapoint_count AS (
+                    SELECT m.id AS model_id, COUNT(1) AS datapoint_count
+                    FROM model m
+                    JOIN result r ON m.id = r.model_id
+                    GROUP BY m.id
+                ), vote_count_a AS (
                     SELECT m.id AS model_id, COUNT(1) AS vote_count
                     FROM model m
                     JOIN result r ON r.model_id = m.id
@@ -60,8 +65,10 @@ def router() -> APIRouter:
                     elo,
                     q025,
                     q975,
-                    IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS count
+                    IFNULL(dc.datapoint_count, 0) AS datapoints,
+                    IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
                 FROM model m
+                LEFT JOIN datapoint_count dc ON m.id = dc.model_id
                 LEFT JOIN vote_count_a vca ON m.id = vca.model_id
                 LEFT JOIN vote_count_b vcb ON m.id = vcb.model_id
                 WHERE project_id = ?
@@ -69,18 +76,7 @@ def router() -> APIRouter:
                 [project_id],
             ).df()
         df_model = df_model.replace({np.nan: None})
-        return [
-            API.Model(
-                id=r.id,
-                name=r.name,
-                created=r.created,
-                elo=r.elo,
-                q025=r.q025,
-                q975=r.q975,
-                votes=r.count,
-            )
-            for r in df_model.itertuples()
-        ]
+        return [API.Model(**r) for _, r in df_model.iterrows()]
 
     @r.post("/model")
     async def upload_model_results(
@@ -88,7 +84,7 @@ def router() -> APIRouter:
         new_model_name: Annotated[str, Form()],
         project_id: Annotated[int, Form()],
         background_tasks: BackgroundTasks,
-    ) -> None:  # TODO: return new model?
+    ) -> API.Model:
         contents = await file.read()
         if file.content_type == "text/csv":
             df = pd.read_csv(BytesIO(contents))
@@ -117,7 +113,10 @@ def router() -> APIRouter:
                 FROM df
             """)
 
-        background_tasks.add_task(auto_judge, project_id, new_model_id)
+        models = get_models(project_id)
+        new_model = [model for model in models if model.id == new_model_id][0]
+        background_tasks.add_task(auto_judge, project_id, new_model_id, new_model.name)
+        return new_model
 
     @r.put("/head-to-heads")
     def get_head_to_heads(request: API.HeadToHeadsRequest) -> list[API.HeadToHead]:

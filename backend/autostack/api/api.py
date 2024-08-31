@@ -23,6 +23,7 @@ class Model:
     elo: float
     q025: float | None
     q975: float | None
+    datapoints: int
     votes: int
 
 

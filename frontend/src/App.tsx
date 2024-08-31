@@ -1,8 +1,10 @@
 import '@mantine/core/styles.css';
+import '@mantine/notifications/styles.css';
 import './App.module.css';
 import { createTheme, MantineProvider } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { Notifications } from '@mantine/notifications';
 import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD, TAB_STATISTICS } from './components/Page.tsx';
 import { PageNotFound } from './components/PageNotFound.tsx';
 
@@ -43,6 +45,7 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider forceColorScheme="light" defaultColorScheme="light" theme={theme}>
+        <Notifications />
         <RouterProvider router={router} />
       </MantineProvider>
     </QueryClientProvider>

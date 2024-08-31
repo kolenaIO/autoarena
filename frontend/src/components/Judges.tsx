@@ -31,17 +31,16 @@ const HUMAN_JUDGE: Judge = {
 export const JUDGES: Judge[] = [
   HUMAN_JUDGE,
   {
-    id: 'custom-giga-gorilla-20240828',
-    label: 'Giga Gorilla (2024/08/28)',
-    description: 'Custom judge model fine-tuned using 2,491 of your ratings submitted on AutoStack',
-    icon: <IconRobot {...JUDGE_ICON_PROPS} />,
-    enabled: true,
-    custom: true,
-  },
-  {
     id: 'custom-vengeful-hare-20240826',
     label: 'Vengeful Hare (2024/08/26)',
     description: 'Custom judge model fine-tuned using 742 of your ratings submitted on AutoStack',
+    icon: <IconRobot {...JUDGE_ICON_PROPS} />,
+    custom: true,
+  },
+  {
+    id: 'custom-giga-gorilla-20240828',
+    label: 'Giga Gorilla (2024/08/28)',
+    description: 'Custom judge model fine-tuned using 2,491 of your ratings submitted on AutoStack',
     icon: <IconRobot {...JUDGE_ICON_PROPS} />,
     custom: true,
   },
@@ -57,6 +56,7 @@ export const JUDGES: Judge[] = [
     label: 'GPT-4o mini',
     description: 'Cost-effective and low-latency frontier model from OpenAI',
     icon: <IconBrandOpenai {...JUDGE_ICON_PROPS} />,
+    enabled: true,
     thirdParty: true,
   },
   {
@@ -135,7 +135,11 @@ export function JudgeAccordionItem({
       <Accordion.Panel>
         <Stack pl="xl">
           {id !== HUMAN_JUDGE.id ? (
-            <Checkbox label="Enable as judge" checked={isEnabled} onChange={() => setIsEnabled(prev => !prev)} />
+            <Checkbox
+              label="Enable as automated judge"
+              checked={isEnabled}
+              onChange={() => setIsEnabled(prev => !prev)}
+            />
           ) : (
             <Text>
               Visit the{' '}

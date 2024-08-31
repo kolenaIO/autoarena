@@ -11,7 +11,7 @@ export function TasksDrawer() {
   const { projectId } = useUrlState();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
-  const { data: tasks } = useTasks({ projectId, options: { refetchInterval: isDrawerOpen ? 3_000 : undefined } });
+  const { data: tasks } = useTasks({ projectId, options: { refetchInterval: isDrawerOpen ? 1_000 : undefined } });
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ progress }) => progress < 1), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ progress }) => progress >= 1), [tasksSorted]);

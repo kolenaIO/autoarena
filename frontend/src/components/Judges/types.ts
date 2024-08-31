@@ -70,3 +70,16 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
       return judgeType;
   }
 }
+
+export function judgeTypeToApiKeyName(judgeType: JudgeType) {
+  switch (judgeType) {
+    case 'openai':
+      return 'OPENAI_API_KEY';
+    case 'anthropic':
+      return 'ANTHROPIC_API_KEY';
+    case 'gemini':
+      return 'GOOGLE_API_KEY';
+    case 'cohere':
+      return 'COHERE_API_KEY';
+  }
+}

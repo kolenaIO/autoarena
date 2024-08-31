@@ -6,7 +6,7 @@ import pandas as pd
 from autostack.api import api
 from autostack.api.service import ProjectService, JudgeService
 from autostack.elo import compute_elo, add_rank_and_confidence_intervals
-from autostack.judge import HumanJudge
+from autostack.judge.human import HumanJudge
 from autostack.store.database import DATABASE_DIRECTORY, SCHEMA_FILE, get_database_connection
 
 

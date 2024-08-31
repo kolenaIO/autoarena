@@ -9,7 +9,7 @@ from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 from autostack.api import api
 from autostack.api.service import ProjectService, JudgeService, TaskService, ModelService
 from autostack.elo import compute_elo_single
-from autostack.judge import HumanJudge
+from autostack.judge.human import HumanJudge
 from autostack.tasks import recompute_confidence_intervals, auto_judge
 from autostack.store.database import get_database_connection
 
@@ -71,7 +71,7 @@ def router() -> APIRouter:
 
     @r.put("/head-to-heads")
     def get_head_to_heads(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
-        with get_database_connection(read_only=True) as conn:
+        with get_database_connection() as conn:
             df_h2h = conn.execute(
                 """
                 SELECT

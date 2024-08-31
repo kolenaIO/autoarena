@@ -1,8 +1,9 @@
-import { Modal, Stack, TextInput } from '@mantine/core';
+import { Code, Modal, Stack, TextInput, Text, Anchor } from '@mantine/core';
 import { useState } from 'react';
 import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
+import { JudgeType } from './types.ts';
 
 type Props = {
   isOpen: boolean;
@@ -16,9 +17,9 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
   function handleSubmit() {
     createJudge({
       project_id: projectId,
-      judge_type: 'ollama',
+      judge_type: 'ollama' as JudgeType, // TODO: annoying to have to cast this, should probably set up enum
       name,
-      description: '', // TODO: ???
+      description: `Ollama judge running model '${name}' locally`,
     });
     onClose();
   }
@@ -33,6 +34,23 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
       transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
     >
       <Stack>
+        <Stack gap={0}>
+          <Text size="sm">
+            Enter a model name to use as a judge that runs locally via Ollama. You can specify any model that can be
+            downloaded from <Anchor href="https://ollama.com/library">Ollama</Anchor>. Some examples include:
+          </Text>
+          <ul>
+            <li>
+              <Code>llama3.1:8b</Code>
+            </li>
+            <li>
+              <Code>gemma2:9b</Code>
+            </li>
+            <li>
+              <Code>mistral-nemo:12b</Code>
+            </li>
+          </ul>
+        </Stack>
         <TextInput
           label="Model Name"
           placeholder="Enter model name, e.g. 'gemma2:9b'..."

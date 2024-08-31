@@ -3,7 +3,8 @@ import numpy as np
 from autostack.api import api as API
 from autostack.api.api import JudgeType
 from autostack.api.service import TaskService, JudgeService
-from autostack.judge import ABShufflingJudge, judge_factory
+from autostack.judge.utils import ABShufflingJudge
+from autostack.judge.factory import judge_factory
 from autostack.store.database import get_database_connection
 from autostack.store.seed import reseed_elo_scores
 
@@ -22,7 +23,7 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
     task_id = TaskService.create(project_id, "auto-judge", status).id
     try:
         # 1. get pairs eligible for judging
-        with get_database_connection(read_only=True) as conn:
+        with get_database_connection() as conn:
             df_h2h = conn.execute(
                 """
                 SELECT
@@ -87,3 +88,4 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
         TaskService.finish(task_id)
     except Exception as e:
         TaskService.finish(task_id, f"Crashed ({e})")
+        raise e

@@ -73,7 +73,7 @@ class JudgeType(str, Enum):
     ANTHROPIC = "anthropic"
     COHERE = "cohere"
     GEMINI = "gemini"
-    CUSTOM = "custom"
+    CUSTOM = "custom"  # TODO: not sure how to handle this yet -- will it just be another Ollama model?
 
 
 @dataclass(frozen=True)

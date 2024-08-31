@@ -19,13 +19,35 @@ import { Judge, useJudges } from '../../hooks/useJudges.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
-import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
+import { JudgeType, judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
+import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
+
+const PROPRIETARY_JUDGES: { [key: string]: { judgeType: JudgeType; modelOptions: string[] } } = {
+  openai: { judgeType: 'openai', modelOptions: ['gpt-4o', 'gpt-4o-mini'] },
+  anthropic: {
+    judgeType: 'anthropic',
+    modelOptions: [
+      'claude-3-5-sonnet-20240620',
+      'claude-3-opus-20240229',
+      'claude-3-sonnet-20240229',
+      'claude-3-haiku-20240307',
+    ],
+  },
+  gemini: { judgeType: 'gemini', modelOptions: ['gemini-1.5-flash', 'gemini-1.5-pro'] },
+  cohere: { judgeType: 'cohere', modelOptions: ['command-r', 'command-r-plus'] },
+};
 
 export function Judges() {
   const { projectId } = useUrlState();
   const { data: judges } = useJudges(projectId);
+
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);
+  const [isOpenAIOpen, { toggle: toggleOpenAI, close: closeOpenAI }] = useDisclosure(false);
+  const [isAnthropicOpen, { toggle: toggleAnthropic, close: closeAnthropic }] = useDisclosure(false);
+  const [isGeminiOpen, { toggle: toggleGemini, close: closeGemini }] = useDisclosure(false);
+  const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
+
   return (
     <Center p="lg">
       <Stack>
@@ -48,20 +70,35 @@ export function Judges() {
           <ConfigureJudgeCard
             judgeType="openai"
             description="Configure an OpenAI model like GPT-4o or GPT-4o mini as a judge"
+            onClick={toggleOpenAI}
           />
           <ConfigureJudgeCard judgeType="custom" description="Fine-tune a custom judge model on AutoStack" />
-          <ConfigureJudgeCard judgeType="gemini" description="Configure a Google Gemini model as a judge" />
+          <ConfigureJudgeCard
+            judgeType="gemini"
+            description="Configure a Google Gemini model as a judge"
+            onClick={toggleGemini}
+          />
           <ConfigureJudgeCard
             judgeType="anthropic"
             description="Configure an Anthropic model like Claude 3.5 Sonnet or Claude 3 Opus as a judge"
+            onClick={toggleAnthropic}
           />
           <ConfigureJudgeCard
             judgeType="cohere"
             description="Configure Command R or Command R+ from Cohere as a judge"
+            onClick={toggleCohere}
           />
         </SimpleGrid>
 
         <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
+        <CreateProprietaryJudgeModal isOpen={isOpenAIOpen} onClose={closeOpenAI} {...PROPRIETARY_JUDGES.openai} />
+        <CreateProprietaryJudgeModal
+          isOpen={isAnthropicOpen}
+          onClose={closeAnthropic}
+          {...PROPRIETARY_JUDGES.anthropic}
+        />
+        <CreateProprietaryJudgeModal isOpen={isGeminiOpen} onClose={closeGemini} {...PROPRIETARY_JUDGES.gemini} />
+        <CreateProprietaryJudgeModal isOpen={isCohereOpen} onClose={closeCohere} {...PROPRIETARY_JUDGES.cohere} />
       </Stack>
     </Center>
   );

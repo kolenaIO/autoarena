@@ -7,6 +7,7 @@ dist/
 .DS_Store
 
 database.duckdb
+database.duckdb.wal
 *.parquet
 *.csv
 

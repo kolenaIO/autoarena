@@ -3,14 +3,14 @@ from datetime import datetime
 import numpy as np
 
 from autostack.api import api
-from autostack.judge import Judge
+from autostack.judge.base import Judge
 from autostack.store.database import get_database_connection
 
 
 class ProjectService:
     @staticmethod
     def get_all() -> list[api.Project]:
-        with get_database_connection(read_only=True) as conn:
+        with get_database_connection() as conn:
             df_project = conn.execute("SELECT id, name, created FROM project").df()
         return [api.Project(**r) for _, r in df_project.iterrows()]
 
@@ -29,7 +29,7 @@ class ProjectService:
 class JudgeService:
     @staticmethod
     def get_all(project_id: int) -> list[api.Judge]:
-        with get_database_connection(read_only=True) as conn:
+        with get_database_connection() as conn:
             df_task = conn.execute(
                 "SELECT id, judge_type, created, name, description, enabled FROM judge WHERE project_id = $project_id",
                 dict(project_id=project_id),
@@ -93,13 +93,14 @@ class JudgeService:
     @staticmethod
     def delete(judge_id: int) -> None:
         with get_database_connection() as conn:
+            # TODO: duckdb doesn't support cascading deletes so this fails if this judge has submitted ratings
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
 
 
 class TaskService:
     @staticmethod
     def get_all(project_id: int) -> list[api.Task]:
-        with get_database_connection(read_only=True) as conn:
+        with get_database_connection() as conn:
             df_task = conn.execute(
                 "SELECT id, task_type, created, progress, status FROM task WHERE project_id = $project_id",
                 dict(project_id=project_id),
@@ -139,7 +140,7 @@ class TaskService:
 class ModelService:
     @staticmethod
     def get_all(project_id: int) -> list[api.Model]:
-        with get_database_connection(read_only=True) as conn:
+        with get_database_connection() as conn:
             df_model = conn.execute(
                 """
                 WITH datapoint_count AS (

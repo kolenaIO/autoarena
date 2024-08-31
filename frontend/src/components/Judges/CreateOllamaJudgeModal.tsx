@@ -1,7 +1,8 @@
 import { Code, Modal, Stack, TextInput, Text, Anchor } from '@mantine/core';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { JudgeType } from './types.ts';
 
@@ -11,8 +12,17 @@ type Props = {
 };
 export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
   const { projectId = -1 } = useUrlState();
+  const { data: judges } = useJudges(projectId);
   const { mutate: createJudge } = useCreateJudge({ projectId });
   const [name, setName] = useState('');
+
+  const existingJudges = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
+  const nameError = existingJudges.has(name) ? `Model '${name}' already configured as judge` : undefined;
+
+  function handleClose() {
+    setName('');
+    onClose();
+  }
 
   function handleSubmit() {
     createJudge({
@@ -21,14 +31,14 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
       name,
       description: `Ollama judge running model '${name}' locally`,
     });
-    onClose();
+    handleClose();
   }
 
-  const isEnabled = name !== '';
+  const isEnabled = name !== '' && nameError == null;
   return (
     <Modal
       opened={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       centered
       title="Create Ollama Judge"
       transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
@@ -56,9 +66,10 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
           placeholder="Enter model name, e.g. 'gemma2:9b'..."
           value={name}
           onChange={event => setName(event.currentTarget.value)}
+          error={nameError}
           flex={1}
         />
-        <ConfirmOrCancelBar onCancel={onClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
+        <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>
   );

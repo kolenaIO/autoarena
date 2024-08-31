@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Code, Modal, Select, Stack, Text } from '@mantine/core';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
+import { useJudges } from '../../hooks/useJudges.ts';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
@@ -13,8 +14,21 @@ type Props = {
 };
 export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, onClose }: Props) {
   const { projectId = -1 } = useUrlState();
+  const { data: judges } = useJudges(projectId);
   const { mutate: createJudge } = useCreateJudge({ projectId });
   const [name, setName] = useState('');
+
+  // gray out options that are already configured
+  const existingJudges = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
+  const availableModels = useMemo(
+    () => modelOptions.map(name => ({ value: name, label: name, disabled: existingJudges.has(name) })),
+    [modelOptions, existingJudges]
+  );
+
+  function handleClose() {
+    setName('');
+    onClose();
+  }
 
   function handleSubmit() {
     createJudge({
@@ -23,7 +37,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       name,
       description: `${judgeTypeToHumanReadableName(judgeType)} judge model '${name}' called via API`, // TODO
     });
-    onClose();
+    handleClose();
   }
 
   const isEnabled = name !== '';
@@ -31,7 +45,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
   return (
     <Modal
       opened={isOpen}
-      onClose={onClose}
+      onClose={handleClose}
       centered
       title={`Create ${judgeTypeToHumanReadableName(judgeType)} Judge`}
       transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
@@ -46,13 +60,13 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
         <Select
           label="Model Name"
           placeholder="Select Model"
-          data={modelOptions}
+          data={availableModels}
           value={name}
           onChange={setName}
           searchable
           flex={1}
         />
-        <ConfirmOrCancelBar onCancel={onClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
+        <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>
   );

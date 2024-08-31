@@ -42,11 +42,20 @@ export function HeadToHead() {
   }
 
   function onRandomize(position: 'A' | 'B') {
-    const randomIndex = Math.floor(Math.random() * (models?.length ?? 0));
-    const randomId = models?.[randomIndex]?.id;
-    onChange(position, randomId); // TODO: should ensure this doesn't conflict with the other model
+    const otherIds = new Set([modelA?.id, modelB?.id].filter(id => id != null));
+    // try 100 times to find an ID that doesn't conflict with a selected ID
+    for (let i = 0; i < 100; i++) {
+      const randomIndex = Math.floor(Math.random() * (models?.length ?? 0));
+      const randomId = models?.[randomIndex]?.id;
+      if (randomId != null && !otherIds.has(randomId)) {
+        onChange(position, randomId);
+        return;
+      }
+    }
   }
 
+  const noModels = allSelectModels.length < 1;
+  const noMoreModels = allSelectModels.length - (modelA != null ? 1 : 0) - (modelB != null ? 1 : 0) < 1;
   return (
     <Center p="lg">
       <Stack w={1080} /* TODO: should be max width */>
@@ -64,10 +73,11 @@ export function HeadToHead() {
               }
               value={modelA != null ? String(modelA.id) : undefined}
               onChange={value => onChange('A', Number(value))}
+              disabled={noModels}
               searchable
               flex={1}
             />
-            <Button variant="light" onClick={() => onRandomize('A')}>
+            <Button variant="light" disabled={noMoreModels} onClick={() => onRandomize('A')}>
               Random
             </Button>
           </Group>
@@ -84,10 +94,11 @@ export function HeadToHead() {
               }
               value={modelB != null ? String(modelB.id) : undefined}
               onChange={value => onChange('B', Number(value))}
+              disabled={noModels}
               searchable
               flex={1}
             />
-            <Button variant="light" onClick={() => onRandomize('B')}>
+            <Button variant="light" disabled={noMoreModels} onClick={() => onRandomize('B')}>
               Random
             </Button>
           </Group>

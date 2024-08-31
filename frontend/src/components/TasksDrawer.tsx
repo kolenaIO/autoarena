@@ -1,4 +1,4 @@
-import { Accordion, Button, Code, Collapse, Drawer, Progress, Stack, Text } from '@mantine/core';
+import { Accordion, Button, Code, Collapse, Drawer, Loader, Progress, Stack, Text } from '@mantine/core';
 import { IconBooks, IconCalculator, IconCpu, IconGavel } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
@@ -11,7 +11,10 @@ export function TasksDrawer() {
   const { projectId } = useUrlState();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
-  const { data: tasks } = useTasks({ projectId, options: { refetchInterval: isDrawerOpen ? 1_000 : undefined } });
+  const { data: tasks } = useTasks({
+    projectId,
+    options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
+  });
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ progress }) => progress < 1), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ progress }) => progress >= 1), [tasksSorted]);
@@ -20,7 +23,13 @@ export function TasksDrawer() {
       <Button
         variant="light"
         onClick={toggleDrawer}
-        leftSection={<IconCpu width={20} height={20} color="var(--mantine-color-kolena-8)" />}
+        leftSection={
+          tasksInProgress.length > 0 ? (
+            <Loader size={18} type="bars" />
+          ) : (
+            <IconCpu width={20} height={20} color="var(--mantine-color-kolena-8)" />
+          )
+        }
       >
         Tasks
       </Button>

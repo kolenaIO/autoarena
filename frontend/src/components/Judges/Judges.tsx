@@ -60,7 +60,7 @@ export function Judges() {
 
         <Divider />
 
-        <Title order={5}>Configure New Judge</Title>
+        <Title order={5}>Configure Automated Judge</Title>
         <SimpleGrid cols={3} w={1080}>
           <ConfigureJudgeCard
             judgeType="ollama"
@@ -149,7 +149,7 @@ export function JudgeAccordionItem({ judge: { id, judge_type, name, description,
           ) : (
             <Text>
               Visit the{' '}
-              <Link to="/compare">
+              <Link to={`/project/${projectId}/compare`}>
                 <Text span c="kolena.8">
                   Head-to-Head
                 </Text>

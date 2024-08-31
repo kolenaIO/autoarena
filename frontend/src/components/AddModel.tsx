@@ -1,9 +1,10 @@
 import { Button, Code, FileInput, Modal, TextInput, Text, Stack, ButtonVariant } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useUploadModelResults } from '../hooks/useUploadModelResults.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useModels } from '../hooks/useModels.ts';
 import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
 type Props = {
@@ -11,20 +12,30 @@ type Props = {
 };
 export function AddModel({ variant }: Props) {
   const { projectId = -1 } = useUrlState(); // TODO: handle unset state?
+  const { data: models } = useModels(projectId);
   const [isOpen, { toggle, close }] = useDisclosure(false);
   const { mutate: uploadModelResults } = useUploadModelResults({ projectId });
 
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');
 
+  const existingModelNames = useMemo(() => new Set((models ?? []).map(({ name }) => name)), [models]);
+  const nameError = existingModelNames.has(name) ? `Model '${name}' already exists` : undefined;
+
+  function handleClose() {
+    setFile(null);
+    setName('');
+    close();
+  }
+
   function handleSubmit() {
     if (file != null) {
       uploadModelResults([file, name]);
     }
-    close();
+    handleClose();
   }
 
-  const isDisabled = file == null || name === '';
+  const isDisabled = file == null || name === '' || nameError != null;
   return (
     <>
       <Button variant={variant} leftSection={<IconPlus size={18} />} onClick={toggle}>
@@ -33,7 +44,7 @@ export function AddModel({ variant }: Props) {
       <Modal
         opened={isOpen}
         centered
-        onClose={close}
+        onClose={handleClose}
         title="Add Model" // TODO: better title?
         transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
       >
@@ -60,9 +71,14 @@ export function AddModel({ variant }: Props) {
             placeholder="Enter model name..."
             value={name}
             onChange={event => setName(event.currentTarget.value)}
+            error={nameError}
             flex={1}
           />
-          <ConfirmOrCancelBar onCancel={close} onConfirm={isDisabled ? undefined : handleSubmit} action="Upload" />
+          <ConfirmOrCancelBar
+            onCancel={handleClose}
+            onConfirm={isDisabled ? undefined : handleSubmit}
+            action="Upload"
+          />
         </Stack>
       </Modal>
     </>

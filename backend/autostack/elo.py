@@ -51,7 +51,7 @@ def add_rank_and_confidence_intervals(df_elos: pd.DataFrame, df_battles: pd.Data
     df_elos["rank"] = df_elos["elo"].rank(ascending=False).astype(int)
     battle_counts = df_battles["model_a"].value_counts() + df_battles["model_b"].value_counts()
     df_elos = df_elos.merge(battle_counts, left_on="model", right_index=True)
-    df_bootstrap = get_bootstrap_result(df_battles, num_round=100)  # TODO: should precompute this
+    df_bootstrap = get_bootstrap_result(df_battles, num_round=200)
     df_elos = df_elos.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
     df_elos = df_elos.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
     # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI

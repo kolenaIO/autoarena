@@ -1,6 +1,5 @@
 import dataclasses
 from io import BytesIO
-from random import randint
 from typing import Annotated
 
 import pandas as pd
@@ -94,11 +93,8 @@ def router() -> APIRouter:
         request: api.HeadToHeadJudgementRequest, background_tasks: BackgroundTasks
     ) -> None:
         with get_database_connection() as conn:
-            # 1. create human judge if necessary
+            # 1. insert battle record
             human_judge = HumanJudge()
-            JudgeService.create_idempotent(request.project_id, human_judge)
-
-            # 2. insert battle record
             conn.execute(
                 """
                 INSERT INTO battle (result_a_id, result_b_id, judge_id, winner)
@@ -111,7 +107,7 @@ def router() -> APIRouter:
                 dict(**dataclasses.asdict(request), judge_name=human_judge.name),
             )
 
-            # 3. adjust elo scores
+            # 2. adjust elo scores
             df_model = conn.execute(
                 """
                 SELECT id, elo
@@ -130,9 +126,9 @@ def router() -> APIRouter:
             for model_id, elo in [(model_a.id, elo_a), (model_b.id, elo_b)]:
                 conn.execute("UPDATE model SET elo = $elo WHERE id = $model_id", dict(model_id=model_id, elo=elo))
 
-        # TODO: this is a dirty hack but it's too expensive to run this on every vote
-        # 4. recompute confidence intervals in the background
-        if randint(0, 10) == 0:
+        # 3. recompute confidence intervals in the background if we aren't doing so already
+        tasks = TaskService.get_all(request.project_id)
+        if len([t for t in tasks if t.task_type == "recompute-confidence-intervals" and t.progress < 1]) == 0:
             background_tasks.add_task(recompute_confidence_intervals, request.project_id)
 
     @r.get("/tasks/{project_id}")

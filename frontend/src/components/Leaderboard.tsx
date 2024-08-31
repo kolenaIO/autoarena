@@ -9,7 +9,6 @@ import {
   LoadingOverlay,
   Paper,
   Portal,
-  Select,
   Stack,
   Table,
   Text,
@@ -21,7 +20,6 @@ import { useNavigate } from 'react-router-dom';
 import { v4 as uuidv4 } from 'uuid';
 import { Model, useModels } from '../hooks/useModels.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
-import { useJudges } from '../hooks/useJudges.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 import { AddModel } from './AddModel.tsx';
@@ -48,10 +46,7 @@ export function Leaderboard() {
   const [selectedRows, setSelectedRows] = useState<number[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading } = useModels(projectId);
-  const { data: judges } = useJudges(projectId);
   const navigate = useNavigate();
-
-  const availableJudges = useMemo(() => ['All', ...(judges ?? []).map(({ name }) => name)], [judges]);
 
   const allModels = isLoading ? LOADING_MODELS : (models ?? []);
   const modelsSorted = useMemo(() => allModels.sort((a, b) => b.elo - a.elo), [allModels]);
@@ -74,10 +69,16 @@ export function Leaderboard() {
   function handleGoCompare() {
     const modelA = getModelById(selectedRows[0] ?? -1);
     const modelB = getModelById(selectedRows[1] ?? -1);
-    if (modelA == null || modelB == null) {
+    if (modelA == null && modelB == null) {
       return;
     }
-    const params = new URLSearchParams({ modelA: String(modelA.id), modelB: String(modelB.id) });
+    const params = new URLSearchParams();
+    if (modelA != null) {
+      params.append('modelA', String(modelA.id));
+    }
+    if (modelB != null) {
+      params.append('modelB', String(modelB.id));
+    }
     navigate(`/project/${projectId}/compare?${params}`);
   }
 
@@ -92,7 +93,7 @@ export function Leaderboard() {
           flex={1}
           disabled={isLoading}
         />
-        <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} />
+        {/* <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} /> */}
         <AddModel variant="light" />
       </Group>
       {!isLoading && allModels.length === 0 ? (
@@ -129,20 +130,20 @@ export function Leaderboard() {
                       Compare{' '}
                       <Text span inherit c="blue.6">
                         {getModelById(selectedRows[0] ?? -1)?.name}
-                      </Text>{' '}
-                      with{' '}
+                      </Text>
                       {selectedRows.length < 2 ? (
-                        <Text span inherit c="dimmed" fs="italic">
-                          Select Row
-                        </Text>
+                        ':'
                       ) : (
-                        <Text span inherit c="orange.6">
-                          {getModelById(selectedRows[1] ?? -1)?.name}
-                        </Text>
+                        <>
+                          {' '}
+                          with{' '}
+                          <Text span inherit c="orange.6">
+                            {getModelById(selectedRows[1] ?? -1)?.name}
+                          </Text>
+                        </>
                       )}
-                      :
                     </Text>
-                    <Button disabled={selectedRows.length < 2} onClick={handleGoCompare}>
+                    <Button disabled={selectedRows.length < 1} onClick={handleGoCompare}>
                       Go
                     </Button>
                   </Stack>

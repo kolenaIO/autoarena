@@ -2,18 +2,16 @@ import numpy as np
 
 from autostack.api import api as API
 from autostack.api.api import JudgeType
-from autostack.api.service import TaskService, JudgeService
+from autostack.api.service import TaskService, JudgeService, EloService
 from autostack.judge.utils import ABShufflingJudge
 from autostack.judge.factory import judge_factory
 from autostack.store.database import get_database_connection
-from autostack.store.seed import reseed_elo_scores
 
 
 def recompute_confidence_intervals(project_id: int) -> None:
     task_id = TaskService.create(project_id, "recompute-confidence-intervals").id
     try:
-        with get_database_connection() as conn:
-            reseed_elo_scores(conn, project_id)
+        EloService.reseed_scores(project_id)
     finally:
         TaskService.finish(task_id)
 
@@ -82,8 +80,8 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
                 from df_h2h_judged
             """)
 
-            # 5. recompute elo scores and confidence intervals
-            reseed_elo_scores(conn, project_id)
+        # 5. recompute elo scores and confidence intervals
+        EloService.reseed_scores(project_id)
         TaskService.update(task_id, "Recomputed Elo scores and confidence intervals", progress=1)
         TaskService.finish(task_id)
     except Exception as e:

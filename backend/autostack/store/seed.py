@@ -1,17 +1,25 @@
 from pathlib import Path
 
-import duckdb
 import pandas as pd
 
 from autostack.api import api
-from autostack.api.service import ProjectService, JudgeService
-from autostack.elo import compute_elo, add_rank_and_confidence_intervals
+from autostack.api.service import ProjectService, JudgeService, TaskService, EloService
 from autostack.judge.human import HumanJudge
 from autostack.store.database import DATABASE_DIRECTORY, SCHEMA_FILE, get_database_connection
 
 
 def setup_database(battles_parquet: str) -> None:
     DATABASE_DIRECTORY.mkdir(parents=True, exist_ok=True)
+
+    schema_sql = SCHEMA_FILE.read_text()
+    with get_database_connection() as conn:
+        conn.sql(schema_sql)
+
+    close_pending_tasks()
+    seed_initial_battles(battles_parquet)
+
+
+def seed_initial_battles(battles_parquet: str) -> None:
     project_name = Path(battles_parquet).stem
 
     df_battles = pd.read_parquet(battles_parquet)
@@ -21,18 +29,12 @@ def setup_database(battles_parquet: str) -> None:
         axis=1,
     )
 
-    # 1. set up schema
-    schema_sql = SCHEMA_FILE.read_text()
-    with get_database_connection() as conn:
-        conn.sql(schema_sql)
-
     # 2. seed with project
     project_id = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name)).id
+    human_judge = HumanJudge()
+    judge_id = [j for j in JudgeService.get_all(project_id) if j.name == human_judge.name][0].id
 
-    # 3. seed with judges
-    judge_id = JudgeService.create_idempotent(project_id, HumanJudge()).id
-
-    # 4. seed with models
+    # 3. seed with models
     with get_database_connection() as conn:
         models = list(set(df_battles["model_a"]) & set(df_battles["model_b"]))
         df_model = pd.DataFrame([(project_id, m) for m in models], columns=["project_id", "name"])
@@ -44,7 +46,7 @@ def setup_database(battles_parquet: str) -> None:
         """)
         df_model = conn.execute("SELECT id, name, elo FROM model WHERE project_id = ?", [project_id]).df()
 
-        # 5. seed with results
+        # 4. seed with results
         result_cols_a = ["model_a", "prompt", "response_a"]
         df_result_a = df_battles[result_cols_a].rename(columns=dict(model_a="model", response_a="response"))
         result_cols_b = ["model_b", "prompt", "response_b"]
@@ -69,7 +71,7 @@ def setup_database(battles_parquet: str) -> None:
             [project_id],
         ).df()
 
-        # 6. seed with battles
+        # 5. seed with battles
         right_on = ["model", "prompt"]
         df_battle = pd.merge(df_battles, df_result, left_on=["model_a", "prompt"], right_on=right_on, how="left")
         df_result = df_result.rename(columns=dict(result_a_id="result_b_id"))
@@ -85,38 +87,16 @@ def setup_database(battles_parquet: str) -> None:
             ON CONFLICT (result_a_id, result_b_id, judge_id) DO NOTHING
         """)
 
-        # 7. seed with elo scores (when necessary)
-        if (df_model["elo"] == 1000).all():
-            reseed_elo_scores(conn, project_id)
-
-        conn.commit()
+    # 6. seed with elo scores (when necessary)
+    if (df_model["elo"] == 1000).all():
+        EloService.reseed_scores(project_id)
 
 
-def reseed_elo_scores(conn: duckdb.DuckDBPyConnection, project_id: int):
-    df_battle = conn.execute(
-        """
-        SELECT ma.name AS model_a, mb.name AS model_b, b.winner
-        FROM battle b
-        JOIN result ra ON b.result_a_id = ra.id
-        JOIN result rb ON b.result_b_id = rb.id
-        JOIN model ma ON ra.model_id = ma.id
-        JOIN model mb ON rb.model_id = mb.id
-        WHERE ma.project_id = $project_id
-        AND mb.project_id = $project_id
-    """,
-        dict(project_id=project_id),
-    ).df()
-    df_elo = compute_elo(df_battle)
-    df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
-    conn.execute(
-        """
-        INSERT INTO model (project_id, name, elo, q025, q975)
-        SELECT ?, model, elo, q025, q975
-        FROM df_elo
-        ON CONFLICT (project_id, name) DO UPDATE SET
-            elo = EXCLUDED.elo,
-            q025 = EXCLUDED.q025,
-            q975 = EXCLUDED.q975;
-    """,
-        [project_id],
-    )
+# TODO: should perhaps restart pending judge tasks rather than simply terminating
+def close_pending_tasks() -> None:
+    projects = ProjectService.get_all()
+    for project in projects:
+        tasks = TaskService.get_all(project.id)
+        for task in tasks:
+            if task.progress < 1:
+                TaskService.update(task.id, status="Terminated", progress=1)

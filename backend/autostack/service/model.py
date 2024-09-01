@@ -7,6 +7,13 @@ from autostack.store.database import get_database_connection
 
 class ModelService:
     @staticmethod
+    def get_project_id(model_id: int) -> int:
+        with get_database_connection() as conn:
+            params = dict(model_id=model_id)
+            ((project_id,),) = conn.execute("SELECT project_id FROM model WHERE id = $model_id", params).fetchall()
+        return project_id
+
+    @staticmethod
     def get_all(project_id: int) -> list[api.Model]:
         with get_database_connection() as conn:
             df_model = conn.execute(
@@ -48,6 +55,28 @@ class ModelService:
             ).df()
         df_model = df_model.replace({np.nan: None})
         return [api.Model(**r) for _, r in df_model.iterrows()]
+
+    @staticmethod
+    def upload_results(project_id: int, model_name: str, df_result: pd.DataFrame) -> api.Model:
+        with get_database_connection() as conn:
+            params = dict(project_id=project_id, model_name=model_name)
+            ((new_model_id,),) = conn.execute(
+                """
+                INSERT INTO model (project_id, name)
+                VALUES ($project_id, $model_name)
+                RETURNING id
+                """,
+                params,
+            ).fetchall()
+            df_result["model_id"] = new_model_id
+            conn.execute("""
+                INSERT INTO result (model_id, prompt, response)
+                SELECT model_id, prompt, response
+                FROM df_result
+            """)
+        models = ModelService.get_all(project_id)
+        new_model = [model for model in models if model.id == new_model_id][0]
+        return new_model
 
     @staticmethod
     def delete(model_id: int) -> None:

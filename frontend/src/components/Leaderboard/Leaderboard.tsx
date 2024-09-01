@@ -11,6 +11,7 @@ import { RankedModel } from './types.ts';
 import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
+import { LeaderboardSettings } from './LeaderboardSettings.tsx';
 
 export function Leaderboard() {
   const { projectId } = useUrlState();
@@ -58,6 +59,7 @@ export function Leaderboard() {
           flex={1}
           disabled={isLoading}
         />
+        <LeaderboardSettings />
         {/* <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} /> */}
         <AddModelButton variant="light" />
       </Group>

@@ -1,27 +1,15 @@
-import {
-  Accordion,
-  Button,
-  Center,
-  Checkbox,
-  Divider,
-  Group,
-  Pill,
-  SimpleGrid,
-  Stack,
-  Text,
-  Title,
-} from '@mantine/core';
+import { Accordion, Center, Checkbox, Divider, Group, Pill, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { Judge, useJudges } from '../../hooks/useJudges.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
-import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
 import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
+import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 
 export function Judges() {
   const { projectId } = useUrlState();
@@ -110,11 +98,11 @@ export function Judges() {
   );
 }
 
-export function JudgeAccordionItem({ judge: { id, judge_type, name, description, enabled } }: { judge: Judge }) {
+export function JudgeAccordionItem({ judge }: { judge: Judge }) {
+  const { id, judge_type, name, description, enabled } = judge;
   const { projectId = -1 } = useUrlState();
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectId });
-  const { mutate: deleteJudge } = useDeleteJudge({ projectId });
 
   function handleToggleEnabled() {
     updateJudge({ project_id: projectId, judge_id: id, enabled: !enabled });
@@ -153,9 +141,7 @@ export function JudgeAccordionItem({ judge: { id, judge_type, name, description,
           {judge_type !== 'human' ? (
             <Group justify="space-between">
               <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
-              <Button color="red" variant="light" onClick={() => deleteJudge(id)}>
-                Delete
-              </Button>
+              <DeleteJudgeButton judge={judge} />
             </Group>
           ) : (
             <Text>

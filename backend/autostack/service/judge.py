@@ -5,6 +5,13 @@ from autostack.store.database import get_database_connection
 
 class JudgeService:
     @staticmethod
+    def get_project_id(judge_id: int) -> int:
+        with get_database_connection() as conn:
+            params = dict(judge_id=judge_id)
+            ((project_id,),) = conn.execute("SELECT project_id FROM judge WHERE id = $judge_id", params).fetchall()
+        return project_id
+
+    @staticmethod
     def get_all(project_id: int) -> list[api.Judge]:
         with get_database_connection() as conn:
             df_task = conn.execute(
@@ -70,5 +77,5 @@ class JudgeService:
     @staticmethod
     def delete(judge_id: int) -> None:
         with get_database_connection() as conn:
-            # TODO: duckdb doesn't support cascading deletes so this fails if this judge has submitted ratings
+            conn.execute("DELETE FROM battle WHERE judge_id = $judge_id", dict(judge_id=judge_id))
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))

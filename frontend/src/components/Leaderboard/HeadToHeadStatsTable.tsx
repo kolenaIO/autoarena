@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { prop, reverse, sortBy } from 'ramda';
-import { Paper } from '@mantine/core';
+import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
 import { ModelHeadToHeadStats, useModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
 
@@ -17,8 +17,11 @@ const HEAD_TO_HEAD_COLUMNS: DataTableColumn<H2hStatsRecord>[] = [
   {
     accessor: 'count_wins',
     title: 'Record (Win - Loss - Tie)',
-    render: ({ count_wins, count_losses, count_ties }) =>
-      `${count_wins.toLocaleString()} - ${count_losses.toLocaleString()} - ${count_ties.toLocaleString()}`,
+    render: ({ count_wins, count_losses, count_ties }) => (
+      <Code>
+        {count_wins.toLocaleString()} - {count_losses.toLocaleString()} - {count_ties.toLocaleString()}
+      </Code>
+    ),
   },
   {
     accessor: 'win_percentage',

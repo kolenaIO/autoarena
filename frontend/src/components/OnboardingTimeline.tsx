@@ -1,9 +1,10 @@
-import { Timeline, Text, Paper, Title, Stack, Group, Button, Anchor, Code } from '@mantine/core';
+import { Timeline, Text, Paper, Title, Stack, Group, Button, Anchor, Code, CloseButton } from '@mantine/core';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { IconGavel, IconPlus, IconRobot } from '@tabler/icons-react';
 import { prop, sortBy } from 'ramda';
 import moment, { MomentInput } from 'moment';
 import { notifications } from '@mantine/notifications';
+import { useLocalStorage } from '@mantine/hooks';
 import { Judge, useJudges } from '../hooks/useJudges.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { Model, useModels } from '../hooks/useModels.ts';
@@ -16,6 +17,10 @@ export function OnboardingTimeline() {
   const { data: projects, isLoading: isLoadingProjects } = useProjects();
   const { data: models, isLoading: isLoadingModels } = useModels(projectId);
   const { data: judges, isLoading: isLoadingJudges } = useJudges(projectId);
+  const [onboardingGuideDismissed, setOnboardingGuideDismissed] = useLocalStorage({
+    key: `/project/${projectId}/onboarding-guide-dismissed`,
+    defaultValue: '',
+  });
   const [activeStage, setActiveStage] = useState(-1);
 
   const activeProject = useMemo(() => (projects ?? []).find(({ id }) => id === projectId), [projectId, projects]);
@@ -48,7 +53,7 @@ export function OnboardingTimeline() {
             : !hasUploadedSecondModel
               ? 2
               : 3;
-      if (newActiveStage === 3 && prevActiveStage < newActiveStage) {
+      if (newActiveStage === 3 && prevActiveStage < newActiveStage && firstModel.q025 == null) {
         notifications.show({
           title: 'Onboarding complete',
           message:
@@ -60,17 +65,20 @@ export function OnboardingTimeline() {
       }
       return newActiveStage;
     });
-  }, [hasCreatedProject, hasUploadedFirstModel, hasConfiguredJudge, hasUploadedSecondModel]);
+  }, [firstModel, hasCreatedProject, hasUploadedFirstModel, hasConfiguredJudge, hasUploadedSecondModel]);
 
   const iconProps = { size: 14 };
   const subtitleProps = { c: 'dimmed', size: 'sm', maw: 350 };
   const isLoading = isLoadingProjects || isLoadingModels || isLoadingJudges;
-  return isLoading || hasCompletedOnboarding ? (
+  return onboardingGuideDismissed === 'true' || isLoading || hasCompletedOnboarding ? (
     <></>
   ) : (
     <Paper withBorder radius="md" p="lg" w={600}>
       <Stack gap="lg">
-        <Title order={5}>Getting Started with AutoStack</Title>
+        <Group justify="space-between">
+          <Title order={5}>Getting Started with AutoStack</Title>
+          <CloseButton onClick={() => setOnboardingGuideDismissed('true')} />
+        </Group>
 
         <Timeline active={activeStage} bulletSize={24} lineWidth={2}>
           <Timeline.Item

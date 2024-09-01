@@ -37,7 +37,7 @@ export function useUploadModelResults({ projectId, options }: Params) {
     onSuccess: model => {
       notifications.show({
         title: 'Added model',
-        message: `Created model '${model.name}' with ${model.datapoints.toLocaleString()} datapoints.`,
+        message: `Created model '${model.name}' with ${model.datapoints.toLocaleString()} datapoints`,
         color: 'green',
       });
     },

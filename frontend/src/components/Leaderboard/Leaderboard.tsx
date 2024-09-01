@@ -7,6 +7,7 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { AddModelButton } from '../AddModelButton.tsx';
 import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
+import { useOnboardingGuideDismissed } from '../../hooks/useOnboardingGuideDismissed.ts';
 import { RankedModel } from './types.ts';
 import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
@@ -18,6 +19,7 @@ export function Leaderboard() {
   const [selectedRecords, setSelectedRecords] = useState<RankedModel[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading } = useModels(projectId);
+  const [onboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<RankedModel>>({
     columnAccessor: 'rank',
     direction: 'asc',
@@ -48,7 +50,7 @@ export function Leaderboard() {
     [modelsSorted, filterValue, selectedRecords]
   );
 
-  return isLoading || allModels.length > 0 ? (
+  return onboardingGuideDismissed || isLoading || allModels.length > 0 ? (
     <Stack p="lg" align="center">
       <Group justify="space-between" w={1080} align="flex-end">
         <TextInput
@@ -70,6 +72,7 @@ export function Leaderboard() {
           withTableBorder={false}
           borderRadius="md"
           horizontalSpacing="xs"
+          minHeight={180}
           columns={LEADERBOARD_COLUMNS}
           records={modelRecords}
           idAccessor="id"

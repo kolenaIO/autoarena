@@ -81,13 +81,16 @@ def seed_initial_battles(battles_parquet: str) -> None:
         df_battle = pd.merge(df_battle, df_result, left_on=["model_b", "prompt"], right_on=right_on, how="left")
         df_battle = df_battle[df_battle["result_a_id"].notna()]  # drop empty battles
         df_battle = df_battle[df_battle["result_b_id"].notna()]  # drop empty battles
-        df_battle = df_battle.drop_duplicates(subset=["result_a_id", "result_b_id"], keep="last")
+        df_battle["result_id_slug"] = df_battle.apply(
+            lambda r: f"{int(min(r.result_a_id, r.result_b_id))}-{int(max(r.result_a_id, r.result_b_id))}", axis=1
+        )
+        df_battle = df_battle.drop_duplicates(subset=["result_id_slug"], keep="last")
         df_battle["judge_id"] = judge_id
         conn.execute("""
-            INSERT INTO battle (result_a_id, result_b_id, judge_id, winner)
-            SELECT result_a_id, result_b_id, judge_id, winner
+            INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
+            SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
             FROM df_battle
-            ON CONFLICT (result_a_id, result_b_id, judge_id) DO NOTHING
+            ON CONFLICT (result_id_slug, judge_id) DO NOTHING
         """)
 
     # 6. seed with elo scores (when necessary)

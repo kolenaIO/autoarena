@@ -43,9 +43,16 @@ CREATE TABLE IF NOT EXISTS result (
     UNIQUE (model_id, prompt)
 );
 
+-- TODO: would be great to use enum but it does not have an idempotent CREATE option
+-- CREATE TYPE WINNER AS ENUM ('A', 'B', '-');
+-- utility to create a deterministic slug from 2 numeric IDs presented in any order
+CREATE OR REPLACE MACRO id_slug(id_a, id_b) AS
+    IF(id_a < id_b, id_a, id_b)::INTEGER || '-' || IF(id_a < id_b, id_b, id_a)::INTEGER;
+CREATE OR REPLACE MACRO invert_winner(winner) AS IF(winner = 'A', 'B', IF(winner = 'B', 'A', winner));
 CREATE SEQUENCE IF NOT EXISTS battle_id START 1;
 CREATE TABLE IF NOT EXISTS battle (
     id INTEGER PRIMARY KEY DEFAULT nextval('battle_id'),
+    result_id_slug TEXT NOT NULL, -- see id_slug macro
     result_a_id INTEGER NOT NULL,
     result_b_id INTEGER NOT NULL,
     judge_id INTEGER NOT NULL,
@@ -55,7 +62,7 @@ CREATE TABLE IF NOT EXISTS battle (
     FOREIGN KEY (result_b_id) REFERENCES result (id),
     FOREIGN KEY (judge_id) REFERENCES judge (id),
     -- TODO: allow duplicate ratings from same judge (e.g. human)? Unique for now for convenience
-    UNIQUE (result_a_id, result_b_id, judge_id)
+    UNIQUE (result_id_slug, judge_id)
 );
 
 CREATE SEQUENCE IF NOT EXISTS task_id START 1;

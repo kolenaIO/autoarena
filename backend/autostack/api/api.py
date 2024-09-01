@@ -1,3 +1,4 @@
+import dataclasses
 from datetime import datetime
 from enum import Enum
 from typing import Literal
@@ -47,6 +48,16 @@ class HeadToHeadsRequest:
     model_b_id: int
 
 
+WinnerType = Literal["A", "B", "-"]
+
+
+@dataclass(frozen=True)
+class HeadToHeadHistoryItem:
+    judge_id: int
+    judge_name: str
+    winner: WinnerType
+
+
 @dataclass(frozen=True)
 class HeadToHead:
     prompt: str
@@ -54,7 +65,7 @@ class HeadToHead:
     response_a: str
     result_b_id: int
     response_b: str
-    # TODO: also add voting history from any judgements already made?
+    history: list[HeadToHeadHistoryItem] = dataclasses.field(default_factory=list)
 
 
 @dataclass(frozen=True)
@@ -62,7 +73,7 @@ class HeadToHeadJudgementRequest:  # this is always coming from humans
     project_id: int
     result_a_id: int
     result_b_id: int
-    winner: Literal["A", "B", "-"]
+    winner: WinnerType
 
 
 TaskType = Literal["auto-judge", "fine-tune", "recompute-confidence-intervals"]

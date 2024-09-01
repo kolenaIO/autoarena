@@ -11,7 +11,7 @@ type Props = {
 };
 export function ExpandedModelDetails({ model }: Props) {
   return (
-    <Stack bg="gray.1" p="sm">
+    <Stack bg="gray.1" p="md">
       <Group justify="space-between">
         <Group gap="xs">
           <Text span fw="bold">

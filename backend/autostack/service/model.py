@@ -105,7 +105,7 @@ class ModelService:
                 SELECT
                     m.name AS model,
                     r.prompt AS prompt,
-                    r.response AS result
+                    r.response AS response
                 FROM model m
                 JOIN result r ON r.model_id = m.id
                 WHERE m.id = $model_id

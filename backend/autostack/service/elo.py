@@ -1,10 +1,25 @@
-from autostack.elo import compute_elo, add_rank_and_confidence_intervals
+from collections import defaultdict
+from typing import Literal
+
+import pandas as pd
+from pydantic.dataclasses import dataclass
+from tqdm import tqdm
+
 from autostack.store.database import get_database_connection
 
 
-class EloService:
-    DEFAULT_ELO_SCORE = 1_000  # TODO: use this elsewhere
+@dataclass(frozen=True)
+class EloConfig:
+    default_score: float = 1_000
+    k: int = 4
+    scale: int = 400
+    base: int = 10
 
+
+DEFAULT_ELO_CONFIG = EloConfig()
+
+
+class EloService:
     @staticmethod
     def reseed_scores(project_id: int) -> None:
         with get_database_connection() as conn:
@@ -21,12 +36,12 @@ class EloService:
             """,
                 dict(project_id=project_id),
             ).df()
-        df_elo = compute_elo(df_battle)
-        df_elo = add_rank_and_confidence_intervals(df_elo, df_battle)
+        df_elo = EloService.compute_elo(df_battle)
+        df_elo = EloService.compute_confidence_intervals(df_elo, df_battle)
         with get_database_connection() as conn:
             conn.execute(  # reset all scores before updating new ones
                 "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL WHERE project_id = $project_id",
-                dict(project_id=project_id, default_elo=EloService.DEFAULT_ELO_SCORE),
+                dict(project_id=project_id, default_elo=EloConfig.default_score),
             )
             conn.execute(
                 """
@@ -40,3 +55,47 @@ class EloService:
             """,
                 dict(project_id=project_id),
             )
+
+    # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
+    @staticmethod
+    def compute_elo_single(
+        elo_a: float,
+        elo_b: float,
+        winner: Literal["A", "B", "-"],
+        config: EloConfig = DEFAULT_ELO_CONFIG,
+    ) -> tuple[float, float]:
+        expected_a = 1 / (1 + config.base ** ((elo_b - elo_a) / config.scale))
+        expected_b = 1 / (1 + config.base ** ((elo_a - elo_b) / config.scale))
+        score_a = 1 if winner == "A" else 0 if winner == "B" else 0.5
+        elo_a += config.k * (score_a - expected_a)
+        elo_b += config.k * (1 - score_a - expected_b)
+        return elo_a, elo_b
+
+    @staticmethod
+    def compute_elo(df_battle: pd.DataFrame, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
+        rating: dict[str, float] = defaultdict(lambda: config.default_score)
+        for _, model_a, model_b, winner in df_battle[["model_a", "model_b", "winner"]].itertuples():
+            elo_a, elo_b = EloService.compute_elo_single(rating[model_a], rating[model_b], winner, config=config)
+            rating[model_a] = elo_a
+            rating[model_b] = elo_b
+        df_elos = pd.DataFrame(dict(rating).items(), columns=["model", "elo"])
+        return df_elos.sort_values(by="elo", ascending=False)
+
+    @staticmethod
+    def get_bootstrap_result(df_battle: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
+        rows = []
+        for _ in tqdm(range(num_rounds), desc="bootstrap"):
+            df_battle_tmp = df_battle.sample(frac=1.0, replace=True)
+            rows.append(EloService.compute_elo(df_battle_tmp))
+        df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
+        return df[df.median().sort_values(ascending=False).index]
+
+    @staticmethod
+    def compute_confidence_intervals(df_elo: pd.DataFrame, df_battle: pd.DataFrame) -> pd.DataFrame:
+        df_bootstrap = EloService.get_bootstrap_result(df_battle, num_rounds=200)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
+        # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
+        df_elo["elo"] = df_elo.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
+        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
+        return df_elo

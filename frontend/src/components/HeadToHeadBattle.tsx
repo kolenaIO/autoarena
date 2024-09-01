@@ -1,11 +1,12 @@
-import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
-import { useEffect, useMemo, useState } from 'react';
-import { useHotkeys } from '@mantine/hooks';
+import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads } from '../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useSubmitHeadToHeadJudgement } from '../hooks/useSubmitHeadToHeadJudgement.ts';
+import { pluralize } from '../lib/string.ts';
 import { MarkdownContent } from './MarkdownContent.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
 
@@ -16,6 +17,7 @@ type Props = {
 export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
   const { projectId = -1 } = useUrlState();
   const navigate = useNavigate();
+  const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
   // TODO: loading state?
   const { data: battles, isLoading } = useHeadToHeads({ projectId, modelAId, modelBId });
   const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
@@ -46,7 +48,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     ['ArrowRight', submitVote('B')],
   ]);
 
-  const nBattles = battles?.length ?? 0;
+  const nBattles: number = battles?.length ?? 0;
   const iconProps = { size: 18 };
   return !isLoading && nBattles === 0 ? (
     <NonIdealState IconComponent={IconCactus} description="No head-to-head battles between selected models" />
@@ -65,7 +67,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
       <Stack pb={100}>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
-            {nBattles} head-to-head battle{nBattles > 1 && 's'} between selected models
+            {pluralize(nBattles, 'head-to-head battle')} between selected models
           </Text>
         </Group>
         <Paper withBorder p="md">
@@ -80,6 +82,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
           </Paper>
         </SimpleGrid>
       </Stack>
+
       <Stack
         bg="gray.0"
         p="md"
@@ -97,8 +100,28 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')}>
               Right
             </Button>
+            {showJudgingHistory &&
+              battle?.history?.map((item, i) => (
+                <Fragment key={i}>
+                  <Text ta="center" size="xs">
+                    {item.winner === 'A' && item.judge_name}
+                  </Text>
+                  <Text ta="center" size="xs">
+                    {item.winner === '-' && item.judge_name}
+                  </Text>
+                  <Text ta="center" size="xs">
+                    {item.winner === 'B' && item.judge_name}
+                  </Text>
+                </Fragment>
+              ))}
           </SimpleGrid>
         </Stack>
+
+        <Box p="md" style={{ position: 'fixed', bottom: 0, right: 0 }}>
+          <Button variant="subtle" color="gray" size="xs" onClick={toggleShowJudgingHistory}>
+            {showJudgingHistory ? 'Hide' : 'Show'} Judging History
+          </Button>
+        </Box>
       </Stack>
     </>
   ) : (

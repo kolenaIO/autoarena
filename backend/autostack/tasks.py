@@ -82,10 +82,11 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
             df_h2h_judged = df_h2h.copy()
             df_h2h_judged["judge_id"] = judge_id
             df_h2h_judged["winner"] = responses
+            # TODO: does there need to be any conflict resolution here?
             conn.execute("""
-                INSERT INTO battle (result_a_id, result_b_id, judge_id, winner)
-                SELECT result_a_id, result_b_id, judge_id, winner
-                from df_h2h_judged
+                INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
+                SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
+                FROM df_h2h_judged
             """)
 
         # 6. recompute elo scores and confidence intervals

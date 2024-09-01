@@ -3,12 +3,19 @@ import { BASE_API_URL } from '../components/paths.ts';
 
 const HEAD_TO_HEADS_ENDPOINT = `${BASE_API_URL}/head-to-heads`;
 
+export type HeadToHeadHistoryItem = {
+  judge_id: number;
+  judge_name: string;
+  winner: string;
+};
+
 export type HeadToHead = {
   prompt: string;
   result_a_id: number;
   response_a: string;
   result_b_id: number;
   response_b: string;
+  history: HeadToHeadHistoryItem[];
 };
 
 type Params = {

@@ -4,6 +4,7 @@ import { IconDownload } from '@tabler/icons-react';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
 import { BASE_API_URL } from '../paths.ts';
 import { RankedModel } from './types.ts';
+import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 
 type Props = {
   model: RankedModel;
@@ -32,6 +33,7 @@ export function ExpandedModelDetails({ model }: Props) {
           <DeleteModelButton model={model} />
         </Group>
       </Group>
+      <HeadToHeadStatsTable modelId={model.id} />
     </Stack>
   );
 }

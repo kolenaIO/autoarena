@@ -30,6 +30,17 @@ class Model:
 
 
 @dataclass(frozen=True)
+class ModelHeadToHeadStats:
+    other_model_id: int
+    other_model_name: str
+    judge_id: int
+    judge_name: str
+    count_wins: int
+    count_losses: int
+    count_ties: int
+
+
+@dataclass(frozen=True)
 class HeadToHeadsRequest:
     project_id: int  # TODO: is this required given that models are scoped to projects?
     model_a_id: int

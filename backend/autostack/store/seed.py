@@ -3,7 +3,10 @@ from pathlib import Path
 import pandas as pd
 
 from autostack.api import api
-from autostack.api.service import ProjectService, JudgeService, TaskService, EloService
+from autostack.service.project import ProjectService
+from autostack.service.judge import JudgeService
+from autostack.service.task import TaskService
+from autostack.service.elo import EloService
 from autostack.judge.human import HumanJudge
 from autostack.store.database import DATABASE_DIRECTORY, SCHEMA_FILE, get_database_connection
 

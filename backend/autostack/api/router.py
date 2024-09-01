@@ -7,7 +7,10 @@ from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 from starlette.responses import StreamingResponse
 
 from autostack.api import api
-from autostack.api.service import ProjectService, JudgeService, TaskService, ModelService
+from autostack.service.project import ProjectService
+from autostack.service.judge import JudgeService
+from autostack.service.task import TaskService
+from autostack.service.model import ModelService
 from autostack.elo import compute_elo_single
 from autostack.judge.human import HumanJudge
 from autostack.tasks import recompute_confidence_intervals, auto_judge
@@ -92,6 +95,10 @@ def router() -> APIRouter:
         # TODO: what should the filename be?
         response.headers["Content-Disposition"] = "attachment; filename=head-to-head.csv"
         return response
+
+    @r.get("/model/{model_id}/head-to-head/stats")
+    def get_head_to_head_stats(model_id: int) -> list[api.ModelHeadToHeadStats]:
+        return ModelService.get_head_to_head_stats(model_id)
 
     @r.put("/head-to-heads")
     def get_head_to_heads(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:

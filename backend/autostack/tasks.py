@@ -2,7 +2,9 @@ import numpy as np
 
 from autostack.api import api as API
 from autostack.api.api import JudgeType
-from autostack.api.service import TaskService, JudgeService, EloService
+from autostack.service.judge import JudgeService
+from autostack.service.task import TaskService
+from autostack.service.elo import EloService
 from autostack.judge.utils import ABShufflingJudge
 from autostack.judge.factory import judge_factory
 from autostack.store.database import get_database_connection

@@ -1,4 +1,5 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { JudgeType } from '../components/Judges/types.ts';
 import { BASE_API_URL } from '../components/paths.ts';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
@@ -33,6 +34,13 @@ export function useCreateJudge({ projectId, options = {} }: Params) {
       });
       const result: Judge = await response.json();
       return result;
+    },
+    onSuccess: judge => {
+      notifications.show({
+        title: 'Judge created',
+        message: `Created automated judge '${judge.name}'`,
+        color: 'green',
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectId) });

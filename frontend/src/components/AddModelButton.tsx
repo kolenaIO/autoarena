@@ -1,4 +1,4 @@
-import { Button, Code, FileInput, Modal, TextInput, Text, Stack, ButtonVariant } from '@mantine/core';
+import { Button, Code, FileInput, Modal, TextInput, Text, Stack, ButtonVariant, MantineSize } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMemo, useState } from 'react';
@@ -9,8 +9,9 @@ import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
 type Props = {
   variant?: ButtonVariant;
+  size?: MantineSize;
 };
-export function AddModelButton({ variant }: Props) {
+export function AddModelButton({ variant, size }: Props) {
   const { projectId = -1 } = useUrlState(); // TODO: handle unset state?
   const { data: models } = useModels(projectId);
   const [isOpen, { toggle, close }] = useDisclosure(false);
@@ -38,7 +39,7 @@ export function AddModelButton({ variant }: Props) {
   const isDisabled = file == null || name === '' || nameError != null;
   return (
     <>
-      <Button variant={variant} leftSection={<IconPlus size={18} />} onClick={toggle}>
+      <Button variant={variant} size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
         Add Model
       </Button>
       <Modal

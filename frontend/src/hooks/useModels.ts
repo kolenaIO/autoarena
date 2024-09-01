@@ -18,9 +18,9 @@ export type Model = {
   votes: number;
 };
 
-export function useModels(projectId: number) {
+export function useModels(projectId: number | undefined) {
   return useQuery({
-    queryKey: getModelsQueryKey(projectId),
+    queryKey: getModelsQueryKey(projectId ?? -1),
     queryFn: async () => {
       const url = `${MODELS_ENDPOINT}/${projectId}`;
       const response = await fetch(url);
@@ -30,5 +30,6 @@ export function useModels(projectId: number) {
       const result: Model[] = await response.json();
       return result;
     },
+    enabled: projectId != null,
   });
 }

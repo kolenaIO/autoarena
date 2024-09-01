@@ -1,19 +1,19 @@
 import { useMemo, useState } from 'react';
-import { Group, Loader, Paper, Stack, Text, TextInput } from '@mantine/core';
-import { IconClick } from '@tabler/icons-react';
+import { Group, Loader, Paper, Stack, TextInput } from '@mantine/core';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { prop, sortBy } from 'ramda';
 import { useModels } from '../../hooks/useModels.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { AddModelButton } from '../AddModelButton.tsx';
+import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
 import { RankedModel } from './types.ts';
 import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 
 export function Leaderboard() {
-  const { projectId = -1 } = useUrlState();
+  const { projectId } = useUrlState();
   const [selectedRecords, setSelectedRecords] = useState<RankedModel[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading } = useModels(projectId);
@@ -47,7 +47,7 @@ export function Leaderboard() {
     [modelsSorted, filterValue, selectedRecords]
   );
 
-  return (
+  return isLoading || allModels.length > 0 ? (
     <Stack p="lg" align="center">
       <Group justify="space-between" w={1080} align="flex-end">
         <TextInput
@@ -61,47 +61,40 @@ export function Leaderboard() {
         {/* <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} /> */}
         <AddModelButton variant="light" />
       </Group>
-      {!isLoading && allModels.length === 0 ? (
-        <Stack justify="center">
-          <NonIdealState
-            IconComponent={IconClick}
-            description={
-              <Stack>
-                <Text>Add a model to the leaderboard</Text>
-                <AddModelButton />
-              </Stack>
-            }
-          />
-        </Stack>
-      ) : (
-        <Paper radius="md" pos="relative" withBorder w={1080}>
-          <DataTable<RankedModel>
-            striped
-            withTableBorder={false}
-            borderRadius="md"
-            horizontalSpacing="xs"
-            columns={LEADERBOARD_COLUMNS}
-            records={modelRecords}
-            idAccessor="id"
-            rowExpansion={{
-              content: ({ record }) => <ExpandedModelDetails model={record} />,
-              // TODO: ideally use default for smooth transition but render is sometimes choppy
-              collapseProps: { transitionDuration: 0 },
-            }}
-            sortStatus={sortStatus}
-            onSortStatusChange={setSortStatus}
-            fetching={isLoading}
-            loaderBackgroundBlur={4}
-            customLoader={<NonIdealState icon={<Loader />} description="Crunching leaderboard rankings..." />}
-            selectedRecords={selectedRecords}
-            onSelectedRecordsChange={setSelectedRecords}
-            isRecordSelectable={({ id }) => selectedRecords.length < 2 || selectedIds.has(id)}
-            allRecordsSelectionCheckboxProps={{ display: 'none' }}
-          />
 
-          {selectedRecords.length > 0 && <ExploreSelectedModels selectedModels={selectedRecords} />}
-        </Paper>
-      )}
+      <Paper radius="md" pos="relative" withBorder w={1080}>
+        <DataTable<RankedModel>
+          striped
+          withTableBorder={false}
+          borderRadius="md"
+          horizontalSpacing="xs"
+          columns={LEADERBOARD_COLUMNS}
+          records={modelRecords}
+          idAccessor="id"
+          rowExpansion={{
+            content: ({ record }) => <ExpandedModelDetails model={record} />,
+            // TODO: ideally use default for smooth transition but render is sometimes choppy
+            collapseProps: { transitionDuration: 0 },
+          }}
+          sortStatus={sortStatus}
+          onSortStatusChange={setSortStatus}
+          fetching={isLoading}
+          loaderBackgroundBlur={4}
+          customLoader={<NonIdealState icon={<Loader />} description="Crunching leaderboard rankings..." />}
+          selectedRecords={selectedRecords}
+          onSelectedRecordsChange={setSelectedRecords}
+          isRecordSelectable={({ id }) => selectedRecords.length < 2 || selectedIds.has(id)}
+          allRecordsSelectionCheckboxProps={{ display: 'none' }}
+        />
+
+        {selectedRecords.length > 0 && <ExploreSelectedModels selectedModels={selectedRecords} />}
+      </Paper>
+
+      <OnboardingTimeline />
+    </Stack>
+  ) : (
+    <Stack p="lg" align="center" justify="center" h="calc(100vh - 58px)">
+      <OnboardingTimeline />
     </Stack>
   );
 }

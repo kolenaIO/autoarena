@@ -19,10 +19,27 @@ def recompute_confidence_intervals(project_id: int) -> None:
 
 
 def auto_judge(project_id: int, model_id: int, model_name) -> None:
+    # 1. get judge(s) configured for judging
+    all_judges = JudgeService.get_all(project_id)
+    enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
+    if len(enabled_auto_judges) == 0:
+        return  # do nothing if no judges are configured
+
     status = f"Started auto-judge task for model '{model_name}'"
     task_id = TaskService.create(project_id, "auto-judge", status).id
+
     try:
-        # 1. get pairs eligible for judging
+        # TODO: implement multi-judge?
+        # 2. instantiate judge(s)
+        if len(enabled_auto_judges) > 1:
+            status = f"Ignoring {len(enabled_auto_judges) - 1} judges in favor of first"
+            TaskService.update(task_id, status=status, progress=0)
+        base_judge = enabled_auto_judges[0]
+        judge = ABShufflingJudge(judge_factory(base_judge))
+        judge_id = base_judge.id
+        TaskService.update(task_id, status=f"Using judge '{judge.name}'", progress=0)
+
+        # 3. get pairs eligible for judging
         with get_database_connection() as conn:
             df_h2h = conn.execute(
                 """
@@ -41,24 +58,13 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
                 """,
                 dict(project_id=project_id, model_id=model_id),
             ).df()
-        status = f"Found {len(df_h2h)} battles with {len(set(df_h2h["model_b_id"]))} models to judge"
+        if len(df_h2h) == 0:
+            TaskService.update(task_id, status="No head-to-heads found, exiting", progress=1)
+            return
+        status = f"Found {len(df_h2h)} head-to-heads with {len(set(df_h2h["model_b_id"]))} models to judge"
         TaskService.update(task_id, status=status, progress=0)
 
-        # TODO: implement multi-judge?
-        # 2. get judge(s) configured for judging
-        all_judges = JudgeService.get_all(project_id)
-        enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
-        if len(enabled_auto_judges) == 0:
-            raise RuntimeError("no auto-judges configured")
-        if len(enabled_auto_judges) > 1:
-            status = f"Ignoring {len(enabled_auto_judges) - 1} judges in favor of first"
-            TaskService.update(task_id, status=status, progress=0)
-        base_judge = enabled_auto_judges[0]
-        judge = ABShufflingJudge(judge_factory(base_judge))
-        judge_id = base_judge.id
-        TaskService.update(task_id, status=f"Using judge '{judge.name}'", progress=0)
-
-        # 3. stream judgement requests
+        # 4. stream judgement requests
         head_to_heads = [
             API.HeadToHead(**r)
             for _, r in df_h2h[["prompt", "result_a_id", "response_a", "result_b_id", "response_b"]].iterrows()
@@ -69,9 +75,9 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
         for i, batch in enumerate(np.array_split(head_to_heads, n_batches)):
             responses.extend(judge.judge_batch(batch))  # TODO: stream to database?
             status = f"Judged {len(responses)} of {len(head_to_heads)} battles"
-            TaskService.update(task_id, status, progress=(i + 1) / n_batches)
+            TaskService.update(task_id, status, progress=0.95 * ((i + 1) / n_batches))
 
-        # 4. upload judgements to database
+        # 5. upload judgements to database
         with get_database_connection() as conn:
             df_h2h_judged = df_h2h.copy()
             df_h2h_judged["judge_id"] = judge_id
@@ -82,10 +88,11 @@ def auto_judge(project_id: int, model_id: int, model_name) -> None:
                 from df_h2h_judged
             """)
 
-        # 5. recompute elo scores and confidence intervals
+        # 6. recompute elo scores and confidence intervals
+        TaskService.update(task_id, "Recomputing Elo scores and confidence intervals", progress=0.96)
         EloService.reseed_scores(project_id)
         TaskService.update(task_id, "Recomputed Elo scores and confidence intervals", progress=1)
         TaskService.finish(task_id)
     except Exception as e:
-        TaskService.finish(task_id, f"Crashed ({e})")
+        TaskService.finish(task_id, f"Failed ({e})")
         raise e

@@ -128,7 +128,12 @@ export function JudgeAccordionItem({ judge: { id, judge_type, name, description,
         <Group justify="space-between" pl="xs" pr="lg">
           <Stack gap={0}>
             <Text c={!isEnabled ? 'gray.6' : undefined}>
-              {name} {judge_type !== 'human' && `(${judgeTypeToHumanReadableName(judge_type)})`}
+              {name}{' '}
+              {judge_type !== 'human' && (
+                <Text span c="dimmed">
+                  ({judgeTypeToHumanReadableName(judge_type)})
+                </Text>
+              )}
             </Text>
             <Text c="dimmed" size="xs">
               {description}

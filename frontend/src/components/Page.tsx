@@ -1,5 +1,5 @@
 import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
-import { IconClick, IconColumns2, IconCrown, IconGavel } from '@tabler/icons-react';
+import { IconColumns2, IconCrown, IconGavel } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { HeadToHead } from './HeadToHead.tsx';
@@ -7,9 +7,8 @@ import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { KolenaLogo } from './KolenaLogo.tsx';
 import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
-import { NonIdealState } from './NonIdealState.tsx';
-import { CreateProjectButton } from './CreateProjectButton.tsx';
 import { TasksDrawer } from './TasksDrawer.tsx';
+import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';
 export const TAB_COMPARISON = 'Head-to-Head';
@@ -74,16 +73,8 @@ export function Page({ tab }: Props) {
         {projectId != null ? (
           <Leaderboard />
         ) : (
-          <Stack justify="center" h="calc(100vh - 56px)">
-            <NonIdealState
-              IconComponent={IconClick}
-              description={
-                <Stack>
-                  <Text>Select a project to get started, or</Text>
-                  <CreateProjectButton />
-                </Stack>
-              }
-            />
+          <Stack justify="center" align="center" h="calc(100vh - 56px)">
+            <OnboardingTimeline />
           </Stack>
         )}
       </Tabs.Panel>

@@ -2,14 +2,17 @@ import { Accordion, Button, Code, Collapse, Drawer, Loader, Progress, Stack, Tex
 import { IconBooks, IconCalculator, IconCpu, IconGavel } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Task, useTasks } from '../hooks/useTasks.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { pluralize } from '../lib/string.ts';
+import { getModelsQueryKey } from '../hooks/useModels.ts';
 
 export function TasksDrawer() {
   const { projectId } = useUrlState();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
+  const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
   const { data: tasks } = useTasks({
     projectId,
@@ -18,6 +21,12 @@ export function TasksDrawer() {
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ progress }) => progress < 1), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ progress }) => progress >= 1), [tasksSorted]);
+
+  // reload models if any tasks are newly completed
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectId ?? -1) });
+  }, [tasksCompleted.length]);
+
   return (
     <>
       <Button

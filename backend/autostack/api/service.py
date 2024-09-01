@@ -1,6 +1,7 @@
 from datetime import datetime
 
 import numpy as np
+import pandas as pd
 
 from autostack.api import api
 from autostack.elo import compute_elo, add_rank_and_confidence_intervals
@@ -183,6 +184,68 @@ class ModelService:
             ).df()
         df_model = df_model.replace({np.nan: None})
         return [api.Model(**r) for _, r in df_model.iterrows()]
+
+    @staticmethod
+    def delete(model_id: int) -> None:
+        params = dict(model_id=model_id)
+        with get_database_connection() as conn:
+            conn.execute(
+                """
+                DELETE FROM battle b
+                WHERE EXISTS (
+                    SELECT 1
+                    FROM result r
+                    WHERE r.model_id = $model_id
+                    AND (b.result_a_id = r.id OR b.result_b_id = r.id)
+                )
+                """,
+                params,
+            )
+            conn.execute("DELETE FROM result WHERE model_id = $model_id", params)
+            conn.execute("DELETE FROM model WHERE id = $model_id", params)
+
+    @staticmethod
+    def get_df_result(model_id: int) -> pd.DataFrame:
+        with get_database_connection() as conn:
+            df_result = conn.execute(
+                """
+                SELECT
+                    m.name AS model,
+                    r.prompt AS prompt,
+                    r.response AS result
+                FROM model m
+                JOIN result r ON r.model_id = m.id
+                WHERE m.id = $model_id
+            """,
+                dict(model_id=model_id),
+            ).df()
+        return df_result
+
+    @staticmethod
+    def get_df_head_to_head(model_id: int) -> pd.DataFrame:
+        with get_database_connection() as conn:
+            df_h2h = conn.execute(
+                """
+                SELECT
+                    ra.prompt,
+                    ma.name AS model_a,
+                    mb.name AS model_b,
+                    ra.response AS response_a,
+                    rb.response AS response_b,
+                    j.name AS judge,
+                    b.winner
+                FROM battle b
+                JOIN judge j ON b.judge_id = j.id
+                JOIN result ra ON ra.id = b.result_a_id
+                JOIN result rb ON rb.id = b.result_b_id
+                JOIN model ma ON ma.id = ra.model_id
+                JOIN model mb ON mb.id = rb.model_id
+                WHERE ma.id = $model_id
+                OR mb.id = $model_id
+            """,
+                dict(model_id=model_id),
+            ).df()
+        return df_h2h
 
 
 class EloService:

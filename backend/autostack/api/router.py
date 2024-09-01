@@ -1,9 +1,10 @@
 import dataclasses
-from io import BytesIO
+from io import BytesIO, StringIO
 from typing import Annotated
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
+from starlette.responses import StreamingResponse
 
 from autostack.api import api
 from autostack.api.service import ProjectService, JudgeService, TaskService, ModelService
@@ -67,6 +68,30 @@ def router() -> APIRouter:
         new_model = [model for model in models if model.id == new_model_id][0]
         background_tasks.add_task(auto_judge, project_id, new_model_id, new_model.name)
         return new_model
+
+    @r.delete("/model/{model_id}")
+    def delete_model(model_id: int) -> None:
+        ModelService.delete(model_id)
+
+    @r.get("/model/{model_id}/results")
+    def download_model_results_csv(model_id: int) -> StreamingResponse:
+        df_result = ModelService.get_df_result(model_id)
+        model_name = df_result.iloc[0].model
+        stream = StringIO()
+        df_result.to_csv(stream, index=False)
+        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+        response.headers["Content-Disposition"] = f"attachment; filename={model_name}.csv"
+        return response
+
+    @r.get("/model/{model_id}/head-to-heads")
+    def download_model_head_to_heads_csv(model_id: int) -> StreamingResponse:
+        df_result = ModelService.get_df_head_to_head(model_id)
+        stream = StringIO()
+        df_result.to_csv(stream, index=False)
+        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+        # TODO: what should the filename be?
+        response.headers["Content-Disposition"] = "attachment; filename=head-to-head.csv"
+        return response
 
     @r.put("/head-to-heads")
     def get_head_to_heads(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:

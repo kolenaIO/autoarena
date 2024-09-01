@@ -1,4 +1,5 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
+import { notifications } from '@mantine/notifications';
 import { BASE_API_URL } from '../components/paths.ts';
 import { getJudgesQueryKey } from './useJudges.ts';
 
@@ -19,6 +20,13 @@ export function useDeleteJudge({ projectId, options = {} }: Params) {
     mutationFn: async (judgeId: number) => {
       const url = `${DELETE_JUDGE_ENDPOINT}/${judgeId}`;
       await fetch(url, { method: 'DELETE' });
+    },
+    onError: () => {
+      notifications.show({
+        title: 'Failed to delete judge',
+        message: 'Unable to delete judge and related votes',
+        color: 'red',
+      });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectId) });

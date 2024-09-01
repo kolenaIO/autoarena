@@ -1,21 +1,27 @@
 import { Button, Code, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { IconX } from '@tabler/icons-react';
+import { useDeleteModel } from '../hooks/useDeleteModel.ts';
+import { useUrlState } from '../hooks/useUrlState.ts';
+import { Model } from '../hooks/useModels.ts';
 import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
-import { RankedModel } from './Leaderboard/types.ts';
 
 type Props = {
-  model: RankedModel;
+  model: Model;
 };
 export function DeleteModelButton({ model }: Props) {
+  const { projectId = -1 } = useUrlState();
   const [isOpen, { toggle, close }] = useDisclosure(false);
+  const { mutate: deleteModel } = useDeleteModel({ projectId });
 
   function handleDelete() {
-    console.log('delete');
+    deleteModel(model.id);
+    close();
   }
 
   return (
     <>
-      <Button variant="light" color="red" onClick={toggle}>
+      <Button variant="light" color="red" onClick={toggle} leftSection={<IconX />}>
         Delete
       </Button>
       <Modal

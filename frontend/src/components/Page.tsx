@@ -3,12 +3,12 @@ import { IconClick, IconColumns2, IconCrown, IconGavel } from '@tabler/icons-rea
 import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { HeadToHead } from './HeadToHead.tsx';
-import { Leaderboard } from './Leaderboard.tsx';
+import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { KolenaLogo } from './KolenaLogo.tsx';
 import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
 import { NonIdealState } from './NonIdealState.tsx';
-import { CreateNewProject } from './CreateNewProject.tsx';
+import { CreateProjectButton } from './CreateProjectButton.tsx';
 import { TasksDrawer } from './TasksDrawer.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';
@@ -80,7 +80,7 @@ export function Page({ tab }: Props) {
               description={
                 <Stack>
                   <Text>Select a project to get started, or</Text>
-                  <CreateNewProject />
+                  <CreateProjectButton />
                 </Stack>
               }
             />

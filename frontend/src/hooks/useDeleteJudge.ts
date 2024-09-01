@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
-import { getJudgesQueryKey, Judge } from './useJudges.ts';
+import { getJudgesQueryKey } from './useJudges.ts';
 
 const DELETE_JUDGE_ENDPOINT = `${BASE_API_URL}/judge`;
 
@@ -10,7 +10,7 @@ function getDeleteJudgeQueryKey() {
 
 type Params = {
   projectId: number;
-  options?: UseMutationOptions<Judge, Error, number>;
+  options?: UseMutationOptions<void, Error, number>;
 };
 export function useDeleteJudge({ projectId, options = {} }: Params) {
   const queryClient = useQueryClient();

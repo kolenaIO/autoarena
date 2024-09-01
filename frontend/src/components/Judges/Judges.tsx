@@ -19,24 +19,9 @@ import { Judge, useJudges } from '../../hooks/useJudges.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
-import { JudgeType, judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
+import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
 import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
-
-const PROPRIETARY_JUDGES: { [key: string]: { judgeType: JudgeType; modelOptions: string[] } } = {
-  openai: { judgeType: 'openai', modelOptions: ['gpt-4o', 'gpt-4o-mini'] },
-  anthropic: {
-    judgeType: 'anthropic',
-    modelOptions: [
-      'claude-3-5-sonnet-20240620',
-      'claude-3-opus-20240229',
-      'claude-3-sonnet-20240229',
-      'claude-3-haiku-20240307',
-    ],
-  },
-  gemini: { judgeType: 'gemini', modelOptions: ['gemini-1.5-flash', 'gemini-1.5-pro'] },
-  cohere: { judgeType: 'cohere', modelOptions: ['command-r', 'command-r-plus'] },
-};
 
 export function Judges() {
   const { projectId } = useUrlState();
@@ -91,14 +76,35 @@ export function Judges() {
         </SimpleGrid>
 
         <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
-        <CreateProprietaryJudgeModal isOpen={isOpenAIOpen} onClose={closeOpenAI} {...PROPRIETARY_JUDGES.openai} />
+        <CreateProprietaryJudgeModal
+          isOpen={isOpenAIOpen}
+          onClose={closeOpenAI}
+          judgeType="openai"
+          modelOptions={['gpt-4o', 'gpt-4o-mini']}
+        />
         <CreateProprietaryJudgeModal
           isOpen={isAnthropicOpen}
           onClose={closeAnthropic}
-          {...PROPRIETARY_JUDGES.anthropic}
+          judgeType="anthropic"
+          modelOptions={[
+            'claude-3-5-sonnet-20240620',
+            'claude-3-opus-20240229',
+            'claude-3-sonnet-20240229',
+            'claude-3-haiku-20240307',
+          ]}
         />
-        <CreateProprietaryJudgeModal isOpen={isGeminiOpen} onClose={closeGemini} {...PROPRIETARY_JUDGES.gemini} />
-        <CreateProprietaryJudgeModal isOpen={isCohereOpen} onClose={closeCohere} {...PROPRIETARY_JUDGES.cohere} />
+        <CreateProprietaryJudgeModal
+          isOpen={isGeminiOpen}
+          onClose={closeGemini}
+          judgeType="gemini"
+          modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
+        />
+        <CreateProprietaryJudgeModal
+          isOpen={isCohereOpen}
+          onClose={closeCohere}
+          judgeType="cohere"
+          modelOptions={['command-r', 'command-r-plus']}
+        />
       </Stack>
     </Center>
   );

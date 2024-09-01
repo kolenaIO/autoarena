@@ -6,7 +6,7 @@ import { useCreateProject } from '../hooks/useCreateProject.ts';
 import { useProjects } from '../hooks/useProjects.ts';
 import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
-export function CreateNewProject() {
+export function CreateProjectButton() {
   const [isOpen, { toggle, close }] = useDisclosure(false);
   const { data: projects } = useProjects();
   const { mutate: createProject } = useCreateProject();

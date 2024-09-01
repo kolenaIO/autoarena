@@ -62,7 +62,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
           placeholder="Select Model"
           data={availableModels}
           value={name}
-          onChange={setName}
+          onChange={newName => setName(newName ?? '')}
           searchable
           flex={1}
         />

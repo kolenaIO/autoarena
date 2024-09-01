@@ -10,7 +10,7 @@ import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 type Props = {
   variant?: ButtonVariant;
 };
-export function AddModel({ variant }: Props) {
+export function AddModelButton({ variant }: Props) {
   const { projectId = -1 } = useUrlState(); // TODO: handle unset state?
   const { data: models } = useModels(projectId);
   const [isOpen, { toggle, close }] = useDisclosure(false);

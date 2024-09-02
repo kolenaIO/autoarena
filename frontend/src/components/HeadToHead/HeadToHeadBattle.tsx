@@ -20,7 +20,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
   const navigate = useNavigate();
   const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
   // TODO: loading state?
-  const { data: battles, isLoading } = useHeadToHeads({ projectId, modelAId, modelBId });
+  const { data: battles, isLoading } = useHeadToHeads({ modelAId, modelBId });
   const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
   const [battleIndex, setBattleIndex] = useState(0);
   const battle = useMemo(() => battles?.[battleIndex], [battles, battleIndex]);
@@ -90,7 +90,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             {pluralize(nBattles, 'head-to-head battle')} between selected models
           </Text>
         </Group>
-        <Paper withBorder p="md">
+        <Paper withBorder p="md" bg="gray.0">
           <MarkdownContent>{`**Prompt:** ${battle?.prompt}`}</MarkdownContent>
         </Paper>
         <SimpleGrid cols={2}>

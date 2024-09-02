@@ -59,6 +59,7 @@ export function OnboardingTimeline() {
           autoClose: 10_000,
           id: 'onboarding-complete',
         });
+        setOnboardingGuideDismissed(true); // only show this message once per project
       }
       return newActiveStage;
     });

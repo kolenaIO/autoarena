@@ -25,5 +25,6 @@ module.exports = {
       },
     ],
     'import/newline-after-import': ['error', { count: 1 }],
+    'no-console': ['error', { allow: ['warn', 'error', 'info'] }], // allow warn, error, and info but not log
   },
 }

@@ -11,6 +11,7 @@ import {
 export type JudgeType = 'human' | 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'cohere' | 'custom';
 
 export function judgeTypeIconComponent(judgeType: JudgeType) {
+  // TODO: get SVGs for real Ollama, Anthropic, and Cohere logos
   switch (judgeType) {
     case 'human':
       return IconUsers;
@@ -21,9 +22,9 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
     case 'gemini':
       return IconBrandGoogle;
     case 'anthropic':
-      return IconLetterA; // TODO
+      return IconLetterA;
     case 'cohere':
-      return IconBrandCoinbase; // TODO
+      return IconBrandCoinbase;
     case 'custom':
     default:
       return IconRobot;

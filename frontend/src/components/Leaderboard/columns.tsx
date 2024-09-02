@@ -13,7 +13,7 @@ export const LOADING_MODELS: Model[] = Array(16)
     return {
       id: i,
       name: uuidv4().substring(0, 10 + Math.random() * 25),
-      created: 'TODO',
+      created: new Date().toString(),
       elo,
       q025: elo - Math.random() * 50,
       q975: elo + Math.random() * 50,

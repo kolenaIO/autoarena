@@ -13,6 +13,7 @@ import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 import { LeaderboardSettings } from './LeaderboardSettings.tsx';
+import { rankBy } from './utils.ts';
 
 export function Leaderboard() {
   const { projectId } = useUrlState();
@@ -31,10 +32,7 @@ export function Leaderboard() {
   const globalHi = Math.max(...allModels.map(({ elo, q975 }) => Math.max(elo, q975 ?? 0)));
   // TODO: should assign the same rank to models with equal scores
   const modelsRanked = useMemo(
-    () =>
-      sortBy(prop('elo'))(allModels)
-        .reverse()
-        .map<RankedModel>((model, i) => ({ ...model, rank: i + 1, globalLo, globalHi })),
+    () => rankBy('elo', allModels, 'desc').map<RankedModel>(model => ({ ...model, globalLo, globalHi })),
     [allModels, globalLo, globalHi]
   );
   const modelsSorted = useMemo(() => {
@@ -79,7 +77,7 @@ export function Leaderboard() {
           idAccessor="id"
           rowExpansion={{
             content: ({ record }) => <ExpandedModelDetails model={record} />,
-            // TODO: ideally use default for smooth transition but render is sometimes choppy
+            // NOTE: default smooth transition can be choppy with more than ~20 models, turn it off
             collapseProps: { transitionDuration: 0 },
           }}
           sortStatus={sortStatus}

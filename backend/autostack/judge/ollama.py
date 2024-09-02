@@ -1,5 +1,4 @@
 import ollama
-from tqdm import tqdm
 
 from autostack.api import api
 from autostack.api.api import JudgeType
@@ -24,7 +23,7 @@ class OllamaJudge(Judge):
         return f"Ollama model '{self.model}'"
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in tqdm(batch, desc=self.name)]
+        return [self._judge_one(h2h) for h2h in batch]
 
     def _judge_one(self, h2h: api.HeadToHead) -> str:
         response = ollama.chat(
@@ -34,4 +33,4 @@ class OllamaJudge(Judge):
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
         )
-        return response["message"]["content"]
+        return response["message"]["content"].strip()  # strip any whitespace

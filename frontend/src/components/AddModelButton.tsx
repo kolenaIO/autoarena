@@ -12,7 +12,7 @@ type Props = {
   size?: MantineSize;
 };
 export function AddModelButton({ variant, size }: Props) {
-  const { projectId = -1 } = useUrlState(); // TODO: handle unset state?
+  const { projectId = -1 } = useUrlState();
   const { data: models } = useModels(projectId);
   const [isOpen, { toggle, close }] = useDisclosure(false);
   const { mutate: uploadModelResults } = useUploadModelResults({ projectId });
@@ -42,13 +42,7 @@ export function AddModelButton({ variant, size }: Props) {
       <Button variant={variant} size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
         Add Model
       </Button>
-      <Modal
-        opened={isOpen}
-        centered
-        onClose={handleClose}
-        title="Add Model" // TODO: better title?
-        transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
-      >
+      <Modal opened={isOpen} centered onClose={handleClose} title="Add Model">
         <Stack>
           <FileInput
             label="Model Results"

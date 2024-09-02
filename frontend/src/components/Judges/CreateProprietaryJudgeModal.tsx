@@ -35,7 +35,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       project_id: projectId,
       judge_type: judgeType,
       name,
-      description: `${judgeTypeToHumanReadableName(judgeType)} judge model '${name}' called via API`, // TODO
+      description: `${judgeTypeToHumanReadableName(judgeType)} judge model '${name}' called via API`,
     });
     handleClose();
   }
@@ -48,7 +48,6 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       onClose={handleClose}
       centered
       title={`Create ${judgeTypeToHumanReadableName(judgeType)} Judge`}
-      transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
     >
       <Stack>
         <Text size="sm">Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>

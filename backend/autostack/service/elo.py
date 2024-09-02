@@ -5,6 +5,7 @@ import pandas as pd
 from pydantic.dataclasses import dataclass
 from tqdm import tqdm
 
+from autostack.api import api
 from autostack.service.model import ModelService
 from autostack.store.database import get_database_connection
 
@@ -27,18 +28,22 @@ class EloService:
             return conn.execute(
                 """
                 SELECT
+                    j.id AS judge_id,
+                    j.name AS judge_name,
                     ma.id AS model_a_id,
                     ma.name AS model_a,
                     mb.id AS model_b_id,
                     mb.name AS model_b,
                     b.winner
                 FROM battle b
+                JOIN judge j ON b.judge_id = j.id
                 JOIN result ra ON b.result_a_id = ra.id
                 JOIN result rb ON b.result_b_id = rb.id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
                 WHERE ma.project_id = $project_id
                 AND mb.project_id = $project_id
+                ORDER BY b.id -- ensure we are replaying battles in the order they were submitted
             """,
                 dict(project_id=project_id),
             ).df()
@@ -67,20 +72,21 @@ class EloService:
             )
 
     @staticmethod
-    def get_history(model_id: int, config: EloConfig = DEFAULT_ELO_CONFIG) -> list[float]:
+    def get_history(model_id: int, config: EloConfig = DEFAULT_ELO_CONFIG) -> list[api.EloHistoryItem]:
         project_id = ModelService.get_project_id(model_id)
         df_h2h = EloService.get_df_head_to_head(project_id)
         rating: dict[int, float] = defaultdict(lambda: config.default_score)
-        history: list[float] = []
+        history: list[api.EloHistoryItem] = []
         for r in df_h2h.itertuples():
             id_a, id_b = r.model_a_id, r.model_b_id
             elo_a, elo_b = EloService.compute_elo_single(rating[id_a], rating[id_b], r.winner, config=config)
             rating[id_a] = elo_a
             rating[id_b] = elo_b
+            kw = dict(judge_id=r.judge_id, judge_name=r.judge_name)
             if id_a == model_id:
-                history.append(elo_a)
+                history.append(api.EloHistoryItem(other_model_id=id_b, other_model_name=r.model_b, elo=elo_a, **kw))
             if id_b == model_id:
-                history.append(elo_b)
+                history.append(api.EloHistoryItem(other_model_id=id_a, other_model_name=r.model_a, elo=elo_b, **kw))
         return history
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py

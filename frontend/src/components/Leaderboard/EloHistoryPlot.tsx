@@ -1,7 +1,9 @@
-import { LineChart } from '@mantine/charts';
+import { ChartTooltipProps, LineChart } from '@mantine/charts';
 import { useMemo } from 'react';
-import { LoadingOverlay, Paper, Stack, Title } from '@mantine/core';
-import { useModelEloHistory } from '../../hooks/useModelEloHistory.ts';
+import { LoadingOverlay, Paper, Stack, Title, Grid } from '@mantine/core';
+import { EloHistoryItem, useModelEloHistory } from '../../hooks/useModelEloHistory.ts';
+
+type ChartDatum = EloHistoryItem & { position: number };
 
 type Props = {
   modelId: number;
@@ -9,11 +11,14 @@ type Props = {
 export function EloHistoryPlot({ modelId }: Props) {
   const { data: eloHistory, isLoading } = useModelEloHistory(modelId);
 
-  const chartData = useMemo(() => (eloHistory ?? []).map((elo, i) => ({ battle: i + 1, elo })), [eloHistory]);
+  const chartData: ChartDatum[] = useMemo(
+    () => (eloHistory ?? []).map((item, i) => ({ position: i + 1, ...item })),
+    [eloHistory]
+  );
   const [minElo, maxElo] = useMemo(
     () =>
       (eloHistory ?? []).reduce(
-        ([prevMin, prevMax], elo) => [Math.min(prevMin, elo), Math.max(prevMax, elo)],
+        ([prevMin, prevMax], { elo }) => [Math.min(prevMin, elo), Math.max(prevMax, elo)],
         [Infinity, -Infinity]
       ),
     [eloHistory]
@@ -25,20 +30,49 @@ export function EloHistoryPlot({ modelId }: Props) {
         <Title order={6}>Elo Score History</Title>
         <LineChart
           h={300}
-          data={chartData}
           withDots={false}
-          withTooltip={false}
-          dataKey="battle"
-          title="Elo Score History"
+          data={chartData}
+          dataKey="position"
+          series={[{ name: 'elo', color: 'kolena.4' }]}
+          valueFormatter={value => value.toFixed(1)}
+          curveType="bump"
+          xAxisLabel="# Head-to-Heads"
+          xAxisProps={{ minTickGap: 20 }}
           yAxisLabel="Elo Score"
           yAxisProps={{ domain: [minElo, maxElo] }}
-          valueFormatter={value => value.toFixed(1)}
-          xAxisLabel="# Head-to-Heads"
-          series={[{ name: 'elo', color: 'kolena.4' }]}
-          curveType="bump"
+          tooltipProps={{ content: ({ payload }) => <EloHistoryPlotTooltip payload={payload} /> }}
         />
         <LoadingOverlay visible={isLoading} overlayProps={{ radius: 'md', blur: 4 }} />
       </Stack>
+    </Paper>
+  );
+}
+
+function EloHistoryPlotTooltip({ payload }: Pick<ChartTooltipProps, 'payload'>) {
+  const datum: ChartDatum = payload?.[0]?.payload;
+  if (datum == null) {
+    return <></>;
+  }
+  return (
+    <Paper withBorder shadow="sm" radius="md" p="xs" fz="xs">
+      <Grid gutter={2} w={250}>
+        <Grid.Col span={4} fw="bold">
+          Round
+        </Grid.Col>
+        <Grid.Col span={8}>{datum.position.toLocaleString()}</Grid.Col>
+        <Grid.Col span={4} fw="bold">
+          Judge
+        </Grid.Col>
+        <Grid.Col span={8}>{datum.judge_name}</Grid.Col>
+        <Grid.Col span={4} fw="bold">
+          Opponent
+        </Grid.Col>
+        <Grid.Col span={8}>{datum.other_model_name}</Grid.Col>
+        <Grid.Col span={4} fw="bold">
+          Elo Score
+        </Grid.Col>
+        <Grid.Col span={8}>{datum.elo.toFixed(1)}</Grid.Col>
+      </Grid>
     </Paper>
   );
 }

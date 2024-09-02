@@ -42,8 +42,8 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
       if (battle != null) {
         submitJudgement({
           project_id: projectId,
-          result_a_id: battle?.result_a_id,
-          result_b_id: battle?.result_b_id,
+          result_a_id: battle.result_a_id,
+          result_b_id: battle.result_b_id,
           winner: vote,
         });
         setBattleIndex(prev => prev + 1);

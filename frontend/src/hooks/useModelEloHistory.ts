@@ -9,6 +9,14 @@ export function getModelEloHistoryQueryKey(modelId: number) {
   return [`${BASE_API_URL}/model`, modelId, '/elo-history'];
 }
 
+export type EloHistoryItem = {
+  other_model_id: number;
+  other_model_name: string;
+  judge_id: number;
+  judge_name: string;
+  elo: number;
+};
+
 export function useModelEloHistory(modelId: number | undefined) {
   return useQuery({
     queryKey: getModelEloHistoryQueryKey(modelId ?? -1),
@@ -18,7 +26,7 @@ export function useModelEloHistory(modelId: number | undefined) {
       if (!response.ok) {
         return;
       }
-      const result: number[] = await response.json();
+      const result: EloHistoryItem[] = await response.json();
       return result;
     },
     enabled: modelId != null,

@@ -127,3 +127,17 @@ class UpdateJudgeRequest:
     project_id: int
     judge_id: int
     enabled: bool
+
+
+@dataclass(frozen=True)
+class EloHistoryItem:
+    other_model_id: int
+    other_model_name: str
+    judge_id: int
+    judge_name: str
+    elo: float
+
+
+@dataclass(frozen=True)
+class CreateFineTuningTaskRequest:
+    base_model: str

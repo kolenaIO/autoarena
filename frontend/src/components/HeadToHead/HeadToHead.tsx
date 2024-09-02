@@ -108,7 +108,7 @@ export function HeadToHead() {
         {modelA != null && modelB != null ? (
           <HeadToHeadBattle modelAId={modelA.id} modelBId={modelB.id} />
         ) : modelA != null || modelB != null ? (
-          <HeadToHeadSingleModel modelId={modelA?.id ?? modelB?.id} />
+          <HeadToHeadSingleModel modelId={modelA?.id ?? modelB?.id ?? -1} />
         ) : (
           <NonIdealState IconComponent={IconClick} description="Select two models to compare head-to-head" />
         )}

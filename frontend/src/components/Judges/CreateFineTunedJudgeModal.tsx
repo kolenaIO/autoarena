@@ -1,11 +1,11 @@
 import { Anchor, Code, Modal, Select, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import moment from 'moment';
-import { notifications } from '@mantine/notifications';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useProjects } from '../../hooks/useProjects.ts';
 import { pluralize } from '../../lib/string.ts';
 import { useModels } from '../../hooks/useModels.ts';
+import { useCreateFineTuningTask } from '../../hooks/useCreateFineTuningTask.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 const AVAILABLE_BASE_MODELS = ['gemma2:9b', 'gemma2:2b', 'llama3.1:8b'];
@@ -18,20 +18,21 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   const { projectId = -1 } = useUrlState();
   const { data: projects } = useProjects();
   const { data: models } = useModels(projectId);
+  const { mutate: createFineTuningTask } = useCreateFineTuningTask({ projectId });
   const project = useMemo(() => (projects ?? []).find(({ id }) => id === projectId), [projects, projectId]);
   const [baseModel, setBaseModel] = useState<string | null>(null);
 
   const nVotes = useMemo(() => (models ?? []).reduce((acc, x) => acc + x.votes, 0) / 2, [models]);
 
   function handleClose() {
+    setBaseModel(null);
     onClose();
   }
 
   function handleSubmit() {
-    notifications.show({
-      title: 'Fine-tuning task created',
-      message: "View training progress and details in the 'tasks' drawer",
-    });
+    if (baseModel != null) {
+      createFineTuningTask({ base_model: baseModel });
+    }
     handleClose();
   }
 

@@ -7,6 +7,7 @@ from starlette.responses import StreamingResponse
 
 from autostack.api import api
 from autostack.service.elo import EloService
+from autostack.service.fine_tuning import FineTuningService
 from autostack.service.head_to_head import HeadToHeadService
 from autostack.service.project import ProjectService
 from autostack.service.judge import JudgeService
@@ -53,7 +54,7 @@ def router() -> APIRouter:
         return ModelService.get_results(model_id)
 
     @r.get("/model/{model_id}/elo-history")
-    def get_elo_history(model_id: int) -> list[float]:
+    def get_elo_history(model_id: int) -> list[api.EloHistoryItem]:
         return EloService.get_history(model_id)
 
     @r.delete("/model/{model_id}")
@@ -127,5 +128,9 @@ def router() -> APIRouter:
     @r.put("/elo/reseed-scores/{project_id}")
     def reseed_scores(project_id: int) -> None:
         EloService.reseed_scores(project_id)
+
+    @r.post("/fine-tune/{project_id}")
+    def create_fine_tuning_task(project_id: int, request: api.CreateFineTuningTaskRequest) -> None:
+        FineTuningService.create_task(project_id, request)
 
     return r

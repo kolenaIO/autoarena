@@ -5,6 +5,7 @@ import pandas as pd
 from pydantic.dataclasses import dataclass
 from tqdm import tqdm
 
+from autostack.service.model import ModelService
 from autostack.store.database import get_database_connection
 
 
@@ -21,11 +22,16 @@ DEFAULT_ELO_CONFIG = EloConfig()
 
 class EloService:
     @staticmethod
-    def reseed_scores(project_id: int) -> None:
+    def get_df_head_to_head(project_id: int) -> pd.DataFrame:
         with get_database_connection() as conn:
-            df_battle = conn.execute(
+            return conn.execute(
                 """
-                SELECT ma.name AS model_a, mb.name AS model_b, b.winner
+                SELECT
+                    ma.id AS model_a_id,
+                    ma.name AS model_a,
+                    mb.id AS model_b_id,
+                    mb.name AS model_b,
+                    b.winner
                 FROM battle b
                 JOIN result ra ON b.result_a_id = ra.id
                 JOIN result rb ON b.result_b_id = rb.id
@@ -36,8 +42,12 @@ class EloService:
             """,
                 dict(project_id=project_id),
             ).df()
-        df_elo = EloService.compute_elo(df_battle)
-        df_elo = EloService.compute_confidence_intervals(df_elo, df_battle)
+
+    @staticmethod
+    def reseed_scores(project_id: int) -> None:
+        df_h2h = EloService.get_df_head_to_head(project_id)
+        df_elo = EloService.compute_elo(df_h2h)
+        df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)
         with get_database_connection() as conn:
             conn.execute(  # reset all scores before updating new ones
                 "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL WHERE project_id = $project_id",
@@ -55,6 +65,23 @@ class EloService:
             """,
                 dict(project_id=project_id),
             )
+
+    @staticmethod
+    def get_history(model_id: int, config: EloConfig = DEFAULT_ELO_CONFIG) -> list[float]:
+        project_id = ModelService.get_project_id(model_id)
+        df_h2h = EloService.get_df_head_to_head(project_id)
+        rating: dict[int, float] = defaultdict(lambda: config.default_score)
+        history: list[float] = []
+        for r in df_h2h.itertuples():
+            id_a, id_b = r.model_a_id, r.model_b_id
+            elo_a, elo_b = EloService.compute_elo_single(rating[id_a], rating[id_b], r.winner, config=config)
+            rating[id_a] = elo_a
+            rating[id_b] = elo_b
+            if id_a == model_id:
+                history.append(elo_a)
+            if id_b == model_id:
+                history.append(elo_b)
+        return history
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
     @staticmethod

@@ -5,13 +5,14 @@ import { DeleteModelButton } from '../DeleteModelButton.tsx';
 import { BASE_API_URL } from '../paths.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
+import { EloHistoryPlot } from './EloHistoryPlot.tsx';
 
 type Props = {
   model: RankedModel;
 };
 export function ExpandedModelDetails({ model }: Props) {
   return (
-    <Stack bg="gray.1" p="md">
+    <Stack bg="gray.1" gap="xs" pt="xs" p="xl">
       <Group justify="space-between">
         <Group gap="xs">
           <Text span fw="bold">
@@ -33,6 +34,7 @@ export function ExpandedModelDetails({ model }: Props) {
           <DeleteModelButton model={model} />
         </Group>
       </Group>
+      <EloHistoryPlot modelId={model.id} />
       <HeadToHeadStatsTable modelId={model.id} />
     </Stack>
   );

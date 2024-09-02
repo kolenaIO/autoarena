@@ -24,10 +24,18 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
   const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
   const [battleIndex, setBattleIndex] = useState(0);
   const battle = useMemo(() => battles?.[battleIndex], [battles, battleIndex]);
+  const nBattles: number = battles?.length ?? 0;
 
   useEffect(() => {
     setBattleIndex(0);
   }, [modelAId, modelBId]);
+
+  function navigatePrevious() {
+    setBattleIndex(prev => Math.max(0, prev - 1));
+  }
+  function navigateNext() {
+    setBattleIndex(prev => Math.min(prev + 1, nBattles - 1));
+  }
 
   function submitVote(vote: 'A' | 'B' | '-') {
     return () => {
@@ -49,6 +57,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     ['ArrowRight', submitVote('B')],
   ]);
 
+  const hasJudgingHistory = (battle?.history?.length ?? 0) > 0;
   const { votesA, votesTie, votesB } = useMemo(() => {
     return (battle?.history ?? []).reduce<{ votesA: string[]; votesTie: string[]; votesB: string[] }>(
       ({ votesA, votesTie, votesB }, { winner, judge_name }) => ({
@@ -60,16 +69,15 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     );
   }, [showJudgingHistory, battle]);
 
-  const nBattles: number = battles?.length ?? 0;
   const iconProps = { size: 18 };
   return !isLoading && nBattles === 0 ? (
-    <NonIdealState IconComponent={IconCactus} description="No head-to-head battles between selected models" />
+    <NonIdealState IconComponent={IconCactus} description="No head-to-head matchups between selected models" />
   ) : !isLoading && battleIndex > nBattles - 1 ? (
     <NonIdealState
       IconComponent={IconBalloon}
       description={
         <Stack>
-          <Text>Judged all {nBattles.toLocaleString()} head-to-head battles between selected models</Text>
+          <Text>Judged all {nBattles.toLocaleString()} head-to-head matchups between selected models</Text>
           <Button onClick={() => navigate(`/project/${projectId}`)}>View Leaderboard</Button>
         </Stack>
       }
@@ -98,7 +106,10 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
       <ControlBar>
         <Stack align="center" gap="xs">
           <Text fw="bold">Which response is better?</Text>
-          <SimpleGrid cols={3} spacing="xs">
+          <SimpleGrid cols={5} spacing="xs">
+            <Button variant="subtle" color="gray" onClick={navigatePrevious}>
+              Previous
+            </Button>
             <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')}>
               Left
             </Button>
@@ -108,22 +119,36 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')}>
               Right
             </Button>
-            {showJudgingHistory &&
-              [votesA, votesTie, votesB].map((votes, i) => (
-                <Stack key={i} gap="xs" align="center" fz="xs">
-                  {votes.map((judge, i) => (
-                    <Text key={i} span inherit>
-                      {judge}
-                    </Text>
-                  ))}
-                </Stack>
-              ))}
+            <Button variant="subtle" color="gray" onClick={navigateNext}>
+              Next
+            </Button>
+            {showJudgingHistory && (
+              <>
+                <div />
+                {[votesA, votesTie, votesB].map((votes, i) => (
+                  <Stack key={i} gap="xs" align="center" fz="xs">
+                    {votes.map((judge, i) => (
+                      <Text key={i} span inherit>
+                        {judge}
+                      </Text>
+                    ))}
+                  </Stack>
+                ))}
+                <div />
+              </>
+            )}
           </SimpleGrid>
         </Stack>
 
         <Box p="md" style={{ position: 'fixed', bottom: 0, right: 0 }}>
-          <Button variant="subtle" color="gray" size="xs" onClick={toggleShowJudgingHistory}>
-            {showJudgingHistory ? 'Hide' : 'Show'} Judging History
+          <Button
+            variant="subtle"
+            color="gray"
+            size="xs"
+            onClick={toggleShowJudgingHistory}
+            disabled={!hasJudgingHistory}
+          >
+            {!hasJudgingHistory ? 'No' : showJudgingHistory ? 'Hide' : 'Show'} Judging History
           </Button>
         </Box>
       </ControlBar>

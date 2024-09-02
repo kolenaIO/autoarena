@@ -21,6 +21,7 @@
     ]
   },
   "dependencies": {
+    "@mantine/charts": "^7.12.2",
     "@mantine/core": "^7.11.2",
     "@mantine/form": "^7.12.0",
     "@mantine/hooks": "^7.11.2",
@@ -38,6 +39,7 @@
     "react-dom": "^18.3.1",
     "react-markdown": "^9.0.1",
     "react-router-dom": "^6.26.1",
+    "recharts": "2",
     "rehype-raw": "^7.0.0",
     "remark-gfm": "^4.0.0",
     "uuid": "^10.0.0",

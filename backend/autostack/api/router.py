@@ -52,6 +52,10 @@ def router() -> APIRouter:
     def get_model_results(model_id: int) -> list[api.ModelResult]:
         return ModelService.get_results(model_id)
 
+    @r.get("/model/{model_id}/elo-history")
+    def get_elo_history(model_id: int) -> list[float]:
+        return EloService.get_history(model_id)
+
     @r.delete("/model/{model_id}")
     def delete_model(model_id: int, background_tasks: BackgroundTasks) -> None:
         # TODO: this should technically be idempotent, but will currently fail if the model does not exist

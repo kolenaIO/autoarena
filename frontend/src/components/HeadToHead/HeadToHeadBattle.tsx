@@ -1,14 +1,15 @@
 import { Box, Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { useHeadToHeads } from '../hooks/useHeadToHeads.ts';
-import { useUrlState } from '../hooks/useUrlState.ts';
-import { useSubmitHeadToHeadJudgement } from '../hooks/useSubmitHeadToHeadJudgement.ts';
-import { pluralize } from '../lib/string.ts';
-import { MarkdownContent } from './MarkdownContent.tsx';
-import { NonIdealState } from './NonIdealState.tsx';
+import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useSubmitHeadToHeadJudgement } from '../../hooks/useSubmitHeadToHeadJudgement.ts';
+import { pluralize } from '../../lib/string.ts';
+import { MarkdownContent } from '../MarkdownContent.tsx';
+import { NonIdealState } from '../NonIdealState.tsx';
+import { ControlBar } from './ControlBar.tsx';
 
 type Props = {
   modelAId: number;
@@ -48,6 +49,17 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     ['ArrowRight', submitVote('B')],
   ]);
 
+  const { votesA, votesTie, votesB } = useMemo(() => {
+    return (battle?.history ?? []).reduce<{ votesA: string[]; votesTie: string[]; votesB: string[] }>(
+      ({ votesA, votesTie, votesB }, { winner, judge_name }) => ({
+        votesA: [...votesA, ...(winner === 'A' ? [judge_name] : [])],
+        votesTie: [...votesTie, ...(winner === '-' ? [judge_name] : [])],
+        votesB: [...votesB, ...(winner === 'B' ? [judge_name] : [])],
+      }),
+      { votesA: [], votesTie: [], votesB: [] }
+    );
+  }, [showJudgingHistory, battle]);
+
   const nBattles: number = battles?.length ?? 0;
   const iconProps = { size: 18 };
   return !isLoading && nBattles === 0 ? (
@@ -83,11 +95,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
         </SimpleGrid>
       </Stack>
 
-      <Stack
-        bg="gray.0"
-        p="md"
-        style={{ position: 'fixed', bottom: 0, left: 0, right: 0, borderTop: '1px solid var(--mantine-color-gray-3)' }}
-      >
+      <ControlBar>
         <Stack align="center" gap="xs">
           <Text fw="bold">Which response is better?</Text>
           <SimpleGrid cols={3} spacing="xs">
@@ -101,18 +109,14 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
               Right
             </Button>
             {showJudgingHistory &&
-              battle?.history?.map((item, i) => (
-                <Fragment key={i}>
-                  <Text ta="center" size="xs">
-                    {item.winner === 'A' && item.judge_name}
-                  </Text>
-                  <Text ta="center" size="xs">
-                    {item.winner === '-' && item.judge_name}
-                  </Text>
-                  <Text ta="center" size="xs">
-                    {item.winner === 'B' && item.judge_name}
-                  </Text>
-                </Fragment>
+              [votesA, votesTie, votesB].map((votes, i) => (
+                <Stack key={i} gap="xs" align="center" fz="xs">
+                  {votes.map((judge, i) => (
+                    <Text key={i} span inherit>
+                      {judge}
+                    </Text>
+                  ))}
+                </Stack>
               ))}
           </SimpleGrid>
         </Stack>
@@ -122,7 +126,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             {showJudgingHistory ? 'Hide' : 'Show'} Judging History
           </Button>
         </Box>
-      </Stack>
+      </ControlBar>
     </>
   ) : (
     <></>

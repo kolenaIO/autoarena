@@ -50,7 +50,7 @@ export function OnboardingTimeline() {
             : !hasUploadedSecondModel
               ? 2
               : 3;
-      if (newActiveStage === 3 && prevActiveStage < newActiveStage && firstModel.q025 == null) {
+      if (newActiveStage === 3 && prevActiveStage < newActiveStage && firstModel?.q025 == null) {
         notifications.show({
           title: 'Onboarding complete',
           message:

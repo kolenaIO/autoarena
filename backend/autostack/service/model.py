@@ -6,6 +6,41 @@ from autostack.store.database import get_database_connection
 
 
 class ModelService:
+    MODEL_QUERY = """
+        WITH datapoint_count AS (
+            SELECT r.model_id, COUNT(1) AS datapoint_count
+            FROM result r
+            GROUP BY r.model_id
+        ), vote_count AS (
+            SELECT
+                m.id AS model_id,
+                SUM(IF(ba.id IS NOT NULL, 1, 0)) + SUM(IF(bb.id IS NOT NULL, 1, 0)) AS vote_count
+            FROM model m
+            JOIN result r ON r.model_id = m.id
+            LEFT JOIN battle ba ON r.id = ba.result_a_id
+            LEFT JOIN battle bb ON r.id = bb.result_b_id
+            GROUP BY m.id
+        )
+        SELECT
+            id,
+            name,
+            created,
+            elo,
+            q025,
+            q975,
+            IFNULL(dc.datapoint_count, 0) AS datapoints,
+            IFNULL(vc.vote_count, 0) AS votes
+        FROM model m
+        LEFT JOIN datapoint_count dc ON m.id = dc.model_id
+        LEFT JOIN vote_count vc ON m.id = vc.model_id
+        """
+
+    @staticmethod
+    def get_by_id(model_id: int) -> api.Model:
+        with get_database_connection() as conn:
+            df_model = conn.execute(f"{ModelService.MODEL_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
+        return [api.Model(**r) for _, r in df_model.iterrows()][0]
+
     @staticmethod
     def get_project_id(model_id: int) -> int:
         with get_database_connection() as conn:
@@ -17,41 +52,8 @@ class ModelService:
     def get_all(project_id: int) -> list[api.Model]:
         with get_database_connection() as conn:
             df_model = conn.execute(
-                """
-                WITH datapoint_count AS (
-                    SELECT m.id AS model_id, COUNT(1) AS datapoint_count
-                    FROM model m
-                    JOIN result r ON m.id = r.model_id
-                    GROUP BY m.id
-                ), vote_count_a AS (
-                    SELECT m.id AS model_id, COUNT(1) AS vote_count
-                    FROM model m
-                    JOIN result r ON r.model_id = m.id
-                    JOIN battle b ON r.id = b.result_a_id
-                    GROUP BY m.id
-                ), vote_count_b AS (
-                    SELECT m.id AS model_id, COUNT(1) AS vote_count
-                    FROM model m
-                    JOIN result r ON r.model_id = m.id
-                    JOIN battle b ON r.id = b.result_b_id
-                    GROUP BY m.id
-                )
-                SELECT
-                    id,
-                    name,
-                    created,
-                    elo,
-                    q025,
-                    q975,
-                    IFNULL(dc.datapoint_count, 0) AS datapoints,
-                    IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
-                FROM model m
-                LEFT JOIN datapoint_count dc ON m.id = dc.model_id
-                LEFT JOIN vote_count_a vca ON m.id = vca.model_id
-                LEFT JOIN vote_count_b vcb ON m.id = vcb.model_id
-                WHERE project_id = ?
-            """,
-                [project_id],
+                f"{ModelService.MODEL_QUERY} WHERE m.project_id = $project_id",
+                dict(project_id=project_id),
             ).df()
         df_model = df_model.replace({np.nan: None})
         return [api.Model(**r) for _, r in df_model.iterrows()]
@@ -96,6 +98,11 @@ class ModelService:
             )
             conn.execute("DELETE FROM result WHERE model_id = $model_id", params)
             conn.execute("DELETE FROM model WHERE id = $model_id", params)
+
+    @staticmethod
+    def get_results(model_id: int) -> list[api.ModelResult]:
+        df_result = ModelService.get_df_result(model_id)
+        return [api.ModelResult(prompt=r.prompt, response=r.response) for r in df_result.itertuples()]
 
     @staticmethod
     def get_df_result(model_id: int) -> pd.DataFrame:

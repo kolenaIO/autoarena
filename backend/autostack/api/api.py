@@ -31,6 +31,12 @@ class Model:
 
 
 @dataclass(frozen=True)
+class ModelResult:
+    prompt: str
+    response: str
+
+
+@dataclass(frozen=True)
 class ModelHeadToHeadStats:
     other_model_id: int
     other_model_name: str

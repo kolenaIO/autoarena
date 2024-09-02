@@ -2,10 +2,11 @@ import { useSearchParams } from 'react-router-dom';
 import { Button, Center, Group, Divider, Select, Stack } from '@mantine/core';
 import { useMemo } from 'react';
 import { IconClick } from '@tabler/icons-react';
-import { useModels } from '../hooks/useModels.ts';
-import { useUrlState } from '../hooks/useUrlState.ts';
+import { useModels } from '../../hooks/useModels.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
+import { NonIdealState } from '../NonIdealState.tsx';
 import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
-import { NonIdealState } from './NonIdealState.tsx';
+import { HeadToHeadSingleModel } from './HeadToHeadSingleModel.tsx';
 
 export function HeadToHead() {
   const { projectId } = useUrlState();
@@ -25,9 +26,7 @@ export function HeadToHead() {
   const modelB = models?.find(({ id }) => Number(urlModelBId) === id);
 
   function onChange(position: 'A' | 'B', newId: number | undefined) {
-    if (Number.isNaN(newId)) {
-      return;
-    }
+    console.log(newId);
     const existingParams =
       position === 'A'
         ? urlModelBId != null
@@ -72,8 +71,9 @@ export function HeadToHead() {
                     )
               }
               value={modelA != null ? String(modelA.id) : undefined}
-              onChange={value => onChange('A', Number(value))}
+              onChange={value => onChange('A', value != null ? Number(value) : undefined)}
               disabled={noModels}
+              clearable
               searchable
               flex={1}
             />
@@ -93,8 +93,9 @@ export function HeadToHead() {
                     )
               }
               value={modelB != null ? String(modelB.id) : undefined}
-              onChange={value => onChange('B', Number(value))}
+              onChange={value => onChange('B', value != null ? Number(value) : undefined)}
               disabled={noModels}
+              clearable
               searchable
               flex={1}
             />
@@ -106,6 +107,8 @@ export function HeadToHead() {
         <Divider />
         {modelA != null && modelB != null ? (
           <HeadToHeadBattle modelAId={modelA.id} modelBId={modelB.id} />
+        ) : modelA != null || modelB != null ? (
+          <HeadToHeadSingleModel modelId={modelA?.id ?? modelB?.id} />
         ) : (
           <NonIdealState IconComponent={IconClick} description="Select two models to compare head-to-head" />
         )}

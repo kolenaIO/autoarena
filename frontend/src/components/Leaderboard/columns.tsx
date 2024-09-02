@@ -1,8 +1,8 @@
 import { DataTableColumn } from 'mantine-datatable';
 import { Code } from '@mantine/core';
 import { v4 as uuidv4 } from 'uuid';
-import { EloWidget } from '../EloWidget.tsx';
 import { Model } from '../../hooks/useModels.ts';
+import { EloWidget } from './EloWidget.tsx';
 import { RankedModel } from './types.ts';
 import { ModelNameRenderer } from './renderers/ModelNameRenderer.tsx';
 

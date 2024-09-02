@@ -2,7 +2,9 @@ import { useMemo, useState } from 'react';
 import { prop, reverse, sortBy } from 'ramda';
 import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
+import { useNavigate } from 'react-router-dom';
 import { ModelHeadToHeadStats, useModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   count_total: number;
@@ -41,6 +43,8 @@ type Props = {
   modelId: number;
 };
 export function HeadToHeadStatsTable({ modelId }: Props) {
+  const { projectId = -1 } = useUrlState();
+  const navigate = useNavigate();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStats(modelId);
 
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<H2hStatsRecord>>({
@@ -78,7 +82,11 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         onSortStatusChange={setSortStatus}
         fetching={isLoading}
         loaderBackgroundBlur={4}
-        minHeight={180}
+        minHeight={statsRecords.length === 0 ? 180 : undefined}
+        highlightOnHover
+        onRowClick={({ record: { other_model_id } }) => {
+          navigate(`/project/${projectId}/compare?modelA=${modelId}&modelB=${other_model_id}`);
+        }}
       />
     </Paper>
   );

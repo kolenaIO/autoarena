@@ -20,12 +20,12 @@ export function ExpandedModelDetails({ model }: Props) {
           <Text span>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Text>
         </Group>
         <Group>
-          <Anchor href={`${BASE_API_URL}/model/${model.id}/results`} target="_blank">
+          <Anchor href={`${BASE_API_URL}/model/${model.id}/download/results`} target="_blank">
             <Button color="teal" variant="light" leftSection={<IconDownload />}>
               Download Results CSV
             </Button>
           </Anchor>
-          <Anchor href={`${BASE_API_URL}/model/${model.id}/head-to-heads`} target="_blank">
+          <Anchor href={`${BASE_API_URL}/model/${model.id}/download/head-to-heads`} target="_blank">
             <Button color="teal" variant="light" leftSection={<IconDownload />}>
               Download Head-to-Heads CSV
             </Button>

@@ -72,8 +72,9 @@ export function Leaderboard() {
           withTableBorder={false}
           borderRadius="md"
           horizontalSpacing="xs"
-          minHeight={180}
+          minHeight={modelRecords.length === 0 ? 180 : undefined}
           columns={LEADERBOARD_COLUMNS}
+          highlightOnHover
           records={modelRecords}
           idAccessor="id"
           rowExpansion={{

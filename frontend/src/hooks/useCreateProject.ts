@@ -1,5 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
+import { notifications } from '@mantine/notifications';
 import { BASE_API_URL } from '../components/paths.ts';
 import { Project, PROJECTS_QUERY_KEY } from './useProjects.ts';
 
@@ -26,6 +27,11 @@ export function useCreateProject({
       return result;
     },
     onSuccess: (project: Project) => {
+      notifications.show({
+        title: 'Created project',
+        message: `Switched to newly created project '${project.name}'`,
+        color: 'green',
+      });
       navigate(`/project/${project.id}`);
     },
     onSettled: () => {

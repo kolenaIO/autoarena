@@ -10,6 +10,7 @@ import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts
 import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
 import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
+import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
 
 export function Judges() {
   const { projectId } = useUrlState();
@@ -17,6 +18,7 @@ export function Judges() {
 
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);
   const [isOpenAIOpen, { toggle: toggleOpenAI, close: closeOpenAI }] = useDisclosure(false);
+  const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isAnthropicOpen, { toggle: toggleAnthropic, close: closeAnthropic }] = useDisclosure(false);
   const [isGeminiOpen, { toggle: toggleGemini, close: closeGemini }] = useDisclosure(false);
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
@@ -45,7 +47,11 @@ export function Judges() {
             description="Configure an OpenAI model like GPT-4o or GPT-4o mini as a judge"
             onClick={toggleOpenAI}
           />
-          <ConfigureJudgeCard judgeType="custom" description="Fine-tune a custom judge model on AutoStack" />
+          <ConfigureJudgeCard
+            judgeType="custom"
+            description="Fine-tune a custom judge model on AutoStack"
+            onClick={toggleFineTuned}
+          />
           <ConfigureJudgeCard
             judgeType="gemini"
             description="Configure a Google Gemini model as a judge"
@@ -70,6 +76,7 @@ export function Judges() {
           judgeType="openai"
           modelOptions={['gpt-4o', 'gpt-4o-mini']}
         />
+        <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
         <CreateProprietaryJudgeModal
           isOpen={isAnthropicOpen}
           onClose={closeAnthropic}

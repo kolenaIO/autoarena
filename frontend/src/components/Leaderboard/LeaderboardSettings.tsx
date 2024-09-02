@@ -16,7 +16,10 @@ export function LeaderboardSettings() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Menu.Item leftSection={isPending ? <Loader size={18} /> : <IconCalculator />} onClick={recomputeLeaderboard}>
+        <Menu.Item
+          leftSection={isPending ? <Loader size={18} /> : <IconCalculator />}
+          onClick={() => recomputeLeaderboard()}
+        >
           Recompute Leaderboard
         </Menu.Item>
       </Menu.Dropdown>

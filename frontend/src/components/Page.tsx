@@ -2,7 +2,7 @@ import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
 import { IconColumns2, IconCrown, IconGavel } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../hooks/useUrlState.ts';
-import { HeadToHead } from './HeadToHead.tsx';
+import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { KolenaLogo } from './KolenaLogo.tsx';
 import { Judges } from './Judges/Judges.tsx';

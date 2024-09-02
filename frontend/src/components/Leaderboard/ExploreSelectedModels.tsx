@@ -42,7 +42,7 @@ export function ExploreSelectedModels({ selectedModels }: Props) {
       >
         <Stack>
           <Text>
-            Compare{' '}
+            Explore{' '}
             <Text span inherit c="blue.6">
               {selectedModels[0]?.name}
             </Text>
@@ -51,7 +51,7 @@ export function ExploreSelectedModels({ selectedModels }: Props) {
             ) : (
               <>
                 {' '}
-                with{' '}
+                vs.{' '}
                 <Text span inherit c="orange.6">
                   {selectedModels[1]?.name}
                 </Text>
@@ -60,7 +60,7 @@ export function ExploreSelectedModels({ selectedModels }: Props) {
             )}
           </Text>
           <Button disabled={selectedModels.length < 1} onClick={handleGoCompare}>
-            Compare Head-to-Head
+            {selectedModels.length === 1 ? 'View Results' : 'Compare Head-to-Head'}
           </Button>
         </Stack>
       </Card>

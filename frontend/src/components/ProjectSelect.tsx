@@ -18,7 +18,7 @@ export function ProjectSelect() {
       variant="filled"
       placeholder="Select Project"
       data={allProjectNames}
-      value={currentProject?.name}
+      value={currentProject?.name ?? null}
       onChange={handleSelectProject}
       disabled={allProjectNames.length < 1}
     />

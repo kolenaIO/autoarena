@@ -1,5 +1,6 @@
 import dataclasses
 
+import pandas as pd
 
 from autostack.api import api
 from autostack.service.elo import EloService
@@ -9,11 +10,13 @@ from autostack.store.database import get_database_connection
 
 class HeadToHeadService:
     @staticmethod
-    def get(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
+    def get_df(request: api.HeadToHeadsRequest) -> pd.DataFrame:
         with get_database_connection() as conn:
-            df_h2h = conn.execute(
+            return conn.execute(
                 """
                 SELECT
+                    ra.model_id AS model_a_id,
+                    rb.model_id AS model_b_id,
                     ra.id AS result_a_id,
                     rb.id AS result_b_id,
                     ra.prompt AS prompt,
@@ -35,16 +38,24 @@ class HeadToHeadService:
                     ), []) AS history
                 FROM result ra
                 JOIN result rb ON ra.prompt = rb.prompt
+                JOIN model ma ON ra.model_id = ma.id
+                JOIN model mb ON rb.model_id = mb.id
                 LEFT JOIN battle b1 ON b1.result_a_id = ra.id AND b1.result_b_id = rb.id
                 LEFT JOIN judge j1 ON j1.id = b1.judge_id
                 LEFT JOIN battle b2 ON b2.result_b_id = ra.id AND b2.result_a_id = rb.id
                 LEFT JOIN judge j2 ON j2.id = b2.judge_id
                 WHERE ra.model_id = $model_a_id
-                AND rb.model_id = $model_b_id
-                GROUP BY ra.id, rb.id, ra.prompt, ra.response, rb.response
+                AND ($model_b_id IS NULL OR rb.model_id = $model_b_id)
+                AND ra.model_id != rb.model_id
+                AND ma.project_id = mb.project_id
+                GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response
                 """,
                 dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             ).df()
+
+    @staticmethod
+    def get(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
+        df_h2h = HeadToHeadService.get_df(request)
         return [
             api.HeadToHead(
                 prompt=r.prompt,

@@ -1,5 +1,4 @@
 from openai import OpenAI
-from tqdm import tqdm
 
 from autostack.api import api
 from autostack.api.api import JudgeType
@@ -25,7 +24,7 @@ class OpenAIJudge(Judge):
         return f"OpenAI judge model '{self.model}'"
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in tqdm(batch, desc=self.name)]
+        return [self._judge_one(h2h) for h2h in batch]
 
     def _judge_one(self, h2h: api.HeadToHead) -> str:
         response = self.client.chat.completions.create(

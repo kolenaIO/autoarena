@@ -2,6 +2,8 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { BASE_API_URL } from '../components/paths.ts';
 import { getJudgesQueryKey } from './useJudges.ts';
+import { getModelEloHistoryQueryKey } from './useModelEloHistory.ts';
+import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 
 const DELETE_JUDGE_ENDPOINT = `${BASE_API_URL}/judge`;
 
@@ -30,6 +32,8 @@ export function useDeleteJudge({ projectId, options = {} }: Params) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectId) });
+      queryClient.invalidateQueries({ queryKey: getModelEloHistoryQueryKey() }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey() });
     },
     ...options,
   });

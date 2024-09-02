@@ -50,7 +50,7 @@ class ModelHeadToHeadStats:
 @dataclass(frozen=True)
 class HeadToHeadsRequest:
     model_a_id: int
-    model_b_id: int
+    model_b_id: int | None = None  # when empty, get all pairings
 
 
 WinnerType = Literal["A", "B", "-"]

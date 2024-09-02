@@ -22,6 +22,7 @@ def setup_database(battles_parquet: str) -> None:
     seed_initial_battles(battles_parquet)
 
 
+# TODO: this should call an API rather than hand-rolling here -- at the very least use services to manipulate database
 def seed_initial_battles(battles_parquet: str) -> None:
     project_name = Path(battles_parquet).stem
 
@@ -69,9 +70,9 @@ def seed_initial_battles(battles_parquet: str) -> None:
             SELECT r.id AS result_a_id, m.name AS model, prompt, response
             FROM result r
             JOIN model m ON m.id = r.model_id
-            WHERE m.project_id = ?
+            WHERE m.project_id = $project_id
         """,
-            [project_id],
+            dict(project_id=project_id),
         ).df()
 
         # 5. seed with battles

@@ -5,8 +5,8 @@ function getModelEloHistoryEndpoint(modelId: number) {
   return `${BASE_API_URL}/model/${modelId}/elo-history`;
 }
 
-export function getModelEloHistoryQueryKey(modelId: number) {
-  return [`${BASE_API_URL}/model`, modelId, '/elo-history'];
+export function getModelEloHistoryQueryKey(modelId?: number) {
+  return ['model', 'elo-history', ...(modelId != null ? [modelId] : [])];
 }
 
 export type EloHistoryItem = {
@@ -19,7 +19,7 @@ export type EloHistoryItem = {
 
 export function useModelEloHistory(modelId: number | undefined) {
   return useQuery({
-    queryKey: getModelEloHistoryQueryKey(modelId ?? -1),
+    queryKey: getModelEloHistoryQueryKey(modelId),
     queryFn: async () => {
       const url = getModelEloHistoryEndpoint(modelId ?? -1);
       const response = await fetch(url);

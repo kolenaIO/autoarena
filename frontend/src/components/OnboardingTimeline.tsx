@@ -50,7 +50,12 @@ export function OnboardingTimeline() {
             : !hasUploadedSecondModel
               ? 2
               : 3;
-      if (newActiveStage === 3 && prevActiveStage < newActiveStage && firstModel?.q025 == null) {
+      if (
+        !onboardingGuideDismissed &&
+        newActiveStage === 3 &&
+        prevActiveStage < newActiveStage &&
+        firstModel?.q025 == null
+      ) {
         notifications.show({
           title: 'Onboarding complete',
           message:
@@ -63,7 +68,14 @@ export function OnboardingTimeline() {
       }
       return newActiveStage;
     });
-  }, [firstModel, hasCreatedProject, hasUploadedFirstModel, hasConfiguredJudge, hasUploadedSecondModel]);
+  }, [
+    firstModel,
+    hasCreatedProject,
+    hasUploadedFirstModel,
+    hasConfiguredJudge,
+    hasUploadedSecondModel,
+    onboardingGuideDismissed,
+  ]);
 
   const iconProps = { size: 14 };
   const subtitleProps = { c: 'dimmed', size: 'sm', maw: 350 };

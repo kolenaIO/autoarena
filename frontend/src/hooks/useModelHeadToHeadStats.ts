@@ -8,6 +8,10 @@ export function getModelHeadToHeadStatsEndpoint(modelId: number) {
   return `${MODEL_HEAD_TO_HEAD_STATS_ENDPOINT}/${modelId}/${MODEL_HEAD_TO_HEAD_STATS_STUB}`;
 }
 
+export function getModelHeadToHeadStatsQueryKey(modelId?: number) {
+  return ['model', 'head-to-head/stats', ...(modelId != null ? [modelId] : [])];
+}
+
 export type ModelHeadToHeadStats = {
   other_model_id: number;
   other_model_name: string;
@@ -20,7 +24,7 @@ export type ModelHeadToHeadStats = {
 
 export function useModelHeadToHeadStats(modelId: number | undefined) {
   return useQuery({
-    queryKey: [getModelHeadToHeadStatsEndpoint(modelId ?? -1)],
+    queryKey: getModelHeadToHeadStatsQueryKey(modelId),
     queryFn: async () => {
       const url = getModelHeadToHeadStatsEndpoint(modelId ?? -1);
       const response = await fetch(url);

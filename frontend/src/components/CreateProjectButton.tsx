@@ -34,13 +34,7 @@ export function CreateProjectButton({ size }: Props) {
       <Button size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
         Create Project
       </Button>
-      <Modal
-        opened={isOpen}
-        centered
-        onClose={handleClose}
-        title="Create Project"
-        transitionProps={{ transition: 'fade', duration: 100 }}
-      >
+      <Modal opened={isOpen} centered onClose={handleClose} title="Create Project">
         <Stack>
           <TextInput
             label="Project Name"

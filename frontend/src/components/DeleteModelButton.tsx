@@ -24,13 +24,7 @@ export function DeleteModelButton({ model }: Props) {
       <Button variant="light" color="red" onClick={toggle} leftSection={<IconX />}>
         Delete
       </Button>
-      <Modal
-        opened={isOpen}
-        centered
-        onClose={close}
-        title="Confirm Model Deletion"
-        transitionProps={{ transition: 'fade', duration: 100 }}
-      >
+      <Modal opened={isOpen} centered onClose={close} title="Confirm Model Deletion">
         <Stack>
           <Stack gap="sm">
             <Text size="sm">Confirm deletion of model:</Text>

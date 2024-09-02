@@ -26,17 +26,16 @@ export function HeadToHead() {
   const modelB = models?.find(({ id }) => Number(urlModelBId) === id);
 
   function onChange(position: 'A' | 'B', newId: number | undefined) {
-    console.log(newId);
-    const existingParams =
-      position === 'A'
-        ? urlModelBId != null
-          ? { modelB: urlModelBId }
-          : {}
-        : urlModelAId != null
-          ? { modelA: urlModelAId }
-          : {};
-    const newParams = newId == null ? {} : position === 'A' ? { modelA: newId } : { modelB: newId };
-    const newSearchParams = { ...existingParams, ...newParams } as Record<string, string>; // TODO: casting...
+    const newSearchParams = new URLSearchParams();
+    if (position === 'A' && urlModelBId != null) {
+      newSearchParams.append('modelB', urlModelBId);
+    }
+    if (position === 'B' && urlModelAId != null) {
+      newSearchParams.append('modelA', urlModelAId);
+    }
+    if (newId != null) {
+      newSearchParams.append(`model${position}`, String(newId));
+    }
     setSearchParams(new URLSearchParams(newSearchParams));
   }
 

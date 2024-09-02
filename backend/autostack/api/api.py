@@ -49,7 +49,6 @@ class ModelHeadToHeadStats:
 
 @dataclass(frozen=True)
 class HeadToHeadsRequest:
-    project_id: int  # TODO: is this required given that models are scoped to projects?
     model_a_id: int
     model_b_id: int
 
@@ -101,7 +100,7 @@ class JudgeType(str, Enum):
     ANTHROPIC = "anthropic"
     COHERE = "cohere"
     GEMINI = "gemini"
-    CUSTOM = "custom"  # TODO: not sure how to handle this yet -- will it just be another Ollama model?
+    CUSTOM = "custom"  # TODO: not sure how to handle calling this yet -- will it just be another Ollama model?
 
 
 @dataclass(frozen=True)

@@ -23,13 +23,7 @@ export function DeleteJudgeButton({ judge }: Props) {
       <Button color="red" variant="light" onClick={toggle}>
         Delete
       </Button>
-      <Modal
-        opened={isOpen}
-        centered
-        onClose={close}
-        title="Confirm Judge Deletion"
-        transitionProps={{ transition: 'fade', duration: 100 }}
-      >
+      <Modal opened={isOpen} centered onClose={close} title="Confirm Judge Deletion">
         <Stack>
           <Stack gap="sm">
             <Text size="sm">Confirm deletion of judge:</Text>

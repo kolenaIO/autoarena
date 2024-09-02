@@ -5,7 +5,7 @@ import { judgeTypeIconComponent, judgeTypeToCoverImageUrl, judgeTypeToHumanReada
 type Props = {
   judgeType: Judge['judge_type'];
   description: string;
-  onClick?: () => void; // TODO: shouldn't be optional
+  onClick: () => void;
 };
 export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {
   const IconComponent = judgeTypeIconComponent(judgeType);

@@ -38,13 +38,7 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
 
   const isEnabled = baseModel != null;
   return (
-    <Modal
-      opened={isOpen}
-      onClose={handleClose}
-      centered
-      title="Create Custom Fine-Tuned Judge"
-      transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
-    >
+    <Modal opened={isOpen} onClose={handleClose} centered title="Create Custom Fine-Tuned Judge">
       <Stack>
         <Text size="sm">
           Start a <b>fine-tuning job</b> to create a custom judge model using the {pluralize(nVotes, 'manual vote')}{' '}
@@ -79,10 +73,11 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   );
 }
 
-// TODO this is a dirty hack
+// TODO this is a bit of a hack
 function estimateTrainingTime(baseModel: string, nDatapoints: number) {
+  const estimatedSecsPerDatapoint = 0.5;
   const nEpochs = 3;
-  const estimateSecs = 0.5 * nDatapoints * nEpochs;
+  const estimateSecs = estimatedSecsPerDatapoint * nDatapoints * nEpochs;
   if (baseModel === 'gemma2:2b') {
     return estimateSecs / 4;
   }

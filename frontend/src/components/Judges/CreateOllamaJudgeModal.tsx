@@ -25,9 +25,10 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
   }
 
   function handleSubmit() {
+    const judgeType: JudgeType = 'ollama';
     createJudge({
       project_id: projectId,
-      judge_type: 'ollama' as JudgeType, // TODO: annoying to have to cast this, should probably set up enum
+      judge_type: judgeType,
       name,
       description: `Ollama judge running model '${name}' locally`,
     });
@@ -36,13 +37,7 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
 
   const isEnabled = name !== '' && nameError == null;
   return (
-    <Modal
-      opened={isOpen}
-      onClose={handleClose}
-      centered
-      title="Create Ollama Judge"
-      transitionProps={{ transition: 'fade', duration: 100 }} // TODO: share these
-    >
+    <Modal opened={isOpen} onClose={handleClose} centered title="Create Ollama Judge">
       <Stack>
         <Stack gap={0}>
           <Text size="sm">

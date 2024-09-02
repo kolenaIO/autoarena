@@ -19,15 +19,14 @@ export type HeadToHead = {
 };
 
 type Params = {
-  projectId: number;
   modelAId: number;
   modelBId: number;
 };
-export function useHeadToHeads({ projectId, modelAId, modelBId }: Params) {
+export function useHeadToHeads({ modelAId, modelBId }: Params) {
   return useQuery({
     queryKey: [HEAD_TO_HEADS_ENDPOINT, modelAId, modelBId],
     queryFn: async () => {
-      const body = { project_id: projectId, model_a_id: modelAId, model_b_id: modelBId };
+      const body = { model_a_id: modelAId, model_b_id: modelBId };
       const response = await fetch(HEAD_TO_HEADS_ENDPOINT, {
         method: 'PUT',
         body: JSON.stringify(body),

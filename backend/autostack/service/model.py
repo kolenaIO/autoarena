@@ -147,6 +147,7 @@ class ModelService:
             ).df()
         return df_h2h
 
+    # TODO: should add tests for tricky logic like this
     @staticmethod
     def get_head_to_head_stats(model_id: int) -> list[api.ModelHeadToHeadStats]:
         with get_database_connection() as conn:

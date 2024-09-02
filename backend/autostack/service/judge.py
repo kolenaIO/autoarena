@@ -18,7 +18,6 @@ class JudgeService:
                 "SELECT id, judge_type, created, name, description, enabled FROM judge WHERE project_id = $project_id",
                 dict(project_id=project_id),
             ).df()
-        # TODO: this throws a pydantic warning due to enum serialization shenanigans
         return [api.Judge(**r) for _, r in df_task.iterrows()]
 
     @staticmethod

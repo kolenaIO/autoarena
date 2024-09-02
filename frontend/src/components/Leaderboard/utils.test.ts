@@ -1,30 +1,26 @@
 import { rankBy } from './utils';
 
 describe('rankBy', () => {
-  type Obj = { a: number; b: number };
-  const objA: Obj = { a: 1, b: 3 };
-  const objB: Obj = { a: 1, b: 1 };
-  const objC: Obj = { a: 10, b: -10 };
+  type Obj = { name: string; value: number };
+  const objA: Obj = { name: 'objA', value: 1 };
+  const objB: Obj = { name: 'objB', value: 1 };
+  const objC: Obj = { name: 'objC', value: 10 };
+  const objs = [objA, objB, objC];
+
+  function withRank(o: Obj, rank: number) {
+    return { ...o, rank };
+  }
+
   it.each([
-    [
-      'a',
-      [objA, objB, objC],
-      [
-        { ...objA, rank: 1 },
-        { ...objB, rank: 1 },
-        { ...objC, rank: 3 },
-      ],
-    ],
-    [
-      'b',
-      [objA, objB, objC],
-      [
-        { ...objC, rank: 1 },
-        { ...objB, rank: 2 },
-        { ...objA, rank: 3 },
-      ],
-    ],
-  ])('properly sorts and ranks by field', (key: keyof Obj, objs: Obj[], expected: ReturnType<typeof rankBy>) => {
-    expect(rankBy(key, objs)).toEqual(expected);
-  });
+    ['name', undefined, [withRank(objA, 1), withRank(objB, 2), withRank(objC, 3)]],
+    ['name', 'desc', [withRank(objC, 1), withRank(objB, 2), withRank(objA, 3)]],
+    ['value', undefined, [withRank(objA, 1), withRank(objB, 1), withRank(objC, 3)]],
+    ['value', 'asc', [withRank(objA, 1), withRank(objB, 1), withRank(objC, 3)]],
+    ['value', 'desc', [withRank(objC, 1), withRank(objB, 2), withRank(objA, 2)]],
+  ] as [keyof Obj, 'asc' | 'desc' | undefined, ReturnType<typeof rankBy>][])(
+    "properly sorts and ranks by field '%s' in desired direction '%s'",
+    (key, direction, expected) => {
+      expect(rankBy(key, objs, direction)).toEqual(expected);
+    }
+  );
 });

@@ -1,7 +1,9 @@
 import { ChartTooltipProps, LineChart } from '@mantine/charts';
 import { useMemo } from 'react';
-import { LoadingOverlay, Paper, Stack, Title, Grid } from '@mantine/core';
+import { LoadingOverlay, Paper, Stack, Title, Grid, Box } from '@mantine/core';
+import { IconCactus } from '@tabler/icons-react';
 import { EloHistoryItem, useModelEloHistory } from '../../hooks/useModelEloHistory.ts';
+import { NonIdealState } from '../NonIdealState.tsx';
 
 type ChartDatum = EloHistoryItem & { position: number };
 
@@ -43,6 +45,9 @@ export function EloHistoryPlot({ modelId }: Props) {
           tooltipProps={{ content: ({ payload }) => <EloHistoryPlotTooltip payload={payload} /> }}
         />
         <LoadingOverlay visible={isLoading} overlayProps={{ radius: 'md', blur: 4 }} />
+        <Box hidden={isLoading || (eloHistory?.length ?? 0) > 0} style={{ position: 'absolute', top: '25%' }}>
+          <NonIdealState IconComponent={IconCactus} description="No History to display" />
+        </Box>
       </Stack>
     </Paper>
   );

@@ -41,7 +41,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
             {pluralize(nResults, 'result')} from selected model
           </Text>
         </Group>
-        <Paper withBorder p="md" bg="gray.0">
+        <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>
           <MarkdownContent>{`**Prompt:** ${result?.prompt}`}</MarkdownContent>
         </Paper>
         <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>

@@ -98,7 +98,7 @@ def seed_initial_battles(battles_parquet: str) -> None:
         EloService.reseed_scores(project_id)
 
 
-# TODO: should perhaps restart pending tasks rather than simply terminating
+# TODO: restart pending tasks rather than simply terminating
 def close_pending_tasks() -> None:
     projects = ProjectService.get_all()
     for project in projects:

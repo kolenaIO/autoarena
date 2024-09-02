@@ -90,7 +90,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             {pluralize(nBattles, 'head-to-head battle')} between selected models
           </Text>
         </Group>
-        <Paper withBorder p="md" bg="gray.0">
+        <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>
           <MarkdownContent>{`**Prompt:** ${battle?.prompt}`}</MarkdownContent>
         </Paper>
         <SimpleGrid cols={2}>

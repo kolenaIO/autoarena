@@ -111,6 +111,7 @@ class Judge:
     name: str
     description: str
     enabled: bool
+    votes: int
 
 
 @dataclass(frozen=True)

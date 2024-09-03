@@ -15,7 +15,20 @@ class JudgeService:
     def get_all(project_id: int) -> list[api.Judge]:
         with get_database_connection() as conn:
             df_task = conn.execute(
-                "SELECT id, judge_type, created, name, description, enabled FROM judge WHERE project_id = $project_id",
+                """
+                SELECT
+                    j.id,
+                    j.judge_type,
+                    j.created,
+                    j.name,
+                    j,description,
+                    j.enabled,
+                    SUM(IF(b.id IS NOT NULL, 1, 0)) AS votes
+                FROM judge j
+                LEFT JOIN battle b ON b.judge_id = j.id
+                WHERE j.project_id = $project_id
+                GROUP BY j.id, j.project_id, j.judge_type, j.created, j.name, j.description, j.enabled
+                """,
                 dict(project_id=project_id),
             ).df()
         return [api.Judge(**r) for _, r in df_task.iterrows()]
@@ -43,6 +56,7 @@ class JudgeService:
             name=request.name,
             description=request.description,
             enabled=enabled,
+            votes=0,
         )
 
     @staticmethod

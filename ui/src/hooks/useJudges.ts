@@ -15,6 +15,7 @@ export type Judge = {
   name: string;
   description: string;
   enabled: boolean;
+  votes: number;
 };
 
 export function useJudges(projectId: number | undefined) {

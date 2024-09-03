@@ -5,6 +5,7 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { JudgeType } from './types.ts';
+import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
 
 type Props = {
   isOpen: boolean;
@@ -15,6 +16,7 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
   const { data: judges } = useJudges(projectId);
   const { mutate: createJudge } = useCreateJudge({ projectId });
   const [name, setName] = useState('');
+  const [systemPrompt, setSystemPrompt] = useState('');
 
   const existingJudges = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
   const nameError = existingJudges.has(name) ? `Model '${name}' already configured as judge` : undefined;
@@ -64,6 +66,7 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
           error={nameError}
           flex={1}
         />
+        <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

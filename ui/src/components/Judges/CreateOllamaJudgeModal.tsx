@@ -32,6 +32,8 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
       project_id: projectId,
       judge_type: judgeType,
       name,
+      model_name: name,
+      system_prompt: systemPrompt,
       description: `Ollama judge running model '${name}' locally`,
     });
     handleClose();

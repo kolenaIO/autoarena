@@ -21,13 +21,24 @@ class JudgeService:
                     j.judge_type,
                     j.created,
                     j.name,
+                    j.model_name,
+                    j.system_prompt,
                     j,description,
                     j.enabled,
                     SUM(IF(b.id IS NOT NULL, 1, 0)) AS votes
                 FROM judge j
                 LEFT JOIN battle b ON b.judge_id = j.id
                 WHERE j.project_id = $project_id
-                GROUP BY j.id, j.project_id, j.judge_type, j.created, j.name, j.description, j.enabled
+                GROUP BY
+                    j.id,
+                    j.project_id,
+                    j.judge_type,
+                    j.created,
+                    j.name,
+                    j.model_name,
+                    j.system_prompt,
+                    j.description,
+                    j.enabled
                 ORDER BY j.id
                 """,
                 dict(project_id=project_id),
@@ -39,14 +50,16 @@ class JudgeService:
         with get_database_connection() as conn:
             ((judge_id, created, enabled),) = conn.execute(
                 """
-                INSERT INTO judge (judge_type, project_id, name, description, enabled)
-                VALUES ($judge_type, $project_id, $name, $description, TRUE)
+                INSERT INTO judge (judge_type, project_id, name, model_name, system_prompt, description, enabled)
+                VALUES ($judge_type, $project_id, $name, $model_name, $system_prompt, $description, TRUE)
                 RETURNING id, created, enabled
             """,
                 dict(
                     project_id=request.project_id,
                     judge_type=request.judge_type.value,
                     name=request.name,
+                    model_name=request.model_name,
+                    system_prompt=request.system_prompt,
                     description=request.description,
                 ),
             ).fetchall()
@@ -55,6 +68,8 @@ class JudgeService:
             judge_type=request.judge_type,
             created=created,
             name=request.name,
+            model_name=request.model_name,
+            system_prompt=request.system_prompt,
             description=request.description,
             enabled=enabled,
             votes=0,
@@ -65,14 +80,16 @@ class JudgeService:
         with get_database_connection() as conn:
             conn.execute(
                 """
-                INSERT INTO judge (judge_type, project_id, name, description, enabled)
-                VALUES ($judge_type, $project_id, $name, $description, TRUE)
+                INSERT INTO judge (judge_type, project_id, name, model_name, system_prompt, description, enabled)
+                VALUES ($judge_type, $project_id, $name, $model_name, $system_prompt, $description, TRUE)
                 ON CONFLICT (project_id, name) DO NOTHING
             """,
                 dict(
                     project_id=project_id,
                     judge_type=judge.judge_type.value,
                     name=judge.name,
+                    model_name=judge.model_name,
+                    system_prompt=judge.system_prompt,
                     description=judge.description,
                 ),
             )

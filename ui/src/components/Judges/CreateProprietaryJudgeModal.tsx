@@ -37,6 +37,8 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       project_id: projectId,
       judge_type: judgeType,
       name,
+      model_name: name,
+      system_prompt: systemPrompt,
       description: `${judgeTypeToHumanReadableName(judgeType)} judge model '${name}' called via API`,
     });
     handleClose();

@@ -12,6 +12,8 @@ CREATE TABLE IF NOT EXISTS judge (
     judge_type TEXT NOT NULL, -- e.g. 'human', 'ollama', 'openai'
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     name TEXT NOT NULL,
+    model_name TEXT, -- null for 'human' type
+    system_prompt TEXT, -- null for 'human' type
     description TEXT NOT NULL,
     enabled BOOLEAN NOT NULL DEFAULT FALSE,
     FOREIGN KEY (project_id) REFERENCES project (id),

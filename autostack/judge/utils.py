@@ -1,4 +1,5 @@
 import sys
+from abc import ABCMeta
 
 import numpy as np
 
@@ -38,8 +39,8 @@ def get_user_prompt(h2h: api.HeadToHead) -> str:
     return USER_PROMPT_TEMPLATE.format(prompt=h2h.prompt, response_a=h2h.response_a, response_b=h2h.response_b)
 
 
-class ABShufflingJudge(Judge):
-    """Randomly shuffles which is A and which is B before passing to another judge."""
+class WrappingJudge(Judge, metaclass=ABCMeta):
+    judge: Judge
 
     def __init__(self, judge: Judge):
         self.judge = judge
@@ -53,8 +54,20 @@ class ABShufflingJudge(Judge):
         return self.judge.name
 
     @property
+    def model_name(self) -> str | None:
+        return self.judge.model_name
+
+    @property
+    def system_prompt(self) -> str | None:
+        return self.judge.system_prompt
+
+    @property
     def description(self) -> str:
         return self.judge.description
+
+
+class ABShufflingJudge(WrappingJudge):
+    """Randomly shuffles which is A and which is B before passing to another judge."""
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         shuffles = np.random.randint(2, size=len(batch)) < 1
@@ -81,23 +94,8 @@ def clean_judgement(winner: str) -> str:
     return winner.strip(" \t\n'\"*.")  # strip common formatting issues
 
 
-class CleaningJudge(Judge):
+class CleaningJudge(WrappingJudge):
     """Attempt to clean raw responses from other judges"""
-
-    def __init__(self, judge: Judge):
-        self.judge = judge
-
-    @property
-    def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
-
-    @property
-    def name(self) -> str:
-        return self.judge.name
-
-    @property
-    def description(self) -> str:
-        return self.judge.description
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         cleaned = []
@@ -112,7 +110,7 @@ class CleaningJudge(Judge):
         return cleaned
 
 
-class FixingJudge(Judge):
+class FixingJudge(WrappingJudge):
     """If the response does not fit nicely into the expected "A", "B", "-" format, classify it"""
 
     CLASSIFIER_MODEL = "MoritzLaurer/deberta-v3-xsmall-zeroshot-v1.1-all-33"
@@ -125,20 +123,8 @@ class FixingJudge(Judge):
     def __init__(self, judge: Judge):
         from transformers import pipeline
 
+        super().__init__(judge)
         self.pipe = pipeline(model=self.CLASSIFIER_MODEL, device="cpu")
-        self.judge = judge
-
-    @property
-    def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
-
-    @property
-    def name(self) -> str:
-        return self.judge.name
-
-    @property
-    def description(self) -> str:
-        return self.judge.description
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         cleaned = []

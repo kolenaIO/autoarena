@@ -14,8 +14,9 @@ type CreateJudgeRequest = {
   project_id: number;
   judge_type: JudgeType;
   name: string;
+  model_name: string;
+  system_prompt: string;
   description: string;
-  // TODO: will need additional information
 };
 
 type Params = {

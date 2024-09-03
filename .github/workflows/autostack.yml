@@ -1,4 +1,4 @@
-name: Backend
+name: AutoStack
 on:
   push:
     branches:
@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - "backend/**"
-      - ".github/workflows/backend.yml"
+      - ".github/workflows/autostack.yml"
 
 env:
   PYTHON_VERSION: "3.12"
@@ -14,9 +14,6 @@ env:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - name: Install poetry
@@ -32,9 +29,6 @@ jobs:
 
   unit-test:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: backend
     steps:
       - uses: actions/checkout@v4
       - name: Install poetry

@@ -1,4 +1,4 @@
-# frontend
+# AutoStack UI
 
 ```
 yarn

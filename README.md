@@ -1,4 +1,4 @@
-# autostack
+# AutoStack
 
 ```shell
 poetry install

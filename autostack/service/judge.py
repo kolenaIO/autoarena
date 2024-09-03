@@ -28,6 +28,7 @@ class JudgeService:
                 LEFT JOIN battle b ON b.judge_id = j.id
                 WHERE j.project_id = $project_id
                 GROUP BY j.id, j.project_id, j.judge_type, j.created, j.name, j.description, j.enabled
+                ORDER BY j.id
                 """,
                 dict(project_id=project_id),
             ).df()

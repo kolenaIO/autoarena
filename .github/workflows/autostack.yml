@@ -5,7 +5,7 @@ on:
       - trunk
   pull_request:
     paths:
-      - "autostack/**"
+      - "*"
       - ".github/workflows/autostack.yml"
 
 env:

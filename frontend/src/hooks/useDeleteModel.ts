@@ -8,7 +8,7 @@ import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 const DELETE_MODEL_ENDPOINT = `${BASE_API_URL}/model`;
 
 function getDeleteModelQueryKey() {
-  return [DELETE_MODEL_ENDPOINT];
+  return [DELETE_MODEL_ENDPOINT, 'DELETE'];
 }
 
 type Params = {

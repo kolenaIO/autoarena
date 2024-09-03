@@ -76,10 +76,10 @@ class TaskService:
         try:
             # 2. instantiate judge(s)
             if len(enabled_auto_judges) > 1:
-                TaskService.update(task_id, status=f"Running {len(enabled_auto_judges)} judges", progress=0)
+                TaskService.update(task_id, status=f"Using {len(enabled_auto_judges)} judges:", progress=0)
             judges: list[Judge] = [CleaningJudge(ABShufflingJudge(judge_factory(j))) for j in enabled_auto_judges]
             for judge in judges:
-                TaskService.update(task_id, status=f"Using judge '{judge.name}'", progress=0)
+                TaskService.update(task_id, status=f"  * {judge.name}", progress=0)
 
             # 3. get pairs eligible for judging
             df_h2h = HeadToHeadService.get_df(api.HeadToHeadsRequest(model_a_id=model_id))
@@ -101,7 +101,7 @@ class TaskService:
                 this_responses = [(r.result_a_id, r.result_b_id, winner) for r, winner in zip(batch, judged_batch)]
                 responses[judge.name].extend(this_responses)
                 n_this_judge = len(responses[judge.name])
-                status = f"'{judge.name}' processed {n_this_judge} of {len(head_to_heads)} head-to-head matchups"
+                status = f"'{judge.name}' processed {n_this_judge} of {len(head_to_heads)} head-to-heads"
                 n_responses = sum(len(r) for r in responses.values())
                 TaskService.update(task_id, status, progress=0.95 * (n_responses / n_total))
 

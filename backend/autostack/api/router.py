@@ -26,6 +26,10 @@ def router() -> APIRouter:
     def create_project(request: api.CreateProjectRequest) -> api.Project:
         return ProjectService.create_idempotent(request)
 
+    @r.delete("/project/{project_id}")
+    def delete_project(project_id: int) -> None:
+        return ProjectService.delete(project_id)
+
     @r.get("/models/{project_id}")
     def get_models(project_id: int) -> list[api.Model]:
         return ModelService.get_all(project_id)

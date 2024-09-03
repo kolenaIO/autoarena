@@ -8,7 +8,7 @@ import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 const DELETE_JUDGE_ENDPOINT = `${BASE_API_URL}/judge`;
 
 function getDeleteJudgeQueryKey() {
-  return [DELETE_JUDGE_ENDPOINT];
+  return [DELETE_JUDGE_ENDPOINT, 'DELETE'];
 }
 
 type Params = {

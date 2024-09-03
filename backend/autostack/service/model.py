@@ -11,14 +11,17 @@ class ModelService:
             SELECT r.model_id, COUNT(1) AS datapoint_count
             FROM result r
             GROUP BY r.model_id
-        ), vote_count AS (
-            SELECT
-                m.id AS model_id,
-                SUM(IF(ba.id IS NOT NULL, 1, 0)) + SUM(IF(bb.id IS NOT NULL, 1, 0)) AS vote_count
+        ), vote_count_a AS ( -- TODO: this is inelegant but this query is tricky to write
+            SELECT m.id AS model_id, SUM(IF(b.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN result r ON r.model_id = m.id
-            LEFT JOIN battle ba ON r.id = ba.result_a_id
-            LEFT JOIN battle bb ON r.id = bb.result_b_id
+            LEFT JOIN battle b ON r.id = b.result_a_id
+            GROUP BY m.id
+        ), vote_count_b AS (
+            SELECT m.id AS model_id, SUM(IF(b.id IS NOT NULL, 1, 0)) AS vote_count
+            FROM model m
+            JOIN result r ON r.model_id = m.id
+            LEFT JOIN battle b ON r.id = b.result_b_id
             GROUP BY m.id
         )
         SELECT
@@ -29,10 +32,11 @@ class ModelService:
             q025,
             q975,
             IFNULL(dc.datapoint_count, 0) AS datapoints,
-            IFNULL(vc.vote_count, 0) AS votes
+            IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
         FROM model m
         LEFT JOIN datapoint_count dc ON m.id = dc.model_id
-        LEFT JOIN vote_count vc ON m.id = vc.model_id
+        LEFT JOIN vote_count_a vca ON m.id = vca.model_id
+        LEFT JOIN vote_count_b vcb ON m.id = vcb.model_id
         """
 
     @staticmethod

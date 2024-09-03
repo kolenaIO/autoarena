@@ -57,6 +57,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     ['ArrowRight', submitVote('B')],
     ['p', navigatePrevious],
     ['n', navigateNext],
+    ['j', toggleShowJudgingHistory],
   ]);
 
   const hasJudgingHistory = (battle?.history?.length ?? 0) > 0;
@@ -86,7 +87,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     />
   ) : !isLoading ? (
     <>
-      <Stack pb={100}>
+      <Stack pb={100} /* TODO: need more padding when there are more judge responses shown */>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
             {pluralize(nBattles, 'head-to-head battle')} between selected models
@@ -161,6 +162,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             size="xs"
             onClick={toggleShowJudgingHistory}
             disabled={!hasJudgingHistory}
+            rightSection={<Kbd size="xs">j</Kbd>}
           >
             {!hasJudgingHistory ? 'No' : showJudgingHistory ? 'Hide' : 'Show'} Judging History
           </Button>

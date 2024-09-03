@@ -9,3 +9,4 @@ Highest priority TODOs as of EOD 9/2:
 - [ ] Add tests for tricky SQL logic and Elo calculations
 - [ ] Plug in real fine-tuning service with a way to monitor progress and run fine-tuned judge model
 - [ ] Settle naming: model, result, judge, head-to-head (with and without judgement)
+- [ ] Support multi-turn conversations (accept lists in prompt and response columns?)

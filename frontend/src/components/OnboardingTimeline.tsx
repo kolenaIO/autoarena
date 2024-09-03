@@ -7,20 +7,19 @@ import { notifications } from '@mantine/notifications';
 import { Judge, useJudges } from '../hooks/useJudges.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { Model, useModels } from '../hooks/useModels.ts';
-import { useProjects } from '../hooks/useProjects.ts';
 import { useOnboardingGuideDismissed } from '../hooks/useOnboardingGuideDismissed.ts';
+import { useProject } from '../hooks/useProject.ts';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 
 export function OnboardingTimeline() {
   const { projectId } = useUrlState();
-  const { data: projects, isLoading: isLoadingProjects } = useProjects();
+  const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectId);
   const { data: models, isLoading: isLoadingModels } = useModels(projectId);
   const { data: judges, isLoading: isLoadingJudges } = useJudges(projectId);
   const [onboardingGuideDismissed, setOnboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
   const [activeStage, setActiveStage] = useState(-1);
 
-  const activeProject = useMemo(() => (projects ?? []).find(({ id }) => id === projectId), [projectId, projects]);
   const hasCreatedProject = activeProject != null;
 
   const modelsSorted = useMemo(() => sortBy<Model>(prop('created'))(models ?? []), [models]);

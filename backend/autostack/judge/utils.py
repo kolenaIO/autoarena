@@ -98,7 +98,7 @@ class CleaningJudge(Judge):
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         cleaned = []
         for winner_raw in self.judge.judge_batch(batch):
-            winner = winner_raw.strip().strip("'").strip('"')
+            winner = winner_raw.strip(" \t\n'\"*.")  # strip common formatting issues
             if winner in self.ACCEPTABLE_RESPONSES:
                 cleaned.append(winner)
             else:

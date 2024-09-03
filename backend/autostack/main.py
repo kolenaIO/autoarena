@@ -6,16 +6,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from autostack.api.router import router
-from autostack.store.seed import setup_database
+from autostack.store.seed import setup_database, seed_initial_battles
 
 ap = argparse.ArgumentParser()
-ap.add_argument("battles_parquet", help="Path to parquet file containing battles to seed project")
+ap.add_argument("battles_parquet", nargs="?", help="Path to parquet file containing battles to seed project")
 args = ap.parse_args()
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    setup_database(args.battles_parquet)
+    setup_database()
+    if args.battles_parquet is not None:
+        seed_initial_battles(args.battles_parquet)
     yield
 
 

@@ -6,7 +6,7 @@ from autostack.store.database import get_database_connection
 
 
 class ModelService:
-    MODEL_QUERY = """
+    MODELS_QUERY = """
         WITH datapoint_count AS (
             SELECT r.model_id, COUNT(1) AS datapoint_count
             FROM result r
@@ -42,7 +42,7 @@ class ModelService:
     @staticmethod
     def get_by_id(model_id: int) -> api.Model:
         with get_database_connection() as conn:
-            df_model = conn.execute(f"{ModelService.MODEL_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
+            df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
         return [api.Model(**r) for _, r in df_model.iterrows()][0]
 
     @staticmethod
@@ -53,13 +53,18 @@ class ModelService:
         return project_id
 
     @staticmethod
-    def get_all(project_id: int) -> list[api.Model]:
+    def get_all_df(project_id: int) -> pd.DataFrame:
         with get_database_connection() as conn:
             df_model = conn.execute(
-                f"{ModelService.MODEL_QUERY} WHERE m.project_id = $project_id",
+                f"{ModelService.MODELS_QUERY} WHERE m.project_id = $project_id",
                 dict(project_id=project_id),
             ).df()
         df_model = df_model.replace({np.nan: None})
+        return df_model
+
+    @staticmethod
+    def get_all(project_id: int) -> list[api.Model]:
+        df_model = ModelService.get_all_df(project_id)
         return [api.Model(**r) for _, r in df_model.iterrows()]
 
     @staticmethod

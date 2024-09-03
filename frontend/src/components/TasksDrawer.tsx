@@ -1,4 +1,4 @@
-import { Accordion, Button, Code, Collapse, Drawer, Loader, Progress, Stack, Text } from '@mantine/core';
+import { Accordion, Badge, Button, Code, Collapse, Drawer, Group, Loader, Progress, Stack, Text } from '@mantine/core';
 import { IconBooks, IconCalculator, IconCpu, IconGavel } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
@@ -108,12 +108,17 @@ function TaskAccordionItem({ task }: { task: Task }) {
   return (
     <Accordion.Item value={slug}>
       <Accordion.Control icon={<IconComponent size={24} color={iconColor} />}>
-        <Stack gap={0}>
-          <Text>{taskTitle}</Text>
-          <Text size="xs" c="dimmed">
-            {moment(task.created).format('YYYY-MM-DD (hh:mm A)')}
-          </Text>
-        </Stack>
+        <Group justify="space-between" pr="md">
+          <Stack gap={0}>
+            <Text>{taskTitle}</Text>
+            <Text size="xs" c="dimmed">
+              {moment(task.created).format('YYYY-MM-DD (hh:mm A)')}
+            </Text>
+          </Stack>
+          <Badge variant="light" color={task.progress < 1 ? 'cyan' : 'gray'}>
+            {task.progress < 1 ? 'In Progress' : 'Complete'}
+          </Badge>
+        </Group>
       </Accordion.Control>
       <Accordion.Panel>
         <Stack>

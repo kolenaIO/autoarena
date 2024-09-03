@@ -13,7 +13,9 @@ export function ConfigureSystemPromptCollapse({ value, setValue }: Props) {
   const [isOpen, { toggle }] = useDisclosure(false);
 
   useEffect(() => {
-    setValue(defaultSystemPrompt);
+    if (defaultSystemPrompt != null) {
+      setValue(defaultSystemPrompt);
+    }
   }, [defaultSystemPrompt]);
 
   const chevronProps = { size: 18, color: 'gray' };

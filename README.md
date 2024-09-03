@@ -1,6 +1,12 @@
-# autostack
+# AutoStack
 
-See [`backend/README.md`](./backend/README.md) and [`frontend/README.md`](./frontend/README.md) for instructions to run.
+```shell
+poetry install
+poerty run pre-commit install
+poetry run python3 -m autostack
+```
+
+Also see [`ui/README.md`](./ui/README.md) for instructions to build and run the user interface.
 
 ## Development
 
@@ -12,3 +18,5 @@ Highest priority TODOs as of EOD 9/2:
 - [ ] Support multi-turn conversations (accept lists in prompt and response columns?)
 - [ ] Better head-to-head surfacing: show samples where other judges disagree?
 - [ ] Responsive layout (pages are currently fixed at 1080px content width)
+- [ ] Programmatic interface to upload, download, extend (?)
+- [ ] Lightweight judge resolver to turn e.g. "Option B is better." into "B" (some judges are verbose despite prompting)

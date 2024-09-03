@@ -1,12 +1,12 @@
-name: Frontend
+name: UI
 on:
   push:
     branches:
       - trunk
   pull_request:
     paths:
-      - "frontend/**"
-      - ".github/workflows/frontend.yml"
+      - "ui/**"
+      - ".github/workflows/ui.yml"
 
 env:
   NODE_VERSION: 20.11.1
@@ -16,14 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ui
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-          cache-dependency-path: "./frontend/yarn.lock"
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run linting
@@ -33,14 +33,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ui
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-          cache-dependency-path: "./frontend/yarn.lock"
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run build
@@ -50,14 +50,14 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: frontend
+        working-directory: ui
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: "yarn"
-          cache-dependency-path: "./frontend/yarn.lock"
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run tests

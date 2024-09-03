@@ -7,6 +7,12 @@ import {
   IconRobot,
   IconUsers,
 } from '@tabler/icons-react';
+import ollamaUrl from '../../../assets/ollama.jpg';
+import openaiUrl from '../../../assets/openai.jpg';
+import geminiUrl from '../../../assets/gemini.jpg';
+import anthropicUrl from '../../../assets/anthropic.jpg';
+import cohereUrl from '../../../assets/cohere.jpg';
+import customUrl from '../../../assets/custom.jpg';
 
 export type JudgeType = 'human' | 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'cohere' | 'custom';
 
@@ -34,17 +40,17 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
 export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
   switch (judgeType) {
     case 'ollama':
-      return '/assets/ollama.jpg';
+      return ollamaUrl;
     case 'openai':
-      return '/assets/openai.jpg';
+      return openaiUrl;
     case 'gemini':
-      return '/assets/gemini.jpg';
+      return geminiUrl;
     case 'anthropic':
-      return '/assets/anthropic.jpg';
+      return anthropicUrl;
     case 'cohere':
-      return '/assets/cohere.jpg';
+      return cohereUrl;
     case 'custom':
-      return '/assets/custom.jpg';
+      return customUrl;
     case 'human':
     default:
       return;

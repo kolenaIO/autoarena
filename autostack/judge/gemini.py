@@ -1,5 +1,3 @@
-import google.generativeai as genai
-
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
@@ -8,6 +6,8 @@ from autostack.judge.utils import BASIC_SYSTEM_PROMPT, get_user_prompt, JOINED_P
 
 class GeminiJudge(Judge):
     def __init__(self, model_name: str) -> None:
+        import google.generativeai as genai
+
         self.model = genai.GenerativeModel(model_name)
         self.model_name = model_name
 
@@ -27,6 +27,8 @@ class GeminiJudge(Judge):
         return [self._judge_one(h2h) for h2h in batch]
 
     def _judge_one(self, h2h: api.HeadToHead) -> str:
+        import google.generativeai as genai
+
         prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=BASIC_SYSTEM_PROMPT, user_prompt=get_user_prompt(h2h))
         response = self.model.generate_content(
             prompt,

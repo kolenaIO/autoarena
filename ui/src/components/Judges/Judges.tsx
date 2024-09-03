@@ -16,9 +16,9 @@ export function Judges() {
   const { projectId } = useUrlState();
   const { data: judges } = useJudges(projectId);
 
+  const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);
   const [isOpenAIOpen, { toggle: toggleOpenAI, close: closeOpenAI }] = useDisclosure(false);
-  const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isAnthropicOpen, { toggle: toggleAnthropic, close: closeAnthropic }] = useDisclosure(false);
   const [isGeminiOpen, { toggle: toggleGemini, close: closeGemini }] = useDisclosure(false);
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
@@ -38,9 +38,9 @@ export function Judges() {
         <Title order={5}>Configure Automated Judge</Title>
         <SimpleGrid cols={3} w={1080}>
           <ConfigureJudgeCard
-            judgeType="ollama"
-            description="Configure any local Ollama model as a judge"
-            onClick={toggleOllama}
+            judgeType="custom"
+            description="Fine-tune a custom judge model on AutoStack"
+            onClick={toggleFineTuned}
           />
           <ConfigureJudgeCard
             judgeType="openai"
@@ -48,35 +48,35 @@ export function Judges() {
             onClick={toggleOpenAI}
           />
           <ConfigureJudgeCard
-            judgeType="custom"
-            description="Fine-tune a custom judge model on AutoStack"
-            onClick={toggleFineTuned}
-          />
-          <ConfigureJudgeCard
-            judgeType="gemini"
-            description="Configure a Google Gemini model as a judge"
-            onClick={toggleGemini}
-          />
-          <ConfigureJudgeCard
             judgeType="anthropic"
             description="Configure an Anthropic model like Claude 3.5 Sonnet or Claude 3 Opus as a judge"
             onClick={toggleAnthropic}
+          />
+          <ConfigureJudgeCard
+            judgeType="ollama"
+            description="Configure any local Ollama model as a judge"
+            onClick={toggleOllama}
           />
           <ConfigureJudgeCard
             judgeType="cohere"
             description="Configure Command R or Command R+ from Cohere as a judge"
             onClick={toggleCohere}
           />
+          <ConfigureJudgeCard
+            judgeType="gemini"
+            description="Configure a Google Gemini model as a judge"
+            onClick={toggleGemini}
+          />
         </SimpleGrid>
 
-        <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
+        <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
         <CreateProprietaryJudgeModal
           isOpen={isOpenAIOpen}
           onClose={closeOpenAI}
           judgeType="openai"
           modelOptions={['gpt-4o', 'gpt-4o-mini']}
         />
-        <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
+        <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
         <CreateProprietaryJudgeModal
           isOpen={isAnthropicOpen}
           onClose={closeAnthropic}

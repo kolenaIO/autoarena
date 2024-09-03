@@ -1,5 +1,3 @@
-import anthropic
-
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
@@ -8,6 +6,8 @@ from autostack.judge.utils import BASIC_SYSTEM_PROMPT, get_user_prompt
 
 class AnthropicJudge(Judge):
     def __init__(self, model: str) -> None:
+        import anthropic
+
         self.client = anthropic.Client()
         self.model = model
 

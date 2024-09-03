@@ -8,7 +8,7 @@ from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
 from autostack.judge.executor import ThreadedExecutor
 from autostack.judge.factory import judge_factory
-from autostack.judge.utils import ABShufflingJudge, CleaningJudge
+from autostack.judge.utils import ABShufflingJudge, FixingJudge
 from autostack.service.elo import EloService
 from autostack.service.head_to_head import HeadToHeadService
 from autostack.service.judge import JudgeService
@@ -75,9 +75,8 @@ class TaskService:
 
         try:
             # 2. instantiate judge(s)
-            if len(enabled_auto_judges) > 1:
-                TaskService.update(task_id, status=f"Using {len(enabled_auto_judges)} judges:", progress=0)
-            judges: list[Judge] = [CleaningJudge(ABShufflingJudge(judge_factory(j))) for j in enabled_auto_judges]
+            TaskService.update(task_id, status=f"Using {len(enabled_auto_judges)} judge(s):", progress=0)
+            judges: list[Judge] = [ABShufflingJudge(FixingJudge(judge_factory(j))) for j in enabled_auto_judges]
             for judge in judges:
                 TaskService.update(task_id, status=f"  * {judge.name}", progress=0)
 

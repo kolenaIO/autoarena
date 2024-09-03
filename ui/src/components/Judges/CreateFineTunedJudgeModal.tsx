@@ -3,9 +3,9 @@ import { useMemo, useState } from 'react';
 import moment from 'moment';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { pluralize } from '../../lib/string.ts';
-import { useModels } from '../../hooks/useModels.ts';
 import { useCreateFineTuningTask } from '../../hooks/useCreateFineTuningTask.ts';
 import { useProject } from '../../hooks/useProject.ts';
+import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 const AVAILABLE_BASE_MODELS = ['gemma2:9b', 'gemma2:2b', 'llama3.1:8b'];
@@ -16,12 +16,15 @@ type Props = {
 };
 export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   const { projectId = -1 } = useUrlState();
-  const { data: models } = useModels(projectId);
   const { mutate: createFineTuningTask } = useCreateFineTuningTask({ projectId });
   const { data: project } = useProject(projectId);
+  const { data: judges } = useJudges(projectId);
   const [baseModel, setBaseModel] = useState<string | null>(null);
 
-  const nVotes = useMemo(() => (models ?? []).reduce((acc, x) => acc + x.votes, 0) / 2, [models]);
+  const nVotes = useMemo(
+    () => (judges ?? []).filter(({ judge_type }) => judge_type === 'human').reduce((acc, { votes }) => acc + votes, 0),
+    [judges]
+  );
 
   function handleClose() {
     setBaseModel(null);
@@ -35,7 +38,7 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
     handleClose();
   }
 
-  const isEnabled = baseModel != null;
+  const isEnabled = nVotes > 0 && baseModel != null;
   return (
     <Modal opened={isOpen} onClose={handleClose} centered title="Create Custom Fine-Tuned Judge">
       <Stack>

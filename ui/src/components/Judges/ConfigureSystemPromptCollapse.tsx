@@ -33,7 +33,7 @@ export function ConfigureSystemPromptCollapse({ value, setValue }: Props) {
         </Group>
       </UnstyledButton>
       <Collapse in={isOpen}>
-        <Textarea rows={8} value={value} setValue={setValue} />
+        <Textarea rows={8} value={value} onChange={event => setValue(event.currentTarget.value)} />
       </Collapse>
     </Stack>
   );

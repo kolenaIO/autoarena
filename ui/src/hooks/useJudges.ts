@@ -13,6 +13,8 @@ export type Judge = {
   judge_type: JudgeType;
   created: string;
   name: string;
+  model_name: string | null;
+  system_prompt: string | null;
   description: string;
   enabled: boolean;
   votes: number;

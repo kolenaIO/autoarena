@@ -1,5 +1,3 @@
-import ollama
-
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
@@ -8,6 +6,9 @@ from autostack.judge.utils import BASIC_SYSTEM_PROMPT, get_user_prompt
 
 class OllamaJudge(Judge):
     def __init__(self, model: str) -> None:
+        import ollama
+
+        self.client = ollama
         self.model = model
 
     @property
@@ -26,7 +27,7 @@ class OllamaJudge(Judge):
         return [self._judge_one(h2h) for h2h in batch]
 
     def _judge_one(self, h2h: api.HeadToHead) -> str:
-        response = ollama.chat(
+        response = self.client.chat(
             model=self.model,
             messages=[
                 dict(role="system", content=BASIC_SYSTEM_PROMPT),

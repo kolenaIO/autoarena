@@ -1,5 +1,3 @@
-from openai import OpenAI
-
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
@@ -8,6 +6,8 @@ from autostack.judge.utils import BASIC_SYSTEM_PROMPT, get_user_prompt
 
 class OpenAIJudge(Judge):
     def __init__(self, model: str) -> None:
+        from openai import OpenAI
+
         self.client = OpenAI()
         self.model = model
 

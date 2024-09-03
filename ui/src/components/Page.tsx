@@ -1,5 +1,5 @@
 import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
-import { IconColumns2, IconCrown, IconGavel } from '@tabler/icons-react';
+import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
@@ -55,7 +55,7 @@ export function Page({ tab }: Props) {
         <Tabs.Tab value={TAB_LEADERBOARD} disabled={projectId == null} leftSection={<IconCrown {...iconProps} />}>
           {TAB_LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_COMPARISON} disabled={projectId == null} leftSection={<IconColumns2 {...iconProps} />}>
+        <Tabs.Tab value={TAB_COMPARISON} disabled={projectId == null} leftSection={<IconSwords {...iconProps} />}>
           {TAB_COMPARISON}
         </Tabs.Tab>
         {/* <Tabs.Tab value={TAB_STATISTICS} leftSection={<IconDeviceDesktopAnalytics {...iconProps} />}>

@@ -21,6 +21,7 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   const { data: project } = useProject(projectId);
   const [baseModel, setBaseModel] = useState<string | null>(null);
 
+  // TODO: this currently counts auto-judge votes, but should only count human votes
   const nVotes = useMemo(() => (models ?? []).reduce((acc, x) => acc + x.votes, 0) / 2, [models]);
 
   function handleClose() {

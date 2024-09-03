@@ -5,6 +5,7 @@ __pycache__/
 .data/
 dist/
 .DS_Store
+.vite/
 
 database.duckdb
 database.duckdb.wal

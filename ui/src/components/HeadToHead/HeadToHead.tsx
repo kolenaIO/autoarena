@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Button, Center, Group, Divider, Select, Stack } from '@mantine/core';
 import { useMemo } from 'react';
 import { IconClick } from '@tabler/icons-react';
+import { prop, sortBy } from 'ramda';
 import { useModels } from '../../hooks/useModels.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
@@ -16,10 +17,13 @@ export function HeadToHead() {
   const { data: models } = useModels(projectId);
   const allSelectModels = useMemo(
     () =>
-      (models ?? []).map(({ id, name }) => ({
-        value: String(id),
-        label: name,
-      })),
+      sortBy<{ value: string; label: string }>(
+        prop('label'),
+        (models ?? []).map(({ id, name }) => ({
+          value: String(id),
+          label: name,
+        }))
+      ),
     [models]
   );
   const modelA = models?.find(({ id }) => Number(urlModelAId) === id);

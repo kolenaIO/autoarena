@@ -21,6 +21,8 @@ ollama = "^0.3.2"
 anthropic = "^0.34.1"
 cohere = "^5.9.0"
 google-generativeai = "^0.7.2"
+transformers = "^4.44.2"
+torch = "^2.4.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

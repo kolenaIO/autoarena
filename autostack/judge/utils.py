@@ -1,11 +1,9 @@
 import sys
-from abc import ABCMeta
 
 import numpy as np
 
 from autostack.api import api
-from autostack.api.api import JudgeType
-from autostack.judge.base import Judge
+from autostack.judge.base import Judge, WrappingJudge
 
 BASIC_SYSTEM_PROMPT = """\
 You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
@@ -37,33 +35,6 @@ ACCEPTABLE_RESPONSES = {"A", "B", "-"}
 
 def get_user_prompt(h2h: api.HeadToHead) -> str:
     return USER_PROMPT_TEMPLATE.format(prompt=h2h.prompt, response_a=h2h.response_a, response_b=h2h.response_b)
-
-
-class WrappingJudge(Judge, metaclass=ABCMeta):
-    judge: Judge
-
-    def __init__(self, judge: Judge):
-        self.judge = judge
-
-    @property
-    def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
-
-    @property
-    def name(self) -> str:
-        return self.judge.name
-
-    @property
-    def model_name(self) -> str | None:
-        return self.judge.model_name
-
-    @property
-    def system_prompt(self) -> str | None:
-        return self.judge.system_prompt
-
-    @property
-    def description(self) -> str:
-        return self.judge.description
 
 
 class ABShufflingJudge(WrappingJudge):

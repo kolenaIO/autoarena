@@ -1,32 +1,19 @@
 from autostack.api import api
 from autostack.api.api import JudgeType
-from autostack.judge.base import Judge
+from autostack.judge.base import AutomatedJudge
 from autostack.judge.utils import get_user_prompt
 
 
-class CohereJudge(Judge):
+class CohereJudge(AutomatedJudge):
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import cohere
 
+        super().__init__(model_name, system_prompt)
         self._client = cohere.Client()
-        self._model_name = model_name
-        self._system_prompt = system_prompt
 
     @property
     def judge_type(self) -> JudgeType:
         return JudgeType.COHERE
-
-    @property
-    def name(self) -> str:
-        return self._model_name
-
-    @property
-    def model_name(self) -> str:
-        return self._model_name
-
-    @property
-    def system_prompt(self) -> str:
-        return self._system_prompt
 
     @property
     def description(self) -> str:

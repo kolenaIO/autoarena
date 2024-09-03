@@ -24,6 +24,7 @@ google-generativeai = "^0.7.2"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"
+pytest = "^8.3.2"
 
 [tool.ruff]
 line-length = 120

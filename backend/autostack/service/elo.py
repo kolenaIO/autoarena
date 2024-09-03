@@ -105,9 +105,9 @@ class EloService:
         return elo_a, elo_b
 
     @staticmethod
-    def compute_elo(df_battle: pd.DataFrame, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
+    def compute_elo(df_h2h: pd.DataFrame, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
         rating: dict[str, float] = defaultdict(lambda: config.default_score)
-        for _, model_a, model_b, winner in df_battle[["model_a", "model_b", "winner"]].itertuples():
+        for _, model_a, model_b, winner in df_h2h[["model_a", "model_b", "winner"]].itertuples():
             elo_a, elo_b = EloService.compute_elo_single(rating[model_a], rating[model_b], winner, config=config)
             rating[model_a] = elo_a
             rating[model_b] = elo_b
@@ -115,17 +115,17 @@ class EloService:
         return df_elos.sort_values(by="elo", ascending=False)
 
     @staticmethod
-    def get_bootstrap_result(df_battle: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
+    def get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
         rows = []
         for _ in tqdm(range(num_rounds), desc="bootstrap"):
-            df_battle_tmp = df_battle.sample(frac=1.0, replace=True)
-            rows.append(EloService.compute_elo(df_battle_tmp))
+            df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
+            rows.append(EloService.compute_elo(df_h2h_tmp))
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
         return df[df.median().sort_values(ascending=False).index]
 
     @staticmethod
-    def compute_confidence_intervals(df_elo: pd.DataFrame, df_battle: pd.DataFrame) -> pd.DataFrame:
-        df_bootstrap = EloService.get_bootstrap_result(df_battle, num_rounds=200)
+    def compute_confidence_intervals(df_elo: pd.DataFrame, df_h2h: pd.DataFrame) -> pd.DataFrame:
+        df_bootstrap = EloService.get_bootstrap_result(df_h2h, num_rounds=200)
         df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
         df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
         # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI

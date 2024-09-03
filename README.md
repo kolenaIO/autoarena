@@ -11,3 +11,4 @@ Highest priority TODOs as of EOD 9/2:
 - [ ] Settle naming: model, result, judge, head-to-head (with and without judgement)
 - [ ] Support multi-turn conversations (accept lists in prompt and response columns?)
 - [ ] Better head-to-head surfacing: show samples where other judges disagree?
+- [ ] Responsive layout (pages are currently fixed at 1080px content width)

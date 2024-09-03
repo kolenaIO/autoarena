@@ -10,7 +10,7 @@ function getDeleteProjectQueryKey() {
 }
 
 type Params = {
-  options: UseMutationOptions<void, Error, number>;
+  options?: UseMutationOptions<void, Error, number>;
 };
 export function useDeleteProject({ options }: Params = {}) {
   const queryClient = useQueryClient();

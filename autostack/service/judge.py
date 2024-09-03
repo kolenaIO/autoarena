@@ -1,9 +1,14 @@
 from autostack.api import api
 from autostack.judge.base import Judge
+from autostack.judge.utils import BASIC_SYSTEM_PROMPT
 from autostack.store.database import get_database_connection
 
 
 class JudgeService:
+    @staticmethod
+    def get_default_system_prompt() -> str:
+        return BASIC_SYSTEM_PROMPT
+
     @staticmethod
     def get_project_id(judge_id: int) -> int:
         with get_database_connection() as conn:

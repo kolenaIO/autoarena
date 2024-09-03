@@ -2,22 +2,19 @@ import { Collapse, Group, Stack, Text, Textarea, UnstyledButton } from '@mantine
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useEffect } from 'react';
+import { useJudgeDefaultSystemPrompt } from '../../hooks/useJudgeDefaultSystemPrompt.ts';
 
 type Props = {
   value: string;
   setValue: (prompt: string) => void;
 };
 export function ConfigureSystemPromptCollapse({ value, setValue }: Props) {
+  const { data: defaultSystemPrompt } = useJudgeDefaultSystemPrompt();
   const [isOpen, { toggle }] = useDisclosure(false);
 
-  // TODO: the backend should control the default system prompt
   useEffect(() => {
-    setValue(
-      `You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
-
-Respond with ONLY "A" if assistant A is better, "B" if assistant B is better, or "-" if neither is better than the other.`
-    );
-  }, []);
+    setValue(defaultSystemPrompt);
+  }, [defaultSystemPrompt]);
 
   const chevronProps = { size: 18, color: 'gray' };
   return (

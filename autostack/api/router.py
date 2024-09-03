@@ -114,6 +114,10 @@ def router() -> APIRouter:
     def get_judges(project_id: int) -> list[api.Judge]:
         return JudgeService.get_all(project_id)
 
+    @r.get("/judge/default-system-prompt")
+    def get_default_system_prompt() -> str:
+        return JudgeService.get_default_system_prompt()
+
     @r.post("/judge")
     def create_judge(request: api.CreateJudgeRequest) -> api.Judge:
         return JudgeService.create(request)

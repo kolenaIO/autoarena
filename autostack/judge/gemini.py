@@ -1,15 +1,16 @@
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
-from autostack.judge.utils import BASIC_SYSTEM_PROMPT, get_user_prompt, JOINED_PROMPT_TEMPLATE
+from autostack.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE
 
 
 class GeminiJudge(Judge):
-    def __init__(self, model_name: str) -> None:
+    def __init__(self, model_name: str, system_prompt: str) -> None:
         import google.generativeai as genai
 
-        self.model = genai.GenerativeModel(model_name)
-        self.model_name = model_name
+        self._model = genai.GenerativeModel(model_name)
+        self._model_name = model_name
+        self._system_prompt = system_prompt
 
     @property
     def judge_type(self) -> JudgeType:
@@ -17,11 +18,19 @@ class GeminiJudge(Judge):
 
     @property
     def name(self) -> str:
-        return self.model_name
+        return self._model_name
+
+    @property
+    def model_name(self) -> str:
+        return self._model_name
+
+    @property
+    def system_prompt(self) -> str:
+        return self._system_prompt
 
     @property
     def description(self) -> str:
-        return f"Google Gemini judge model '{self.model_name}'"
+        return f"Google Gemini judge model '{self.name}'"
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         return [self._judge_one(h2h) for h2h in batch]
@@ -29,8 +38,8 @@ class GeminiJudge(Judge):
     def _judge_one(self, h2h: api.HeadToHead) -> str:
         import google.generativeai as genai
 
-        prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=BASIC_SYSTEM_PROMPT, user_prompt=get_user_prompt(h2h))
-        response = self.model.generate_content(
+        prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=get_user_prompt(h2h))
+        response = self._model.generate_content(
             prompt,
             generation_config=dict(max_output_tokens=12, temperature=0.0),
             safety_settings={

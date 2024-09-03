@@ -125,7 +125,7 @@ class FixingJudge(Judge):
     def __init__(self, judge: Judge):
         from transformers import pipeline
 
-        self.pipe = pipeline(model=self.CLASSIFIER_MODEL)
+        self.pipe = pipeline(model=self.CLASSIFIER_MODEL, device="cpu")
         self.judge = judge
 
     @property

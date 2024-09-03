@@ -1,3 +1,5 @@
+import sys
+
 import numpy as np
 
 from autostack.api import api
@@ -71,3 +73,36 @@ class ABShufflingJudge(Judge):
     @staticmethod
     def _shuffle_winner(winner: str) -> str:
         return "B" if winner == "A" else "A" if winner == "B" else "-"
+
+
+class CleaningJudge(Judge):
+    """Attempt to clean raw responses from other judges"""
+
+    ACCEPTABLE_RESPONSES = {"A", "B", "-"}
+
+    def __init__(self, judge: Judge):
+        self.judge = judge
+
+    @property
+    def judge_type(self) -> JudgeType:
+        return self.judge.judge_type
+
+    @property
+    def name(self) -> str:
+        return self.judge.name
+
+    @property
+    def description(self) -> str:
+        return self.judge.description
+
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
+        cleaned = []
+        for winner_raw in self.judge.judge_batch(batch):
+            winner = winner_raw.strip().strip("'").strip('"')
+            if winner in self.ACCEPTABLE_RESPONSES:
+                cleaned.append(winner)
+            else:
+                message = f"[{self.__class__.__name__}] Saving bad response from '{self.name}' as tie: {winner_raw}"
+                print(message, file=sys.stderr)
+                cleaned.append("-")
+        return cleaned

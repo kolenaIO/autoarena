@@ -33,4 +33,4 @@ class OllamaJudge(Judge):
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
         )
-        return response["message"]["content"].strip()  # strip any whitespace
+        return response["message"]["content"]

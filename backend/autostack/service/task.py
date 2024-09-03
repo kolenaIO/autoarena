@@ -1,13 +1,14 @@
 from collections import defaultdict
 from datetime import datetime
 
+import pandas as pd
 
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
 from autostack.judge.executor import ThreadedExecutor
 from autostack.judge.factory import judge_factory
-from autostack.judge.utils import ABShufflingJudge
+from autostack.judge.utils import ABShufflingJudge, CleaningJudge
 from autostack.service.elo import EloService
 from autostack.service.head_to_head import HeadToHeadService
 from autostack.service.judge import JudgeService
@@ -76,7 +77,7 @@ class TaskService:
             # 2. instantiate judge(s)
             if len(enabled_auto_judges) > 1:
                 TaskService.update(task_id, status=f"Running {len(enabled_auto_judges)} judges", progress=0)
-            judges: list[Judge] = [ABShufflingJudge(judge_factory(j)) for j in enabled_auto_judges]
+            judges: list[Judge] = [CleaningJudge(ABShufflingJudge(judge_factory(j))) for j in enabled_auto_judges]
             for judge in judges:
                 TaskService.update(task_id, status=f"Using judge '{judge.name}'", progress=0)
 
@@ -94,10 +95,11 @@ class TaskService:
                 for _, r in df_h2h[["prompt", "result_a_id", "response_a", "result_b_id", "response_b"]].iterrows()
             ]
             executor = ThreadedExecutor(4)
-            responses: dict[str, list[str]] = defaultdict(lambda: [])
+            responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
             n_total = len(head_to_heads) * len(judges)
-            for judge, judged_batch in executor.execute(judges, head_to_heads):
-                responses[judge.name].extend(judged_batch)
+            for judge, batch, judged_batch in executor.execute(judges, head_to_heads):
+                this_responses = [(r.result_a_id, r.result_b_id, winner) for r, winner in zip(batch, judged_batch)]
+                responses[judge.name].extend(this_responses)
                 n_this_judge = len(responses[judge.name])
                 status = f"'{judge.name}' processed {n_this_judge} of {len(head_to_heads)} head-to-head matchups"
                 n_responses = sum(len(r) for r in responses.values())
@@ -110,7 +112,8 @@ class TaskService:
                 for judge_name, judge_responses in responses.items():
                     df_h2h_judged = df_h2h.copy()
                     df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
-                    df_h2h_judged["winner"] = judge_responses
+                    df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
+                    df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
                     # TODO: does there need to be any conflict resolution here?
                     conn.execute("""
                         INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)

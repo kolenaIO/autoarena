@@ -7,6 +7,7 @@ import { ModelHeadToHeadStats, useModelHeadToHeadStats } from '../../hooks/useMo
 import { useUrlState } from '../../hooks/useUrlState.ts';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
+  unique_id: string;
   count_total: number;
   win_percentage: number;
   loss_percentage: number;
@@ -61,6 +62,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         count_total: countTotal,
         win_percentage: (s.count_wins / countTotal) * 100,
         loss_percentage: (s.count_losses / countTotal) * 100,
+        unique_id: `${s.judge_id}-${s.other_model_id}`,
       };
     });
     const sortProp = sortStatus.columnAccessor as keyof H2hStatsRecord;
@@ -77,7 +79,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         horizontalSpacing="xs"
         columns={HEAD_TO_HEAD_COLUMNS}
         records={statsRecords}
-        idAccessor="other_model_id"
+        idAccessor="unique_id"
         sortStatus={sortStatus}
         onSortStatusChange={setSortStatus}
         fetching={isLoading}

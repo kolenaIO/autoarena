@@ -1,4 +1,4 @@
-import { Box, Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useHotkeys } from '@mantine/hooks';
@@ -55,6 +55,8 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     ['ArrowLeft', submitVote('A')],
     ['ArrowDown', submitVote('-')],
     ['ArrowRight', submitVote('B')],
+    ['p', navigatePrevious],
+    ['n', navigateNext],
   ]);
 
   const hasJudgingHistory = (battle?.history?.length ?? 0) > 0;
@@ -107,7 +109,13 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
         <Stack align="center" gap="xs">
           <Text fw="bold">Which response is better?</Text>
           <SimpleGrid cols={5} spacing="xs">
-            <Button variant="subtle" color="gray" onClick={navigatePrevious}>
+            <Button
+              leftSection={<Kbd>p</Kbd>}
+              variant="subtle"
+              color="gray"
+              onClick={navigatePrevious}
+              disabled={battleIndex < 1}
+            >
               Previous
             </Button>
             <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')}>
@@ -119,7 +127,13 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
             <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')}>
               Right
             </Button>
-            <Button variant="subtle" color="gray" onClick={navigateNext}>
+            <Button
+              rightSection={<Kbd>n</Kbd>}
+              variant="subtle"
+              color="gray"
+              onClick={navigateNext}
+              disabled={battleIndex >= nBattles - 1}
+            >
               Next
             </Button>
             {showJudgingHistory && (

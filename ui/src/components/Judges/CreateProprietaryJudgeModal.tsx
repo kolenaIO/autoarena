@@ -1,5 +1,7 @@
 import { useMemo, useState } from 'react';
-import { Code, Modal, Select, Stack, Text } from '@mantine/core';
+import { Code, Collapse, Group, Modal, Select, Stack, Text, Textarea, UnstyledButton } from '@mantine/core';
+import { useDisclosure } from '@mantine/hooks';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
@@ -17,6 +19,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
   const { data: judges } = useJudges(projectId);
   const { mutate: createJudge } = useCreateJudge({ projectId });
   const [name, setName] = useState('');
+  const [isConfigureSystemPromptOpen, { toggle: toggleConfigureSystemPrompt }] = useDisclosure(false);
 
   // gray out options that are already configured
   const existingJudges = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
@@ -42,6 +45,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
 
   const isEnabled = name !== '';
   const apiKeyName = judgeTypeToApiKeyName(judgeType);
+  const chevronProps = { size: 18, color: 'gray' };
   return (
     <Modal
       opened={isOpen}
@@ -65,6 +69,33 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
           searchable
           flex={1}
         />
+        <Stack gap={2}>
+          <UnstyledButton onClick={toggleConfigureSystemPrompt}>
+            <Group justify="space-between">
+              <Stack gap={2}>
+                <Text fw={500} size="sm">
+                  Configure System Prompt
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Customize the instructions given to the judge before voting
+                </Text>
+              </Stack>
+              {isConfigureSystemPromptOpen ? (
+                <IconChevronUp {...chevronProps} />
+              ) : (
+                <IconChevronDown {...chevronProps} />
+              )}
+            </Group>
+          </UnstyledButton>
+          <Collapse in={isConfigureSystemPromptOpen}>
+            <Textarea
+              rows={8}
+              defaultValue={`You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
+
+Respond with ONLY "A" if assistant A is better, "B" if assistant B is better, or "-" if neither is better than the other.`}
+            />
+          </Collapse>
+        </Stack>
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

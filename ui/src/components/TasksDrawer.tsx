@@ -95,7 +95,7 @@ function TaskAccordionItem({ task }: { task: Task }) {
         : IconBooks;
   const taskTitle =
     task.task_type === 'recompute-confidence-intervals'
-      ? 'Recompute Confidence Intervals'
+      ? 'Recompute Leaderboard Rankings'
       : task.task_type === 'auto-judge'
         ? 'Automated Head-to-Head Judging'
         : 'Custom Judge Fine-Tuning';

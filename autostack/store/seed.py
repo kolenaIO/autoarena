@@ -9,16 +9,13 @@ from autostack.service.judge import JudgeService
 from autostack.service.task import TaskService
 from autostack.service.elo import EloService
 from autostack.judge.human import HumanJudge
-from autostack.store.database import DATABASE_DIRECTORY, SCHEMA_FILE, get_database_connection
+from autostack.store.database import SCHEMA_FILE, get_database_connection
 
 
 def setup_database() -> None:
-    DATABASE_DIRECTORY.mkdir(parents=True, exist_ok=True)
-
     schema_sql = SCHEMA_FILE.read_text()
     with get_database_connection() as conn:
         conn.sql(schema_sql)
-
     close_pending_tasks()
 
 

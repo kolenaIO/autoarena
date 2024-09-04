@@ -1,7 +1,9 @@
 import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
 import { IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useProjects } from '../hooks/useProjects.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
@@ -19,7 +21,15 @@ type Props = {
 };
 export function Page({ tab }: Props) {
   const { projectId } = useUrlState();
+  const { data: projects } = useProjects();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // redirect home if we have a stale URL referencing a project that doesn't exist
+    if (projects != null && projects.length === 0) {
+      navigate('/');
+    }
+  }, [projects]);
 
   function setTab(newTab: string | null) {
     const baseUrl = `/project/${projectId}`;

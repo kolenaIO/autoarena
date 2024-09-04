@@ -3,8 +3,7 @@ from pathlib import Path
 
 import duckdb
 
-DATABASE_DIRECTORY = (Path(__file__).parent / ".." / "..").resolve()
-DATABASE_FILE = DATABASE_DIRECTORY / "database.duckdb"
+DATABASE_FILE = Path.cwd() / "autostack.duckdb"
 SCHEMA_FILE = Path(__file__).parent / "schema.sql"
 
 

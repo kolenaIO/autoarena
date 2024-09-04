@@ -26,3 +26,4 @@ Highest priority TODOs as of EOD 9/2:
 - [ ] View responses from other models on head-to-head tab (click to see other responses to prompt)
 - [x] Configure judge system prompt (persist, set default, add to frontend)
 - [ ] Set up backend logger
+- [ ] Improve off-happy-path for automated judges, such as Ollama not running or API key missing

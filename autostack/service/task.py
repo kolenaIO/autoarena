@@ -79,9 +79,8 @@ class TaskService:
         try:
             # 2. instantiate judge(s)
             TaskService.update(task_id, status=f"Using {len(enabled_auto_judges)} judge(s):", progress=0)
-            judges: list[Judge] = [
-                ABShufflingJudge(FixingJudge(RetryingJudge(judge_factory(j)))) for j in enabled_auto_judges
-            ]
+            wrappers = [RetryingJudge, FixingJudge, ABShufflingJudge]
+            judges: list[Judge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
             for judge in judges:
                 TaskService.update(task_id, status=f"  * {judge.name}", progress=0)
 

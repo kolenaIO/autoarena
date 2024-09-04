@@ -1,6 +1,9 @@
 import sys
 
 import numpy as np
+from tenacity import retry, RetryCallState
+from tenacity import stop_after_attempt
+from tenacity import wait_random_exponential
 
 from autostack.api import api
 from autostack.judge.base import Judge, WrappingJudge
@@ -107,3 +110,15 @@ class FixingJudge(WrappingJudge):
                 print(f"Fixed bad response: '{winner_raw}' as '{winner}'", file=sys.stderr)
             cleaned.append(winner)
         return cleaned
+
+
+class RetryingJudge(WrappingJudge):
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
+        @retry(wait=wait_random_exponential(min=2, max=10), stop=stop_after_attempt(3), after=self._log_retry)
+        def judge_batch_inner(b: list[api.HeadToHead]) -> list[str]:
+            return self.judge.judge_batch(b)
+
+        return judge_batch_inner(batch)
+
+    def _log_retry(self, retry_state: RetryCallState) -> None:
+        print(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...", file=sys.stderr)

@@ -8,7 +8,7 @@ from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
 from autostack.judge.executor import ThreadedExecutor
 from autostack.judge.factory import judge_factory
-from autostack.judge.utils import ABShufflingJudge, FixingJudge
+from autostack.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
 from autostack.service.elo import EloService
 from autostack.service.head_to_head import HeadToHeadService
 from autostack.service.judge import JudgeService
@@ -57,6 +57,9 @@ class TaskService:
     # TODO: should this really be a long-running task? It only takes ~5 seconds for ~50k battles
     @staticmethod
     def recompute_confidence_intervals(project_id: int) -> None:
+        task_objects = TaskService.get_all(project_id)
+        if len([t for t in task_objects if t.task_type == "recompute-confidence-intervals" and t.progress < 1]) > 0:
+            return  # only recompute if there isn't already a task in progress
         task_id = TaskService.create(project_id, "recompute-confidence-intervals").id
         try:
             EloService.reseed_scores(project_id)
@@ -76,7 +79,9 @@ class TaskService:
         try:
             # 2. instantiate judge(s)
             TaskService.update(task_id, status=f"Using {len(enabled_auto_judges)} judge(s):", progress=0)
-            judges: list[Judge] = [ABShufflingJudge(FixingJudge(judge_factory(j))) for j in enabled_auto_judges]
+            judges: list[Judge] = [
+                ABShufflingJudge(FixingJudge(RetryingJudge(judge_factory(j)))) for j in enabled_auto_judges
+            ]
             for judge in judges:
                 TaskService.update(task_id, status=f"  * {judge.name}", progress=0)
 

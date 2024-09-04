@@ -102,9 +102,7 @@ def router() -> APIRouter:
     ) -> None:
         HeadToHeadService.submit_judgement(request)
         # recompute confidence intervals in the background if we aren't doing so already
-        task_objects = TaskService.get_all(request.project_id)
-        if len([t for t in task_objects if t.task_type == "recompute-confidence-intervals" and t.progress < 1]) == 0:
-            background_tasks.add_task(TaskService.recompute_confidence_intervals, request.project_id)
+        background_tasks.add_task(TaskService.recompute_confidence_intervals, request.project_id)
 
     @r.get("/tasks/{project_id}")
     def get_tasks(project_id: int) -> list[api.Task]:

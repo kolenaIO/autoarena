@@ -1,6 +1,5 @@
-import sys
-
 import numpy as np
+from loguru import logger
 from tenacity import retry, RetryCallState
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
@@ -79,7 +78,7 @@ class CleaningJudge(WrappingJudge):
                 cleaned.append(winner)
             else:
                 message = f"[{self.__class__.__name__}] Saving bad response from '{self.name}' as tie: {winner_raw}"
-                print(message, file=sys.stderr)
+                logger.warning(message)
                 cleaned.append("-")
         return cleaned
 
@@ -107,7 +106,7 @@ class FixingJudge(WrappingJudge):
             if winner not in ACCEPTABLE_RESPONSES:
                 classifications = self.pipe(winner_raw, candidate_labels=self.CLASSES)
                 winner = self.CLASS_TO_WINNER[classifications["labels"][0]]
-                print(f"Fixed bad response: '{winner_raw}' as '{winner}'", file=sys.stderr)
+                logger.warning(f"Fixed bad response: '{winner_raw}' as '{winner}'")
             cleaned.append(winner)
         return cleaned
 
@@ -121,4 +120,4 @@ class RetryingJudge(WrappingJudge):
         return judge_batch_inner(batch)
 
     def _log_retry(self, retry_state: RetryCallState) -> None:
-        print(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...", file=sys.stderr)
+        logger.warn(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...")

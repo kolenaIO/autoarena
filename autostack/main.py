@@ -1,17 +1,18 @@
-import argparse
 from contextlib import asynccontextmanager
 from typing import AsyncIterator
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from loguru import logger
 
 from autostack.api.router import router
+from autostack.args import get_command_line_args
+from autostack.log import initialize_logger
 from autostack.store.seed import setup_database, seed_initial_battles
 from autostack.ui_router import ui_router
 
-ap = argparse.ArgumentParser()
-ap.add_argument("battles_parquet", nargs="?", help="Path to parquet file containing battles to seed project")
-args = ap.parse_args()
+args = get_command_line_args()
+initialize_logger()
 
 
 @asynccontextmanager
@@ -19,6 +20,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     setup_database()
     if args.battles_parquet is not None:
         seed_initial_battles(args.battles_parquet)
+    logger.info("AutoStack ready")
     yield
 
 

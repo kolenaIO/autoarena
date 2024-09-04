@@ -11,7 +11,6 @@ from autostack.judge.cohere import CohereJudge
 from autostack.judge.factory import judge_factory
 from autostack.judge.gemini import GeminiJudge
 from autostack.judge.human import HumanJudge
-from autostack.judge.ollama import OllamaJudge
 from autostack.judge.openai import OpenAIJudge
 from autostack.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
 
@@ -20,7 +19,8 @@ from autostack.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
     "judge_type,expected_type,required_api_key",
     [
         (api.JudgeType.HUMAN, HumanJudge, None),
-        (api.JudgeType.OLLAMA, OllamaJudge, None),
+        # TODO: reenable as integration test (requires communication with Ollama service to instantiate)
+        # (api.JudgeType.OLLAMA, OllamaJudge, None),
         (api.JudgeType.OPENAI, OpenAIJudge, "OPENAI_API_KEY"),
         (api.JudgeType.ANTHROPIC, AnthropicJudge, "ANTHROPIC_API_KEY"),
         (api.JudgeType.COHERE, CohereJudge, "COHERE_API_KEY"),

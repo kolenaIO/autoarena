@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
+import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 const MODELS_ENDPOINT = `${BASE_API_URL}/models`;
 
@@ -19,7 +19,7 @@ export type Model = {
 };
 
 export function useModels(projectId: number | undefined) {
-  return useQuery({
+  return useQueryWithErrorToast({
     queryKey: getModelsQueryKey(projectId ?? -1),
     queryFn: async () => {
       const url = `${MODELS_ENDPOINT}/${projectId}`;
@@ -31,5 +31,6 @@ export function useModels(projectId: number | undefined) {
       return result;
     },
     enabled: projectId != null,
+    errorMessage: 'Failed to fetch models',
   });
 }

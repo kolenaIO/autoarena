@@ -9,7 +9,7 @@ poetry run python3 -m autostack
 To run AutoStack locally, you will need to run both the backend and frontend service:
 
 - Backend: `poetry run python3 -m autostack`
-- Frontend: see [`ui/README.md`](./ui/README.md)t
+- Frontend: see [`ui/README.md`](./ui/README.md)
 
 ## Development
 

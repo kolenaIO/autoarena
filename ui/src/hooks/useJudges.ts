@@ -1,6 +1,6 @@
-import { useQuery } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
 import { JudgeType } from '../components/Judges/types.ts';
+import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 const JUDGES_ENDPOINT = `${BASE_API_URL}/judges`;
 
@@ -21,7 +21,7 @@ export type Judge = {
 };
 
 export function useJudges(projectId: number | undefined) {
-  return useQuery({
+  return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectId ?? -1),
     queryFn: async () => {
       const url = `${JUDGES_ENDPOINT}/${projectId}`;
@@ -33,5 +33,6 @@ export function useJudges(projectId: number | undefined) {
       return result;
     },
     enabled: projectId != null,
+    errorMessage: 'Failed to fetch judges',
   });
 }

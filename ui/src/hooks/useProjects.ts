@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
+import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 const PROJECTS_ENDPOINT = `${BASE_API_URL}/projects`;
 export const PROJECTS_QUERY_KEY = [PROJECTS_ENDPOINT];
@@ -11,7 +11,7 @@ export type Project = {
 };
 
 export function useProjects() {
-  return useQuery({
+  return useQueryWithErrorToast({
     queryKey: [PROJECTS_ENDPOINT],
     queryFn: async () => {
       const response = await fetch(PROJECTS_ENDPOINT);
@@ -21,5 +21,6 @@ export function useProjects() {
       const result: Project[] = await response.json();
       return result;
     },
+    errorMessage: 'Failed to fetch projects',
   });
 }

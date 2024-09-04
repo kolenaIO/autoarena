@@ -6,13 +6,14 @@ import pytest
 
 from autostack.api import api
 from autostack.judge.anthropic import AnthropicJudge
-from autostack.judge.base import Judge
+from autostack.judge.base import Judge, WrappingJudge
 from autostack.judge.cohere import CohereJudge
 from autostack.judge.factory import judge_factory
 from autostack.judge.gemini import GeminiJudge
 from autostack.judge.human import HumanJudge
 from autostack.judge.ollama import OllamaJudge
 from autostack.judge.openai import OpenAIJudge
+from autostack.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
 
 
 @pytest.mark.parametrize(
@@ -47,3 +48,25 @@ def test__factory(judge_type: api.JudgeType, expected_type: Type[Judge] | None, 
             judge_factory(request)
     else:
         assert type(judge_factory(request)) is expected_type
+
+
+@pytest.mark.parametrize("wrappers", [([]), ([ABShufflingJudge]), (ABShufflingJudge, CleaningJudge, RetryingJudge)])
+def test__factory_wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
+    request = api.Judge(
+        id=-1,
+        judge_type=api.JudgeType.HUMAN,
+        created=datetime.datetime.now(datetime.UTC),
+        name="human",
+        model_name=None,
+        system_prompt=None,
+        description="example_description",
+        enabled=True,
+        votes=0,
+    )
+    judge = judge_factory(request, wrappers=wrappers)
+    if len(wrappers) == 0:
+        assert type(judge) is HumanJudge
+    else:
+        for wrapper_type in wrappers[::-1]:
+            assert type(judge) is wrapper_type
+            judge = judge.judge

@@ -3,7 +3,7 @@ import pytest
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
-from autostack.judge.utils import CleaningJudge, RetryingJudge, FixingJudge
+from autostack.judge.utils import CleaningJudge, RetryingJudge, FixingJudge, ABShufflingJudge
 
 
 class DummyJudge(Judge):
@@ -35,6 +35,12 @@ class DummyJudge(Judge):
 
 
 DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2, response_a="a", response_b="b")
+
+
+def test__ab_shuffling_judge() -> None:
+    expected = ["A", "B", "-"]
+    judge = ABShufflingJudge(DummyJudge(expected))
+    assert judge.judge_batch([DUMMY_H2H] * 3) == expected
 
 
 @pytest.mark.parametrize(

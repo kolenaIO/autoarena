@@ -7,6 +7,8 @@ dist/
 .DS_Store
 .vite/
 
+poetry.lock
+
 database.duckdb
 database.duckdb.wal
 *.parquet

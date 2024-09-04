@@ -94,7 +94,7 @@ export function Judges() {
           isOpen={isCohereOpen}
           onClose={closeCohere}
           judgeType="cohere"
-          modelOptions={['command-r', 'command-r-plus']}
+          modelOptions={['command-r-plus', 'command-r']}
         />
       </Stack>
     </Center>

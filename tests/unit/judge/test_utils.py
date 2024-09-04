@@ -3,7 +3,7 @@ import pytest
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
-from autostack.judge.utils import CleaningJudge, RetryingJudge
+from autostack.judge.utils import CleaningJudge, RetryingJudge, FixingJudge
 
 
 class DummyJudge(Judge):
@@ -56,6 +56,22 @@ DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2,
 def test__cleaning_judge(raw: str, expected: str) -> None:
     test_judge = DummyJudge([raw])
     assert CleaningJudge(test_judge).judge_batch([DUMMY_H2H]) == [expected]
+
+
+@pytest.mark.parametrize(
+    "raw,expected",
+    [
+        ("A", "A"),
+        ("B", "B"),
+        ("-", "-"),
+        ("A is better.", "A"),
+        ("Response B is better, because it does a better job than A.", "B"),
+        ("Neither A nor B are that good.", "-"),
+    ],
+)
+def test__fixing_judge(raw: str, expected: str) -> None:
+    test_judge = DummyJudge([raw])
+    assert FixingJudge(test_judge).judge_batch([DUMMY_H2H]) == [expected]
 
 
 def test__retrying_judge() -> None:

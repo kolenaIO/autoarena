@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 import os
 from typing import Type
 
@@ -35,7 +35,7 @@ def test__factory(judge_type: api.JudgeType, expected_type: Type[Judge] | None, 
     request = api.Judge(
         id=-1,
         judge_type=judge_type,
-        created=datetime.datetime.now(datetime.UTC),
+        created=datetime.utcnow(),
         name=name,
         model_name=name,
         system_prompt="example system prompt",
@@ -55,7 +55,7 @@ def test__factory_wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
     request = api.Judge(
         id=-1,
         judge_type=api.JudgeType.HUMAN,
-        created=datetime.datetime.now(datetime.UTC),
+        created=datetime.utcnow(),
         name="human",
         model_name=None,
         system_prompt=None,

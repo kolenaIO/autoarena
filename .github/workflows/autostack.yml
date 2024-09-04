@@ -18,6 +18,8 @@ jobs:
       - uses: actions/checkout@v4
       - name: Install poetry
         run: pip install poetry
+      - name: Generate dependencies
+        run: poetry update
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}

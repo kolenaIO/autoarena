@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "*"
+    branches:
+      - gh/automated-release
 
 jobs:
   release:

@@ -9,7 +9,6 @@ on:
 
 jobs:
   release:
-    name: Build and publish release of kolena Python package and documentation
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -19,13 +18,20 @@ jobs:
         run: poetry update
       - uses: actions/setup-python@v5
         with:
-          python-version: ${{ matrix.python_version }}
+          python-version: "3.12"
           cache: poetry
       - name: Install dependencies
         run: poetry install
       - name: Run pre-commit
         run: poetry run pre-commit run -a
-      - name: Update package version to PEP 440-compliant production release tag
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.1"
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
+      - name: Install UI dependencies
+        run: yarn --frozen-lockfile
+      - name: Update package version to PEP 440-compliant release tag
         run: poetry version $(git describe --tags --abbrev=0)
       - name: Run build script to build UI and bundle into Python tarball
         run: ./scripts/build.sh

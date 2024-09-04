@@ -90,7 +90,7 @@ class TaskService:
             if len(df_h2h) == 0:
                 TaskService.update(task_id, status="No head-to-heads found, exiting", progress=1)
                 return
-            status = f"Found {len(df_h2h)} head-to-heads versus {len(set(df_h2h["model_b_id"]))} model(s) to judge"
+            status = f"Found {len(df_h2h)} head-to-heads versus {len(set(df_h2h.model_b_id))} model(s) to judge"
             TaskService.update(task_id, status=status, progress=0)
 
             # 4. stream judgement requests

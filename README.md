@@ -13,6 +13,12 @@ To run AutoStack locally, you will need to run both the backend and frontend ser
 
 ## Development
 
+To build a release:
+
+```
+./scripts/build.sh
+```
+
 Highest priority TODOs as of EOD 9/2:
 
 - [ ] Add tests for tricky SQL logic and Elo calculations
@@ -25,5 +31,5 @@ Highest priority TODOs as of EOD 9/2:
 - [x] Lightweight judge resolver to turn e.g. "Option B is better." into "B" (some judges are verbose despite prompting)
 - [ ] View responses from other models on head-to-head tab (click to see other responses to prompt)
 - [x] Configure judge system prompt (persist, set default, add to frontend)
-- [ ] Set up backend logger
+- [x] Set up backend logger
 - [ ] Improve off-happy-path for automated judges, such as Ollama not running or API key missing

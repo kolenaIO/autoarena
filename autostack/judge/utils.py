@@ -120,4 +120,4 @@ class RetryingJudge(WrappingJudge):
         return judge_batch_inner(batch)
 
     def _log_retry(self, retry_state: RetryCallState) -> None:
-        logger.warn(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...")
+        logger.warning(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...")

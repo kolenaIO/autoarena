@@ -4,6 +4,7 @@ version = "0.1.0"
 description = ""
 authors = ["Kolena Engineering <eng@kolena.com>"]
 readme = "README.md"
+include = ["ui/dist/*", "ui/dist/assets/*"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"

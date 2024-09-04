@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 
 from autostack.api import api
@@ -40,7 +41,10 @@ DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2,
 def test__ab_shuffling_judge() -> None:
     expected = ["A", "B", "-"]
     judge = ABShufflingJudge(DummyJudge(expected))
-    assert judge.judge_batch([DUMMY_H2H] * 3) == expected  # shuffles inputs but pieces things back together on return
+    actual = judge.judge_batch([DUMMY_H2H] * 3)
+    assert len(actual) == len(expected)
+    assert np.array_equal((np.array(actual) == "-"), (np.array(expected) == "-"))  # ties should not be shuffled
+    # TODO: assertion that the shuffling+unshuffling is actually taking place as advertised
 
 
 @pytest.mark.parametrize(

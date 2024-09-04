@@ -40,7 +40,7 @@ DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2,
 def test__ab_shuffling_judge() -> None:
     expected = ["A", "B", "-"]
     judge = ABShufflingJudge(DummyJudge(expected))
-    assert judge.judge_batch([DUMMY_H2H] * 3) == expected
+    assert judge.judge_batch([DUMMY_H2H] * 3) == expected  # shuffles inputs but pieces things back together on return
 
 
 @pytest.mark.parametrize(

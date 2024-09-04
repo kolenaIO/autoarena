@@ -131,4 +131,5 @@ class TaskService:
             TaskService.finish(task_id)
         except Exception as e:
             TaskService.finish(task_id, f"Failed ({e})")
+            TaskService.finish(task_id, "See AutoStack service logs for more information")
             raise e

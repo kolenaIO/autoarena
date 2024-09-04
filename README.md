@@ -11,13 +11,13 @@ To run AutoStack locally, you will need to run both the backend and frontend ser
 - Backend: `poetry run python3 -m autostack`
 - Frontend: see [`ui/README.md`](./ui/README.md)
 
-## Development
-
 To build a release:
 
 ```
 ./scripts/build.sh
 ```
+
+## Development
 
 Highest priority TODOs as of EOD 9/2:
 

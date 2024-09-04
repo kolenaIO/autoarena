@@ -3,7 +3,7 @@ import { IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icon
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useUrlState } from '../hooks/useUrlState.ts';
-import { useProjects } from '../hooks/useProjects.ts';
+import { useProject } from '../hooks/useProject.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
@@ -21,15 +21,15 @@ type Props = {
 };
 export function Page({ tab }: Props) {
   const { projectId } = useUrlState();
-  const { data: projects } = useProjects();
+  const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const navigate = useNavigate();
 
   useEffect(() => {
     // redirect home if we have a stale URL referencing a project that doesn't exist
-    if (projects != null && projects.length === 0) {
+    if (projectId != null && project == null && !isLoadingProject) {
       navigate('/');
     }
-  }, [projects]);
+  }, [projectId, project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
     const baseUrl = `/project/${projectId}`;
@@ -55,7 +55,7 @@ export function Page({ tab }: Props) {
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <Group align="center" p="xs" pl="lg">
           <Group gap={4}>
-            <IconStack2Filled color="var(--mantine-color-kolena-8)" />
+            <IconStack2Filled color="var(--mantine-color-kolena-6)" />
             <Text fw="bold">AutoStack</Text>
           </Group>
           <ProjectSelect />
@@ -83,7 +83,7 @@ export function Page({ tab }: Props) {
           <Leaderboard />
         ) : (
           <Stack justify="center" align="center" h="calc(100vh - 56px)">
-            <OnboardingTimeline />
+            <OnboardingTimeline dismissable={false} />
           </Stack>
         )}
       </Tabs.Panel>

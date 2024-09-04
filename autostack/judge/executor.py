@@ -44,8 +44,8 @@ class ThreadedExecutor(Executor):
         head_to_heads: list[api.HeadToHead],
         batch_size: int = 8,
     ) -> Iterator[tuple[Judge, list[api.HeadToHead], list[str]]]:
-        n_batches = len(head_to_heads) // batch_size
-        batches = np.array_split(head_to_heads, n_batches)
+        n_batches = max(len(head_to_heads) // batch_size, 1)
+        batches = [b for b in np.array_split(head_to_heads, n_batches) if len(b) > 0]
         batches_with_judges = list(itertools.product(batches, judges))
 
         def run(batch_with_judge: tuple[list[api.HeadToHead], Judge]) -> tuple[Judge, list[api.HeadToHead], list[str]]:

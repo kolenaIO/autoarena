@@ -5,6 +5,8 @@ from autostack.judge.utils import get_user_prompt
 
 
 class AnthropicJudge(AutomatedJudge):
+    API_KEY_NAME = "ANTHROPIC_API_KEY"
+
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import anthropic
 

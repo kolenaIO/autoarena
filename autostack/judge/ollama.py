@@ -5,6 +5,8 @@ from autostack.judge.utils import get_user_prompt
 
 
 class OllamaJudge(AutomatedJudge):
+    API_KEY_NAME = None  # does not require an API key
+
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import ollama
 

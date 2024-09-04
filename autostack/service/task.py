@@ -79,10 +79,10 @@ class TaskService:
         try:
             # 2. instantiate judge(s)
             TaskService.update(task_id, status=f"Using {len(enabled_auto_judges)} judge(s):", progress=0)
+            for j in enabled_auto_judges:
+                TaskService.update(task_id, status=f"  * {j.name}", progress=0)
             wrappers = [RetryingJudge, FixingJudge, ABShufflingJudge]
             judges: list[Judge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
-            for judge in judges:
-                TaskService.update(task_id, status=f"  * {judge.name}", progress=0)
 
             # 3. get pairs eligible for judging
             df_h2h = HeadToHeadService.get_df(api.HeadToHeadsRequest(model_a_id=model_id))

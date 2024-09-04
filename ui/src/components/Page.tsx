@@ -1,4 +1,4 @@
-import { Flex, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
+import { Anchor, Flex, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
@@ -54,13 +54,17 @@ export function Page({ tab }: Props) {
     <Tabs value={tab} onChange={setTab} keepMounted={false}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <Group align="center" p="xs" pl="lg">
-          <Group gap={4}>
-            <IconStack2Filled color="var(--mantine-color-kolena-6)" />
-            <Text fw="bold">AutoStack</Text>
-            <Tooltip label="Beta Release" fz="xs">
-              <IconBeta size={14} color="var(--mantine-color-ice-8)" />
-            </Tooltip>
-          </Group>
+          <Anchor underline="never" href="/">
+            <Group gap={4}>
+              <IconStack2Filled color="var(--mantine-color-kolena-6)" />
+              <Text fw="bold" c="black">
+                AutoStack
+              </Text>
+              <Tooltip label="Beta Release" fz="xs">
+                <IconBeta size={14} color="var(--mantine-color-ice-8)" />
+              </Tooltip>
+            </Group>
+          </Anchor>
           <ProjectSelect />
         </Group>
         <div style={{ width: 96 }} />

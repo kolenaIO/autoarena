@@ -22,9 +22,9 @@ from autostack.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
         (api.JudgeType.HUMAN, HumanJudge, None),
         (api.JudgeType.OLLAMA, OllamaJudge, None),
         (api.JudgeType.OPENAI, OpenAIJudge, "OPENAI_API_KEY"),
-        (api.JudgeType.ANTHROPIC, AnthropicJudge, None),
+        (api.JudgeType.ANTHROPIC, AnthropicJudge, "ANTHROPIC_API_KEY"),
         (api.JudgeType.COHERE, CohereJudge, "COHERE_API_KEY"),
-        (api.JudgeType.GEMINI, GeminiJudge, None),
+        (api.JudgeType.GEMINI, GeminiJudge, "GOOGLE_API_KEY"),
         (api.JudgeType.CUSTOM, None, None),
     ],
 )

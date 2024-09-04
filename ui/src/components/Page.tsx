@@ -1,7 +1,9 @@
-import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
-import { IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
+import { Anchor, Flex, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
+import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useProject } from '../hooks/useProject.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
@@ -19,7 +21,15 @@ type Props = {
 };
 export function Page({ tab }: Props) {
   const { projectId } = useUrlState();
+  const { data: project, isLoading: isLoadingProject } = useProject(projectId);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    // redirect home if we have a stale URL referencing a project that doesn't exist
+    if (projectId != null && project == null && !isLoadingProject) {
+      navigate('/');
+    }
+  }, [projectId, project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
     const baseUrl = `/project/${projectId}`;
@@ -44,10 +54,17 @@ export function Page({ tab }: Props) {
     <Tabs value={tab} onChange={setTab} keepMounted={false}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <Group align="center" p="xs" pl="lg">
-          <Group gap={4}>
-            <IconStack2Filled color="var(--mantine-color-kolena-8)" />
-            <Text fw="bold">AutoStack</Text>
-          </Group>
+          <Anchor underline="never" href="/">
+            <Group gap={4}>
+              <IconStack2Filled color="var(--mantine-color-kolena-6)" />
+              <Text fw="bold" c="black">
+                AutoStack
+              </Text>
+              <Tooltip label="Beta Release" fz="xs">
+                <IconBeta size={14} color="var(--mantine-color-ice-8)" />
+              </Tooltip>
+            </Group>
+          </Anchor>
           <ProjectSelect />
         </Group>
         <div style={{ width: 96 }} />
@@ -73,7 +90,7 @@ export function Page({ tab }: Props) {
           <Leaderboard />
         ) : (
           <Stack justify="center" align="center" h="calc(100vh - 56px)">
-            <OnboardingTimeline />
+            <OnboardingTimeline dismissable={false} />
           </Stack>
         )}
       </Tabs.Panel>

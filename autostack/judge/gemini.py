@@ -5,6 +5,8 @@ from autostack.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE
 
 
 class GeminiJudge(AutomatedJudge):
+    API_KEY_NAME = "GOOGLE_API_KEY"
+
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import google.generativeai as genai
 

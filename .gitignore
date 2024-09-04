@@ -9,8 +9,8 @@ dist/
 
 poetry.lock
 
-database.duckdb
-database.duckdb.wal
+*.duckdb
+*.duckdb.wal
 *.parquet
 *.csv
 

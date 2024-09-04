@@ -1,9 +1,10 @@
 [tool.poetry]
 name = "autostack"
-version = "0.1.0"
+version = "0.1.0-beta.1"
 description = ""
 authors = ["Kolena Engineering <eng@kolena.com>"]
 readme = "README.md"
+include = ["ui/dist/*", "ui/dist/assets/*"]
 
 [tool.poetry.dependencies]
 python = ">=3.10,<3.13"
@@ -15,6 +16,8 @@ coolname = "^2.2.0"
 pyarrow = "^17.0.0"
 tqdm = "^4.66.5"
 python-multipart = "^0.0.9"
+loguru = "^0.7.2"
+tenacity = "^9.0.0"
 # TODO: these client libraries should be arranged into extras that are installed as needed (imports are lazy)
 openai = "^1.43.0"
 ollama = "^0.3.2"
@@ -23,7 +26,6 @@ cohere = "^5.9.0"
 google-generativeai = "^0.7.2"
 transformers = "^4.44.2"
 torch = "^2.4.0"
-tenacity = "^9.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

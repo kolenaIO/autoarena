@@ -5,6 +5,8 @@ from autostack.judge.utils import get_user_prompt
 
 
 class OpenAIJudge(AutomatedJudge):
+    API_KEY_NAME = "OPENAI_API_KEY"
+
     def __init__(self, model_name: str, system_prompt: str) -> None:
         from openai import OpenAI
 

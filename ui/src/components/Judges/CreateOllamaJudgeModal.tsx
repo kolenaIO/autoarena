@@ -59,6 +59,10 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
               <Code>mistral-nemo:12b</Code>
             </li>
           </ul>
+          <Text size="sm">
+            Note that this model must be pulled via <Code>ollama pull</Code> and the Ollama service must be running on
+            the host running AutoStack.
+          </Text>
         </Stack>
         <TextInput
           label="Model Name"

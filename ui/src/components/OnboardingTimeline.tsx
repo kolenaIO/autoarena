@@ -12,7 +12,10 @@ import { useProject } from '../hooks/useProject.ts';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 
-export function OnboardingTimeline() {
+type Props = {
+  dismissable?: boolean;
+};
+export function OnboardingTimeline({ dismissable = true }: Props) {
   const { projectId } = useUrlState();
   const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectId);
   const { data: models, isLoading: isLoadingModels } = useModels(projectId);
@@ -79,13 +82,14 @@ export function OnboardingTimeline() {
   const iconProps = { size: 14 };
   const subtitleProps = { c: 'dimmed', size: 'sm', maw: 350 };
   const isLoading = isLoadingProjects || isLoadingModels || isLoadingJudges;
-  return onboardingGuideDismissed || isLoading || hasCompletedOnboarding ? (
+  const isDismissed = dismissable && onboardingGuideDismissed;
+  return isDismissed || isLoading || hasCompletedOnboarding ? (
     <></>
   ) : (
     <Paper withBorder radius="md" w={600}>
       <Group bg="gray.0" p="lg" justify="space-between">
         <Title order={5}>Getting Started with AutoStack</Title>
-        <CloseButton onClick={() => setOnboardingGuideDismissed(true)} />
+        {dismissable && <CloseButton onClick={() => setOnboardingGuideDismissed(true)} />}
       </Group>
 
       <Divider />

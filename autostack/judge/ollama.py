@@ -5,11 +5,20 @@ from autostack.judge.utils import get_user_prompt
 
 
 class OllamaJudge(AutomatedJudge):
+    API_KEY_NAME = None  # does not require an API key
+
     def __init__(self, model_name: str, system_prompt: str) -> None:
+        import httpx
         import ollama
 
         super().__init__(model_name, system_prompt)
         self._client = ollama
+        try:
+            self._client.show(model_name)  # ensure this model exists and is pulled
+        except ollama.ResponseError:
+            raise RuntimeError(f"Ollama model '{model_name}' not found, try pulling it first with 'ollama pull'")
+        except httpx.ConnectError:
+            raise RuntimeError("Unable to connect to Ollama, ensure it is running on the same host running AutoStack")
 
     @property
     def judge_type(self) -> JudgeType:

@@ -40,7 +40,8 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
     handleClose();
   }
 
-  const isEnabled = nVotes > 0 && baseModel != null;
+  const fineTuningEnabled = false; // TODO: this is hardcoded to disabled for beta
+  const isEnabled = nVotes > 0 && baseModel != null && fineTuningEnabled;
   return (
     <Modal opened={isOpen} onClose={handleClose} centered title="Create Custom Fine-Tuned Judge">
       <Stack>
@@ -74,7 +75,12 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
         <Text size="sm">
           You can view progress in the 'Tasks' menu and download or run the fine-tuned model when the task completes.
         </Text>
-        <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
+        <ConfirmOrCancelBar
+          onCancel={handleClose}
+          onConfirm={isEnabled ? handleSubmit : undefined}
+          action="Create"
+          disabledTooltipLabel="Fine-tuning not available in beta release"
+        />
       </Stack>
     </Modal>
   );

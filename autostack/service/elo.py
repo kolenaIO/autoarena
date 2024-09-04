@@ -3,7 +3,7 @@ from typing import Literal
 
 import pandas as pd
 from pydantic.dataclasses import dataclass
-from tqdm import tqdm
+from loguru import logger
 
 from autostack.api import api
 from autostack.service.model import ModelService
@@ -117,9 +117,11 @@ class EloService:
     @staticmethod
     def get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
         rows = []
-        for _ in tqdm(range(num_rounds), desc="bootstrap"):
+        logger.info(f"bootstrapping confidence intervals with {num_rounds} rounds...")
+        for _ in range(num_rounds):
             df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
             rows.append(EloService.compute_elo(df_h2h_tmp))
+        logger.info("done bootstrapping confidence intervals")
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
         return df[df.median().sort_values(ascending=False).index]
 

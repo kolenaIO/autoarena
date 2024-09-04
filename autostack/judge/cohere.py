@@ -5,6 +5,8 @@ from autostack.judge.utils import get_user_prompt
 
 
 class CohereJudge(AutomatedJudge):
+    API_KEY_NAME = "COHERE_API_KEY"  # TODO: also support "CO_API_KEY"?
+
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import cohere
 

@@ -1,3 +1,4 @@
+import os
 from abc import ABCMeta, abstractmethod
 
 from autostack.api import api
@@ -63,12 +64,18 @@ class WrappingJudge(Judge, metaclass=ABCMeta):
 
 
 class AutomatedJudge(Judge, metaclass=ABCMeta):
+    API_KEY_NAME: str | None  # if set, verify that this exists in environment on init
+
     _model_name: str
     _system_prompt: str
 
     def __init__(self, model_name: str, system_prompt: str):
         self._model_name = model_name
         self._system_prompt = system_prompt
+        key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
+        if self.API_KEY_NAME is not None and key is None:
+            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoStack to use '{self.name}'"
+            raise RuntimeError(message)
 
     @property
     def name(self) -> str:

@@ -72,7 +72,6 @@ export function Judges() {
           judgeType="openai"
           modelOptions={['gpt-4o', 'gpt-4o-mini']}
         />
-        <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
         <CreateProprietaryJudgeModal
           isOpen={isAnthropicOpen}
           onClose={closeAnthropic}
@@ -84,17 +83,18 @@ export function Judges() {
             'claude-3-haiku-20240307',
           ]}
         />
-        <CreateProprietaryJudgeModal
-          isOpen={isGeminiOpen}
-          onClose={closeGemini}
-          judgeType="gemini"
-          modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
-        />
+        <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
         <CreateProprietaryJudgeModal
           isOpen={isCohereOpen}
           onClose={closeCohere}
           judgeType="cohere"
           modelOptions={['command-r-plus', 'command-r']}
+        />
+        <CreateProprietaryJudgeModal
+          isOpen={isGeminiOpen}
+          onClose={closeGemini}
+          judgeType="gemini"
+          modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
         />
       </Stack>
     </Center>

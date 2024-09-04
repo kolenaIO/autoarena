@@ -1,5 +1,5 @@
-import { Flex, Group, Stack, Tabs, Text } from '@mantine/core';
-import { IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
+import { Flex, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
+import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { useUrlState } from '../hooks/useUrlState.ts';
@@ -57,6 +57,9 @@ export function Page({ tab }: Props) {
           <Group gap={4}>
             <IconStack2Filled color="var(--mantine-color-kolena-6)" />
             <Text fw="bold">AutoStack</Text>
+            <Tooltip label="Beta Release" fz="xs">
+              <IconBeta size={14} color="var(--mantine-color-ice-8)" />
+            </Tooltip>
           </Group>
           <ProjectSelect />
         </Group>

@@ -33,7 +33,7 @@ export function DeleteProjectModal({ isOpen, onClose }: Props) {
           onCancel={onClose}
           onConfirm={handleDeleteProject}
           action="Delete"
-          buttonProps={{ color: 'red' }}
+          confirmButtonProps={{ color: 'red' }}
         />
       </Stack>
     </Modal>

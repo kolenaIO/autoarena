@@ -37,7 +37,7 @@ export function DeleteJudgeButton({ judge }: Props) {
             onCancel={close}
             onConfirm={handleDelete}
             action="Delete"
-            buttonProps={{ color: 'red' }}
+            confirmButtonProps={{ color: 'red' }}
           />
         </Stack>
       </Modal>

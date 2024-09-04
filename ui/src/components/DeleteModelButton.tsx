@@ -35,7 +35,7 @@ export function DeleteModelButton({ model }: Props) {
             onCancel={close}
             onConfirm={handleDelete}
             action="Delete"
-            buttonProps={{ color: 'red' }}
+            confirmButtonProps={{ color: 'red' }}
           />
         </Stack>
       </Modal>

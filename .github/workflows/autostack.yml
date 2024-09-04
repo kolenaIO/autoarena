@@ -9,7 +9,7 @@ on:
       - ".github/workflows/autostack.yml"
 
 jobs:
-  ci:
+  autostack-ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:

@@ -5,6 +5,7 @@ import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
+import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
 
 type Props = {
   judgeType: JudgeType;
@@ -17,6 +18,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
   const { data: judges } = useJudges(projectId);
   const { mutate: createJudge } = useCreateJudge({ projectId });
   const [name, setName] = useState('');
+  const [systemPrompt, setSystemPrompt] = useState('');
 
   // gray out options that are already configured
   const existingJudges = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
@@ -35,6 +37,8 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       project_id: projectId,
       judge_type: judgeType,
       name,
+      model_name: name,
+      system_prompt: systemPrompt,
       description: `${judgeTypeToHumanReadableName(judgeType)} judge model '${name}' called via API`,
     });
     handleClose();
@@ -65,6 +69,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
           searchable
           flex={1}
         />
+        <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

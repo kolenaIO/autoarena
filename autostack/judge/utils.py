@@ -1,10 +1,12 @@
 import sys
 
 import numpy as np
+from tenacity import retry, RetryCallState
+from tenacity import stop_after_attempt
+from tenacity import wait_random_exponential
 
 from autostack.api import api
-from autostack.api.api import JudgeType
-from autostack.judge.base import Judge
+from autostack.judge.base import Judge, WrappingJudge
 
 BASIC_SYSTEM_PROMPT = """\
 You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
@@ -38,23 +40,8 @@ def get_user_prompt(h2h: api.HeadToHead) -> str:
     return USER_PROMPT_TEMPLATE.format(prompt=h2h.prompt, response_a=h2h.response_a, response_b=h2h.response_b)
 
 
-class ABShufflingJudge(Judge):
+class ABShufflingJudge(WrappingJudge):
     """Randomly shuffles which is A and which is B before passing to another judge."""
-
-    def __init__(self, judge: Judge):
-        self.judge = judge
-
-    @property
-    def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
-
-    @property
-    def name(self) -> str:
-        return self.judge.name
-
-    @property
-    def description(self) -> str:
-        return self.judge.description
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         shuffles = np.random.randint(2, size=len(batch)) < 1
@@ -81,23 +68,8 @@ def clean_judgement(winner: str) -> str:
     return winner.strip(" \t\n'\"*.")  # strip common formatting issues
 
 
-class CleaningJudge(Judge):
+class CleaningJudge(WrappingJudge):
     """Attempt to clean raw responses from other judges"""
-
-    def __init__(self, judge: Judge):
-        self.judge = judge
-
-    @property
-    def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
-
-    @property
-    def name(self) -> str:
-        return self.judge.name
-
-    @property
-    def description(self) -> str:
-        return self.judge.description
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         cleaned = []
@@ -112,7 +84,7 @@ class CleaningJudge(Judge):
         return cleaned
 
 
-class FixingJudge(Judge):
+class FixingJudge(WrappingJudge):
     """If the response does not fit nicely into the expected "A", "B", "-" format, classify it"""
 
     CLASSIFIER_MODEL = "MoritzLaurer/deberta-v3-xsmall-zeroshot-v1.1-all-33"
@@ -125,20 +97,8 @@ class FixingJudge(Judge):
     def __init__(self, judge: Judge):
         from transformers import pipeline
 
+        super().__init__(judge)
         self.pipe = pipeline(model=self.CLASSIFIER_MODEL, device="cpu")
-        self.judge = judge
-
-    @property
-    def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
-
-    @property
-    def name(self) -> str:
-        return self.judge.name
-
-    @property
-    def description(self) -> str:
-        return self.judge.description
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         cleaned = []
@@ -150,3 +110,15 @@ class FixingJudge(Judge):
                 print(f"Fixed bad response: '{winner_raw}' as '{winner}'", file=sys.stderr)
             cleaned.append(winner)
         return cleaned
+
+
+class RetryingJudge(WrappingJudge):
+    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
+        @retry(wait=wait_random_exponential(min=2, max=10), stop=stop_after_attempt(3), after=self._log_retry)
+        def judge_batch_inner(b: list[api.HeadToHead]) -> list[str]:
+            return self.judge.judge_batch(b)
+
+        return judge_batch_inner(batch)
+
+    def _log_retry(self, retry_state: RetryCallState) -> None:
+        print(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...", file=sys.stderr)

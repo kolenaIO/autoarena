@@ -13,6 +13,14 @@ class HumanJudge(Judge):
         return "Human"
 
     @property
+    def model_name(self) -> str | None:
+        return None
+
+    @property
+    def system_prompt(self) -> str | None:
+        return None
+
+    @property
     def description(self) -> str:
         return "Manual ratings submitted via the 'Head-to-Head' tab"
 

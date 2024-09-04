@@ -7,6 +7,7 @@ import { useCreateFineTuningTask } from '../../hooks/useCreateFineTuningTask.ts'
 import { useProject } from '../../hooks/useProject.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
+import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
 
 const AVAILABLE_BASE_MODELS = ['gemma2:9b', 'gemma2:2b', 'llama3.1:8b'];
 
@@ -20,6 +21,7 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   const { data: project } = useProject(projectId);
   const { data: judges } = useJudges(projectId);
   const [baseModel, setBaseModel] = useState<string | null>(null);
+  const [systemPrompt, setSystemPrompt] = useState('');
 
   const nVotes = useMemo(
     () => (judges ?? []).filter(({ judge_type }) => judge_type === 'human').reduce((acc, { votes }) => acc + votes, 0),
@@ -56,8 +58,11 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
           searchable
           flex={1}
         />
+        <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
         <Text size="sm">
-          <b>Estimated Training Time:</b>{' '}
+          <Text span inherit fw={500}>
+            Estimated Training Time:
+          </Text>{' '}
           {baseModel != null ? (
             moment.duration(estimateTrainingTime(baseModel, nVotes), 'seconds').humanize()
           ) : (

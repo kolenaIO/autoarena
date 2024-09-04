@@ -5,6 +5,6 @@ export function useOnboardingGuideDismissed(projectId: number | undefined) {
     key: `/project/${projectId}/onboarding-guide-dismissed`,
     defaultValue: false,
     deserialize: value => value === 'true',
-    serialize: value => (value ? 'true' : ''),
+    serialize: value => (value ? 'true' : 'false'),
   });
 }

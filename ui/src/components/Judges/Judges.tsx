@@ -1,16 +1,12 @@
-import { Accordion, Center, Checkbox, Divider, Group, Pill, SimpleGrid, Stack, Text, Title } from '@mantine/core';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Accordion, Center, Divider, SimpleGrid, Stack, Title } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
-import { Judge, useJudges } from '../../hooks/useJudges.ts';
-import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
+import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
-import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
 import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
-import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
+import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
 
 export function Judges() {
   const { projectId } = useUrlState();
@@ -102,67 +98,5 @@ export function Judges() {
         />
       </Stack>
     </Center>
-  );
-}
-
-export function JudgeAccordionItem({ judge }: { judge: Judge }) {
-  const { id, judge_type, name, description, enabled } = judge;
-  const { projectId = -1 } = useUrlState();
-  const [isEnabled, setIsEnabled] = useState(enabled);
-  const { mutate: updateJudge } = useUpdateJudge({ projectId });
-
-  function handleToggleEnabled() {
-    updateJudge({ project_id: projectId, judge_id: id, enabled: !enabled });
-    setIsEnabled(prev => !prev);
-  }
-
-  const IconComponent = judgeTypeIconComponent(judge_type);
-  return (
-    <Accordion.Item key={id} value={`${judge_type}-${id}`}>
-      <Accordion.Control icon={<IconComponent width={20} height={20} color="var(--mantine-color-gray-8)" />}>
-        <Group justify="space-between" pl="xs" pr="lg">
-          <Stack gap={0}>
-            <Text c={!isEnabled ? 'gray.6' : undefined}>
-              {name}{' '}
-              {judge_type !== 'human' && (
-                <Text span c="dimmed">
-                  ({judgeTypeToHumanReadableName(judge_type)})
-                </Text>
-              )}
-            </Text>
-            <Text c="dimmed" size="xs">
-              {description}
-            </Text>
-          </Stack>
-          <Group>
-            {isEnabled && (
-              <Pill bg="ice.0" c="gray.8">
-                Enabled
-              </Pill>
-            )}
-          </Group>
-        </Group>
-      </Accordion.Control>
-      <Accordion.Panel>
-        <Stack pl="xl">
-          {judge_type !== 'human' ? (
-            <Group justify="space-between">
-              <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
-              <DeleteJudgeButton judge={judge} />
-            </Group>
-          ) : (
-            <Text>
-              Visit the{' '}
-              <Link to={`/project/${projectId}/compare`}>
-                <Text span c="kolena.8">
-                  Head-to-Head
-                </Text>
-              </Link>{' '}
-              tab to provide ratings on head-to-head matchups between models.
-            </Text>
-          )}
-        </Stack>
-      </Accordion.Panel>
-    </Accordion.Item>
   );
 }

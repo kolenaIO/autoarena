@@ -12,16 +12,18 @@ from autostack.judge.openai import OpenAIJudge
 def judge_factory(judge: api.Judge) -> Judge:
     if judge.judge_type is JudgeType.HUMAN:
         return HumanJudge()
-    if judge.judge_type is JudgeType.OLLAMA:
-        return OllamaJudge(judge.name)  # TODO: should the model be stored elsewhere than 'name'?
-    if judge.judge_type is JudgeType.OPENAI:
-        return OpenAIJudge(judge.name)
-    if judge.judge_type is JudgeType.ANTHROPIC:
-        return AnthropicJudge(judge.name)
-    if judge.judge_type is JudgeType.COHERE:
-        return CohereJudge(judge.name)
-    if judge.judge_type is JudgeType.GEMINI:
-        return GeminiJudge(judge.name)
     if judge.judge_type is JudgeType.CUSTOM:
         raise NotImplementedError(f"judge type '{judge.judge_type}' not yet implemented")
+    if judge.model_name is None or judge.system_prompt is None:
+        raise ValueError(f"misconfigured judge: {judge}")
+    if judge.judge_type is JudgeType.OLLAMA:
+        return OllamaJudge(judge.model_name, judge.system_prompt)
+    if judge.judge_type is JudgeType.OPENAI:
+        return OpenAIJudge(judge.model_name, judge.system_prompt)
+    if judge.judge_type is JudgeType.ANTHROPIC:
+        return AnthropicJudge(judge.model_name, judge.system_prompt)
+    if judge.judge_type is JudgeType.COHERE:
+        return CohereJudge(judge.model_name, judge.system_prompt)
+    if judge.judge_type is JudgeType.GEMINI:
+        return GeminiJudge(judge.model_name, judge.system_prompt)
     raise ValueError(f"unrecognized judge type: {judge}")

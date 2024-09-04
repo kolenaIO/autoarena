@@ -6,10 +6,9 @@ authors = ["Kolena Engineering <eng@kolena.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.12"
+python = ">=3.10,<3.13"
 fastapi = "^0.112.2"
 pandas = "^2.2.2"
-numpy = "^2.1.0"
 uvicorn = "^0.30.6"
 duckdb = "^1.0.0"
 coolname = "^2.2.0"
@@ -24,6 +23,7 @@ cohere = "^5.9.0"
 google-generativeai = "^0.7.2"
 transformers = "^4.44.2"
 torch = "^2.4.0"
+tenacity = "^9.0.0"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

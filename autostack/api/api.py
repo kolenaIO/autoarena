@@ -109,6 +109,8 @@ class Judge:
     judge_type: JudgeType
     created: datetime
     name: str
+    model_name: str | None
+    system_prompt: str | None
     description: str
     enabled: bool
     votes: int
@@ -119,6 +121,8 @@ class CreateJudgeRequest:
     project_id: int
     judge_type: JudgeType
     name: str
+    model_name: str
+    system_prompt: str
     description: str
 
 
@@ -127,6 +131,7 @@ class UpdateJudgeRequest:
     project_id: int
     judge_id: int
     enabled: bool
+    # TODO: update name, description, system prompt?
 
 
 @dataclass(frozen=True)

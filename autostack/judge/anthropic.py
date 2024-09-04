@@ -1,35 +1,31 @@
 from autostack.api import api
 from autostack.api.api import JudgeType
-from autostack.judge.base import Judge
-from autostack.judge.utils import BASIC_SYSTEM_PROMPT, get_user_prompt
+from autostack.judge.base import AutomatedJudge
+from autostack.judge.utils import get_user_prompt
 
 
-class AnthropicJudge(Judge):
-    def __init__(self, model: str) -> None:
+class AnthropicJudge(AutomatedJudge):
+    def __init__(self, model_name: str, system_prompt: str) -> None:
         import anthropic
 
-        self.client = anthropic.Client()
-        self.model = model
+        super().__init__(model_name, system_prompt)
+        self._client = anthropic.Client()
 
     @property
     def judge_type(self) -> JudgeType:
         return JudgeType.ANTHROPIC
 
     @property
-    def name(self) -> str:
-        return self.model
-
-    @property
     def description(self) -> str:
-        return f"Anthropic judge model '{self.model}'"
+        return f"Anthropic judge model '{self.name}'"
 
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         return [self._judge_one(h2h) for h2h in batch]
 
     def _judge_one(self, h2h: api.HeadToHead) -> str:
-        response = self.client.messages.create(
-            model=self.model,
-            system=BASIC_SYSTEM_PROMPT,
+        response = self._client.messages.create(
+            model=self.model_name,
+            system=self.system_prompt,
             messages=[dict(role="user", content=get_user_prompt(h2h))],
             max_tokens=10,  # should really just need 1
         )

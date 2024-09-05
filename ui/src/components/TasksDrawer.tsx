@@ -79,7 +79,7 @@ export function TasksDrawer() {
                       <TaskAccordionItem key={i} task={task} />
                     ))}
                   </Accordion>
-                  <Button variant="light" color="red" onClick={clearCompletedTasks}>
+                  <Button variant="light" color="red" onClick={() => clearCompletedTasks()}>
                     Clear Completed Tasks
                   </Button>
                 </Stack>

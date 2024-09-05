@@ -9,6 +9,7 @@ import { AddModelButton } from '../AddModelButton.tsx';
 import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
 import { useOnboardingGuideDismissed } from '../../hooks/useOnboardingGuideDismissed.ts';
 import { useModelsRankedByJudge } from '../../hooks/useModelsRankedByJudge.ts';
+import { usePagination } from '../../hooks/usePagination.ts';
 import { RankedModel } from './types.ts';
 import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
@@ -54,6 +55,7 @@ export function Leaderboard() {
       ),
     [modelsSorted, filterValue, selectedRecords]
   );
+  const { pageNumber, setPageNumber, pageSize, setPageSize, pageRecords } = usePagination(modelRecords);
 
   return onboardingGuideDismissed || isLoadingModels || allModels.length > 0 ? (
     <Stack p="lg" align="center">
@@ -80,7 +82,7 @@ export function Leaderboard() {
           minHeight={modelRecords.length === 0 ? 180 : undefined}
           columns={LEADERBOARD_COLUMNS}
           highlightOnHover
-          records={modelRecords}
+          records={pageRecords}
           idAccessor="id"
           rowExpansion={{
             content: ({ record }) => <ExpandedModelDetails model={record} />,
@@ -96,6 +98,14 @@ export function Leaderboard() {
           onSelectedRecordsChange={setSelectedRecords}
           isRecordSelectable={({ id }) => selectedRecords.length < 2 || selectedIds.has(id)}
           allRecordsSelectionCheckboxProps={{ display: 'none' }}
+          page={pageNumber}
+          onPageChange={setPageNumber}
+          totalRecords={modelRecords.length}
+          recordsPerPage={pageSize}
+          recordsPerPageOptions={[10, 15, 20, 50]}
+          onRecordsPerPageChange={setPageSize}
+          paginationActiveTextColor="var(--mantine-color-kolena-light-color)"
+          paginationActiveBackgroundColor="var(--mantine-color-kolena-light)"
         />
 
         {selectedRecords.length > 0 && <ExploreSelectedModels selectedModels={selectedRecords} />}

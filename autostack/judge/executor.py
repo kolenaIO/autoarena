@@ -1,3 +1,4 @@
+import concurrent
 import itertools
 from abc import ABCMeta, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
@@ -52,5 +53,7 @@ class ThreadedExecutor(Executor):
             b, j = batch_with_judge
             return j, b, j.judge_batch(b)
 
-        for judge, batch, judged_batch in self.pool.map(run, batches_with_judges):
+        futures = [self.pool.submit(run, bwj) for bwj in batches_with_judges]
+        for future in concurrent.futures.as_completed(futures):
+            judge, batch, judged_batch = future.result()
             yield judge, batch, judged_batch

@@ -119,6 +119,7 @@ class EloService:
         rows = []
         logger.info(f"bootstrapping confidence intervals with {num_rounds} rounds...")
         for _ in range(num_rounds):
+            # TODO: are we sure we want replacement? this means dupes
             df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
             rows.append(EloService.compute_elo(df_h2h_tmp))
         logger.info("done bootstrapping confidence intervals")

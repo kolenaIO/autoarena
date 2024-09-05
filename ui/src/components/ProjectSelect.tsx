@@ -1,8 +1,9 @@
-import { Select } from '@mantine/core';
+import { Group, Select } from '@mantine/core';
 import { useMemo } from 'react';
 import { useProjects } from '../hooks/useProjects.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useProject } from '../hooks/useProject.ts';
+import { CreateProjectButton } from './CreateProjectButton.tsx';
 
 export function ProjectSelect() {
   const { projectId, setProjectId } = useUrlState();
@@ -15,13 +16,16 @@ export function ProjectSelect() {
   }
 
   return (
-    <Select
-      variant="filled"
-      placeholder="Select Project"
-      data={allProjectNames}
-      value={currentProject?.name ?? null}
-      onChange={handleSelectProject}
-      disabled={allProjectNames.length < 1}
-    />
+    <Group gap="xs">
+      <Select
+        placeholder="Select Project"
+        size="xs"
+        data={allProjectNames}
+        value={currentProject?.name ?? null}
+        onChange={handleSelectProject}
+        disabled={allProjectNames.length < 1}
+      />
+      <CreateProjectButton small />
+    </Group>
   );
 }

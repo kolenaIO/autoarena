@@ -108,6 +108,10 @@ def router() -> APIRouter:
     def get_tasks(project_id: int) -> list[api.Task]:
         return TaskService.get_all(project_id)
 
+    @r.delete("/tasks/{project_id}/completed")
+    def delete_completed(project_id: int) -> None:
+        TaskService.delete_completed(project_id)
+
     @r.get("/judges/{project_id}")
     def get_judges(project_id: int) -> list[api.Judge]:
         return JudgeService.get_all(project_id)

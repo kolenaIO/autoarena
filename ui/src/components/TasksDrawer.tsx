@@ -8,6 +8,7 @@ import { Task, useTasks } from '../hooks/useTasks.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { pluralize } from '../lib/string.ts';
 import { getModelsQueryKey } from '../hooks/useModels.ts';
+import { useClearCompletedTasks } from '../hooks/useClearCompletedTasks.ts';
 
 export function TasksDrawer() {
   const { projectId } = useUrlState();
@@ -18,6 +19,7 @@ export function TasksDrawer() {
     projectId,
     options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
   });
+  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectId });
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ progress }) => progress < 1), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ progress }) => progress >= 1), [tasksSorted]);
@@ -71,11 +73,16 @@ export function TasksDrawer() {
                 {isCompletedTasksOpen ? 'Hide' : 'Show'} {pluralize(tasksCompleted.length, 'completed task')}
               </Button>
               <Collapse in={isCompletedTasksOpen}>
-                <Accordion>
-                  {tasksCompleted.map((task, i) => (
-                    <TaskAccordionItem key={i} task={task} />
-                  ))}
-                </Accordion>
+                <Stack>
+                  <Accordion>
+                    {tasksCompleted.map((task, i) => (
+                      <TaskAccordionItem key={i} task={task} />
+                    ))}
+                  </Accordion>
+                  <Button variant="light" color="red" onClick={() => clearCompletedTasks()}>
+                    Clear Completed Tasks
+                  </Button>
+                </Stack>
               </Collapse>
             </>
           )}

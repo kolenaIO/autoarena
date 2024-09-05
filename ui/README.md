@@ -1,4 +1,4 @@
-# AutoStack UI
+# Champion UI
 
 ```
 yarn

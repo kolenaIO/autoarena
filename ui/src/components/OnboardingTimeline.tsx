@@ -88,7 +88,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
   ) : (
     <Paper withBorder radius="md" w={600}>
       <Group bg="gray.0" p="lg" justify="space-between">
-        <Title order={5}>Getting Started with AutoStack</Title>
+        <Title order={5}>Getting Started with Champion</Title>
         {dismissable && <CloseButton onClick={() => setOnboardingGuideDismissed(true)} />}
       </Group>
 

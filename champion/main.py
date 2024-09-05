@@ -5,11 +5,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
-from autostack.api.router import router
-from autostack.args import get_command_line_args
-from autostack.log import initialize_logger
-from autostack.store.seed import setup_database, seed_initial_battles
-from autostack.ui_router import ui_router
+from champion.api.router import router
+from champion.args import get_command_line_args
+from champion.log import initialize_logger
+from champion.store.seed import setup_database, seed_initial_battles
+from champion.ui_router import ui_router
 
 args = get_command_line_args()
 initialize_logger()
@@ -20,13 +20,13 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     setup_database()
     if args.battles_parquet is not None:
         seed_initial_battles(args.battles_parquet)
-    logger.info("AutoStack ready")
+    logger.info("Champion ready")
     yield
 
 
 API_V1_STR = "/api/v1"
 app = FastAPI(
-    title="AutoStack",
+    title="Champion",
     lifespan=lifespan,
     openapi_url=f"/{API_V1_STR}/openapi.json",
     docs_url=f"/{API_V1_STR}/docs",

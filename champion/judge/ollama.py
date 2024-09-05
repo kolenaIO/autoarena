@@ -1,7 +1,7 @@
-from autostack.api import api
-from autostack.api.api import JudgeType
-from autostack.judge.base import AutomatedJudge
-from autostack.judge.utils import get_user_prompt
+from champion.api import api
+from champion.api.api import JudgeType
+from champion.judge.base import AutomatedJudge
+from champion.judge.utils import get_user_prompt
 
 
 class OllamaJudge(AutomatedJudge):
@@ -18,7 +18,7 @@ class OllamaJudge(AutomatedJudge):
         except ollama.ResponseError:
             raise RuntimeError(f"Ollama model '{model_name}' not found, try pulling it first with 'ollama pull'")
         except httpx.ConnectError:
-            raise RuntimeError("Unable to connect to Ollama, ensure it is running on the same host running AutoStack")
+            raise RuntimeError("Unable to connect to Ollama, ensure it is running on the same host running Champion")
 
     @property
     def judge_type(self) -> JudgeType:

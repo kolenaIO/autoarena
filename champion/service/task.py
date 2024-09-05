@@ -5,16 +5,16 @@ from datetime import datetime
 import pandas as pd
 from loguru import logger
 
-from autostack.api import api
-from autostack.api.api import JudgeType
-from autostack.judge.base import Judge
-from autostack.judge.executor import ThreadedExecutor
-from autostack.judge.factory import judge_factory
-from autostack.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
-from autostack.service.elo import EloService
-from autostack.service.head_to_head import HeadToHeadService
-from autostack.service.judge import JudgeService
-from autostack.store.database import get_database_connection
+from champion.api import api
+from champion.api.api import JudgeType
+from champion.judge.base import Judge
+from champion.judge.executor import ThreadedExecutor
+from champion.judge.factory import judge_factory
+from champion.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
+from champion.service.elo import EloService
+from champion.service.head_to_head import HeadToHeadService
+from champion.service.judge import JudgeService
+from champion.store.database import get_database_connection
 
 
 class TaskService:
@@ -158,6 +158,6 @@ class TaskService:
             logger.info(status)
         except Exception as e:
             TaskService.finish(task_id, f"Failed ({e})")
-            TaskService.finish(task_id, "See AutoStack service logs for more information")
+            TaskService.finish(task_id, "See Champion service logs for more information")
             logger.error(f"Automated judgement failed: {e}")
             raise e

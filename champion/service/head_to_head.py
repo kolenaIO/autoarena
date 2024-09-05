@@ -2,10 +2,10 @@ import dataclasses
 
 import pandas as pd
 
-from autostack.api import api
-from autostack.service.elo import EloService
-from autostack.judge.human import HumanJudge
-from autostack.store.database import get_database_connection
+from champion.api import api
+from champion.service.elo import EloService
+from champion.judge.human import HumanJudge
+from champion.store.database import get_database_connection
 
 
 class HeadToHeadService:

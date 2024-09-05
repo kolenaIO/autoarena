@@ -1,6 +1,6 @@
-from autostack.api import api
-from autostack.api.api import JudgeType
-from autostack.judge.base import Judge
+from champion.api import api
+from champion.api.api import JudgeType
+from champion.judge.base import Judge
 
 
 class HumanJudge(Judge):

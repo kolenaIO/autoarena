@@ -5,14 +5,14 @@ import pandas as pd
 from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 from starlette.responses import StreamingResponse
 
-from autostack.api import api
-from autostack.service.elo import EloService
-from autostack.service.fine_tuning import FineTuningService
-from autostack.service.head_to_head import HeadToHeadService
-from autostack.service.project import ProjectService
-from autostack.service.judge import JudgeService
-from autostack.service.task import TaskService
-from autostack.service.model import ModelService
+from champion.api import api
+from champion.service.elo import EloService
+from champion.service.fine_tuning import FineTuningService
+from champion.service.head_to_head import HeadToHeadService
+from champion.service.project import ProjectService
+from champion.service.judge import JudgeService
+from champion.service.task import TaskService
+from champion.service.model import ModelService
 
 
 def router() -> APIRouter:

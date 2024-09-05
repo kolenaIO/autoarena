@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from autostack.api import api
-from autostack.service.model import ModelService
-from autostack.service.project import ProjectService
-from autostack.service.judge import JudgeService
-from autostack.service.task import TaskService
-from autostack.service.elo import EloService
-from autostack.judge.human import HumanJudge
-from autostack.store.database import SCHEMA_FILE, get_database_connection
+from champion.api import api
+from champion.service.model import ModelService
+from champion.service.project import ProjectService
+from champion.service.judge import JudgeService
+from champion.service.task import TaskService
+from champion.service.elo import EloService
+from champion.judge.human import HumanJudge
+from champion.store.database import SCHEMA_FILE, get_database_connection
 
 
 def setup_database() -> None:

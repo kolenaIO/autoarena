@@ -1,7 +1,7 @@
-from autostack.api import api
-from autostack.api.api import JudgeType
-from autostack.judge.base import AutomatedJudge
-from autostack.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
+from champion.api import api
+from champion.api.api import JudgeType
+from champion.judge.base import AutomatedJudge
+from champion.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
 from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
 
 

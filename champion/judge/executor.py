@@ -6,8 +6,8 @@ from typing import Iterator
 
 import numpy as np
 
-from autostack.api import api
-from autostack.judge.base import Judge
+from champion.api import api
+from champion.judge.base import Judge
 from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
 
 

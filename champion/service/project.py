@@ -1,7 +1,7 @@
-from autostack.api import api
-from autostack.judge.human import HumanJudge
-from autostack.service.judge import JudgeService
-from autostack.store.database import get_database_connection
+from champion.api import api
+from champion.judge.human import HumanJudge
+from champion.service.judge import JudgeService
+from champion.store.database import get_database_connection
 
 
 class ProjectService:

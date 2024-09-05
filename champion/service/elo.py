@@ -6,8 +6,8 @@ import pandas as pd
 from pydantic.dataclasses import dataclass
 from loguru import logger
 
-from autostack.api import api
-from autostack.store.database import get_database_connection
+from champion.api import api
+from champion.store.database import get_database_connection
 
 
 @dataclass(frozen=True)
@@ -76,7 +76,7 @@ class EloService:
         model_id: int, judge_id: int | None, config: EloConfig = DEFAULT_ELO_CONFIG
     ) -> list[api.EloHistoryItem]:
         # TODO: should come up with a better way to have services point at one another
-        from autostack.service.model import ModelService
+        from champion.service.model import ModelService
 
         project_id = ModelService.get_project_id(model_id)
         df_h2h = EloService.get_df_head_to_head(project_id)

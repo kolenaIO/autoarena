@@ -48,6 +48,14 @@ class TaskService:
             )
 
     @staticmethod
+    def delete_completed(project_id) -> None:
+        with get_database_connection() as conn:
+            conn.execute(
+                "DELETE FROM task WHERE progress >= 1 AND project_id = $project_id",
+                dict(project_id=project_id),
+            )
+
+    @staticmethod
     def finish(task_id: int, status: str = "Done") -> None:
         TaskService.update(task_id, status, progress=1)
 

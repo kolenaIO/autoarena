@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from datetime import datetime
 
@@ -99,14 +100,23 @@ class TaskService:
             ]
             executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
-            n_total = len(head_to_heads) * len(judges)
+            n_h2h = len(head_to_heads)
+            n_total = n_h2h * len(judges)
+            t_start = time.time()
             for judge, batch, judged_batch in executor.execute(judges, head_to_heads):
                 this_responses = [(r.result_a_id, r.result_b_id, winner) for r, winner in zip(batch, judged_batch)]
                 responses[judge.name].extend(this_responses)
                 n_this_judge = len(responses[judge.name])
-                status = f"Judged {n_this_judge} of {len(head_to_heads)} with '{judge.name}'"
+                status = f"Judged {n_this_judge} of {n_h2h} with '{judge.name}'"
                 n_responses = sum(len(r) for r in responses.values())
-                TaskService.update(task_id, status, progress=0.95 * (n_responses / n_total))
+                progress = 0.95 * (n_responses / n_total)
+                TaskService.update(task_id, status, progress=progress)
+                if n_this_judge == len(head_to_heads):
+                    message = (
+                        f"Judge '{judge.name}' finished judging {n_h2h} head-to-heads in "
+                        f"{time.time() - t_start:0.1f} seconds"
+                    )
+                    TaskService.update(task_id, message, progress=progress)
 
             # TODO: stream to database?
             # 5. upload judgements to database

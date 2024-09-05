@@ -7,7 +7,7 @@ function getModelEloHistoryEndpoint(modelId: number, judgeId: number | undefined
   return params != null ? `${url}?${params}` : url;
 }
 
-export function getModelEloHistoryQueryKey(modelId: number | undefined, judgeId: number | undefined) {
+export function getModelEloHistoryQueryKey(modelId?: number, judgeId?: number) {
   return ['model', 'elo-history', ...(modelId != null ? [modelId] : []), ...(judgeId != null ? [judgeId] : [])];
 }
 

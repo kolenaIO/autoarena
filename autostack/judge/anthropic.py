@@ -1,7 +1,8 @@
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import AutomatedJudge
-from autostack.judge.utils import get_user_prompt
+from autostack.judge.utils import get_user_prompt, rate_limit
+from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
 
 
 class AnthropicJudge(AutomatedJudge):
@@ -21,6 +22,8 @@ class AnthropicJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Anthropic judge model '{self.name}'"
 
+    # anthropic has different tiers with 1000/2000/4000, opting to be conservative by default
+    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         return [self._judge_one(h2h) for h2h in batch]
 

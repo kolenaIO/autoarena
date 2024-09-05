@@ -1,7 +1,8 @@
 from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import AutomatedJudge
-from autostack.judge.utils import get_user_prompt
+from autostack.judge.utils import get_user_prompt, rate_limit
+from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
 
 
 class OpenAIJudge(AutomatedJudge):
@@ -21,6 +22,8 @@ class OpenAIJudge(AutomatedJudge):
     def description(self) -> str:
         return f"OpenAI judge model '{self.name}'"
 
+    # OpenAI has different tiers and different rate limits for different models, choose a safeish value
+    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         return [self._judge_one(h2h) for h2h in batch]
 

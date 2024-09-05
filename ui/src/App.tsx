@@ -1,4 +1,3 @@
-// import '@mantine/core/styles.css';
 import '@mantine/core/styles.layer.css';
 import 'mantine-datatable/styles.layer.css';
 import '@mantine/notifications/styles.css';
@@ -8,7 +7,7 @@ import { createTheme, MantineProvider, Modal } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
-import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD, TAB_STATISTICS } from './components/Page.tsx';
+import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components/Page.tsx';
 import { PageNotFound } from './components/PageNotFound.tsx';
 
 const theme = createTheme({
@@ -42,7 +41,6 @@ const router = createBrowserRouter([
   { path: '/', element: <Page tab={TAB_LEADERBOARD} /> },
   { path: '/project/:projectId', element: <Page tab={TAB_LEADERBOARD} /> },
   { path: '/project/:projectId/compare', element: <Page tab={TAB_COMPARISON} /> },
-  { path: '/project/:projectId/statistics', element: <Page tab={TAB_STATISTICS} /> },
   { path: '/project/:projectId/judges', element: <Page tab={TAB_JUDGES} /> },
   { path: '*', element: <PageNotFound /> },
 ]);

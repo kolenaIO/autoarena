@@ -1,4 +1,4 @@
-import { Button, MantineSize, Modal, Stack, TextInput } from '@mantine/core';
+import { ActionIcon, Button, MantineSize, Modal, Stack, TextInput } from '@mantine/core';
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useState } from 'react';
@@ -8,8 +8,9 @@ import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
 type Props = {
   size?: MantineSize;
+  small?: boolean;
 };
-export function CreateProjectButton({ size }: Props) {
+export function CreateProjectButton({ size, small }: Props) {
   const [isOpen, { toggle, close }] = useDisclosure(false);
   const { data: projects } = useProjects();
   const { mutate: createProject } = useCreateProject();
@@ -31,9 +32,15 @@ export function CreateProjectButton({ size }: Props) {
   const isDisabled = name === '' || nameError != null;
   return (
     <>
-      <Button size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
-        Create Project
-      </Button>
+      {small ? (
+        <ActionIcon variant="default" onClick={toggle}>
+          <IconPlus size={14} />
+        </ActionIcon>
+      ) : (
+        <Button size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
+          Create Project
+        </Button>
+      )}
       <Modal opened={isOpen} centered onClose={handleClose} title="Create Project">
         <Stack>
           <TextInput

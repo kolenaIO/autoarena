@@ -4,6 +4,7 @@ version = "0.0.0"  # version is automatically set on release
 description = ""
 authors = ["Kolena Engineering <eng@kolena.com>"]
 readme = "README.md"
+license = "Apache-2.0"
 include = ["ui/dist/*", "ui/dist/assets/*"]
 
 [tool.poetry.dependencies]

@@ -2,14 +2,14 @@ from pathlib import Path
 
 import pandas as pd
 
-from autostack.api import api
-from autostack.service.model import ModelService
-from autostack.service.project import ProjectService
-from autostack.service.judge import JudgeService
-from autostack.service.task import TaskService
-from autostack.service.elo import EloService
-from autostack.judge.human import HumanJudge
-from autostack.store.database import SCHEMA_FILE, get_database_connection
+from autoarena.api import api
+from autoarena.service.model import ModelService
+from autoarena.service.project import ProjectService
+from autoarena.service.judge import JudgeService
+from autoarena.service.task import TaskService
+from autoarena.service.elo import EloService
+from autoarena.judge.human import HumanJudge
+from autoarena.store.database import SCHEMA_FILE, get_database_connection
 
 
 def setup_database() -> None:
@@ -22,13 +22,7 @@ def setup_database() -> None:
 # TODO: this should call an API rather than hand-rolling here -- at the very least use services to manipulate database
 def seed_initial_battles(battles_parquet: str) -> None:
     project_name = Path(battles_parquet).stem
-
     df_battles = pd.read_parquet(battles_parquet)
-    # TODO: should probably preprocess to avoid doing this here
-    df_battles["winner"] = df_battles.apply(
-        lambda r: "A" if r.winner_model_a > 0 else "B" if r.winner_model_b else "-",
-        axis=1,
-    )
 
     # 2. seed with project
     project_id = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name)).id

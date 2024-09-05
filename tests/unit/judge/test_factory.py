@@ -4,15 +4,15 @@ from typing import Type
 
 import pytest
 
-from autostack.api import api
-from autostack.judge.anthropic import AnthropicJudge
-from autostack.judge.base import Judge, WrappingJudge
-from autostack.judge.cohere import CohereJudge
-from autostack.judge.factory import judge_factory
-from autostack.judge.gemini import GeminiJudge
-from autostack.judge.human import HumanJudge
-from autostack.judge.openai import OpenAIJudge
-from autostack.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
+from autoarena.api import api
+from autoarena.judge.anthropic import AnthropicJudge
+from autoarena.judge.base import Judge, WrappingJudge
+from autoarena.judge.cohere import CohereJudge
+from autoarena.judge.factory import judge_factory
+from autoarena.judge.gemini import GeminiJudge
+from autoarena.judge.human import HumanJudge
+from autoarena.judge.openai import OpenAIJudge
+from autoarena.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
 
 
 @pytest.mark.parametrize(

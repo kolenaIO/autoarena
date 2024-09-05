@@ -1,5 +1,5 @@
-from autostack.api import api
-from autostack.service.task import TaskService
+from autoarena.api import api
+from autoarena.service.task import TaskService
 
 
 class FineTuningService:

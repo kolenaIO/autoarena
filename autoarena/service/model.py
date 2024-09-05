@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from autostack.api import api
-from autostack.error import NotFoundError
-from autostack.service.elo import EloService, DEFAULT_ELO_CONFIG
-from autostack.store.database import get_database_connection
+from autoarena.api import api
+from autoarena.error import NotFoundError
+from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
+from autoarena.store.database import get_database_connection
 
 
 class ModelService:

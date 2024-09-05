@@ -1,12 +1,12 @@
-# AutoStack
+# AutoArena
 
-AutoStack helps you stack rank LLM outputs against one another using automated judge evaluation. Run with:
+AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation. Run with:
 
 ```
-python3 -m autostack
+python3 -m autoarena
 ```
 
-Data is stored in an `autostack.duckdb` file on your local machine.
+Data is stored in an `autoarena.duckdb` file on your local machine.
 
 ## Development
 
@@ -15,12 +15,12 @@ To set up this repository for development, run:
 ```shell
 poetry update && poetry install
 poerty run pre-commit install
-poetry run python3 -m autostack
+poetry run python3 -m autoarena
 ```
 
-To run AutoStack for development, you will need to run both the backend and frontend service:
+To run AutoArena for development, you will need to run both the backend and frontend service:
 
-- Backend: `poetry run python3 -m autostack --dev` (the `--dev`/`-d` flag enables automatic service reloading when
+- Backend: `poetry run python3 -m autoarena --dev` (the `--dev`/`-d` flag enables automatic service reloading when
     source files change)
 - Frontend: see [`ui/README.md`](./ui/README.md)
 

@@ -1,8 +1,8 @@
 import os
 from abc import ABCMeta, abstractmethod
 
-from autostack.api import api
-from autostack.api.api import JudgeType
+from autoarena.api import api
+from autoarena.api.api import JudgeType
 
 
 class Judge(metaclass=ABCMeta):
@@ -74,7 +74,7 @@ class AutomatedJudge(Judge, metaclass=ABCMeta):
         self._system_prompt = system_prompt
         key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
         if self.API_KEY_NAME is not None and key is None:
-            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoStack to use '{self.name}'"
+            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
             raise RuntimeError(message)
 
     @property

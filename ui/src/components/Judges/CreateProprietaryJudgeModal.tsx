@@ -57,7 +57,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
         <Text size="sm">Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
         {apiKeyName != null && (
           <Text size="sm">
-            Requires a valid <Code>{apiKeyName}</Code> in the environment running AutoStack.
+            Requires a valid <Code>{apiKeyName}</Code> in the environment running AutoArena.
           </Text>
         )}
         <Select

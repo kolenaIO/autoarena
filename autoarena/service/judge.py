@@ -1,7 +1,7 @@
-from autostack.api import api
-from autostack.judge.base import Judge
-from autostack.judge.utils import BASIC_SYSTEM_PROMPT
-from autostack.store.database import get_database_connection
+from autoarena.api import api
+from autoarena.judge.base import Judge
+from autoarena.judge.utils import BASIC_SYSTEM_PROMPT
+from autoarena.store.database import get_database_connection
 
 
 class JudgeService:

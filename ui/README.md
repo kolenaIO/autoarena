@@ -1,4 +1,4 @@
-# AutoStack UI
+# AutoArena UI
 
 ```
 yarn

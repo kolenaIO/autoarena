@@ -35,7 +35,7 @@ export function Judges() {
         <SimpleGrid cols={3} w={1080}>
           <ConfigureJudgeCard
             judgeType="custom"
-            description="Fine-tune a custom judge model on AutoStack"
+            description="Fine-tune a custom judge model on AutoArena"
             onClick={toggleFineTuned}
           />
           <ConfigureJudgeCard

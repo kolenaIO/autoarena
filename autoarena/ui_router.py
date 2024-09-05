@@ -4,7 +4,7 @@ from fastapi import APIRouter
 from fastapi.responses import PlainTextResponse
 from starlette.responses import FileResponse, HTMLResponse
 
-from autostack.error import NotFoundError
+from autoarena.error import NotFoundError
 
 
 def ui_router() -> APIRouter:

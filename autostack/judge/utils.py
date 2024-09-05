@@ -1,5 +1,7 @@
 import functools
+import math
 import time
+from typing import Callable
 
 import numpy as np
 from loguru import logger
@@ -127,8 +129,14 @@ class RetryingJudge(WrappingJudge):
         logger.warning(message)
 
 
-# TODO: test
-def rate_limit(*, n_calls: int, n_seconds: int, n_call_buffer: int = 50, max_wait_seconds: int = 60):
+def rate_limit(
+    *,
+    n_calls: int,
+    n_seconds: float,
+    n_call_buffer: int = 50,
+    max_wait_seconds: float = 60,
+    backoff_seconds: float = 1,
+) -> Callable:
     call_history: list[float] = []
     assert n_calls - n_call_buffer > 0, f"n_calls ({n_calls}) must be greater than n_call_buffer ({n_call_buffer})"
 
@@ -144,16 +152,16 @@ def rate_limit(*, n_calls: int, n_seconds: int, n_call_buffer: int = 50, max_wai
     def can_call() -> bool:
         return len(call_history) < n_calls - n_call_buffer
 
-    def decorator(f):
+    def decorator(f: Callable) -> Callable:
         @functools.wraps(f)
         def wrapper(*args, **kwargs):
             nonlocal call_history
             expire_old_calls()
             if not can_call():
                 logger.warning(f"Hitting rate limit of {n_calls} calls per {n_seconds} seconds, waiting")
-            for i in range(max_wait_seconds):
+            for i in range(math.ceil(max_wait_seconds * backoff_seconds)):
                 if not can_call():
-                    time.sleep(1)
+                    time.sleep(backoff_seconds)
                 expire_old_calls()
                 if can_call():
                     break

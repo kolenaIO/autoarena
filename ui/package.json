@@ -5,11 +5,11 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "build": "tsc --build && vite build",
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",
-    "typecheck": "tsc -b",
+    "typecheck": "tsc --build",
     "preview": "vite preview",
     "test": "jest"
   },

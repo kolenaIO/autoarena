@@ -1,3 +1,6 @@
+import functools
+import time
+
 import numpy as np
 from loguru import logger
 from tenacity import retry, RetryCallState
@@ -120,4 +123,46 @@ class RetryingJudge(WrappingJudge):
         return judge_batch_inner(batch)
 
     def _log_retry(self, retry_state: RetryCallState) -> None:
-        logger.warning(f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number}...")
+        message = f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number} (error: {retry_state.outcome})"
+        logger.warning(message)
+
+
+# TODO: test
+def rate_limit(*, n_calls: int, n_seconds: int, n_call_buffer: int = 50, max_wait_seconds: int = 60):
+    call_history: list[float] = []
+    assert n_calls - n_call_buffer > 0, f"n_calls ({n_calls}) must be greater than n_call_buffer ({n_call_buffer})"
+
+    def expire_old_calls() -> None:
+        nonlocal call_history
+        try:
+            t_now = time.time()
+            expiry_index = next((i for i, call_time in enumerate(call_history) if call_time < t_now - n_seconds))
+            call_history = call_history[:expiry_index]
+        except StopIteration:
+            pass
+
+    def can_call() -> bool:
+        return len(call_history) < n_calls - n_call_buffer
+
+    def decorator(f):
+        @functools.wraps(f)
+        def wrapper(*args, **kwargs):
+            nonlocal call_history
+            expire_old_calls()
+            if not can_call():
+                logger.warning(f"Hitting rate limit of {n_calls} calls per {n_seconds} seconds, waiting")
+            for i in range(max_wait_seconds):
+                if not can_call():
+                    time.sleep(1)
+                expire_old_calls()
+                if can_call():
+                    break
+                if i == max_wait_seconds - 1:
+                    logger.error(f"Waited for {max_wait_seconds} seconds and still rate limited, exiting")
+                    raise RuntimeError("rate limit exceeded")  # TODO: include name?
+            call_history.insert(0, time.time())
+            return f(*args, **kwargs)
+
+        return wrapper
+
+    return decorator

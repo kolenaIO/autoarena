@@ -1,4 +1,4 @@
-import { Accordion, Center, Divider, SimpleGrid, Stack, Title } from '@mantine/core';
+import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
@@ -18,6 +18,8 @@ export function Judges() {
   const [isAnthropicOpen, { toggle: toggleAnthropic, close: closeAnthropic }] = useDisclosure(false);
   const [isGeminiOpen, { toggle: toggleGemini, close: closeGemini }] = useDisclosure(false);
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
+  const [isTogetherOpen, { toggle: toggleTogether, close: closeTogether }] = useDisclosure(false);
+  const [isBedrockOpen, { toggle: toggleBedrock, close: closeBedrock }] = useDisclosure(false);
 
   return (
     <Center p="lg">
@@ -63,6 +65,16 @@ export function Judges() {
             description="Configure a Google Gemini model as a judge"
             onClick={toggleGemini}
           />
+          <ConfigureJudgeCard
+            judgeType="together"
+            description="Configure a model running on Together AI as a judge"
+            onClick={toggleTogether}
+          />
+          <ConfigureJudgeCard
+            judgeType="bedrock"
+            description="Configure a model running on AWS Bedrock as a judge"
+            onClick={toggleBedrock}
+          />
         </SimpleGrid>
 
         <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
@@ -95,6 +107,20 @@ export function Judges() {
           onClose={closeGemini}
           judgeType="gemini"
           modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
+        />
+        <CreateProprietaryJudgeModal
+          isOpen={isTogetherOpen}
+          onClose={closeTogether}
+          judgeType="together"
+          extraCopy={
+            <Text inherit>
+              Choose any inference model listed in the{' '}
+              <Anchor inherit href="https://docs.together.ai/docs/chat-models">
+                Together AI documentation
+              </Anchor>
+              .
+            </Text>
+          }
         />
       </Stack>
     </Center>

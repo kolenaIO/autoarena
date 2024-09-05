@@ -33,6 +33,9 @@ export function useCreateJudge({ projectId, options = {} }: Params) {
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
       });
+      if (!response.ok) {
+        throw new Error('Failed to create automated judge');
+      }
       const result: Judge = await response.json();
       return result;
     },
@@ -41,6 +44,12 @@ export function useCreateJudge({ projectId, options = {} }: Params) {
         title: 'Judge created',
         message: `Created automated judge '${judge.name}'`,
         color: 'green',
+      });
+    },
+    onError: () => {
+      notifications.show({
+        message: 'Failed to create automated judge',
+        color: 'red',
       });
     },
     onSettled: () => {

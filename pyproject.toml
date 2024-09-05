@@ -27,6 +27,7 @@ cohere = "^5.9.0"
 google-generativeai = "^0.7.2"
 transformers = "^4.44.2"
 torch = "^2.4.0"
+together = "^1.2.11"
 
 [tool.poetry.group.dev.dependencies]
 pre-commit = "^3.8.0"

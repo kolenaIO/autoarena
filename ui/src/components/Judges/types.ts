@@ -1,9 +1,11 @@
 import {
+  IconBrandAws,
   IconBrandCoinbase,
   IconBrandGoogle,
   IconBrandOpenai,
   IconDevices2,
   IconLetterA,
+  IconLetterT,
   IconRobot,
   IconUsers,
 } from '@tabler/icons-react';
@@ -12,12 +14,23 @@ import openaiUrl from '../../../assets/openai.jpg';
 import geminiUrl from '../../../assets/gemini.jpg';
 import anthropicUrl from '../../../assets/anthropic.jpg';
 import cohereUrl from '../../../assets/cohere.jpg';
+import togetherUrl from '../../../assets/together.jpg';
+import bedrockUrl from '../../../assets/bedrock.jpg';
 import customUrl from '../../../assets/custom.jpg';
 
-export type JudgeType = 'human' | 'ollama' | 'openai' | 'gemini' | 'anthropic' | 'cohere' | 'custom';
+export type JudgeType =
+  | 'human'
+  | 'ollama'
+  | 'openai'
+  | 'gemini'
+  | 'anthropic'
+  | 'cohere'
+  | 'together'
+  | 'bedrock'
+  | 'custom';
 
 export function judgeTypeIconComponent(judgeType: JudgeType) {
-  // TODO: get SVGs for real Ollama, Anthropic, and Cohere logos
+  // TODO: get SVGs for real Ollama, Anthropic, Cohere, and Together logos
   switch (judgeType) {
     case 'human':
       return IconUsers;
@@ -31,6 +44,10 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
       return IconLetterA;
     case 'cohere':
       return IconBrandCoinbase;
+    case 'together':
+      return IconLetterT;
+    case 'bedrock':
+      return IconBrandAws;
     case 'custom':
     default:
       return IconRobot;
@@ -49,6 +66,10 @@ export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
       return anthropicUrl;
     case 'cohere':
       return cohereUrl;
+    case 'together':
+      return togetherUrl;
+    case 'bedrock':
+      return bedrockUrl;
     case 'custom':
       return customUrl;
     case 'human':
@@ -71,6 +92,10 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
       return 'Human';
     case 'cohere':
       return 'Cohere';
+    case 'together':
+      return 'Together AI';
+    case 'bedrock':
+      return 'AWS Bedrock';
     case 'custom':
       return 'Custom Fine-Tune';
     default:
@@ -88,5 +113,7 @@ export function judgeTypeToApiKeyName(judgeType: JudgeType) {
       return 'GOOGLE_API_KEY';
     case 'cohere':
       return 'COHERE_API_KEY';
+    case 'together':
+      return 'TOGETHER_API_KEY';
   }
 }

@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { Code, Modal, Select, Stack, Text } from '@mantine/core';
+import { ReactNode, useMemo, useState } from 'react';
+import { Code, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
@@ -9,11 +9,12 @@ import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.t
 
 type Props = {
   judgeType: JudgeType;
-  modelOptions: string[];
+  modelOptions?: string[];
   isOpen: boolean;
   onClose: () => void;
+  extraCopy?: ReactNode;
 };
-export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, onClose }: Props) {
+export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
   const { projectId = -1 } = useUrlState();
   const { data: judges } = useJudges(projectId);
   const { mutate: createJudge } = useCreateJudge({ projectId });
@@ -23,7 +24,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
   // gray out options that are already configured
   const existingJudges = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
   const availableModels = useMemo(
-    () => modelOptions.map(name => ({ value: name, label: name, disabled: existingJudges.has(name) })),
+    () => (modelOptions ?? []).map(name => ({ value: name, label: name, disabled: existingJudges.has(name) })),
     [modelOptions, existingJudges]
   );
 
@@ -53,22 +54,33 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       centered
       title={`Create ${judgeTypeToHumanReadableName(judgeType)} Judge`}
     >
-      <Stack>
-        <Text size="sm">Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
+      <Stack fz="sm">
+        <Text inherit>Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
         {apiKeyName != null && (
-          <Text size="sm">
+          <Text inherit>
             Requires a valid <Code>{apiKeyName}</Code> in the environment running AutoArena.
           </Text>
         )}
-        <Select
-          label="Model Name"
-          placeholder="Select Model"
-          data={availableModels}
-          value={name}
-          onChange={newName => setName(newName ?? '')}
-          searchable
-          flex={1}
-        />
+        {extraCopy}
+        {modelOptions != null ? (
+          <Select
+            label="Model Name"
+            placeholder="Select Model"
+            data={availableModels}
+            value={name}
+            onChange={newName => setName(newName ?? '')}
+            searchable
+            flex={1}
+          />
+        ) : (
+          <TextInput
+            label="Model Name"
+            placeholder="Enter model name"
+            value={name}
+            onChange={event => setName(event.currentTarget.value)}
+            flex={1}
+          />
+        )}
         <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>

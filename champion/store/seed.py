@@ -22,13 +22,7 @@ def setup_database() -> None:
 # TODO: this should call an API rather than hand-rolling here -- at the very least use services to manipulate database
 def seed_initial_battles(battles_parquet: str) -> None:
     project_name = Path(battles_parquet).stem
-
     df_battles = pd.read_parquet(battles_parquet)
-    # TODO: should probably preprocess to avoid doing this here
-    df_battles["winner"] = df_battles.apply(
-        lambda r: "A" if r.winner_model_a > 0 else "B" if r.winner_model_b else "-",
-        axis=1,
-    )
 
     # 2. seed with project
     project_id = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name)).id

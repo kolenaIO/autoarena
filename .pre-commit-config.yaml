@@ -29,3 +29,9 @@ repos:
         name: yarn lint:fix
         entry: /usr/bin/env bash -c 'pushd ui >/dev/null; yarn lint:fix; popd >/dev/null'
         language: script
+  - repo: local
+    hooks:
+      - id: yarn-typecheck
+        name: yarn typecheck
+        entry: /usr/bin/env bash -c 'pushd ui >/dev/null; yarn typecheck; popd >/dev/null'
+        language: script

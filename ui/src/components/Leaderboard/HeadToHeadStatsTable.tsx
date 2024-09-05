@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { prop, reverse, sortBy } from 'ramda';
 import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { ModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
+import { usePagination } from '../../hooks/usePagination.ts';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   unique_id: string;
@@ -70,6 +71,11 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
     const statsSorted = sortBy<H2hStatsRecord>(prop(sortProp))(statsHydrated);
     return sortStatus.direction === 'desc' ? reverse(statsSorted) : statsSorted;
   }, [headToHeadStats, sortStatus, judgeId]);
+  const { pageNumber, setPageNumber, pageSize, pageRecords } = usePagination(statsRecords);
+
+  useEffect(() => {
+    setPageNumber(1);
+  }, [sortStatus]);
 
   return (
     <Paper withBorder radius="md">
@@ -79,7 +85,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         borderRadius="md"
         horizontalSpacing="xs"
         columns={HEAD_TO_HEAD_COLUMNS}
-        records={statsRecords}
+        records={pageRecords}
         idAccessor="unique_id"
         sortStatus={sortStatus}
         onSortStatusChange={setSortStatus}
@@ -90,6 +96,12 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         onRowClick={({ record: { other_model_id } }) => {
           navigate(`/project/${projectId}/compare?modelA=${modelId}&modelB=${other_model_id}`);
         }}
+        page={pageNumber}
+        onPageChange={setPageNumber}
+        totalRecords={statsRecords.length}
+        recordsPerPage={pageSize}
+        paginationActiveTextColor="var(--mantine-color-kolena-light-color)"
+        paginationActiveBackgroundColor="var(--mantine-color-kolena-light)"
       />
     </Paper>
   );

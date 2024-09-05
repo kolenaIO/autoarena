@@ -8,7 +8,7 @@ import numpy as np
 
 from autoarena.api import api
 from autoarena.judge.base import Judge
-from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
+from autoarena.judge.utils import DEFAULT_BATCH_SIZE
 
 
 # TODO: this interface is a little gnarly as callers need to deal with responses coming back in any order

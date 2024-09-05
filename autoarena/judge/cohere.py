@@ -1,8 +1,7 @@
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
-from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
+from autoarena.judge.utils import get_user_prompt, rate_limit, DEFAULT_BATCH_SIZE
 
 
 class CohereJudge(AutomatedJudge):

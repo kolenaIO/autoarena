@@ -3,6 +3,7 @@ from collections import defaultdict
 from datetime import datetime
 
 import pandas as pd
+from loguru import logger
 
 from autostack.api import api
 from autostack.api.api import JudgeType
@@ -76,15 +77,17 @@ class TaskService:
             TaskService.finish(task_id)
 
     @staticmethod
-    def auto_judge(project_id: int, model_id: int, model_name) -> None:
+    def auto_judge(project_id: int, model_id: int, model_name: str) -> None:
         # 1. get judge(s) configured for judging
         all_judges = JudgeService.get_all(project_id)
         enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
         if len(enabled_auto_judges) == 0:
+            logger.warning(f"No automated judges found, cant run automated judgement for model '{model_name}'")
             return  # do nothing if no judges are configured, do not create a task
-        status = f"Started automated judging task for model '{model_name}'"
         t_start = time.time()
+        status = f"Started automated judging task for model '{model_name}'"
         task_id = TaskService.create(project_id, "auto-judge", status).id
+        logger.info(status)
 
         try:
             # 2. instantiate judge(s)
@@ -140,18 +143,21 @@ class TaskService:
                     dfs_h2h_judged.append(df_h2h_judged)
                 # randomize order of ratings to avoid biased elos when multiple judges are present
                 df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
-                # TODO: does there need to be any conflict resolution here?
                 conn.execute("""
                     INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
                     SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
                     FROM df_h2h_judged_all
+                    ON CONFLICT (result_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner
                 """)
 
             # 6. recompute elo scores and confidence intervals
             TaskService.update(task_id, "Recomputing leaderboard rankings", progress=0.96)
             EloService.reseed_scores(project_id)
-            TaskService.finish(task_id, f"Completed automated judging in {time.time() - t_start:0.1f} seconds")
+            status = f"Completed automated judging in {time.time() - t_start:0.1f} seconds"
+            TaskService.finish(task_id, status)
+            logger.info(status)
         except Exception as e:
             TaskService.finish(task_id, f"Failed ({e})")
             TaskService.finish(task_id, "See AutoStack service logs for more information")
+            logger.error(f"Automated judgement failed: {e}")
             raise e

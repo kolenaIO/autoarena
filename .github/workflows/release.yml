@@ -21,7 +21,6 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: poetry
       - name: Install dependencies
         run: poetry install
       - name: Run pre-commit
@@ -33,6 +32,7 @@ jobs:
           cache-dependency-path: "./ui/yarn.lock"
       - name: Install UI dependencies
         run: yarn --frozen-lockfile
+        working-directory: ui
       - name: Update package version to PEP 440-compliant release tag
         run: poetry version $(git describe --tags --abbrev=0)
       - name: Run build script to build UI and bundle into Python tarball

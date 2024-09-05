@@ -3,6 +3,7 @@ import pandas as pd
 
 from autostack.api import api
 from autostack.error import NotFoundError
+from autostack.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autostack.store.database import get_database_connection
 
 
@@ -70,6 +71,26 @@ class ModelService:
     def get_all(project_id: int) -> list[api.Model]:
         df_model = ModelService.get_all_df(project_id)
         return [api.Model(**r) for _, r in df_model.iterrows()]
+
+    @staticmethod
+    def get_all_ranked_by_judge(project_id: int, judge_id: int) -> list[api.Model]:
+        df_h2h = EloService.get_df_head_to_head(project_id)
+        df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
+        df_elo = EloService.compute_elo(df_h2h)
+        df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)  # TODO: is this too expensive?
+        df_model = ModelService.get_all_df(project_id)
+        df_out = pd.merge(df_model, df_elo, left_on="name", right_on="model", how="left")
+        df_out[["elo", "q025", "q975"]] = df_out[["elo_y", "q025_y", "q975_y"]]
+        df_out["elo"] = df_out["elo"].replace({np.nan: DEFAULT_ELO_CONFIG.default_score})
+        df_out = df_out.replace({np.nan: None})
+        votes_a, votes_b = df_h2h.model_a_id.value_counts(), df_h2h.model_b_id.value_counts()
+        df_votes = pd.merge(votes_a, votes_b, left_index=True, right_index=True, how="outer")
+        df_votes = df_votes.replace({np.nan: 0})
+        df_votes["votes"] = df_votes["count_x"] + df_votes["count_y"]
+        df_out = df_out.merge(df_votes, left_on="id", right_index=True, how="left")
+        df_out["votes"] = df_out["votes_y"].replace({np.nan: 0})
+        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "datapoints", "votes"]]
+        return [api.Model(**r) for _, r in df_out.iterrows()]
 
     @staticmethod
     def upload_results(project_id: int, model_name: str, df_result: pd.DataFrame) -> api.Model:

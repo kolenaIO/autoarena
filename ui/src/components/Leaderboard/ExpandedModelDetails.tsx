@@ -4,7 +4,8 @@ import { IconDownload } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
 import { BASE_API_URL } from '../paths.ts';
-import { useModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
+import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { EloHistoryPlot } from './EloHistoryPlot.tsx';
@@ -13,7 +14,8 @@ type Props = {
   model: RankedModel;
 };
 export function ExpandedModelDetails({ model }: Props) {
-  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStats(model.id);
+  const { judgeId } = useUrlState();
+  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge(model.id, judgeId);
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({

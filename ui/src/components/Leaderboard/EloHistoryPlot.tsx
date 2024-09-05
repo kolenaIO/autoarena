@@ -4,6 +4,7 @@ import { LoadingOverlay, Paper, Stack, Title, Grid, Box } from '@mantine/core';
 import { IconCactus } from '@tabler/icons-react';
 import { EloHistoryItem, useModelEloHistory } from '../../hooks/useModelEloHistory.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 
 type ChartDatum = EloHistoryItem & { position: number };
 
@@ -11,7 +12,8 @@ type Props = {
   modelId: number;
 };
 export function EloHistoryPlot({ modelId }: Props) {
-  const { data: eloHistory, isLoading } = useModelEloHistory(modelId);
+  const { judgeId } = useUrlState();
+  const { data: eloHistory, isLoading } = useModelEloHistory(modelId, judgeId);
 
   const chartData: ChartDatum[] = useMemo(
     () => (eloHistory ?? []).map((item, i) => ({ position: i + 1, ...item })),

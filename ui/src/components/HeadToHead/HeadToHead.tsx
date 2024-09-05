@@ -11,6 +11,7 @@ import { HeadToHeadSingleModel } from './HeadToHeadSingleModel.tsx';
 
 export function HeadToHead() {
   const { projectId } = useUrlState();
+  // TODO: migrate this to useUrlState
   const [searchParams, setSearchParams] = useSearchParams();
   const urlModelAId = searchParams.get('modelA');
   const urlModelBId = searchParams.get('modelB');

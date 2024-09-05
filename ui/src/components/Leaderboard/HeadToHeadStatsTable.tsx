@@ -3,8 +3,9 @@ import { prop, reverse, sortBy } from 'ramda';
 import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
 import { useNavigate } from 'react-router-dom';
-import { ModelHeadToHeadStats, useModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
+import { ModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   unique_id: string;
@@ -44,9 +45,9 @@ type Props = {
   modelId: number;
 };
 export function HeadToHeadStatsTable({ modelId }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectId = -1, judgeId } = useUrlState();
   const navigate = useNavigate();
-  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStats(modelId);
+  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge(modelId, judgeId);
 
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<H2hStatsRecord>>({
     columnAccessor: 'count_total',
@@ -68,7 +69,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
     const sortProp = sortStatus.columnAccessor as keyof H2hStatsRecord;
     const statsSorted = sortBy<H2hStatsRecord>(prop(sortProp))(statsHydrated);
     return sortStatus.direction === 'desc' ? reverse(statsSorted) : statsSorted;
-  }, [headToHeadStats, sortStatus]);
+  }, [headToHeadStats, sortStatus, judgeId]);
 
   return (
     <Paper withBorder radius="md">

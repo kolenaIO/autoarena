@@ -34,6 +34,10 @@ def router() -> APIRouter:
     def get_models(project_id: int) -> list[api.Model]:
         return ModelService.get_all(project_id)
 
+    @r.get("/models/{project_id}/by-judge/{judge_id}")
+    def get_models_ranked_by_judge(project_id: int, judge_id: int) -> list[api.Model]:
+        return ModelService.get_all_ranked_by_judge(project_id, judge_id)
+
     @r.post("/model")
     async def upload_model_results(
         file: UploadFile,
@@ -58,8 +62,8 @@ def router() -> APIRouter:
         return ModelService.get_results(model_id)
 
     @r.get("/model/{model_id}/elo-history")
-    def get_elo_history(model_id: int) -> list[api.EloHistoryItem]:
-        return EloService.get_history(model_id)
+    def get_elo_history(model_id: int, judge_id: int | None = None) -> list[api.EloHistoryItem]:
+        return EloService.get_history(model_id, judge_id)
 
     @r.delete("/model/{model_id}")
     def delete_model(model_id: int, background_tasks: BackgroundTasks) -> None:
@@ -68,8 +72,9 @@ def router() -> APIRouter:
         ModelService.delete(model_id)
         background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
 
+    # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/model/{model_id}/download/results")
-    def download_model_results_csv(model_id: int) -> StreamingResponse:
+    async def download_model_results_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_result(model_id)
         model_name = df_result.iloc[0].model
         stream = StringIO()
@@ -79,7 +84,7 @@ def router() -> APIRouter:
         return response
 
     @r.get("/model/{model_id}/download/head-to-heads")
-    def download_model_head_to_heads_csv(model_id: int) -> StreamingResponse:
+    async def download_model_head_to_heads_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_head_to_head(model_id)
         model = ModelService.get_by_id(model_id)
         stream = StringIO()

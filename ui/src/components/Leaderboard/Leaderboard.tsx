@@ -8,26 +8,33 @@ import { NonIdealState } from '../NonIdealState.tsx';
 import { AddModelButton } from '../AddModelButton.tsx';
 import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
 import { useOnboardingGuideDismissed } from '../../hooks/useOnboardingGuideDismissed.ts';
+import { useModelsRankedByJudge } from '../../hooks/useModelsRankedByJudge.ts';
 import { RankedModel } from './types.ts';
 import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 import { LeaderboardSettings } from './LeaderboardSettings.tsx';
 import { rankBy } from './utils.ts';
+import { JudgeSelect } from './JudgeSelect.tsx';
 
 export function Leaderboard() {
-  const { projectId } = useUrlState();
+  const { projectId, judgeId } = useUrlState();
   const [selectedRecords, setSelectedRecords] = useState<RankedModel[]>([]);
   const [filterValue, setFilterValue] = useState('');
-  const { data: models, isLoading } = useModels(projectId);
+  const { data: models, isLoading: isLoadingModels } = useModels(projectId);
   const [onboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<RankedModel>>({
     columnAccessor: 'rank',
     direction: 'asc',
   });
 
+  const { data: modelsRankedByJudge, isLoading: isLoadingModelsRankedByJudge } = useModelsRankedByJudge(
+    projectId,
+    judgeId
+  );
+
   const selectedIds = useMemo(() => new Set(selectedRecords.map(({ id }) => id)), [selectedRecords]);
-  const allModels = isLoading ? LOADING_MODELS : (models ?? []);
+  const allModels = isLoadingModels ? LOADING_MODELS : (modelsRankedByJudge ?? models ?? []);
   const globalLo = Math.min(...allModels.map(({ elo, q025 }) => Math.min(elo, q025 ?? Infinity)));
   const globalHi = Math.max(...allModels.map(({ elo, q975 }) => Math.max(elo, q975 ?? 0)));
   // TODO: should assign the same rank to models with equal scores
@@ -48,7 +55,7 @@ export function Leaderboard() {
     [modelsSorted, filterValue, selectedRecords]
   );
 
-  return onboardingGuideDismissed || isLoading || allModels.length > 0 ? (
+  return onboardingGuideDismissed || isLoadingModels || allModels.length > 0 ? (
     <Stack p="lg" align="center">
       <Group justify="space-between" w={1080} align="flex-end">
         <TextInput
@@ -57,10 +64,10 @@ export function Leaderboard() {
           value={filterValue}
           onChange={event => setFilterValue(event.currentTarget.value)}
           flex={1}
-          disabled={isLoading}
+          disabled={isLoadingModels}
         />
+        <JudgeSelect />
         <LeaderboardSettings />
-        {/* <Select label="Judge" data={availableJudges} defaultValue={availableJudges[0]} disabled={isLoading} /> */}
         <AddModelButton variant="light" />
       </Group>
 
@@ -82,7 +89,7 @@ export function Leaderboard() {
           }}
           sortStatus={sortStatus}
           onSortStatusChange={setSortStatus}
-          fetching={isLoading}
+          fetching={isLoadingModels || isLoadingModelsRankedByJudge}
           loaderBackgroundBlur={4}
           customLoader={<NonIdealState icon={<Loader />} description="Crunching leaderboard rankings..." />}
           selectedRecords={selectedRecords}

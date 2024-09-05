@@ -34,6 +34,10 @@ def router() -> APIRouter:
     def get_models(project_id: int) -> list[api.Model]:
         return ModelService.get_all(project_id)
 
+    @r.get("/models/{project_id}/by-judge/{judge_id}")
+    def get_models_ranked_by_judge(project_id: int, judge_id: int) -> list[api.Model]:
+        return ModelService.get_all_ranked_by_judge(project_id, judge_id)
+
     @r.post("/model")
     async def upload_model_results(
         file: UploadFile,

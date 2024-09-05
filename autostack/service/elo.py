@@ -6,7 +6,6 @@ from pydantic.dataclasses import dataclass
 from loguru import logger
 
 from autostack.api import api
-from autostack.service.model import ModelService
 from autostack.store.database import get_database_connection
 
 
@@ -73,6 +72,9 @@ class EloService:
 
     @staticmethod
     def get_history(model_id: int, config: EloConfig = DEFAULT_ELO_CONFIG) -> list[api.EloHistoryItem]:
+        # TODO: should come up with a better way to have services point at one another
+        from autostack.service.model import ModelService
+
         project_id = ModelService.get_project_id(model_id)
         df_h2h = EloService.get_df_head_to_head(project_id)
         rating: dict[int, float] = defaultdict(lambda: config.default_score)

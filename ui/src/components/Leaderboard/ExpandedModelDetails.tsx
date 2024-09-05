@@ -65,7 +65,7 @@ export function ExpandedModelDetails({ model }: Props) {
             color="orange"
             size="xs"
             leftSection={<IconGavel size={20} />}
-            onClick={triggerModelJudgement}
+            onClick={() => triggerModelJudgement()}
           >
             Run Automated Judgement
           </Button>

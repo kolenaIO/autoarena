@@ -2,6 +2,7 @@ from autostack.api import api
 from autostack.api.api import JudgeType
 from autostack.judge.base import AutomatedJudge
 from autostack.judge.utils import get_user_prompt, rate_limit
+from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
 
 
 class CohereJudge(AutomatedJudge):
@@ -21,8 +22,7 @@ class CohereJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Cohere judge model '{self.name}'"
 
-    # TODO: baking batch size of 8 in here is not great
-    @rate_limit(n_calls=1_000 // 8, n_seconds=60, n_call_buffer=50 // 8)
+    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
     def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
         return [self._judge_one(h2h) for h2h in batch]
 

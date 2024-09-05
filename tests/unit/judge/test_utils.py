@@ -8,6 +8,9 @@ from autostack.api.api import JudgeType
 from autostack.judge.base import Judge
 from autostack.judge.utils import CleaningJudge, RetryingJudge, FixingJudge, ABShufflingJudge, rate_limit
 
+# this is more or less a constant as it is baked into the @rate_limit decorators applied to proprietary judges
+DEFAULT_BATCH_SIZE = 8
+
 
 class DummyJudge(Judge):
     def __init__(self, winners: list[str]):

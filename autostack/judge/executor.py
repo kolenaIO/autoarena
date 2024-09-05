@@ -8,6 +8,7 @@ import numpy as np
 
 from autostack.api import api
 from autostack.judge.base import Judge
+from tests.unit.judge.test_utils import DEFAULT_BATCH_SIZE
 
 
 # TODO: this interface is a little gnarly as callers need to deal with responses coming back in any order
@@ -17,7 +18,7 @@ class Executor(metaclass=ABCMeta):
         self,
         judges: list[Judge],
         head_to_heads: list[api.HeadToHead],
-        batch_size: int = 8,
+        batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> Iterator[tuple[Judge, list[api.HeadToHead], list[str]]]:
         """Yield batches from judges as they are ready"""
 
@@ -27,7 +28,7 @@ class BlockingExecutor(Executor):
         self,
         judges: list[Judge],
         head_to_heads: list[api.HeadToHead],
-        batch_size: int = 8,
+        batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> Iterator[tuple[Judge, list[api.HeadToHead], list[str]]]:
         n_batches = len(head_to_heads) // batch_size
         for judge in judges:
@@ -43,7 +44,7 @@ class ThreadedExecutor(Executor):
         self,
         judges: list[Judge],
         head_to_heads: list[api.HeadToHead],
-        batch_size: int = 8,
+        batch_size: int = DEFAULT_BATCH_SIZE,
     ) -> Iterator[tuple[Judge, list[api.HeadToHead], list[str]]]:
         n_batches = max(len(head_to_heads) // batch_size, 1)
         batches = [b for b in np.array_split(head_to_heads, n_batches) if len(b) > 0]

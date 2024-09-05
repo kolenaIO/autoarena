@@ -4,9 +4,8 @@ on:
     branches:
       - trunk
   pull_request:
-    paths:
-      - "ui/**"
-      - ".github/workflows/ui.yml"
+    branches:
+      - trunk
 
 env:
   NODE_VERSION: 20.11.1

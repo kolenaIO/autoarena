@@ -1,0 +1,43 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete huge unnecessary tools folder
+        run: rm -rf /opt/hostedtoolcache
+      - uses: actions/checkout@v4
+      - name: Install poetry
+        run: pip install poetry
+      - name: Update dependencies
+        run: poetry update
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: poetry install
+      - name: Run pre-commit
+        run: poetry run pre-commit run -a
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20.11.1"
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
+      - name: Install UI dependencies
+        run: yarn --frozen-lockfile
+        working-directory: ui
+      - name: Update package version to PEP 440-compliant release tag
+        run: poetry version $(git describe --tags --abbrev=0)
+      - name: Run build script to build UI and bundle into Python tarball
+        run: ./scripts/build.sh
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: dist/*.tar.gz
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

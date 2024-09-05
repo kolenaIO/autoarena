@@ -1,4 +1,4 @@
-name: AutoStack
+name: Champion
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - trunk
 
 jobs:
-  autostack-ci:
+  champion-ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:

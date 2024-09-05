@@ -1,3 +1,4 @@
+import time
 from collections import defaultdict
 from typing import Literal
 
@@ -123,12 +124,13 @@ class EloService:
     @staticmethod
     def get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
         rows = []
-        logger.info(f"bootstrapping confidence intervals with {num_rounds} rounds...")
+        t_start = time.time()
+        logger.info(f"Bootstrapping confidence intervals with {num_rounds} rounds...")
         for _ in range(num_rounds):
             # TODO: are we sure we want replacement? this means dupes
             df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
             rows.append(EloService.compute_elo(df_h2h_tmp))
-        logger.info("done bootstrapping confidence intervals")
+        logger.info(f"Bootstrapped confidence intervals in {time.time() - t_start:0.1f} seconds")
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
         return df[df.median().sort_values(ascending=False).index]
 

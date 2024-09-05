@@ -45,7 +45,10 @@ class ModelService:
     def get_by_id(model_id: int) -> api.Model:
         with get_database_connection() as conn:
             df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
-        return [api.Model(**r) for _, r in df_model.iterrows()][0]
+        try:
+            return [api.Model(**r) for _, r in df_model.iterrows()][0]
+        except IndexError:
+            raise NotFoundError(f"Model with ID '{model_id}' not found")
 
     @staticmethod
     def get_project_id(model_id: int) -> int:
@@ -55,7 +58,7 @@ class ModelService:
                 ((project_id,),) = conn.execute("SELECT project_id FROM model WHERE id = $model_id", params).fetchall()
             return project_id
         except ValueError:
-            raise NotFoundError(f"model id '{model_id}' not found")
+            raise NotFoundError(f"Model with ID '{model_id}' not found")
 
     @staticmethod
     def get_all_df(project_id: int) -> pd.DataFrame:

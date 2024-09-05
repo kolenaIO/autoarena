@@ -65,6 +65,12 @@ def router() -> APIRouter:
     def get_elo_history(model_id: int, judge_id: int | None = None) -> list[api.EloHistoryItem]:
         return EloService.get_history(model_id, judge_id)
 
+    @r.post("/model/{model_id}/judge")
+    def trigger_model_judgement(model_id: int, background_tasks: BackgroundTasks) -> None:
+        project_id = ModelService.get_project_id(model_id)
+        model_name = ModelService.get_by_id(model_id).name
+        background_tasks.add_task(TaskService.auto_judge, project_id, model_id, model_name)
+
     @r.delete("/model/{model_id}")
     def delete_model(model_id: int, background_tasks: BackgroundTasks) -> None:
         # TODO: this should technically be idempotent, but will currently fail if the model does not exist

@@ -1,6 +1,6 @@
-import { Button, Code, Modal, Stack, Text } from '@mantine/core';
+import { ActionIcon, Code, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { IconX } from '@tabler/icons-react';
+import { IconTrashX } from '@tabler/icons-react';
 import { useDeleteModel } from '../hooks/useDeleteModel.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { Model } from '../hooks/useModels.ts';
@@ -21,15 +21,15 @@ export function DeleteModelButton({ model }: Props) {
 
   return (
     <>
-      <Button variant="light" color="red" onClick={toggle} leftSection={<IconX />}>
-        Delete
-      </Button>
+      <ActionIcon variant="light" color="red" size="md" onClick={toggle}>
+        <IconTrashX size={20} />
+      </ActionIcon>
       <Modal opened={isOpen} centered onClose={close} title="Confirm Model Deletion">
         <Stack>
           <Stack gap="sm">
             <Text size="sm">Confirm deletion of model:</Text>
             <Code block>{model.name}</Code>
-            <Text size="sm">This action cannot be undone.</Text>
+            <Text size="sm">This will delete the model and all associated data. This action cannot be undone.</Text>
           </Stack>
           <ConfirmOrCancelBar
             onCancel={close}

@@ -61,7 +61,7 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
           </ul>
           <Text size="sm">
             Note that this model must be pulled via <Code>ollama pull</Code> and the Ollama service must be running on
-            the host running Champion.
+            the host running AutoArena.
           </Text>
         </Stack>
         <TextInput

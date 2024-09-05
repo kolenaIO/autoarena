@@ -5,16 +5,16 @@ from datetime import datetime
 import pandas as pd
 from loguru import logger
 
-from champion.api import api
-from champion.api.api import JudgeType
-from champion.judge.base import Judge
-from champion.judge.executor import ThreadedExecutor
-from champion.judge.factory import judge_factory
-from champion.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
-from champion.service.elo import EloService
-from champion.service.head_to_head import HeadToHeadService
-from champion.service.judge import JudgeService
-from champion.store.database import get_database_connection
+from autoarena.api import api
+from autoarena.api.api import JudgeType
+from autoarena.judge.base import Judge
+from autoarena.judge.executor import ThreadedExecutor
+from autoarena.judge.factory import judge_factory
+from autoarena.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
+from autoarena.service.elo import EloService
+from autoarena.service.head_to_head import HeadToHeadService
+from autoarena.service.judge import JudgeService
+from autoarena.store.database import get_database_connection
 
 
 class TaskService:
@@ -158,6 +158,6 @@ class TaskService:
             logger.info(status)
         except Exception as e:
             TaskService.finish(task_id, f"Failed ({e})")
-            TaskService.finish(task_id, "See Champion service logs for more information")
+            TaskService.finish(task_id, "See AutoArena service logs for more information")
             logger.error(f"Automated judgement failed: {e}")
             raise e

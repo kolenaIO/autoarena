@@ -1,4 +1,4 @@
-# Champion UI
+# AutoArena UI
 
 ```
 yarn

@@ -44,7 +44,7 @@ export function Page({ tab }: Props) {
             <Group gap={4}>
               <IconStack2Filled color="var(--mantine-color-kolena-6)" />
               <Text fw="bold" c="black">
-                Champion
+                AutoArena
               </Text>
               <Tooltip label="Beta Release" fz="xs">
                 <IconBeta size={14} color="var(--mantine-color-ice-8)" />

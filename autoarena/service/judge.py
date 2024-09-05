@@ -1,7 +1,7 @@
-from champion.api import api
-from champion.judge.base import Judge
-from champion.judge.utils import BASIC_SYSTEM_PROMPT
-from champion.store.database import get_database_connection
+from autoarena.api import api
+from autoarena.judge.base import Judge
+from autoarena.judge.utils import BASIC_SYSTEM_PROMPT
+from autoarena.store.database import get_database_connection
 
 
 class JudgeService:

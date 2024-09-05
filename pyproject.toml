@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "champion"
+name = "autoarena"
 version = "0.0.0"  # version is automatically set on release
 description = ""
 authors = ["Kolena Engineering <eng@kolena.com>"]

@@ -3,10 +3,10 @@ import time
 import numpy as np
 import pytest
 
-from champion.api import api
-from champion.api.api import JudgeType
-from champion.judge.base import Judge
-from champion.judge.utils import CleaningJudge, RetryingJudge, FixingJudge, ABShufflingJudge, rate_limit
+from autoarena.api import api
+from autoarena.api.api import JudgeType
+from autoarena.judge.base import Judge
+from autoarena.judge.utils import CleaningJudge, RetryingJudge, FixingJudge, ABShufflingJudge, rate_limit
 
 # this is more or less a constant as it is baked into the @rate_limit decorators applied to proprietary judges
 DEFAULT_BATCH_SIZE = 8

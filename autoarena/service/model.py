@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 
-from champion.api import api
-from champion.error import NotFoundError
-from champion.service.elo import EloService, DEFAULT_ELO_CONFIG
-from champion.store.database import get_database_connection
+from autoarena.api import api
+from autoarena.error import NotFoundError
+from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
+from autoarena.store.database import get_database_connection
 
 
 class ModelService:

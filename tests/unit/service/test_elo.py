@@ -1,6 +1,6 @@
 import pandas as pd
 
-from champion.service.elo import EloService
+from autoarena.service.elo import EloService
 
 
 # TODO: this is a placeholder

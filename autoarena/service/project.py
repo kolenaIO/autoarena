@@ -1,7 +1,7 @@
-from champion.api import api
-from champion.judge.human import HumanJudge
-from champion.service.judge import JudgeService
-from champion.store.database import get_database_connection
+from autoarena.api import api
+from autoarena.judge.human import HumanJudge
+from autoarena.service.judge import JudgeService
+from autoarena.store.database import get_database_connection
 
 
 class ProjectService:

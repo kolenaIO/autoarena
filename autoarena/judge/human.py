@@ -1,6 +1,6 @@
-from champion.api import api
-from champion.api.api import JudgeType
-from champion.judge.base import Judge
+from autoarena.api import api
+from autoarena.api.api import JudgeType
+from autoarena.judge.base import Judge
 
 
 class HumanJudge(Judge):

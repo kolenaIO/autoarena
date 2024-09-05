@@ -1,4 +1,4 @@
-name: Champion
+name: AutoArena
 on:
   push:
     branches:
@@ -8,7 +8,7 @@ on:
       - trunk
 
 jobs:
-  champion-ci:
+  autoarena-ci:
     runs-on: ubuntu-latest
     strategy:
       matrix:

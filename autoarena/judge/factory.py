@@ -1,13 +1,13 @@
 from typing import Type
 
-from champion.api import api
-from champion.judge.anthropic import AnthropicJudge
-from champion.judge.base import Judge, WrappingJudge
-from champion.judge.cohere import CohereJudge
-from champion.judge.gemini import GeminiJudge
-from champion.judge.human import HumanJudge
-from champion.judge.ollama import OllamaJudge
-from champion.judge.openai import OpenAIJudge
+from autoarena.api import api
+from autoarena.judge.anthropic import AnthropicJudge
+from autoarena.judge.base import Judge, WrappingJudge
+from autoarena.judge.cohere import CohereJudge
+from autoarena.judge.gemini import GeminiJudge
+from autoarena.judge.human import HumanJudge
+from autoarena.judge.ollama import OllamaJudge
+from autoarena.judge.openai import OpenAIJudge
 
 
 def judge_factory(judge: api.Judge, wrappers: list[Type[WrappingJudge]] | None = None) -> Judge:

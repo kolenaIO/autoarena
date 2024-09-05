@@ -9,8 +9,8 @@ from tenacity import retry, RetryCallState
 from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
 
-from champion.api import api
-from champion.judge.base import Judge, WrappingJudge
+from autoarena.api import api
+from autoarena.judge.base import Judge, WrappingJudge
 
 BASIC_SYSTEM_PROMPT = """\
 You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.

@@ -1,5 +1,5 @@
-from champion.api import api
-from champion.service.task import TaskService
+from autoarena.api import api
+from autoarena.service.task import TaskService
 
 
 class FineTuningService:

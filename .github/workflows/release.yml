@@ -35,6 +35,17 @@ jobs:
         run: poetry version $(git describe --tags --abbrev=0)
       - name: Run build script to build UI and bundle into Python tarball
         run: ./scripts/build.sh
+      - name: Push 'autoarena' dist to Test PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+          repository-url: https://test.pypi.org/legacy/
+          skip-existing: true
+      - name: Push 'autoarena' dist to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+          skip-existing: tru
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         with:

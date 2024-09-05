@@ -72,8 +72,9 @@ def router() -> APIRouter:
         ModelService.delete(model_id)
         background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
 
+    # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/model/{model_id}/download/results")
-    def download_model_results_csv(model_id: int) -> StreamingResponse:
+    async def download_model_results_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_result(model_id)
         model_name = df_result.iloc[0].model
         stream = StringIO()
@@ -83,7 +84,7 @@ def router() -> APIRouter:
         return response
 
     @r.get("/model/{model_id}/download/head-to-heads")
-    def download_model_head_to_heads_csv(model_id: int) -> StreamingResponse:
+    async def download_model_head_to_heads_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_head_to_head(model_id)
         model = ModelService.get_by_id(model_id)
         stream = StringIO()

@@ -15,18 +15,19 @@ export function JudgeSelect() {
     () => Object.fromEntries((judges ?? []).map(({ id, name }) => [id, name])),
     [judges]
   );
-  const availableJudges = useMemo(() => ['All', ...(judges ?? []).map(({ name }) => name)], [judges]);
-  const currentJudgeName = judgeNameById[judgeId ?? -1] ?? 'All';
+  const availableJudges = useMemo(() => (judges ?? []).map(({ name }) => name), [judges]);
+  const currentJudgeName = judgeNameById[judgeId ?? -1] ?? null;
 
   return (
     <Select
       label="Judge"
+      w={250}
       data={availableJudges}
-      defaultValue={availableJudges[0]}
       value={currentJudgeName}
       onChange={name => setJudgeId(name != null ? judgeIdByName[name] : undefined)}
       disabled={isLoadingJudges}
-      allowDeselect={false}
+      placeholder="Showing votes from all judges"
+      clearable
     />
   );
 }

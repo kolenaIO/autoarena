@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 export function usePagination<T>(records: T[]) {
   const [pageNumber, setPageNumber] = useState(1);
-  const [pageSize, setPageSizeState] = useState(20);
+  const [pageSize, setPageSizeState] = useState(10);
   const [pageRecords, setPageRecordsState] = useState(records.slice(0, pageSize));
 
   function setPageRecords() {

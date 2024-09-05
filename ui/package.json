@@ -9,6 +9,7 @@
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",
+    "typecheck": "tsc -b",
     "preview": "vite preview",
     "test": "jest"
   },

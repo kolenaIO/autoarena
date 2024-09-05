@@ -3,8 +3,9 @@ import { prop, reverse, sortBy } from 'ramda';
 import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
 import { useNavigate } from 'react-router-dom';
-import { ModelHeadToHeadStats, useModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
+import { ModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   unique_id: string;
@@ -46,7 +47,7 @@ type Props = {
 export function HeadToHeadStatsTable({ modelId }: Props) {
   const { projectId = -1, judgeId } = useUrlState();
   const navigate = useNavigate();
-  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStats(modelId);
+  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge(modelId, judgeId);
 
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<H2hStatsRecord>>({
     columnAccessor: 'count_total',
@@ -55,8 +56,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
 
   const statsRecords = useMemo(() => {
     const stats = headToHeadStats ?? [];
-    const statsByJudge = judgeId != null ? stats.filter(({ judge_id }) => judge_id === judgeId) : stats;
-    const statsHydrated = statsByJudge.map<H2hStatsRecord>(s => {
+    const statsHydrated = stats.map<H2hStatsRecord>(s => {
       const countTotal = s.count_wins + s.count_losses + s.count_ties;
       return {
         ...s,

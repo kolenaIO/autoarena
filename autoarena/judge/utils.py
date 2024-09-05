@@ -39,6 +39,9 @@ JOINED_PROMPT_TEMPLATE = """\
 
 ACCEPTABLE_RESPONSES = {"A", "B", "-"}
 
+# this is more or less a constant as it is baked into the @rate_limit decorators applied to proprietary judges
+DEFAULT_BATCH_SIZE = 8
+
 
 def get_user_prompt(h2h: api.HeadToHead) -> str:
     return USER_PROMPT_TEMPLATE.format(prompt=h2h.prompt, response_a=h2h.response_a, response_b=h2h.response_b)

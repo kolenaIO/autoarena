@@ -66,7 +66,7 @@ def router() -> APIRouter:
         return EloService.get_history(model_id, judge_id)
 
     @r.post("/model/{model_id}/judge")
-    def trigger_model_judge(model_id: int, background_tasks: BackgroundTasks) -> None:
+    def trigger_model_judgement(model_id: int, background_tasks: BackgroundTasks) -> None:
         project_id = ModelService.get_project_id(model_id)
         model_name = ModelService.get_by_id(model_id).name
         background_tasks.add_task(TaskService.auto_judge, project_id, model_id, model_name)

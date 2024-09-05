@@ -2,6 +2,7 @@ import numpy as np
 import pandas as pd
 
 from autostack.api import api
+from autostack.error import NotFoundError
 from autostack.store.database import get_database_connection
 
 
@@ -47,10 +48,13 @@ class ModelService:
 
     @staticmethod
     def get_project_id(model_id: int) -> int:
-        with get_database_connection() as conn:
-            params = dict(model_id=model_id)
-            ((project_id,),) = conn.execute("SELECT project_id FROM model WHERE id = $model_id", params).fetchall()
-        return project_id
+        try:
+            with get_database_connection() as conn:
+                params = dict(model_id=model_id)
+                ((project_id,),) = conn.execute("SELECT project_id FROM model WHERE id = $model_id", params).fetchall()
+            return project_id
+        except ValueError:
+            raise NotFoundError(f"model id '{model_id}' not found")
 
     @staticmethod
     def get_all_df(project_id: int) -> pd.DataFrame:

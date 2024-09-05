@@ -74,7 +74,8 @@ class TaskService:
         enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
         if len(enabled_auto_judges) == 0:
             return  # do nothing if no judges are configured, do not create a task
-        status = f"Started auto-judge task for model '{model_name}'"
+        status = f"Started automated judging task for model '{model_name}'"
+        t_start = time.time()
         task_id = TaskService.create(project_id, "auto-judge", status).id
 
         try:
@@ -102,7 +103,7 @@ class TaskService:
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
             n_h2h = len(head_to_heads)
             n_total = n_h2h * len(judges)
-            t_start = time.time()
+            t_start_judging = time.time()
             for judge, batch, judged_batch in executor.execute(judges, head_to_heads):
                 this_responses = [(r.result_a_id, r.result_b_id, winner) for r, winner in zip(batch, judged_batch)]
                 responses[judge.name].extend(this_responses)
@@ -114,7 +115,7 @@ class TaskService:
                 if n_this_judge == len(head_to_heads):
                     message = (
                         f"Judge '{judge.name}' finished judging {n_h2h} head-to-heads in "
-                        f"{time.time() - t_start:0.1f} seconds"
+                        f"{time.time() - t_start_judging:0.1f} seconds"
                     )
                     TaskService.update(task_id, message, progress=progress)
 
@@ -122,23 +123,26 @@ class TaskService:
             # 5. upload judgements to database
             judge_id_by_name = {j.name: j.id for j in enabled_auto_judges}
             with get_database_connection() as conn:
+                dfs_h2h_judged = []
                 for judge_name, judge_responses in responses.items():
                     df_h2h_judged = df_h2h.copy()
                     df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
                     df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
                     df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
-                    # TODO: does there need to be any conflict resolution here?
-                    conn.execute("""
-                        INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
-                        SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
-                        FROM df_h2h_judged
-                    """)
+                    dfs_h2h_judged.append(df_h2h_judged)
+                # randomize order of ratings to avoid biased elos when multiple judges are present
+                df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
+                # TODO: does there need to be any conflict resolution here?
+                conn.execute("""
+                    INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
+                    SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
+                    FROM df_h2h_judged_all
+                """)
 
             # 6. recompute elo scores and confidence intervals
-            TaskService.update(task_id, "Recomputing Elo scores and confidence intervals", progress=0.96)
+            TaskService.update(task_id, "Recomputing leaderboard rankings", progress=0.96)
             EloService.reseed_scores(project_id)
-            TaskService.update(task_id, "Recomputed Elo scores and confidence intervals", progress=1)
-            TaskService.finish(task_id)
+            TaskService.finish(task_id, f"Completed automated judging in {time.time() - t_start:0.1f} seconds")
         except Exception as e:
             TaskService.finish(task_id, f"Failed ({e})")
             TaskService.finish(task_id, "See AutoStack service logs for more information")

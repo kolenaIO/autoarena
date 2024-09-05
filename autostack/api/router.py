@@ -62,8 +62,8 @@ def router() -> APIRouter:
         return ModelService.get_results(model_id)
 
     @r.get("/model/{model_id}/elo-history")
-    def get_elo_history(model_id: int) -> list[api.EloHistoryItem]:
-        return EloService.get_history(model_id)
+    def get_elo_history(model_id: int, judge_id: int | None = None) -> list[api.EloHistoryItem]:
+        return EloService.get_history(model_id, judge_id)
 
     @r.delete("/model/{model_id}")
     def delete_model(model_id: int, background_tasks: BackgroundTasks) -> None:

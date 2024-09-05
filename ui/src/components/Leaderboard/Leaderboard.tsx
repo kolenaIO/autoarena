@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Group, Loader, Paper, Select, Stack, TextInput } from '@mantine/core';
+import { Group, Loader, Paper, Stack, TextInput } from '@mantine/core';
 import { DataTable, DataTableSortStatus } from 'mantine-datatable';
 import { prop, sortBy } from 'ramda';
 import { useModels } from '../../hooks/useModels.ts';
@@ -8,7 +8,6 @@ import { NonIdealState } from '../NonIdealState.tsx';
 import { AddModelButton } from '../AddModelButton.tsx';
 import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
 import { useOnboardingGuideDismissed } from '../../hooks/useOnboardingGuideDismissed.ts';
-import { useJudges } from '../../hooks/useJudges.ts';
 import { useModelsRankedByJudge } from '../../hooks/useModelsRankedByJudge.ts';
 import { RankedModel } from './types.ts';
 import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
@@ -16,28 +15,22 @@ import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 import { LeaderboardSettings } from './LeaderboardSettings.tsx';
 import { rankBy } from './utils.ts';
+import { JudgeSelect } from './JudgeSelect.tsx';
 
 export function Leaderboard() {
-  const { projectId } = useUrlState();
+  const { projectId, judgeId } = useUrlState();
   const [selectedRecords, setSelectedRecords] = useState<RankedModel[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading: isLoadingModels } = useModels(projectId);
-  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectId);
   const [onboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<RankedModel>>({
     columnAccessor: 'rank',
     direction: 'asc',
   });
 
-  const [selectedJudge, setSelectedJudge] = useState('All');
-  const availableJudges = useMemo(() => ['All', ...(judges ?? []).map(({ name }) => name)], [judges]);
-  const judgeIdByName: { [name: string]: number } = useMemo(
-    () => Object.fromEntries((judges ?? []).map(({ id, name }) => [name, id])),
-    [judges]
-  );
   const { data: modelsRankedByJudge, isLoading: isLoadingModelsRankedByJudge } = useModelsRankedByJudge(
     projectId,
-    judgeIdByName[selectedJudge]
+    judgeId
   );
 
   const selectedIds = useMemo(() => new Set(selectedRecords.map(({ id }) => id)), [selectedRecords]);
@@ -73,16 +66,7 @@ export function Leaderboard() {
           flex={1}
           disabled={isLoadingModels}
         />
-        <Select
-          label="Judge"
-          data={availableJudges}
-          defaultValue={availableJudges[0]}
-          value={selectedJudge}
-          onChange={setSelectedJudge}
-          disabled={isLoadingJudges}
-          allowDeselect={false}
-          rightSection={isLoadingModelsRankedByJudge ? <Loader size={14} /> : undefined}
-        />
+        <JudgeSelect />
         <LeaderboardSettings />
         <AddModelButton variant="light" />
       </Group>

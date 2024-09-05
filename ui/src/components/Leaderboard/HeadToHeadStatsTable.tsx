@@ -44,7 +44,7 @@ type Props = {
   modelId: number;
 };
 export function HeadToHeadStatsTable({ modelId }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectId = -1, judgeId } = useUrlState();
   const navigate = useNavigate();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStats(modelId);
 
@@ -55,7 +55,8 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
 
   const statsRecords = useMemo(() => {
     const stats = headToHeadStats ?? [];
-    const statsHydrated = stats.map<H2hStatsRecord>(s => {
+    const statsByJudge = judgeId != null ? stats.filter(({ judge_id }) => judge_id === judgeId) : stats;
+    const statsHydrated = statsByJudge.map<H2hStatsRecord>(s => {
       const countTotal = s.count_wins + s.count_losses + s.count_ties;
       return {
         ...s,
@@ -68,7 +69,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
     const sortProp = sortStatus.columnAccessor as keyof H2hStatsRecord;
     const statsSorted = sortBy<H2hStatsRecord>(prop(sortProp))(statsHydrated);
     return sortStatus.direction === 'desc' ? reverse(statsSorted) : statsSorted;
-  }, [headToHeadStats, sortStatus]);
+  }, [headToHeadStats, sortStatus, judgeId]);
 
   return (
     <Paper withBorder radius="md">

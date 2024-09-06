@@ -25,8 +25,10 @@ class AnthropicJudge(AutomatedJudge):
     def verify_environment() -> None:
         # this is a little dirty, but gets the job done as requests without valid auth are rejected eagerly
         try:
-            anthropic.Client().get("/v1/dummy", cast_to=object)
-        except anthropic.NotFoundError:
+            anthropic.Client().post("/v1/messages", cast_to=object)
+        except (anthropic.AuthenticationError, TypeError) as e:
+            raise e
+        except Exception:
             pass
 
     # anthropic has different tiers with 1000/2000/4000, opting to be conservative by default

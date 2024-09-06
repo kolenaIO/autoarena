@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import datetime
 from enum import Enum
-from typing import Literal
+from typing import Literal, Optional
 
 from pydantic.dataclasses import dataclass
 
@@ -24,8 +24,8 @@ class Model:
     name: str
     created: datetime
     elo: float
-    q025: float | None
-    q975: float | None
+    q025: Optional[float]
+    q975: Optional[float]
     datapoints: int
     votes: int
 
@@ -50,7 +50,7 @@ class ModelHeadToHeadStats:
 @dataclass(frozen=True)
 class HeadToHeadsRequest:
     model_a_id: int
-    model_b_id: int | None = None  # when empty, get all pairings
+    model_b_id: Optional[int] = None  # when empty, get all pairings
 
 
 WinnerType = Literal["A", "B", "-"]
@@ -111,8 +111,8 @@ class Judge:
     judge_type: JudgeType
     created: datetime
     name: str
-    model_name: str | None
-    system_prompt: str | None
+    model_name: Optional[str]
+    system_prompt: Optional[str]
     description: str
     enabled: bool
     votes: int

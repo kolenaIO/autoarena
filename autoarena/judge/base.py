@@ -1,5 +1,6 @@
 import os
 from abc import ABCMeta, abstractmethod
+from typing import Optional
 
 from autoarena.api import api
 from autoarena.api.api import JudgeType
@@ -18,12 +19,12 @@ class Judge(metaclass=ABCMeta):
 
     @property
     @abstractmethod
-    def model_name(self) -> str | None:
+    def model_name(self) -> Optional[str]:
         """Machine-readable model name, e.g. 'gpt-4o-mini'. None for human judge"""
 
     @property
     @abstractmethod
-    def system_prompt(self) -> str | None:
+    def system_prompt(self) -> Optional[str]:
         """System prompt for this judge, None for human judge"""
 
     @property
@@ -51,11 +52,11 @@ class WrappingJudge(Judge, metaclass=ABCMeta):
         return self.wrapped.name
 
     @property
-    def model_name(self) -> str | None:
+    def model_name(self) -> Optional[str]:
         return self.wrapped.model_name
 
     @property
-    def system_prompt(self) -> str | None:
+    def system_prompt(self) -> Optional[str]:
         return self.wrapped.system_prompt
 
     @property
@@ -64,7 +65,7 @@ class WrappingJudge(Judge, metaclass=ABCMeta):
 
 
 class AutomatedJudge(Judge, metaclass=ABCMeta):
-    API_KEY_NAME: str | None  # if set, verify that this exists in environment on init
+    API_KEY_NAME: Optional[str]  # if set, verify that this exists in environment on init
 
     _model_name: str
     _system_prompt: str
@@ -82,9 +83,9 @@ class AutomatedJudge(Judge, metaclass=ABCMeta):
         return self._model_name
 
     @property
-    def model_name(self) -> str | None:
+    def model_name(self) -> Optional[str]:
         return self._model_name
 
     @property
-    def system_prompt(self) -> str | None:
+    def system_prompt(self) -> Optional[str]:
         return self._system_prompt

@@ -1,6 +1,6 @@
 import time
 from collections import defaultdict
-from typing import Literal
+from typing import Literal, Optional
 
 import pandas as pd
 from pydantic.dataclasses import dataclass
@@ -73,7 +73,7 @@ class EloService:
 
     @staticmethod
     def get_history(
-        model_id: int, judge_id: int | None, config: EloConfig = DEFAULT_ELO_CONFIG
+        model_id: int, judge_id: Optional[int], config: EloConfig = DEFAULT_ELO_CONFIG
     ) -> list[api.EloHistoryItem]:
         # TODO: should come up with a better way to have services point at one another
         from autoarena.service.model import ModelService

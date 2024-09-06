@@ -1,4 +1,5 @@
 import time
+from typing import Optional
 
 import numpy as np
 import pytest
@@ -22,11 +23,11 @@ class DummyJudge(Judge):
         return "test"
 
     @property
-    def model_name(self) -> str | None:
+    def model_name(self) -> Optional[str]:
         return None
 
     @property
-    def system_prompt(self) -> str | None:
+    def system_prompt(self) -> Optional[str]:
         return None
 
     @property

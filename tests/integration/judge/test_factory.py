@@ -1,6 +1,6 @@
 import os
 from datetime import datetime
-from typing import Type
+from typing import Type, Optional
 
 import pytest
 
@@ -29,7 +29,9 @@ from autoarena.judge.together import TogetherJudge
         (api.JudgeType.CUSTOM, None, None),
     ],
 )
-def test__factory(judge_type: api.JudgeType, expected_type: Type[Judge] | None, required_api_key: str | None) -> None:
+def test__factory(
+    judge_type: api.JudgeType, expected_type: Optional[Type[Judge]], required_api_key: Optional[str]
+) -> None:
     name = f"{expected_type.__name__}" if expected_type is not None else "missing type"
     request = api.Judge(
         id=-1,

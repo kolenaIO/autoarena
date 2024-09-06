@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Optional
 
 from autoarena.api import api
 from autoarena.judge.anthropic import AnthropicJudge
@@ -12,7 +12,7 @@ from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
 
 
-def judge_factory(judge: api.Judge, wrappers: list[Type[WrappingJudge]] | None = None) -> Judge:
+def judge_factory(judge: api.Judge, wrappers: Optional[list[Type[WrappingJudge]]] = None) -> Judge:
     def judge_factory_inner(j: api.Judge):
         if j.judge_type is api.JudgeType.HUMAN:
             return HumanJudge()

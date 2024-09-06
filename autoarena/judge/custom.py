@@ -10,17 +10,19 @@ from autoarena.judge.base import Judge
 
 
 class CustomJudge(Judge, metaclass=ABCMeta):
+    # don't override these
     @property
     def judge_type(self) -> JudgeType:
         return JudgeType.CUSTOM
 
     @property
-    def name(self) -> str:
+    def model_name(self) -> Optional[str]:
         return f"{type(self).__module__}.{type(self).__qualname__}"
 
+    # fine to override these
     @property
-    def model_name(self) -> Optional[str]:
-        return None
+    def name(self) -> str:
+        return f"{type(self).__qualname__}"
 
     @property
     def system_prompt(self) -> Optional[str]:
@@ -30,6 +32,7 @@ class CustomJudge(Judge, metaclass=ABCMeta):
     def description(self) -> str:
         return f"Custom judge implemented in '{self.name}'"
 
+    # must implement this
     @abstractmethod
     def judge(self, h2h: api.HeadToHead) -> str:
         raise NotImplementedError
@@ -53,7 +56,7 @@ CUSTOM_JUDGE_CLASSES: dict[str, Type[CustomJudge]] = {}
 
 def create_custom_judge(judge: api.Judge) -> CustomJudge:
     global CUSTOM_JUDGE_CLASSES
-    judge_class = CUSTOM_JUDGE_CLASSES.get(judge.name, None)
+    judge_class = CUSTOM_JUDGE_CLASSES.get(judge.model_name or judge.name, None)
     if judge_class is None:
-        raise RuntimeError(f"Custom judge class '{judge.name}' not registered")
+        raise RuntimeError(f"Custom judge class '{judge.model_name}' not registered")
     return judge_class()

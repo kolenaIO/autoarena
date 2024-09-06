@@ -28,10 +28,7 @@ class OllamaJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Ollama model '{self.name}'"
 
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in batch]
-
-    def _judge_one(self, h2h: api.HeadToHead) -> str:
+    def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat(
             model=self.model_name,
             messages=[

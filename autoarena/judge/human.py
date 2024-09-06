@@ -24,5 +24,5 @@ class HumanJudge(Judge):
     def description(self) -> str:
         return "Manual ratings submitted via the 'Head-to-Head' tab"
 
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
+    def judge(self, h2h: api.HeadToHead) -> str:
         raise NotImplementedError

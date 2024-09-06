@@ -32,35 +32,35 @@ class Judge(metaclass=ABCMeta):
         """Freeform description for this judge, usually ending without a period"""
 
     @abstractmethod
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:  # TODO: return more information than just winner?
+    def judge(self, h2h: api.HeadToHead) -> str:  # TODO: return more information than just winner?
         ...
 
 
 class WrappingJudge(Judge, metaclass=ABCMeta):
-    judge: Judge
+    wrapped: Judge
 
     def __init__(self, judge: Judge):
-        self.judge = judge
+        self.wrapped = judge
 
     @property
     def judge_type(self) -> JudgeType:
-        return self.judge.judge_type
+        return self.wrapped.judge_type
 
     @property
     def name(self) -> str:
-        return self.judge.name
+        return self.wrapped.name
 
     @property
     def model_name(self) -> str | None:
-        return self.judge.model_name
+        return self.wrapped.model_name
 
     @property
     def system_prompt(self) -> str | None:
-        return self.judge.system_prompt
+        return self.wrapped.system_prompt
 
     @property
     def description(self) -> str:
-        return self.judge.description
+        return self.wrapped.description
 
 
 class AutomatedJudge(Judge, metaclass=ABCMeta):

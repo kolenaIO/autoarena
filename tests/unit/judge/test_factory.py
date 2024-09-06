@@ -29,4 +29,4 @@ def test__factory_wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
     else:
         for wrapper_type in wrappers[::-1]:
             assert type(judge) is wrapper_type
-            judge = judge.judge
+            judge = judge.wrapped

@@ -1,6 +1,6 @@
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import DEFAULT_BATCH_SIZE, rate_limit, get_user_prompt, DEFAULT_MAX_TOKENS
+from autoarena.judge.utils import rate_limit, get_user_prompt, DEFAULT_MAX_TOKENS
 
 
 class BedrockJudge(AutomatedJudge):
@@ -21,12 +21,8 @@ class BedrockJudge(AutomatedJudge):
     def description(self) -> str:
         return f"AWS Bedrock judge model '{self.name}'"
 
-    # TODO: look these up
-    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in batch]
-
-    def _judge_one(self, h2h: api.HeadToHead) -> str:
+    @rate_limit(n_calls=200, n_seconds=1, n_call_buffer=25)
+    def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.converse(
             modelId=self.model_name,
             system=[dict(text=self.system_prompt)],

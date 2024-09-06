@@ -1,7 +1,7 @@
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit, DEFAULT_BATCH_SIZE
+from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
 
 
 class GeminiJudge(AutomatedJudge):
@@ -21,11 +21,8 @@ class GeminiJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Google Gemini judge model '{self.name}'"
 
-    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in batch]
-
-    def _judge_one(self, h2h: api.HeadToHead) -> str:
+    @rate_limit(n_calls=1_000, n_seconds=60)
+    def judge(self, h2h: api.HeadToHead) -> str:
         import google.generativeai as genai
 
         prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=get_user_prompt(h2h))

@@ -11,7 +11,7 @@ from autoarena.judge.utils import CleaningJudge, RetryingJudge, FixingJudge, ABS
 
 class DummyJudge(Judge):
     def __init__(self, winners: list[str]):
-        self._winners = winners
+        self._winners = [*winners]
 
     @property
     def judge_type(self) -> JudgeType:
@@ -33,8 +33,8 @@ class DummyJudge(Judge):
     def description(self) -> str:
         return "judge for testing"
 
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return self._winners
+    def judge(self, h2h: api.HeadToHead) -> str:
+        return self._winners.pop(0)
 
 
 DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2, response_a="a", response_b="b")
@@ -43,7 +43,7 @@ DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2,
 def test__ab_shuffling_judge() -> None:
     expected = ["A", "B", "-"]
     judge = ABShufflingJudge(DummyJudge(expected))
-    actual = judge.judge_batch([DUMMY_H2H] * 3)
+    actual = [judge.judge(DUMMY_H2H) for _ in range(3)]
     assert len(actual) == len(expected)
     assert np.array_equal((np.array(actual) == "-"), (np.array(expected) == "-"))  # ties should not be shuffled
     # TODO: assertion that the shuffling+unshuffling is actually taking place as advertised
@@ -67,7 +67,7 @@ def test__ab_shuffling_judge() -> None:
 )
 def test__cleaning_judge(raw: str, expected: str) -> None:
     test_judge = DummyJudge([raw])
-    assert CleaningJudge(test_judge).judge_batch([DUMMY_H2H]) == [expected]
+    assert CleaningJudge(test_judge).judge(DUMMY_H2H) == expected
 
 
 @pytest.mark.parametrize(
@@ -83,7 +83,7 @@ def test__cleaning_judge(raw: str, expected: str) -> None:
 )
 def test__fixing_judge(raw: str, expected: str) -> None:
     test_judge = DummyJudge([raw])
-    assert FixingJudge(test_judge).judge_batch([DUMMY_H2H]) == [expected]
+    assert FixingJudge(test_judge).judge(DUMMY_H2H) == expected
 
 
 def test__retrying_judge() -> None:
@@ -92,19 +92,18 @@ def test__retrying_judge() -> None:
             super().__init__(winners)
             self.n_runs = 0
 
-        def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
+        def judge(self, h2h: api.HeadToHead) -> str:
             self.n_runs += 1
             if self.n_runs < 2:
                 raise RuntimeError
-            return self._winners
+            return self._winners.pop(0)
 
-    expected = ["A"]
-    judge: Judge = FailsOnceDummyJudge(expected)
+    judge: Judge = FailsOnceDummyJudge(["A"])
     with pytest.raises(RuntimeError):
-        judge.judge_batch([DUMMY_H2H])
+        judge.judge(DUMMY_H2H)
 
-    judge = RetryingJudge(FailsOnceDummyJudge(expected))
-    assert judge.judge_batch([DUMMY_H2H]) == expected
+    judge = RetryingJudge(FailsOnceDummyJudge(["A"]))
+    assert judge.judge(DUMMY_H2H) == "A"
 
 
 def test__rate_limit() -> None:

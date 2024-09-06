@@ -1,6 +1,6 @@
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import DEFAULT_BATCH_SIZE, rate_limit, get_user_prompt
+from autoarena.judge.utils import rate_limit, get_user_prompt
 
 
 class TogetherJudge(AutomatedJudge):
@@ -20,12 +20,8 @@ class TogetherJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Together AI judge model '{self.name}'"
 
-    # TODO: actual limit is 10 queries per second for paid tier -- should that be reflected here?
-    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in batch]
-
-    def _judge_one(self, h2h: api.HeadToHead) -> str:
+    @rate_limit(n_calls=10, n_seconds=1, n_call_buffer=2)
+    def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat.completions.create(
             model=self.model_name,
             messages=[

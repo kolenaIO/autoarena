@@ -52,11 +52,11 @@ def get_user_prompt(h2h: api.HeadToHead) -> str:
 class ABShufflingJudge(WrappingJudge):
     """Randomly shuffles which is A and which is B before passing to another judge."""
 
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        shuffles = np.random.randint(2, size=len(batch)) < 1
-        shuffled_batch = [h2h if shuffle else self._shuffle_h2h(h2h) for h2h, shuffle in zip(batch, shuffles)]
-        winners = self.judge.judge_batch(shuffled_batch)
-        return [winner if shuffle else self._shuffle_winner(winner) for winner, shuffle in zip(winners, shuffles)]
+    def judge(self, h2h: api.HeadToHead) -> str:
+        shuffled = np.random.randint(2) == 0
+        shuffled_h2h = self._shuffle_h2h(h2h) if shuffled else h2h
+        winner = self.wrapped.judge(shuffled_h2h)
+        return self._shuffle_winner(winner) if shuffled else winner
 
     @staticmethod
     def _shuffle_h2h(h2h: api.HeadToHead) -> api.HeadToHead:
@@ -80,17 +80,15 @@ def clean_judgement(winner: str) -> str:
 class CleaningJudge(WrappingJudge):
     """Attempt to clean raw responses from other judges"""
 
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        cleaned = []
-        for winner_raw in self.judge.judge_batch(batch):
-            winner = clean_judgement(winner_raw)
-            if winner in ACCEPTABLE_RESPONSES:
-                cleaned.append(winner)
-            else:
-                message = f"[{self.__class__.__name__}] Saving bad response from '{self.name}' as tie: {winner_raw}"
-                logger.warning(message)
-                cleaned.append("-")
-        return cleaned
+    def judge(self, h2h: api.HeadToHead) -> str:
+        winner_raw = self.wrapped.judge(h2h)
+        winner = clean_judgement(winner_raw)
+        if winner in ACCEPTABLE_RESPONSES:
+            return winner
+        else:
+            message = f"[{self.__class__.__name__}] Saving bad response from '{self.name}' as tie: {winner_raw}"
+            logger.warning(message)
+            return "-"
 
 
 class FixingJudge(WrappingJudge):
@@ -109,28 +107,26 @@ class FixingJudge(WrappingJudge):
         super().__init__(judge)
         self.pipe = pipeline(model=self.CLASSIFIER_MODEL, device="cpu")
 
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        cleaned = []
-        for winner_raw in self.judge.judge_batch(batch):
-            winner = clean_judgement(winner_raw)
-            if winner not in ACCEPTABLE_RESPONSES:
-                classifications = self.pipe(winner_raw, candidate_labels=self.CLASSES)
-                winner = self.CLASS_TO_WINNER[classifications["labels"][0]]
-                logger.warning(f"Fixed bad response: '{winner_raw}' as '{winner}'")
-            cleaned.append(winner)
-        return cleaned
+    def judge(self, h2h: api.HeadToHead) -> str:
+        winner_raw = self.wrapped.judge(h2h)
+        winner = clean_judgement(winner_raw)
+        if winner not in ACCEPTABLE_RESPONSES:
+            classifications = self.pipe(winner_raw, candidate_labels=self.CLASSES)
+            winner = self.CLASS_TO_WINNER[classifications["labels"][0]]
+            logger.warning(f"Fixed bad response: '{winner_raw}' as '{winner}'")
+        return winner
 
 
 class RetryingJudge(WrappingJudge):
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
+    def judge(self, h2h: api.HeadToHead) -> str:
         @retry(wait=wait_random_exponential(min=2, max=10), stop=stop_after_attempt(3), after=self._log_retry)
-        def judge_batch_inner(b: list[api.HeadToHead]) -> list[str]:
-            return self.judge.judge_batch(b)
+        def judge_inner(h: api.HeadToHead) -> str:
+            return self.wrapped.judge(h)
 
-        return judge_batch_inner(batch)
+        return judge_inner(h2h)
 
     def _log_retry(self, retry_state: RetryCallState) -> None:
-        message = f"Retrying '{self.judge.name}' attempt {retry_state.attempt_number} (error: {retry_state.outcome})"
+        message = f"Retrying '{self.wrapped.name}' attempt {retry_state.attempt_number} (error: {retry_state.outcome})"
         logger.warning(message)
 
 

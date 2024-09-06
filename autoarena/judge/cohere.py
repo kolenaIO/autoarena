@@ -1,7 +1,7 @@
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit, DEFAULT_BATCH_SIZE
+from autoarena.judge.utils import get_user_prompt, rate_limit
 
 
 class CohereJudge(AutomatedJudge):
@@ -21,11 +21,8 @@ class CohereJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Cohere judge model '{self.name}'"
 
-    @rate_limit(n_calls=1_000 // DEFAULT_BATCH_SIZE, n_seconds=60, n_call_buffer=50 // DEFAULT_BATCH_SIZE)
-    def judge_batch(self, batch: list[api.HeadToHead]) -> list[str]:
-        return [self._judge_one(h2h) for h2h in batch]
-
-    def _judge_one(self, h2h: api.HeadToHead) -> str:
+    @rate_limit(n_calls=1_000, n_seconds=60)
+    def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat(
             model=self.model_name,
             preamble=self.system_prompt,

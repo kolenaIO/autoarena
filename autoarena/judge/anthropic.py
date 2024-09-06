@@ -1,3 +1,5 @@
+import anthropic
+
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
@@ -8,8 +10,6 @@ class AnthropicJudge(AutomatedJudge):
     API_KEY_NAME = "ANTHROPIC_API_KEY"
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
-        import anthropic
-
         super().__init__(model_name, system_prompt)
         self._client = anthropic.Client()
 
@@ -23,8 +23,6 @@ class AnthropicJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        import anthropic
-
         # this is a little dirty, but gets the job done as requests without valid auth are rejected eagerly
         try:
             anthropic.Client().get("/v1/dummy", cast_to=object)

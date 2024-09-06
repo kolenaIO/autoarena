@@ -1,3 +1,5 @@
+import cohere
+
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
@@ -9,8 +11,6 @@ class CohereJudge(AutomatedJudge):
     MAX_TOKENS = DEFAULT_MAX_TOKENS
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
-        import cohere
-
         super().__init__(model_name, system_prompt)
         self._client = cohere.Client()
 
@@ -24,8 +24,6 @@ class CohereJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        import cohere
-
         cohere.Client().models.list()
 
     @rate_limit(n_calls=1_000, n_seconds=60)

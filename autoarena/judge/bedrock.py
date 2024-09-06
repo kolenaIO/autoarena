@@ -1,3 +1,5 @@
+import boto3
+
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import rate_limit, get_user_prompt, DEFAULT_MAX_TOKENS
@@ -7,8 +9,6 @@ class BedrockJudge(AutomatedJudge):
     API_KEY_NAME = None
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
-        import boto3
-
         super().__init__(model_name, system_prompt)
         self._client = boto3.client(service_name="bedrock-runtime")
 
@@ -22,10 +22,7 @@ class BedrockJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        import boto3
-
-        client = boto3.client(service_name="sts")
-        client.get_caller_identity()
+        boto3.client(service_name="sts").get_caller_identity()
 
     @rate_limit(n_calls=200, n_seconds=1, n_call_buffer=25)
     def judge(self, h2h: api.HeadToHead) -> str:

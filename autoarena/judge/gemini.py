@@ -1,3 +1,5 @@
+import google.generativeai as genai
+
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
@@ -9,8 +11,6 @@ class GeminiJudge(AutomatedJudge):
     MAX_TOKENS = DEFAULT_MAX_TOKENS
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
-        import google.generativeai as genai
-
         super().__init__(model_name, system_prompt)
         self._model = genai.GenerativeModel(model_name)
 
@@ -24,14 +24,10 @@ class GeminiJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        import google.generativeai as genai
-
         genai.list_models(page_size=1)  # TODO: still haven't actually verified that this works
 
     @rate_limit(n_calls=1_000, n_seconds=60)
     def judge(self, h2h: api.HeadToHead) -> str:
-        import google.generativeai as genai
-
         prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=get_user_prompt(h2h))
         response = self._model.generate_content(
             prompt,

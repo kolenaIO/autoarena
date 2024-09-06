@@ -1,3 +1,6 @@
+import httpx
+import ollama
+
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
@@ -8,9 +11,6 @@ class OllamaJudge(AutomatedJudge):
     API_KEY_NAME = None  # does not require an API key
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
-        import httpx
-        import ollama
-
         super().__init__(model_name, system_prompt)
         self._client = ollama
         try:
@@ -30,9 +30,6 @@ class OllamaJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        import httpx
-        import ollama
-
         try:
             ollama.list()
         except httpx.ConnectError:

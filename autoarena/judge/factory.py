@@ -5,6 +5,7 @@ from autoarena.judge.anthropic import AnthropicJudge
 from autoarena.judge.base import Judge, WrappingJudge, AutomatedJudge
 from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
+from autoarena.judge.custom import create_custom_judge
 from autoarena.judge.gemini import GeminiJudge
 from autoarena.judge.human import HumanJudge
 from autoarena.judge.ollama import OllamaJudge
@@ -27,7 +28,7 @@ JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Optional[Type[Judge]]] = {
 def judge_factory(judge: api.Judge, wrappers: Optional[list[Type[WrappingJudge]]] = None) -> Judge:
     def judge_factory_inner(j: api.Judge):
         if j.judge_type is api.JudgeType.CUSTOM:
-            raise NotImplementedError(f"judge type '{j.judge_type}' not yet implemented")
+            return create_custom_judge(judge)
         judge_class = JUDGE_TYPE_TO_CLASS.get(j.judge_type, None)
         if judge_class is None:
             raise ValueError(f"unrecognized judge type: {j.judge_type}")

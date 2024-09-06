@@ -7,6 +7,7 @@ from loguru import logger
 
 from autoarena.api.router import router
 from autoarena.args import get_command_line_args
+from autoarena.judge.custom import register_custom_judge_class
 from autoarena.log import initialize_logger
 from autoarena.store.seed import setup_database, seed_initial_battles
 from autoarena.ui_router import ui_router
@@ -18,6 +19,8 @@ initialize_logger()
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     setup_database()
+    for custom_judge_import_path in args.extensions:
+        register_custom_judge_class(custom_judge_import_path)
     if args.battles_parquet is not None:
         seed_initial_battles(args.battles_parquet)
     logger.info("AutoArena ready")

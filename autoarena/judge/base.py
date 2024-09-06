@@ -34,7 +34,14 @@ class Judge(metaclass=ABCMeta):
 
     @abstractmethod
     def judge(self, h2h: api.HeadToHead) -> str:  # TODO: return more information than just winner?
-        ...
+        raise NotImplementedError
+
+    @staticmethod
+    def verify_environment() -> None:
+        """
+        Verify that the current environment contains any necessary configuration, such as API keys, necessary to
+        interact with this judge. Throw an exception if not.
+        """
 
 
 class WrappingJudge(Judge, metaclass=ABCMeta):

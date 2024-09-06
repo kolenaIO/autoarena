@@ -1,11 +1,12 @@
 import { ReactNode, useMemo, useState } from 'react';
-import { Code, Modal, Select, Stack, Text, TextInput } from '@mantine/core';
+import { Modal, Select, Stack, Text, TextInput } from '@mantine/core';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
-import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
+import { JudgeType, judgeTypeToHumanReadableName } from './types.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
+import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 
 type Props = {
   judgeType: JudgeType;
@@ -46,7 +47,6 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
   }
 
   const isEnabled = name !== '';
-  const apiKeyName = judgeTypeToApiKeyName(judgeType);
   return (
     <Modal
       opened={isOpen}
@@ -54,13 +54,8 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       centered
       title={<Text fw={500}>Create {judgeTypeToHumanReadableName(judgeType)} Judge</Text>}
     >
-      <Stack fz="sm" gap="xs">
+      <Stack fz="sm">
         <Text inherit>Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
-        {apiKeyName != null && (
-          <Text inherit>
-            Requires a valid <Code>{apiKeyName}</Code> in the environment running AutoArena.
-          </Text>
-        )}
         {extraCopy}
         {modelOptions != null ? (
           <Select
@@ -82,6 +77,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
           />
         )}
         <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
+        <CanAccessJudgeStatusIndicator judgeType={judgeType} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

@@ -1,5 +1,5 @@
 from io import BytesIO, StringIO
-from typing import Annotated
+from typing import Annotated, Optional
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
@@ -62,7 +62,7 @@ def router() -> APIRouter:
         return ModelService.get_results(model_id)
 
     @r.get("/model/{model_id}/elo-history")
-    def get_elo_history(model_id: int, judge_id: int | None = None) -> list[api.EloHistoryItem]:
+    def get_elo_history(model_id: int, judge_id: Optional[int] = None) -> list[api.EloHistoryItem]:
         return EloService.get_history(model_id, judge_id)
 
     @r.post("/model/{model_id}/judge")

@@ -1,3 +1,5 @@
+from typing import Optional
+
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import Judge
@@ -13,11 +15,11 @@ class HumanJudge(Judge):
         return "Human"
 
     @property
-    def model_name(self) -> str | None:
+    def model_name(self) -> Optional[str]:
         return None
 
     @property
-    def system_prompt(self) -> str | None:
+    def system_prompt(self) -> Optional[str]:
         return None
 
     @property

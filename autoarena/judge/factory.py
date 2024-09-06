@@ -1,4 +1,4 @@
-from typing import Type
+from typing import Type, Optional
 
 from autoarena.api import api
 from autoarena.judge.anthropic import AnthropicJudge
@@ -11,8 +11,7 @@ from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
 
-
-JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Type[Judge] | None] = {
+JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Optional[Type[Judge]]] = {
     api.JudgeType.HUMAN: HumanJudge,
     api.JudgeType.OLLAMA: OllamaJudge,
     api.JudgeType.OPENAI: OpenAIJudge,
@@ -25,7 +24,7 @@ JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Type[Judge] | None] = {
 }
 
 
-def judge_factory(judge: api.Judge, wrappers: list[Type[WrappingJudge]] | None = None) -> Judge:
+def judge_factory(judge: api.Judge, wrappers: Optional[list[Type[WrappingJudge]]] = None) -> Judge:
     def judge_factory_inner(j: api.Judge):
         if j.judge_type is api.JudgeType.CUSTOM:
             raise NotImplementedError(f"judge type '{j.judge_type}' not yet implemented")

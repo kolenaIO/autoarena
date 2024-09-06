@@ -12,18 +12,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python_version: ["3.10", "3.11", "3.12"]
+        python_version: ["3.9", "3.10", "3.11", "3.12"]
     steps:
       - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache  # some jobs were failing due to disk space
       - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python_version }}
       - name: Install poetry
         run: pip install poetry
       - name: Update dependencies
         run: poetry update
-      - uses: actions/setup-python@v5
-        with:
-          python-version: ${{ matrix.python_version }}
       - name: Install dependencies
         run: poetry install
       - name: Run pre-commit

@@ -1,9 +1,10 @@
 import { Card, Divider, Group, Image, Stack, Text, UnstyledButton } from '@mantine/core';
+import { ReactNode } from 'react';
 import { JudgeType, judgeTypeIconComponent, judgeTypeToCoverImageUrl, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {
   judgeType: JudgeType;
-  description: string;
+  description: ReactNode;
   onClick: () => void;
 };
 export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {

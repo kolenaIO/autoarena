@@ -21,7 +21,7 @@ JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[Judge]] = {
     api.JudgeType.GEMINI: GeminiJudge,
     api.JudgeType.TOGETHER: TogetherJudge,
     api.JudgeType.BEDROCK: BedrockJudge,
-    api.JudgeType.CUSTOM: CustomJudge,  # type: ignore
+    api.JudgeType.CUSTOM: CustomJudge,  # type: ignore[type-abstract]  # TODO
 }
 
 

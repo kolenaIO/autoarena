@@ -3,6 +3,7 @@ import {
   IconBrandCoinbase,
   IconBrandGoogle,
   IconBrandOpenai,
+  IconBrandPython,
   IconDevices2,
   IconLetterA,
   IconLetterT,
@@ -16,6 +17,7 @@ import anthropicUrl from '../../../assets/anthropic.jpg';
 import cohereUrl from '../../../assets/cohere.jpg';
 import togetherUrl from '../../../assets/together.jpg';
 import bedrockUrl from '../../../assets/bedrock.jpg';
+import pythonUrl from '../../../assets/python.jpg';
 import customUrl from '../../../assets/custom.jpg';
 
 export type JudgeType =
@@ -27,6 +29,7 @@ export type JudgeType =
   | 'cohere'
   | 'together'
   | 'bedrock'
+  | 'python'
   | 'custom';
 
 export function judgeTypeIconComponent(judgeType: JudgeType) {
@@ -48,6 +51,8 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
       return IconLetterT;
     case 'bedrock':
       return IconBrandAws;
+    case 'python':
+      return IconBrandPython;
     case 'custom':
     default:
       return IconRobot;
@@ -70,6 +75,8 @@ export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
       return togetherUrl;
     case 'bedrock':
       return bedrockUrl;
+    case 'python':
+      return pythonUrl;
     case 'custom':
       return customUrl;
     case 'human':
@@ -96,6 +103,8 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
       return 'Together AI';
     case 'bedrock':
       return 'AWS Bedrock';
+    case 'python':
+      return 'Python Extension';
     case 'custom':
       return 'Custom';
     default:

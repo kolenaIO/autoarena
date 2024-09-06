@@ -1,5 +1,5 @@
 import importlib
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from typing import Type, Optional
 
 from loguru import logger
@@ -9,7 +9,7 @@ from autoarena.api.api import JudgeType
 from autoarena.judge.base import Judge
 
 
-class CustomJudge(Judge):
+class CustomJudge(Judge, metaclass=ABCMeta):
     @property
     def judge_type(self) -> JudgeType:
         return JudgeType.CUSTOM

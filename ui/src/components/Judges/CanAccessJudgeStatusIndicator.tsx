@@ -11,7 +11,7 @@ type Props = {
 export function CanAccessJudgeStatusIndicator({ judgeType: propJudgeType, judge }: Props) {
   const { data: canAccess, isLoading } = useCanAccessJudge({ judgeType: propJudgeType, judge });
 
-  const judgeType: JudgeType = propJudgeType ?? judge?.judge_type;
+  const judgeType: JudgeType | undefined = propJudgeType ?? judge?.judge_type;
   if (judgeType == null) {
     return <></>;
   }

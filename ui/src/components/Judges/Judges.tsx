@@ -7,6 +7,7 @@ import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
 import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
 import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
+import { CreatePythonExtensionJudgeModal } from './CreatePythonExtensionJudgeModal.tsx';
 
 export function Judges() {
   const { projectId } = useUrlState();
@@ -20,6 +21,7 @@ export function Judges() {
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
   const [isTogetherOpen, { toggle: toggleTogether, close: closeTogether }] = useDisclosure(false);
   const [isBedrockOpen, { toggle: toggleBedrock, close: closeBedrock }] = useDisclosure(false);
+  const [isPythonOpen, { toggle: togglePython, close: closePython }] = useDisclosure(false);
 
   return (
     <Center p="lg">
@@ -74,6 +76,15 @@ export function Judges() {
             judgeType="bedrock"
             description="Configure a model running on AWS Bedrock as a judge"
             onClick={toggleBedrock}
+          />
+          <ConfigureJudgeCard
+            judgeType="python"
+            description={
+              <>
+                Configure a judge model with custom Python code by extending the <Code>CustomJudge</Code> class
+              </>
+            }
+            onClick={togglePython}
           />
         </SimpleGrid>
 
@@ -171,6 +182,7 @@ export function Judges() {
           }
         />
       </Stack>
+      <CreatePythonExtensionJudgeModal isOpen={isPythonOpen} onClose={closePython} />
     </Center>
   );
 }

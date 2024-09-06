@@ -6,9 +6,9 @@ import { Judge } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
-import { useCanAccessJudgeType } from '../../hooks/useCanAccessJudgeType.ts';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
+import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 
 type Props = {
   judge: Judge;
@@ -19,7 +19,6 @@ export function JudgeAccordionItem({ judge }: Props) {
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectId });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
-  const { data: canAccess } = useCanAccessJudgeType(judge.judge_type);
 
   function handleToggleEnabled() {
     updateJudge({ project_id: projectId, judge_id: id, enabled: !enabled });
@@ -55,7 +54,7 @@ export function JudgeAccordionItem({ judge }: Props) {
       </Accordion.Control>
       <Accordion.Panel>
         <Stack pl="xl" gap="xs">
-          {canAccess ? 'can' : 'cannot'}
+          <CanAccessJudgeStatusIndicator judgeType={judge_type} />
           {judge_type !== 'human' ? (
             <Group justify="space-between">
               <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />

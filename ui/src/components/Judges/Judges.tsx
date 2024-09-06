@@ -167,7 +167,6 @@ export function Judges() {
                 </Text>{' '}
                 configuration in the environment running AutoArena.
               </Text>
-              {/* TODO: include information about requiring a valid AWS setup in your environment */}
             </>
           }
         />

@@ -1,7 +1,7 @@
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit, verify_api_key_exists
+from autoarena.judge.utils import get_user_prompt, rate_limit
 
 
 class AnthropicJudge(AutomatedJudge):
@@ -23,7 +23,13 @@ class AnthropicJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        verify_api_key_exists(AnthropicJudge)
+        import anthropic
+
+        # this is a little dirty, but gets the job done as requests without valid auth are rejected eagerly
+        try:
+            anthropic.Client().get("/v1/dummy", cast_to=object)
+        except anthropic.NotFoundError:
+            pass
 
     # anthropic has different tiers with 1000/2000/4000, opting to be conservative by default
     @rate_limit(n_calls=1_000, n_seconds=60)

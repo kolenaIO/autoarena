@@ -139,8 +139,6 @@ def router() -> APIRouter:
     def update_judge(request: api.UpdateJudgeRequest) -> api.Judge:
         return JudgeService.update(request)
 
-    # TODO: is adding this at the type level sufficient? For some models like Ollama it would be nice to verify that
-    #  the user has pulled the relevant model in addition to verifying that the service is running.
     @r.get("/judge/{judge_type}/can-access")
     def check_can_access(judge_type: api.JudgeType) -> bool:
         return JudgeService.check_can_access(judge_type)

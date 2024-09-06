@@ -71,7 +71,10 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
     const statsSorted = sortBy<H2hStatsRecord>(prop(sortProp))(statsHydrated);
     return sortStatus.direction === 'desc' ? reverse(statsSorted) : statsSorted;
   }, [headToHeadStats, sortStatus, judgeId]);
-  const { pageNumber, setPageNumber, pageSize, pageRecords } = usePagination(statsRecords);
+  const { pageNumber, setPageNumber, pageSize, pageRecords } = usePagination({
+    records: statsRecords,
+    withHotkeys: true,
+  });
 
   useEffect(() => {
     setPageNumber(1);

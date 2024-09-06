@@ -157,7 +157,15 @@ export function Judges() {
                 API.
               </Text>
               <Text inherit>
-                Using Bedrock models requires a valid AWS authorization setup in the environment running AutoArena.
+                Using Bedrock models requires a valid AWS{' '}
+                <Text span inherit fw="bold">
+                  authorization
+                </Text>{' '}
+                and{' '}
+                <Text span inherit fw="bold">
+                  region
+                </Text>{' '}
+                configuration in the environment running AutoArena.
               </Text>
               {/* TODO: include information about requiring a valid AWS setup in your environment */}
             </>

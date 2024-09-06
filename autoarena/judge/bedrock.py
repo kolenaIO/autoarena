@@ -10,8 +10,7 @@ class BedrockJudge(AutomatedJudge):
         import boto3
 
         super().__init__(model_name, system_prompt)
-        region_name = "us-east-1"  # TODO: how to configure this?
-        self._client = boto3.client(service_name="bedrock-runtime", region_name=region_name)
+        self._client = boto3.client(service_name="bedrock-runtime")
 
     @property
     def judge_type(self) -> api.JudgeType:

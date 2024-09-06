@@ -1,4 +1,4 @@
-import { Accordion, Center, Divider, SimpleGrid, Stack, Title } from '@mantine/core';
+import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
@@ -18,6 +18,8 @@ export function Judges() {
   const [isAnthropicOpen, { toggle: toggleAnthropic, close: closeAnthropic }] = useDisclosure(false);
   const [isGeminiOpen, { toggle: toggleGemini, close: closeGemini }] = useDisclosure(false);
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
+  const [isTogetherOpen, { toggle: toggleTogether, close: closeTogether }] = useDisclosure(false);
+  const [isBedrockOpen, { toggle: toggleBedrock, close: closeBedrock }] = useDisclosure(false);
 
   return (
     <Center p="lg">
@@ -63,6 +65,16 @@ export function Judges() {
             description="Configure a Google Gemini model as a judge"
             onClick={toggleGemini}
           />
+          <ConfigureJudgeCard
+            judgeType="together"
+            description="Configure a model running on Together AI as a judge"
+            onClick={toggleTogether}
+          />
+          <ConfigureJudgeCard
+            judgeType="bedrock"
+            description="Configure a model running on AWS Bedrock as a judge"
+            onClick={toggleBedrock}
+          />
         </SimpleGrid>
 
         <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
@@ -95,6 +107,68 @@ export function Judges() {
           onClose={closeGemini}
           judgeType="gemini"
           modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
+        />
+        <CreateProprietaryJudgeModal
+          isOpen={isTogetherOpen}
+          onClose={closeTogether}
+          judgeType="together"
+          extraCopy={
+            <Text inherit>
+              Choose any inference model listed in the{' '}
+              <Anchor inherit href="https://docs.together.ai/docs/chat-models">
+                Together AI documentation
+              </Anchor>
+              .
+            </Text>
+          }
+        />
+        <CreateProprietaryJudgeModal
+          isOpen={isBedrockOpen}
+          onClose={closeBedrock}
+          judgeType="bedrock"
+          modelOptions={[
+            'anthropic.claude-3-5-sonnet-20240620-v1:0',
+            'anthropic.claude-3-opus-20240229-v1:0',
+            'anthropic.claude-3-sonnet-20240229-v1:0',
+            'anthropic.claude-3-haiku-20240307-v1:0',
+            'cohere.command-r-v1:0',
+            'cohere.command-r-plus-v1:0',
+            'meta.llama3-8b-instruct-v1:0',
+            'meta.llama3-70b-instruct-v1:0',
+            'meta.llama3-1-8b-instruct-v1:0',
+            'meta.llama3-1-70b-instruct-v1:0',
+            'meta.llama3-1-405b-instruct-v1:0',
+            'mistral.mistral-large-2402-v1:0',
+            'mistral.mistral-large-2407-v1:0',
+            'mistral.mistral-small-2402-v1:0',
+          ]}
+          extraCopy={
+            <>
+              <Text inherit>
+                Models are called using the{' '}
+                <Code>
+                  <Anchor
+                    inherit
+                    href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html"
+                  >
+                    Converse
+                  </Anchor>
+                </Code>{' '}
+                API.
+              </Text>
+              <Text inherit>
+                Using Bedrock models requires a valid AWS{' '}
+                <Text span inherit fw="bold">
+                  authorization
+                </Text>{' '}
+                and{' '}
+                <Text span inherit fw="bold">
+                  region
+                </Text>{' '}
+                configuration in the environment running AutoArena.
+              </Text>
+            </>
+          }
         />
       </Stack>
     </Center>

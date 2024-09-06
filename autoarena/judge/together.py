@@ -1,28 +1,27 @@
 from autoarena.api import api
-from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import rate_limit, get_user_prompt, DEFAULT_MAX_TOKENS
 
 
-class OpenAIJudge(AutomatedJudge):
-    API_KEY_NAME = "OPENAI_API_KEY"
+class TogetherJudge(AutomatedJudge):
+    API_KEY_NAME = "TOGETHER_API_KEY"
+    MAX_TOKENS = DEFAULT_MAX_TOKENS
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
-        from openai import OpenAI
+        import together
 
         super().__init__(model_name, system_prompt)
-        self._client = OpenAI()
+        self._client = together.Client()
 
     @property
-    def judge_type(self) -> JudgeType:
-        return JudgeType.OPENAI
+    def judge_type(self) -> api.JudgeType:
+        return api.JudgeType.COHERE
 
     @property
     def description(self) -> str:
-        return f"OpenAI judge model '{self.name}'"
+        return f"Together AI judge model '{self.name}'"
 
-    # OpenAI has different tiers and different rate limits for different models, choose a safeish value
-    @rate_limit(n_calls=1_000, n_seconds=60)
+    @rate_limit(n_calls=10, n_seconds=1, n_call_buffer=2)
     def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat.completions.create(
             model=self.model_name,
@@ -30,5 +29,6 @@ class OpenAIJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
+            max_tokens=self.MAX_TOKENS,
         )
         return response.choices[0].message.content

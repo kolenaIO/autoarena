@@ -1,9 +1,8 @@
 import { Card, Divider, Group, Image, Stack, Text, UnstyledButton } from '@mantine/core';
-import { Judge } from '../../hooks/useJudges.ts';
-import { judgeTypeIconComponent, judgeTypeToCoverImageUrl, judgeTypeToHumanReadableName } from './types.ts';
+import { JudgeType, judgeTypeIconComponent, judgeTypeToCoverImageUrl, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {
-  judgeType: Judge['judge_type'];
+  judgeType: JudgeType;
   description: string;
   onClick: () => void;
 };

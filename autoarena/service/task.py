@@ -115,14 +115,14 @@ class TaskService:
             n_h2h = len(head_to_heads)
             n_total = n_h2h * len(judges)
             t_start_judging = time.time()
-            for judge, batch, judged_batch in executor.execute(judges, head_to_heads):
-                this_responses = [(r.result_a_id, r.result_b_id, winner) for r, winner in zip(batch, judged_batch)]
-                responses[judge.name].extend(this_responses)
+            for judge, h2h, winner in executor.execute(judges, head_to_heads):
+                responses[judge.name].append((h2h.result_a_id, h2h.result_b_id, winner))
                 n_this_judge = len(responses[judge.name])
-                status = f"Judged {n_this_judge} of {n_h2h} with '{judge.name}'"
                 n_responses = sum(len(r) for r in responses.values())
                 progress = 0.95 * (n_responses / n_total)
-                TaskService.update(task_id, status, progress=progress)
+                if n_this_judge % 10 == 0:
+                    status = f"Judged {n_this_judge} of {n_h2h} with '{judge.name}'"
+                    TaskService.update(task_id, status, progress=progress)
                 if n_this_judge == len(head_to_heads):
                     message = (
                         f"Judge '{judge.name}' finished judging {n_h2h} head-to-heads in "

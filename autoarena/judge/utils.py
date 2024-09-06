@@ -39,9 +39,6 @@ JOINED_PROMPT_TEMPLATE = """\
 
 ACCEPTABLE_RESPONSES = {"A", "B", "-"}
 
-# this is more or less a constant as it is baked into the @rate_limit decorators applied to proprietary judges
-DEFAULT_BATCH_SIZE = 8
-
 DEFAULT_MAX_TOKENS = 12
 
 

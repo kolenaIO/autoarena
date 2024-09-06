@@ -1,10 +1,11 @@
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import rate_limit, get_user_prompt
+from autoarena.judge.utils import rate_limit, get_user_prompt, DEFAULT_MAX_TOKENS
 
 
 class TogetherJudge(AutomatedJudge):
     API_KEY_NAME = "TOGETHER_API_KEY"
+    MAX_TOKENS = DEFAULT_MAX_TOKENS
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import together
@@ -28,6 +29,6 @@ class TogetherJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
-            max_tokens=12,
+            max_tokens=self.MAX_TOKENS,
         )
         return response.choices[0].message.content

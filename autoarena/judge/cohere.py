@@ -1,11 +1,12 @@
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, DEFAULT_MAX_TOKENS
 
 
 class CohereJudge(AutomatedJudge):
     API_KEY_NAME = "COHERE_API_KEY"  # TODO: also support "CO_API_KEY"?
+    MAX_TOKENS = DEFAULT_MAX_TOKENS
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
         import cohere
@@ -27,6 +28,6 @@ class CohereJudge(AutomatedJudge):
             model=self.model_name,
             preamble=self.system_prompt,
             message=get_user_prompt(h2h),
-            max_tokens=12,
+            max_tokens=self.MAX_TOKENS,
         )
         return response.text

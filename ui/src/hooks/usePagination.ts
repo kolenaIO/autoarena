@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useHotkeys } from '@mantine/hooks';
+import { HotkeyItem, useHotkeys } from '@mantine/hooks';
 
 type Params<T> = {
   records: T[];
@@ -16,7 +16,7 @@ export function usePagination<T>({ records, withHotkeys = false }: Params<T>) {
   }
 
   const nPages = Math.ceil(records.length / pageSize);
-  const hotkeyItems = [
+  const hotkeyItems: HotkeyItem[] = [
     ['ArrowLeft', () => setPageNumber(prev => Math.max(prev - 1, 1))],
     ['ArrowRight', () => setPageNumber(prev => Math.min(prev + 1, nPages))],
   ];

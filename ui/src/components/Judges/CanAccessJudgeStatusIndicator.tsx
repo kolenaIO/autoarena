@@ -4,10 +4,16 @@ import { useCanAccessJudgeType } from '../../hooks/useCanAccessJudgeType.ts';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {
-  judgeType: JudgeType;
+  judgeType?: JudgeType;
 };
+
 export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
   const { data: canAccess, isLoading } = useCanAccessJudgeType(judgeType);
+
+  if (judgeType == null) {
+    return <></>;
+  }
+
   const judgeTypeName = judgeTypeToHumanReadableName(judgeType);
   const apiKeyName = judgeTypeToApiKeyName(judgeType);
   const iconProps = { size: 20, style: { flexShrink: 0 } };

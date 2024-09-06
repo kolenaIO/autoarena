@@ -15,6 +15,7 @@ type Props = {
   onClose: () => void;
   extraCopy?: ReactNode;
 };
+
 export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
   const { projectId = -1 } = useUrlState();
   const { data: judges } = useJudges(projectId);
@@ -77,7 +78,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
           />
         )}
         <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
-        <CanAccessJudgeStatusIndicator judgeType={judgeType} />
+        <CanAccessJudgeStatusIndicator judgeType={isOpen ? judgeType : undefined} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

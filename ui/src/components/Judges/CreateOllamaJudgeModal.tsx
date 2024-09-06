@@ -12,6 +12,7 @@ type Props = {
   isOpen: boolean;
   onClose: () => void;
 };
+
 export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
   const { projectId = -1 } = useUrlState();
   const { data: judges } = useJudges(projectId);
@@ -74,7 +75,7 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
           flex={1}
         />
         <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
-        <CanAccessJudgeStatusIndicator judgeType={'ollama'} />
+        <CanAccessJudgeStatusIndicator judgeType={isOpen ? 'ollama' : undefined} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

@@ -140,8 +140,12 @@ def router() -> APIRouter:
         return JudgeService.update(request)
 
     @r.get("/judge/{judge_type}/can-access")
-    def check_can_access(judge_type: api.JudgeType) -> bool:
-        return JudgeService.check_can_access(judge_type)
+    def check_can_access_type(judge_type: api.JudgeType) -> bool:
+        return JudgeService.check_can_access_type(judge_type)
+
+    @r.put("/judge/{judge_type}/can-access")
+    def check_can_access(judge_type: api.JudgeType, request: api.Judge) -> bool:
+        return JudgeService.check_can_access(request)
 
     @r.delete("/judge/{judge_id}")
     def delete_judge(judge_id: int, background_tasks: BackgroundTasks) -> None:

@@ -82,8 +82,6 @@ def test__judge_factory(
 )
 def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None:
     judge_class = JUDGE_TYPE_TO_CLASS[judge_type]
-    if judge_class is None:
-        raise RuntimeError("implementation error")
     api_key_name = judge_class.API_KEY_NAME if issubclass(judge_class, AutomatedJudge) else None
     if api_key_name is not None:
         with unset_environment_variable(api_key_name):

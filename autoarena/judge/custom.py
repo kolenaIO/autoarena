@@ -1,10 +1,38 @@
 import importlib
-from typing import Type
+from abc import abstractmethod
+from typing import Type, Optional
 
 from loguru import logger
 
 from autoarena.api import api
+from autoarena.api.api import JudgeType
 from autoarena.judge.base import Judge
+
+
+class CustomJudge(Judge):
+    @property
+    def judge_type(self) -> JudgeType:
+        return JudgeType.CUSTOM
+
+    @property
+    def name(self) -> str:
+        return f"{type(self).__module__}.{type(self).__qualname__}"
+
+    @property
+    def model_name(self) -> Optional[str]:
+        return None
+
+    @property
+    def system_prompt(self) -> Optional[str]:
+        return None
+
+    @property
+    def description(self) -> str:
+        return f"Custom judge implemented in '{self.name}'"
+
+    @abstractmethod
+    def judge(self, h2h: api.HeadToHead) -> str:
+        raise NotImplementedError
 
 
 def register_custom_judge_class(judge_class_import_path: str) -> None:
@@ -14,16 +42,16 @@ def register_custom_judge_class(judge_class_import_path: str) -> None:
     import_path = ".".join(path_parts)
     imported_module = importlib.import_module(import_path)
     judge_class = getattr(imported_module, judge_class_name)
-    if not issubclass(judge_class, Judge):
-        raise TypeError(f"Custom judge class '{judge_class}' is not a subclass of type '{Judge.__name__}'")
+    if not issubclass(judge_class, CustomJudge):
+        raise TypeError(f"Custom judge class '{judge_class}' is not a subclass of type '{CustomJudge.__name__}'")
     CUSTOM_JUDGE_CLASSES[judge_class_import_path] = judge_class
     logger.success(f"Registered custom judge '{judge_class.__name__}' from '{import_path}'")
 
 
-CUSTOM_JUDGE_CLASSES: dict[str, Type[Judge]] = {}
+CUSTOM_JUDGE_CLASSES: dict[str, Type[CustomJudge]] = {}
 
 
-def create_custom_judge(judge: api.Judge) -> Judge:
+def create_custom_judge(judge: api.Judge) -> CustomJudge:
     global CUSTOM_JUDGE_CLASSES
     judge_class = CUSTOM_JUDGE_CLASSES.get(judge.name, None)
     if judge_class is None:

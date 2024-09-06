@@ -97,7 +97,7 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
     case 'bedrock':
       return 'AWS Bedrock';
     case 'custom':
-      return 'Custom Fine-Tune';
+      return 'Custom';
     default:
       return judgeType;
   }

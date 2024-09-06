@@ -2,7 +2,7 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.judge.base import Judge
-from autoarena.judge.factory import verify_judge_type_environment
+from autoarena.judge.factory import verify_judge_type_environment, verify_judge_environment
 from autoarena.judge.utils import BASIC_SYSTEM_PROMPT
 from autoarena.store.database import get_database_connection
 
@@ -120,10 +120,19 @@ class JudgeService:
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
 
     @staticmethod
-    def check_can_access(judge_type: api.JudgeType) -> bool:
+    def check_can_access_type(judge_type: api.JudgeType) -> bool:
         try:
             verify_judge_type_environment(judge_type)
             return True
         except Exception as e:
             logger.warning(f"Missing environment configuration necessary to run '{judge_type}' judge: {e}")
+            return False
+
+    @staticmethod
+    def check_can_access(judge: api.Judge) -> bool:
+        try:
+            verify_judge_environment(judge)
+            return True
+        except Exception as e:
+            logger.warning(f"Missing environment configuration necessary to run judge '{judge.name}': {e}")
             return False

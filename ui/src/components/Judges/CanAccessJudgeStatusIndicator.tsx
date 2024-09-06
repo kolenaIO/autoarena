@@ -1,15 +1,17 @@
 import { Code, Group, Loader, Text } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { useCanAccessJudgeType } from '../../hooks/useCanAccessJudgeType.ts';
+import { useCanAccessJudge } from '../../hooks/useCanAccessJudge.ts';
+import { Judge } from '../../hooks/useJudges.ts';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {
   judgeType?: JudgeType;
+  judge?: Judge;
 };
+export function CanAccessJudgeStatusIndicator({ judgeType: propJudgeType, judge }: Props) {
+  const { data: canAccess, isLoading } = useCanAccessJudge({ judgeType: propJudgeType, judge });
 
-export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
-  const { data: canAccess, isLoading } = useCanAccessJudgeType(judgeType);
-
+  const judgeType: JudgeType = propJudgeType ?? judge?.judge_type;
   if (judgeType == null) {
     return <></>;
   }

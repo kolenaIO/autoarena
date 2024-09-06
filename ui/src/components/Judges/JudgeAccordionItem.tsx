@@ -54,7 +54,7 @@ export function JudgeAccordionItem({ judge }: Props) {
       </Accordion.Control>
       <Accordion.Panel>
         <Stack pl="xl" gap="xs">
-          <CanAccessJudgeStatusIndicator judgeType={judge_type} />
+          <CanAccessJudgeStatusIndicator judge={judge} />
           {judge_type !== 'human' ? (
             <Group justify="space-between">
               <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
@@ -62,9 +62,11 @@ export function JudgeAccordionItem({ judge }: Props) {
                 <Text c="dimmed" size="xs" fs="italic">
                   {judge.votes.toLocaleString()} votes submitted
                 </Text>
-                <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
-                  {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
-                </Button>
+                {judge.system_prompt != null && (
+                  <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
+                    {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
+                  </Button>
+                )}
                 <DeleteJudgeButton judge={judge} />
               </Group>
             </Group>

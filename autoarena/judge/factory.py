@@ -11,7 +11,7 @@ from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
 
-JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Type[Judge] | None] = {
+JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Optional[Type[Judge]]] = {
     api.JudgeType.HUMAN: HumanJudge,
     api.JudgeType.OLLAMA: OllamaJudge,
     api.JudgeType.OPENAI: OpenAIJudge,

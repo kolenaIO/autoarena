@@ -22,6 +22,12 @@ class GeminiJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Google Gemini judge model '{self.name}'"
 
+    @staticmethod
+    def verify_environment() -> None:
+        import google.generativeai as genai
+
+        genai.list_models(page_size=1)  # TODO: still haven't actually verified that this works
+
     @rate_limit(n_calls=1_000, n_seconds=60)
     def judge(self, h2h: api.HeadToHead) -> str:
         import google.generativeai as genai

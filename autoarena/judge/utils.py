@@ -1,7 +1,8 @@
 import functools
 import math
+import os
 import time
-from typing import Callable
+from typing import Callable, Type
 
 import numpy as np
 from loguru import logger
@@ -10,7 +11,7 @@ from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
 
 from autoarena.api import api
-from autoarena.judge.base import Judge, WrappingJudge
+from autoarena.judge.base import Judge, WrappingJudge, AutomatedJudge
 
 BASIC_SYSTEM_PROMPT = """\
 You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
@@ -172,3 +173,15 @@ def rate_limit(
         return wrapper
 
     return decorator
+
+
+# this is a weaker validation than actually asserting that the API key works, but it's better than nothing
+def verify_api_key_exists(automated_judge_type: Type[AutomatedJudge]) -> None:
+    api_key_name = automated_judge_type.API_KEY_NAME
+    if api_key_name is None:
+        return
+    try:
+        os.environ[api_key_name]
+    except KeyError:
+        name = automated_judge_type.__name__
+        raise RuntimeError(f"{name} requires '{api_key_name}' in the environment running AutoArena")

@@ -21,6 +21,12 @@ class OpenAIJudge(AutomatedJudge):
     def description(self) -> str:
         return f"OpenAI judge model '{self.name}'"
 
+    @staticmethod
+    def verify_environment() -> None:
+        from openai import OpenAI
+
+        OpenAI().models.list()
+
     # OpenAI has different tiers and different rate limits for different models, choose a safeish value
     @rate_limit(n_calls=1_000, n_seconds=60)
     def judge(self, h2h: api.HeadToHead) -> str:

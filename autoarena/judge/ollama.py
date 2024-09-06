@@ -28,6 +28,16 @@ class OllamaJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Ollama model '{self.name}'"
 
+    @staticmethod
+    def verify_environment() -> None:
+        import httpx
+        import ollama
+
+        try:
+            ollama.list()
+        except httpx.ConnectError:
+            raise RuntimeError("Unable to connect to Ollama, ensure it is running on the same host running AutoArena")
+
     def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat(
             model=self.model_name,

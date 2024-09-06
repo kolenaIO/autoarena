@@ -21,6 +21,12 @@ class TogetherJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Together AI judge model '{self.name}'"
 
+    @staticmethod
+    def verify_environment() -> None:
+        import together
+
+        together.Client().models.list()
+
     @rate_limit(n_calls=10, n_seconds=1, n_call_buffer=2)
     def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat.completions.create(

@@ -20,6 +20,13 @@ class BedrockJudge(AutomatedJudge):
     def description(self) -> str:
         return f"AWS Bedrock judge model '{self.name}'"
 
+    @staticmethod
+    def verify_environment() -> None:
+        import boto3
+
+        client = boto3.client(service_name="sts")
+        client.get_caller_identity()
+
     @rate_limit(n_calls=200, n_seconds=1, n_call_buffer=25)
     def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.converse(

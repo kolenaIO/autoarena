@@ -41,3 +41,18 @@ def judge_factory(judge: api.Judge, wrappers: list[Type[WrappingJudge]] | None =
         for wrapper in wrappers:
             constructed_judge = wrapper(constructed_judge)
     return constructed_judge
+
+
+def verify_judge_type_environment(judge_type: api.JudgeType) -> None:
+    judge_classes_to_verify = {
+        api.JudgeType.OLLAMA: OllamaJudge,
+        api.JudgeType.OPENAI: OpenAIJudge,
+        api.JudgeType.ANTHROPIC: AnthropicJudge,
+        api.JudgeType.COHERE: CohereJudge,
+        api.JudgeType.GEMINI: GeminiJudge,
+        api.JudgeType.TOGETHER: TogetherJudge,
+        api.JudgeType.BEDROCK: BedrockJudge,
+    }
+    judge_class = judge_classes_to_verify.get(judge_type, None)
+    if judge_class is not None:
+        judge_class.verify_environment()

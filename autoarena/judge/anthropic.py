@@ -1,7 +1,7 @@
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, verify_api_key_exists
 
 
 class AnthropicJudge(AutomatedJudge):
@@ -20,6 +20,10 @@ class AnthropicJudge(AutomatedJudge):
     @property
     def description(self) -> str:
         return f"Anthropic judge model '{self.name}'"
+
+    @staticmethod
+    def verify_environment() -> None:
+        verify_api_key_exists(AnthropicJudge)
 
     # anthropic has different tiers with 1000/2000/4000, opting to be conservative by default
     @rate_limit(n_calls=1_000, n_seconds=60)

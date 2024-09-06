@@ -22,6 +22,12 @@ class CohereJudge(AutomatedJudge):
     def description(self) -> str:
         return f"Cohere judge model '{self.name}'"
 
+    @staticmethod
+    def verify_environment() -> None:
+        import cohere
+
+        cohere.Client().models.list()
+
     @rate_limit(n_calls=1_000, n_seconds=60)
     def judge(self, h2h: api.HeadToHead) -> str:
         response = self._client.chat(

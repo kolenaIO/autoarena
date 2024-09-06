@@ -8,8 +8,8 @@ license = "Apache-2.0"
 include = ["ui/dist/*", "ui/dist/assets/*"]
 
 [tool.poetry.dependencies]
-python = ">=3.10,<3.13"
-fastapi = "^0.112"
+python = ">=3.9"
+fastapi = "^0"
 pandas = "^2"
 uvicorn = "^0.30"
 duckdb = "^1"

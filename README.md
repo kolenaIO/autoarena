@@ -14,7 +14,7 @@ To set up this repository for development, run:
 
 ```shell
 poetry update && poetry install
-poerty run pre-commit install
+poetry run pre-commit install
 poetry run python3 -m autoarena --dev
 ```
 

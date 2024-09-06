@@ -24,7 +24,8 @@ class GeminiJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
-        genai.list_models(page_size=1)  # TODO: still haven't actually verified that this works
+        # TODO: this takes a while, likely due to retries -- haven't figured out how to disable
+        list(genai.list_models(page_size=1))
 
     @rate_limit(n_calls=1_000, n_seconds=60)
     def judge(self, h2h: api.HeadToHead) -> str:

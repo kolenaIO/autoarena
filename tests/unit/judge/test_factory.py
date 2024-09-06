@@ -11,7 +11,7 @@ from autoarena.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
 
 
 @pytest.mark.parametrize("wrappers", [([]), ([ABShufflingJudge]), (ABShufflingJudge, CleaningJudge, RetryingJudge)])
-def test__factory_wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
+def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
     request = api.Judge(
         id=-1,
         judge_type=api.JudgeType.HUMAN,

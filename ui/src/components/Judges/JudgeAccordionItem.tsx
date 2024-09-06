@@ -8,6 +8,7 @@ import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
+import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 
 type Props = {
   judge: Judge;
@@ -53,6 +54,7 @@ export function JudgeAccordionItem({ judge }: Props) {
       </Accordion.Control>
       <Accordion.Panel>
         <Stack pl="xl" gap="xs">
+          <CanAccessJudgeStatusIndicator judgeType={judge_type} />
           {judge_type !== 'human' ? (
             <Group justify="space-between">
               <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />

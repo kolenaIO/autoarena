@@ -139,6 +139,10 @@ def router() -> APIRouter:
     def update_judge(request: api.UpdateJudgeRequest) -> api.Judge:
         return JudgeService.update(request)
 
+    @r.get("/judge/{judge_type}/can-access")
+    def check_can_access(judge_type: api.JudgeType) -> bool:
+        return JudgeService.check_can_access(judge_type)
+
     @r.delete("/judge/{judge_id}")
     def delete_judge(judge_id: int, background_tasks: BackgroundTasks) -> None:
         # TODO: this should technically be idempotent, but will currently fail if the judge does not exist

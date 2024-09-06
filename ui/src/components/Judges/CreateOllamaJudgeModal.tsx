@@ -6,6 +6,7 @@ import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { JudgeType } from './types.ts';
 import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
+import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 
 type Props = {
   isOpen: boolean;
@@ -73,6 +74,7 @@ export function CreateOllamaJudgeModal({ isOpen, onClose }: Props) {
           flex={1}
         />
         <ConfigureSystemPromptCollapse value={systemPrompt} setValue={setSystemPrompt} />
+        <CanAccessJudgeStatusIndicator judgeType={'ollama'} />
         <ConfirmOrCancelBar onCancel={handleClose} onConfirm={isEnabled ? handleSubmit : undefined} action="Create" />
       </Stack>
     </Modal>

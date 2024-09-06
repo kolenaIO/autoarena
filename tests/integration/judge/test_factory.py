@@ -1,4 +1,3 @@
-import os
 from datetime import datetime
 from typing import Type
 
@@ -6,13 +5,14 @@ import pytest
 
 from autoarena.api import api
 from autoarena.judge.anthropic import AnthropicJudge
-from autoarena.judge.base import Judge
+from autoarena.judge.base import Judge, AutomatedJudge
 from autoarena.judge.cohere import CohereJudge
-from autoarena.judge.factory import judge_factory
+from autoarena.judge.factory import judge_factory, verify_judge_type_environment, JUDGE_TYPE_TO_CLASS
 from autoarena.judge.gemini import GeminiJudge
 from autoarena.judge.human import HumanJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
+from tests.integration.judge.conftest import unset_environment_variable, temporary_environment_variable
 
 
 @pytest.mark.parametrize(
@@ -29,7 +29,9 @@ from autoarena.judge.together import TogetherJudge
         (api.JudgeType.CUSTOM, None, None),
     ],
 )
-def test__factory(judge_type: api.JudgeType, expected_type: Type[Judge] | None, required_api_key: str | None) -> None:
+def test__judge_factory(
+    judge_type: api.JudgeType, expected_type: Type[Judge] | None, required_api_key: str | None
+) -> None:
     name = f"{expected_type.__name__}" if expected_type is not None else "missing type"
     request = api.Judge(
         id=-1,
@@ -45,15 +47,52 @@ def test__factory(judge_type: api.JudgeType, expected_type: Type[Judge] | None, 
 
     # verify that instantiation fails without API key when one is necessary
     if required_api_key is not None:
-        if os.environ.get(required_api_key, None) is not None:
-            del os.environ[required_api_key]
-        with pytest.raises(Exception):
-            judge_factory(request)
-        os.environ[required_api_key] = "dummy-api-key"
+        with unset_environment_variable(required_api_key):
+            with pytest.raises(Exception):
+                judge_factory(request)
 
-    # verify that instantiation succeeds with API key
+    # not implemented
     if expected_type is None:
         with pytest.raises(Exception):
             judge_factory(request)
+
+    # verify correct type is instantiated
     else:
-        assert type(judge_factory(request)) is expected_type
+        if required_api_key is not None:
+            with temporary_environment_variable(required_api_key, "dummy-api-key"):
+                judge = judge_factory(request)
+        else:
+            judge = judge_factory(request)
+        assert type(judge) is expected_type
+
+
+@pytest.mark.parametrize(
+    "judge_type",
+    [
+        api.JudgeType.OLLAMA,
+        api.JudgeType.OPENAI,
+        api.JudgeType.ANTHROPIC,
+        api.JudgeType.COHERE,
+        api.JudgeType.GEMINI,
+        api.JudgeType.TOGETHER,
+        api.JudgeType.BEDROCK,
+    ],
+)
+def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None:
+    judge_class = JUDGE_TYPE_TO_CLASS[judge_type]
+    if judge_class is None:
+        raise RuntimeError("implementation error")
+    api_key_name = judge_class.API_KEY_NAME if issubclass(judge_class, AutomatedJudge) else None
+    if api_key_name is not None:
+        with unset_environment_variable(api_key_name):
+            with pytest.raises(Exception):
+                verify_judge_type_environment(judge_type)
+    else:
+        with pytest.raises(Exception):
+            verify_judge_type_environment(judge_type)
+
+
+@pytest.mark.skip(reason="Not implemented in CI yet")  # TODO
+@pytest.mark.parametrize("judge_type", JUDGE_TYPE_TO_CLASS.keys())
+def test__verify_judge_type_environment(judge_type: api.JudgeType) -> None:
+    verify_judge_type_environment(judge_type)

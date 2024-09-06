@@ -52,9 +52,9 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
       opened={isOpen}
       onClose={handleClose}
       centered
-      title={`Create ${judgeTypeToHumanReadableName(judgeType)} Judge`}
+      title={<Text fw={500}>Create {judgeTypeToHumanReadableName(judgeType)} Judge</Text>}
     >
-      <Stack fz="sm">
+      <Stack fz="sm" gap="xs">
         <Text inherit>Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
         {apiKeyName != null && (
           <Text inherit>

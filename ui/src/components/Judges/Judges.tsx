@@ -1,4 +1,4 @@
-import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text } from '@mantine/core';
+import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
@@ -120,6 +120,47 @@ export function Judges() {
               </Anchor>
               .
             </Text>
+          }
+        />
+        <CreateProprietaryJudgeModal
+          isOpen={isBedrockOpen}
+          onClose={closeBedrock}
+          judgeType="bedrock"
+          modelOptions={[
+            'anthropic.claude-3-5-sonnet-20240620-v1:0',
+            'anthropic.claude-3-opus-20240229-v1:0',
+            'anthropic.claude-3-sonnet-20240229-v1:0',
+            'anthropic.claude-3-haiku-20240307-v1:0',
+            'cohere.command-r-v1:0',
+            'cohere.command-r-plus-v1:0',
+            'meta.llama3-8b-instruct-v1:0',
+            'meta.llama3-70b-instruct-v1:0',
+            'meta.llama3-1-8b-instruct-v1:0',
+            'meta.llama3-1-70b-instruct-v1:0',
+            'meta.llama3-1-405b-instruct-v1:0',
+            'mistral.mistral-large-2402-v1:0',
+            'mistral.mistral-large-2407-v1:0',
+            'mistral.mistral-small-2402-v1:0',
+          ]}
+          extraCopy={
+            <>
+              <Text inherit>
+                Models are called using the{' '}
+                <Code>
+                  <Anchor
+                    inherit
+                    href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html"
+                  >
+                    Converse
+                  </Anchor>
+                </Code>{' '}
+                API.
+              </Text>
+              <Text inherit>
+                Using Bedrock models requires a valid AWS authorization setup in the environment running AutoArena.
+              </Text>
+              {/* TODO: include information about requiring a valid AWS setup in your environment */}
+            </>
           }
         />
       </Stack>

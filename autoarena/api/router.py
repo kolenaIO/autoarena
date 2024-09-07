@@ -6,6 +6,7 @@ from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
+from autoarena.error import NotFoundError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
 from autoarena.service.head_to_head import HeadToHeadService
@@ -145,10 +146,12 @@ def router() -> APIRouter:
 
     @r.delete("/judge/{judge_id}")
     def delete_judge(judge_id: int, background_tasks: BackgroundTasks) -> None:
-        # TODO: this should technically be idempotent, but will currently fail if the judge does not exist
-        project_id = JudgeService.get_project_id(judge_id)
-        JudgeService.delete(judge_id)
-        background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+        try:
+            project_id = JudgeService.get_project_id(judge_id)
+            JudgeService.delete(judge_id)
+            background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+        except NotFoundError:
+            pass
 
     @r.put("/elo/reseed-scores/{project_id}")
     def reseed_scores(project_id: int) -> None:

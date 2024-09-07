@@ -16,6 +16,16 @@ export type Model = {
   q975?: number;
   datapoints: number;
   votes: number;
+  extra_stats: {
+    [name: string]: {
+      max: number;
+      min: number;
+      mean: number;
+      median: number;
+      stdev: number;
+      sum: number;
+    };
+  };
 };
 
 export function useModels(projectId: number | undefined) {

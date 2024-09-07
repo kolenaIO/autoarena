@@ -10,7 +10,7 @@ import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
 import { useOnboardingGuideDismissed } from '../../hooks/useOnboardingGuideDismissed.ts';
 import { useModelsRankedByJudge } from '../../hooks/useModelsRankedByJudge.ts';
 import { RankedModel } from './types.ts';
-import { LEADERBOARD_COLUMNS, LOADING_MODELS } from './columns.tsx';
+import { getExtraStatColumnKey, useLeaderboardColumns, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 import { LeaderboardSettings } from './LeaderboardSettings.tsx';
@@ -23,6 +23,7 @@ export function Leaderboard() {
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading: isLoadingModels } = useModels(projectId);
   const [onboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
+  const columns = useLeaderboardColumns(models);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<RankedModel>>({
     columnAccessor: 'rank',
     direction: 'asc',
@@ -39,7 +40,14 @@ export function Leaderboard() {
   const globalHi = Math.max(...allModels.map(({ elo, q975 }) => Math.max(elo, q975 ?? 0)));
   // TODO: should assign the same rank to models with equal scores
   const modelsRanked = useMemo(
-    () => rankBy('elo', allModels, 'desc').map<RankedModel>(model => ({ ...model, globalLo, globalHi })),
+    () =>
+      rankBy('elo', allModels, 'desc').map<RankedModel>(({ extra_stats, ...model }) => ({
+        ...model,
+        extra_stats,
+        globalLo,
+        globalHi,
+        ...Object.fromEntries(Object.entries(extra_stats).map(([key, values]) => [getExtraStatColumnKey(key), values])),
+      })),
     [allModels, globalLo, globalHi]
   );
   const modelsSorted = useMemo(() => {
@@ -78,7 +86,7 @@ export function Leaderboard() {
           borderRadius="md"
           horizontalSpacing="xs"
           minHeight={modelRecords.length === 0 ? 180 : undefined}
-          columns={LEADERBOARD_COLUMNS}
+          columns={columns}
           highlightOnHover
           records={modelRecords}
           idAccessor="id"

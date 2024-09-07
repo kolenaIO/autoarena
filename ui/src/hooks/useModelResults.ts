@@ -9,9 +9,11 @@ export function getModelResultsQueryKey(modelId: number) {
   return [`${BASE_API_URL}/model`, modelId, '/results'];
 }
 
-export type ModelResult = {
+export type Result = {
+  id: number;
   prompt: string;
   response: string;
+  extra: { [key: string]: string | number | boolean | null | undefined };
 };
 
 export function useModelResults(modelId: number | undefined) {
@@ -23,7 +25,7 @@ export function useModelResults(modelId: number | undefined) {
       if (!response.ok) {
         return;
       }
-      const result: ModelResult[] = await response.json();
+      const result: Result[] = await response.json();
       return result;
     },
     enabled: modelId != null,

@@ -16,7 +16,9 @@ def get_database_connection(transaction: bool = False) -> duckdb.DuckDBPyConnect
         yield conn
         if transaction:
             conn.commit()
-    finally:
+    except Exception as e:
         if transaction:
             conn.rollback()
+        raise e
+    finally:
         conn.close()

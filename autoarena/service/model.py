@@ -97,7 +97,7 @@ class ModelService:
         df_votes["votes"] = df_votes["count_x"] + df_votes["count_y"]
         df_out = df_out.merge(df_votes, left_on="id", right_index=True, how="left")
         df_out["votes"] = df_out["votes_y"].replace({np.nan: 0})
-        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "datapoints", "votes"]]
+        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "datapoints", "votes", "extra_stats"]]
         return [api.Model(**r) for _, r in df_out.iterrows()]
 
     @staticmethod
@@ -145,9 +145,12 @@ class ModelService:
             conn.execute("DELETE FROM model WHERE id = $model_id", params)
 
     @staticmethod
-    def get_results(model_id: int) -> list[api.ModelResult]:
+    def get_results(model_id: int) -> list[api.Result]:
         df_result = ModelService.get_df_result(model_id)
-        return [api.ModelResult(prompt=r.prompt, response=r.response) for r in df_result.itertuples()]
+        return [
+            api.Result(id=r.result_id, prompt=r.prompt, response=r.response, extra=r.extra)
+            for r in df_result.itertuples()
+        ]
 
     @staticmethod
     def get_df_result(model_id: int) -> pd.DataFrame:
@@ -155,19 +158,23 @@ class ModelService:
             df_result = conn.execute(
                 """
                 SELECT
+                    r.id AS result_id,
                     m.name AS model,
                     r.prompt AS prompt,
-                    r.response AS response
+                    r.response AS response,
+                    r.extra AS extra
                 FROM model m
                 JOIN result r ON r.model_id = m.id
                 WHERE m.id = $model_id
             """,
                 dict(model_id=model_id),
             ).df()
+        df_result["extra"] = df_result["extra"].apply(json.loads)
         return df_result
 
     @staticmethod
     def get_df_head_to_head(model_id: int) -> pd.DataFrame:
+        # TODO: update this to include extra...?
         with get_database_connection() as conn:
             df_h2h = conn.execute(
                 """

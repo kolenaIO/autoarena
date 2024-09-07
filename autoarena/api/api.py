@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from pydantic.dataclasses import dataclass
 
@@ -32,9 +32,11 @@ class Model:
 
 
 @dataclass(frozen=True)
-class ModelResult:
+class Result:
+    id: int
     prompt: str
     response: str
+    extra: dict[str, Union[float, int, bool, str, None]]
 
 
 @dataclass(frozen=True)
@@ -66,11 +68,8 @@ class HeadToHeadHistoryItem:
 
 @dataclass(frozen=True)
 class HeadToHead:
-    prompt: str
-    result_a_id: int
-    response_a: str
-    result_b_id: int
-    response_b: str
+    result_a: Result
+    result_b: Result
     history: list[HeadToHeadHistoryItem] = dataclasses.field(default_factory=list)
 
 

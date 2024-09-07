@@ -23,7 +23,7 @@ export function useSubmitHeadToHeadJudgement({ projectId, options }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: getSubmitHeadToHeadJudgementQueryKey(projectId),
-    mutationFn: async request => {
+    mutationFn: async (request: HeadToHeadJudgementRequest) => {
       const response = await fetch(SUBMIT_HEAD_TO_HEAD_JUDGEMENT_ENDPOINT, {
         method: 'POST',
         body: JSON.stringify(request),

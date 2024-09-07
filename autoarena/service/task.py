@@ -116,7 +116,7 @@ class TaskService:
             n_total = n_h2h * len(judges)
             t_start_judging = time.time()
             for judge, h2h, winner in executor.execute(judges, head_to_heads):
-                responses[judge.name].append((h2h.result_a_id, h2h.result_b_id, winner))
+                responses[judge.name].append((h2h.result_a.id, h2h.result_b.id, winner))
                 n_this_judge = len(responses[judge.name])
                 n_responses = sum(len(r) for r in responses.values())
                 progress = 0.95 * (n_responses / n_total)

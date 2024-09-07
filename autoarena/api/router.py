@@ -58,7 +58,7 @@ def router() -> APIRouter:
         return new_model
 
     @r.get("/model/{model_id}/results")
-    def get_model_results(model_id: int) -> list[api.ModelResult]:
+    def get_model_results(model_id: int) -> list[api.Result]:
         return ModelService.get_results(model_id)
 
     @r.get("/model/{model_id}/elo-history")
@@ -82,6 +82,7 @@ def router() -> APIRouter:
     @r.get("/model/{model_id}/download/results")
     async def download_model_results_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_result(model_id)
+        # TODO: prepare for download by flattening extra dict and removing result ID column
         model_name = df_result.iloc[0].model
         stream = StringIO()
         df_result.to_csv(stream, index=False)

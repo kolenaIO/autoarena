@@ -1,7 +1,7 @@
 import { DataTableColumn } from 'mantine-datatable';
-import { Button, ButtonGroup, Code } from '@mantine/core';
+import { Box, Button, ButtonGroup, Code } from '@mantine/core';
 import { v4 as uuidv4 } from 'uuid';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Model } from '../../hooks/useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
 import { RankedModel } from './types.ts';
@@ -43,9 +43,11 @@ export const LEADERBOARD_COLUMNS: DataTableColumn<RankedModel>[] = [
     render: ({ elo, q025, q975 }) =>
       q025 != null &&
       q975 != null && (
-        <Code>
-          +{(q975 - elo).toFixed(0)} / -{(elo - q025).toFixed(0)}
-        </Code>
+        <Box miw={75}>
+          <Code>
+            +{(q975 - elo).toFixed(0)} / -{(elo - q025).toFixed(0)}
+          </Code>
+        </Box>
       ),
   },
   {
@@ -77,7 +79,6 @@ export function useLeaderboardColumns(models: Model[] | undefined) {
     ...extraColumns.map(name => {
       const selectedStat = selectedStats[name] ?? 'mean';
       const columnKey = getExtraStatColumnKey(name);
-      console.log(selectedStats, name, selectedStat);
       return {
         accessor: `${columnKey}.${selectedStat}`,
         title: name,
@@ -100,6 +101,7 @@ export function useLeaderboardColumns(models: Model[] | undefined) {
                   key={stat}
                   color={selectedStat === stat ? 'kolena' : 'gray'}
                   variant={selectedStat === stat ? 'light' : 'subtle'}
+                  justify="flex-start"
                   onClick={() => {
                     setSelectedStat(name, stat);
                     close();

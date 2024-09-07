@@ -10,43 +10,43 @@ import { pluralize } from '../../lib/string.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { ControlBar } from './ControlBar.tsx';
+import { ExtraResultData } from './ExtraResultData.tsx';
 
 type Props = {
   modelAId: number;
   modelBId: number;
 };
-export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
+export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const { projectId = -1 } = useUrlState();
   const navigate = useNavigate();
   const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
-  // TODO: loading state?
-  const { data: battles, isLoading } = useHeadToHeads({ modelAId, modelBId });
+  const { data: headToHeads, isLoading } = useHeadToHeads({ modelAId, modelBId });
   const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
-  const [battleIndex, setBattleIndex] = useState(0);
-  const battle = useMemo(() => battles?.[battleIndex], [battles, battleIndex]);
-  const nBattles: number = battles?.length ?? 0;
+  const [h2hIndex, setH2hIndex] = useState(0);
+  const h2h = useMemo(() => headToHeads?.[h2hIndex], [headToHeads, h2hIndex]);
+  const nHeadToHeads: number = headToHeads?.length ?? 0;
 
   useEffect(() => {
-    setBattleIndex(0);
+    setH2hIndex(0);
   }, [modelAId, modelBId]);
 
   function navigatePrevious() {
-    setBattleIndex(prev => Math.max(0, prev - 1));
+    setH2hIndex(prev => Math.max(0, prev - 1));
   }
   function navigateNext() {
-    setBattleIndex(prev => Math.min(prev + 1, nBattles - 1));
+    setH2hIndex(prev => Math.min(prev + 1, nHeadToHeads - 1));
   }
 
   function submitVote(vote: 'A' | 'B' | '-') {
     return () => {
-      if (battle != null) {
+      if (h2h != null) {
         submitJudgement({
           project_id: projectId,
-          result_a_id: battle.result_a_id,
-          result_b_id: battle.result_b_id,
+          result_a_id: h2h.result_a.id,
+          result_b_id: h2h.result_b.id,
           winner: vote,
         });
-        setBattleIndex(prev => prev + 1);
+        setH2hIndex(prev => prev + 1);
       }
     };
   }
@@ -60,9 +60,9 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     ['j', toggleShowJudgingHistory],
   ]);
 
-  const hasJudgingHistory = (battle?.history?.length ?? 0) > 0;
+  const hasJudgingHistory = (h2h?.history?.length ?? 0) > 0;
   const { votesA, votesTie, votesB } = useMemo(() => {
-    return (battle?.history ?? []).reduce<{ votesA: string[]; votesTie: string[]; votesB: string[] }>(
+    return (h2h?.history ?? []).reduce<{ votesA: string[]; votesTie: string[]; votesB: string[] }>(
       ({ votesA, votesTie, votesB }, { winner, judge_name }) => ({
         votesA: [...votesA, ...(winner === 'A' ? [judge_name] : [])],
         votesTie: [...votesTie, ...(winner === '-' ? [judge_name] : [])],
@@ -70,17 +70,17 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
       }),
       { votesA: [], votesTie: [], votesB: [] }
     );
-  }, [showJudgingHistory, battle]);
+  }, [showJudgingHistory, h2h]);
 
   const iconProps = { size: 18 };
-  return !isLoading && nBattles === 0 ? (
+  return !isLoading && nHeadToHeads === 0 ? (
     <NonIdealState IconComponent={IconCactus} description="No head-to-head matchups between selected models" />
-  ) : !isLoading && battleIndex > nBattles - 1 ? (
+  ) : !isLoading && h2hIndex > nHeadToHeads - 1 ? (
     <NonIdealState
       IconComponent={IconBalloon}
       description={
         <Stack>
-          <Text>Judged all {nBattles.toLocaleString()} head-to-head matchups between selected models</Text>
+          <Text>Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between selected models</Text>
           <Button onClick={() => navigate(`/project/${projectId}`)}>View Leaderboard</Button>
         </Stack>
       }
@@ -90,19 +90,21 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
       <Stack pb={100} /* TODO: need more padding when there are more judge responses shown */>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
-            {pluralize(nBattles, 'head-to-head battle')} between selected models
+            {pluralize(nHeadToHeads, 'head-to-head')} between selected models
           </Text>
         </Group>
         <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>
-          <MarkdownContent>{`**Prompt:** ${battle?.prompt}`}</MarkdownContent>
+          <MarkdownContent>{`**Prompt:** ${h2h?.prompt}`}</MarkdownContent>
         </Paper>
         <SimpleGrid cols={2}>
           <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
-            <MarkdownContent>{`**Response A:**\n\n${battle?.response_a}`}</MarkdownContent>
+            <MarkdownContent>{`**Response A:**\n\n${h2h?.response_a}`}</MarkdownContent>
           </Paper>
           <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
-            <MarkdownContent>{`**Response B:**\n\n${battle?.response_b}`}</MarkdownContent>
+            <MarkdownContent>{`**Response B:**\n\n${h2h?.response_b}`}</MarkdownContent>
           </Paper>
+          <ExtraResultData extra={h2h?.result_a?.extra} />
+          <ExtraResultData extra={h2h?.result_b?.extra} />
         </SimpleGrid>
       </Stack>
 
@@ -115,7 +117,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
               variant="subtle"
               color="gray"
               onClick={navigatePrevious}
-              disabled={battleIndex < 1}
+              disabled={h2hIndex < 1}
             >
               Previous
             </Button>
@@ -133,7 +135,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
               variant="subtle"
               color="gray"
               onClick={navigateNext}
-              disabled={battleIndex >= nBattles - 1}
+              disabled={h2hIndex >= nHeadToHeads - 1}
             >
               Next
             </Button>

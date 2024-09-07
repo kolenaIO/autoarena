@@ -22,6 +22,8 @@ class HeadToHeadService:
                     ra.prompt AS prompt,
                     ra.response AS response_a,
                     rb.response AS response_b,
+                    ra.extra AS extra_a,
+                    rb.extra AS extra_b,
                     IFNULL(ARRAY_CONCAT(
                         ARRAY_AGG({
                             'judge_id': j1.id,
@@ -59,11 +61,8 @@ class HeadToHeadService:
         df_h2h = HeadToHeadService.get_df(request)
         return [
             api.HeadToHead(
-                prompt=r.prompt,
-                result_a_id=r.result_a_id,
-                response_a=r.response_a,
-                result_b_id=r.result_b_id,
-                response_b=r.response_b,
+                result_a=api.Result(id=r.result_a_id, prompt=r.prompt, response=r.response_a, extra=r.extra_a),
+                result_b=api.Result(id=r.result_b_id, prompt=r.prompt, response=r.response_b, extra=r.extra_b),
                 history=[api.HeadToHeadHistoryItem(**h) for h in r.history],
             )
             for r in df_h2h.itertuples()

@@ -4,7 +4,7 @@ import { RankedModel } from '../types.ts';
 
 export function ModelNameRenderer({ name, votes, rank }: RankedModel) {
   return (
-    <Group align="center">
+    <Group align="center" miw={250}>
       {votes > 0 ? (
         <Text size="md">{name}</Text>
       ) : (

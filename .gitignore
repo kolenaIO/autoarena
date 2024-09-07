@@ -7,7 +7,7 @@ dist/
 .DS_Store
 .vite/
 
-poetry.lock
+uv.lock
 
 *.duckdb
 *.duckdb.wal

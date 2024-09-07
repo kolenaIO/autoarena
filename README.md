@@ -13,14 +13,15 @@ Data is stored in an `autoarena.duckdb` file on your local machine.
 To set up this repository for development, run:
 
 ```shell
-poetry update && poetry install
-poerty run pre-commit install
-poetry run python3 -m autoarena --dev
+uv venv
+uv pip install -r pyproject.toml
+uv run pre-commit install
+uv run python3 -m autoarena --dev
 ```
 
 To run AutoArena for development, you will need to run both the backend and frontend service:
 
-- Backend: `poetry run python3 -m autoarena --dev` (the `--dev`/`-d` flag enables automatic service reloading when
+- Backend: `uv run python3 -m autoarena --dev` (the `--dev`/`-d` flag enables automatic service reloading when
     source files change)
 - Frontend: see [`ui/README.md`](./ui/README.md)
 

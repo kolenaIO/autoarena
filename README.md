@@ -13,9 +13,9 @@ Data is stored in an `autoarena.duckdb` file on your local machine.
 To set up this repository for development, run:
 
 ```shell
-uv venv
-uv pip install -r pyproject.toml
-uv run pre-commit install
+uv venv && source .venv/bin/activate
+uv pip install --all-extras -r pyproject.toml
+uv tool run pre-commit install
 uv run python3 -m autoarena --dev
 ```
 

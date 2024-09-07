@@ -6,10 +6,12 @@ __pycache__/
 dist/
 .DS_Store
 .vite/
-.coverage
-coverage.xml
 
 uv.lock
+
+.coverage
+coverage.unit.xml
+coverage.integration.xml
 
 *.duckdb
 *.duckdb.wal

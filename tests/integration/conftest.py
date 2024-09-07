@@ -21,4 +21,4 @@ def with_empty_database() -> Iterator[None]:
 
 @pytest.fixture(scope="function")
 def api_v1_client(with_empty_database: None) -> Iterator[TestClient]:
-    yield TestClient(app, base_url=f"http://testserver{API_V1_STR}")
+    yield TestClient(app(), base_url=f"http://testserver{API_V1_STR}")

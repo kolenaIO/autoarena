@@ -29,7 +29,7 @@ export function ExpandedModelDetails({ model }: Props) {
   );
 
   return (
-    <Stack bg="gray.1" gap="xs" pt="xs" p="xl">
+    <Stack bg="gray.1" gap="xs" pt="xs" p="xl" maw={1080}>
       <Group justify="space-between">
         <Stack gap={2} fz="xs">
           <Group gap="xs">

@@ -82,10 +82,13 @@ def router() -> APIRouter:
     @r.get("/model/{model_id}/download/results")
     async def download_model_results_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_result(model_id)
-        # TODO: prepare for download by flattening extra dict and removing result ID column
+        extra_keys = set([k for r in df_result.itertuples() for k in r.extra.keys()])
+        for key in extra_keys:
+            df_result[key] = df_result.extra.apply(lambda ex: ex.get(key, None))
+        df_out = df_result[["prompt", "response", *extra_keys]]
         model_name = df_result.iloc[0].model
         stream = StringIO()
-        df_result.to_csv(stream, index=False)
+        df_out.to_csv(stream, index=False)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
         return response

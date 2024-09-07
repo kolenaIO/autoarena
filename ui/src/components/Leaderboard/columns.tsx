@@ -43,7 +43,7 @@ export const LEADERBOARD_COLUMNS: DataTableColumn<RankedModel>[] = [
     render: ({ elo, q025, q975 }) =>
       q025 != null &&
       q975 != null && (
-        <Box miw={75}>
+        <Box miw={80}>
           <Code>
             +{(q975 - elo).toFixed(0)} / -{(elo - q025).toFixed(0)}
           </Code>

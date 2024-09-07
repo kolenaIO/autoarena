@@ -107,8 +107,11 @@ class TaskService:
 
             # 4. stream judgement requests
             head_to_heads = [
-                api.HeadToHead(**r)
-                for _, r in df_h2h[["prompt", "result_a_id", "response_a", "result_b_id", "response_b"]].iterrows()
+                api.HeadToHead(
+                    result_a=api.Result(id=r.result_a_id, prompt=r.prompt, response=r.response_a, extra=r.extra_a),
+                    result_b=api.Result(id=r.result_b_id, prompt=r.prompt, response=r.response_b, extra=r.extra_b),
+                )
+                for r in df_h2h.itertuples()
             ]
             executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])

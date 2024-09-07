@@ -1,4 +1,5 @@
 import dataclasses
+import json
 
 import pandas as pd
 
@@ -12,7 +13,7 @@ class HeadToHeadService:
     @staticmethod
     def get_df(request: api.HeadToHeadsRequest) -> pd.DataFrame:
         with get_database_connection() as conn:
-            return conn.execute(
+            df_h2h = conn.execute(
                 """
                 SELECT
                     ra.model_id AS model_a_id,
@@ -50,11 +51,14 @@ class HeadToHeadService:
                 AND ($model_b_id IS NULL OR rb.model_id = $model_b_id)
                 AND ra.model_id != rb.model_id
                 AND ma.project_id = mb.project_id
-                GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response
+                GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response, ra.extra, rb.extra
                 ORDER BY ra.id, rb.id
                 """,
                 dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             ).df()
+        df_h2h["extra_a"] = df_h2h["extra_a"].apply(json.loads)
+        df_h2h["extra_b"] = df_h2h["extra_b"].apply(json.loads)
+        return df_h2h
 
     @staticmethod
     def get(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:

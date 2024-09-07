@@ -4,6 +4,4 @@ export type RankedModel = Model & {
   rank: number;
   globalLo: number;
   globalHi: number;
-} & {
-  [name: `extra.${string}`]: number;
 };

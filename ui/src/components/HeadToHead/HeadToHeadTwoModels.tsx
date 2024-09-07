@@ -94,14 +94,14 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
           </Text>
         </Group>
         <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>
-          <MarkdownContent>{`**Prompt:** ${h2h?.prompt}`}</MarkdownContent>
+          <MarkdownContent>{`**Prompt:** ${h2h?.result_a?.prompt}`}</MarkdownContent>
         </Paper>
         <SimpleGrid cols={2}>
           <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
-            <MarkdownContent>{`**Response A:**\n\n${h2h?.response_a}`}</MarkdownContent>
+            <MarkdownContent>{`**Response A:**\n\n${h2h?.result_a.response}`}</MarkdownContent>
           </Paper>
           <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
-            <MarkdownContent>{`**Response B:**\n\n${h2h?.response_b}`}</MarkdownContent>
+            <MarkdownContent>{`**Response B:**\n\n${h2h?.result_b.response}`}</MarkdownContent>
           </Paper>
           <ExtraResultData extra={h2h?.result_a?.extra} />
           <ExtraResultData extra={h2h?.result_b?.extra} />

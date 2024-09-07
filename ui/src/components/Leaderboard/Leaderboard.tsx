@@ -10,7 +10,7 @@ import { OnboardingTimeline } from '../OnboardingTimeline.tsx';
 import { useOnboardingGuideDismissed } from '../../hooks/useOnboardingGuideDismissed.ts';
 import { useModelsRankedByJudge } from '../../hooks/useModelsRankedByJudge.ts';
 import { RankedModel } from './types.ts';
-import { getExtraStatColumnKey, useLeaderboardColumns, LOADING_MODELS } from './columns.tsx';
+import { useLeaderboardColumns, LOADING_MODELS } from './columns.tsx';
 import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 import { LeaderboardSettings } from './LeaderboardSettings.tsx';
@@ -46,7 +46,7 @@ export function Leaderboard() {
         extra_stats,
         globalLo,
         globalHi,
-        ...Object.fromEntries(Object.entries(extra_stats).map(([key, values]) => [getExtraStatColumnKey(key), values])),
+        // ...Object.fromEntries(Object.entries(extra_stats).map(([key, values]) => [getExtraStatColumnKey(key), values])),
       })),
     [allModels, globalLo, globalHi]
   );

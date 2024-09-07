@@ -1,3 +1,5 @@
+import json
+
 import numpy as np
 import pandas as pd
 
@@ -34,7 +36,8 @@ class ModelService:
             q025,
             q975,
             IFNULL(dc.datapoint_count, 0) AS datapoints,
-            IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
+            IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes,
+            extra_stats
         FROM model m
         LEFT JOIN datapoint_count dc ON m.id = dc.model_id
         LEFT JOIN vote_count_a vca ON m.id = vca.model_id
@@ -46,6 +49,7 @@ class ModelService:
         with get_database_connection() as conn:
             df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
         try:
+            df_model["extra_stats"] = df_model["extra_stats"].apply(json.loads)
             return [api.Model(**r) for _, r in df_model.iterrows()][0]
         except IndexError:
             raise NotFoundError(f"Model with ID '{model_id}' not found")
@@ -68,6 +72,7 @@ class ModelService:
                 dict(project_id=project_id),
             ).df()
         df_model = df_model.replace({np.nan: None})
+        df_model["extra_stats"] = df_model["extra_stats"].apply(json.loads)
         return df_model
 
     @staticmethod
@@ -97,20 +102,23 @@ class ModelService:
 
     @staticmethod
     def upload_results(project_id: int, model_name: str, df_result: pd.DataFrame) -> api.Model:
-        with get_database_connection() as conn:
-            params = dict(project_id=project_id, model_name=model_name)
+        with get_database_connection(transaction=True) as conn:
+            extra_stats = ModelService.compute_numeric_stats(df_result)
+            print(extra_stats)
             ((new_model_id,),) = conn.execute(
                 """
-                INSERT INTO model (project_id, name)
-                VALUES ($project_id, $model_name)
+                INSERT INTO model (project_id, name, extra_stats)
+                VALUES ($project_id, $model_name, $extra_stats)
                 RETURNING id
                 """,
-                params,
+                dict(project_id=project_id, model_name=model_name, extra_stats=extra_stats),
             ).fetchall()
+            extra_columns = list(set(df_result.columns) - {"prompt", "response"})
+            df_result["extra"] = df_result[extra_columns].apply(lambda r: r.to_dict(), axis=1)
             df_result["model_id"] = new_model_id
             conn.execute("""
-                INSERT INTO result (model_id, prompt, response)
-                SELECT model_id, prompt, response
+                INSERT INTO result (model_id, prompt, response, extra)
+                SELECT model_id, prompt, response, extra
                 FROM df_result
             """)
         models = ModelService.get_all(project_id)
@@ -227,3 +235,18 @@ class ModelService:
                 dict(model_id=model_id),
             ).df()
         return [api.ModelHeadToHeadStats(**r) for _, r in df_h2h_stats.iterrows()]
+
+    @staticmethod
+    def compute_numeric_stats(df: pd.DataFrame) -> dict[str, dict[str, float]]:
+        df_numeric = df.select_dtypes(include=[np.number])
+        stats: dict[str, dict[str, float]] = {}
+        for col in df_numeric.columns:
+            stats[col] = dict(
+                max=float(df_numeric[col].max()),
+                min=float(df_numeric[col].min()),
+                mean=float(df_numeric[col].mean()),
+                median=float(df_numeric[col].median()),
+                stdev=float(df_numeric[col].std()),
+                sum=float(df_numeric[col].sum()),
+            )
+        return stats

@@ -28,6 +28,7 @@ class Model:
     q975: Optional[float]
     datapoints: int
     votes: int
+    extra_stats: dict[str, dict[str, float]]
 
 
 @dataclass(frozen=True)

@@ -11,7 +11,7 @@ include = ["ui/dist/*", "ui/dist/assets/*"]
 requires-python = ">=3.9,<4"
 dependencies = [
     "fastapi<1",
-    "pandas>=1,<2",
+    "pandas>=2,<3",
     "uvicorn<1",
     "duckdb<1",
     "pyarrow>=17,<18",

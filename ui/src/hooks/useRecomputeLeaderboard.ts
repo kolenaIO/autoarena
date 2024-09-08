@@ -23,7 +23,7 @@ export function useRecomputeLeaderboard({ projectId, options = {} }: Params) {
     },
     onSuccess: () => {
       notifications.show({
-        title: 'Recomputed leaderboard',
+        title: 'Recomputed leaderboard Rankings',
         message: 'Recalculated Elo scores and confidence intervals',
         color: 'green',
       });

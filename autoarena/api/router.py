@@ -72,7 +72,7 @@ def router() -> APIRouter:
         try:
             project_id = ModelService.get_project_id(model_id)
             ModelService.delete(model_id)
-            background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+            background_tasks.add_task(TaskService.recompute_leaderboard, project_id)
         except NotFoundError:
             pass
 
@@ -111,7 +111,7 @@ def router() -> APIRouter:
     ) -> None:
         HeadToHeadService.submit_judgement(request)
         # recompute confidence intervals in the background if we aren't doing so already
-        background_tasks.add_task(TaskService.recompute_confidence_intervals, request.project_id)
+        background_tasks.add_task(TaskService.recompute_leaderboard, request.project_id)
 
     @r.get("/tasks/{project_id}")
     def get_tasks(project_id: int) -> list[api.Task]:
@@ -146,7 +146,7 @@ def router() -> APIRouter:
         try:
             project_id = JudgeService.get_project_id(judge_id)
             JudgeService.delete(judge_id)
-            background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+            background_tasks.add_task(TaskService.recompute_leaderboard, project_id)
         except NotFoundError:
             pass
 

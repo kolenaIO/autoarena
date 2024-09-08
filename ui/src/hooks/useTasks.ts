@@ -9,7 +9,7 @@ export function getTasksQueryKey(projectId: number) {
 
 export type Task = {
   id: number;
-  task_type: 'auto-judge' | 'fine-tune' | 'recompute-confidence-intervals';
+  task_type: 'auto-judge' | 'recompute-leaderboard' | 'fine-tune';
   created: string;
   progress: number;
   status: string;

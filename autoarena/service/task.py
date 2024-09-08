@@ -36,7 +36,7 @@ class TaskService:
                 VALUES ($project_id, $task_type, $status)
                 RETURNING id, created, progress, status
                 """,
-                dict(project_id=project_id, task_type=task_type, status=f"{TaskService._time_slug()} {status}"),
+                dict(project_id=project_id, task_type=task_type.value, status=f"{TaskService._time_slug()} {status}"),
             ).fetchall()
         return api.Task(id=task_id, task_type=task_type, created=created, progress=progress, status=status)
 
@@ -66,11 +66,11 @@ class TaskService:
 
     # TODO: should this really be a long-running task? It only takes ~5 seconds for ~50k battles
     @staticmethod
-    def recompute_confidence_intervals(project_id: int) -> None:
+    def recompute_leaderboard(project_id: int) -> None:
         task_objects = TaskService.get_all(project_id)
-        if len([t for t in task_objects if t.task_type == "recompute-confidence-intervals" and t.progress < 1]) > 0:
+        if len([t for t in task_objects if t.task_type is api.TaskType.RECOMPUTE_LEADERBOARD and t.progress < 1]) > 0:
             return  # only recompute if there isn't already a task in progress
-        task_id = TaskService.create(project_id, "recompute-confidence-intervals").id
+        task_id = TaskService.create(project_id, api.TaskType.RECOMPUTE_LEADERBOARD).id
         try:
             EloService.reseed_scores(project_id)
         finally:
@@ -86,7 +86,7 @@ class TaskService:
             return  # do nothing if no judges are configured, do not create a task
         t_start = time.time()
         status = f"Started automated judging task for model '{model_name}'"
-        task_id = TaskService.create(project_id, "auto-judge", status).id
+        task_id = TaskService.create(project_id, api.TaskType.AUTO_JUDGE, status).id
         logger.info(status)
 
         try:

@@ -6,8 +6,13 @@ __pycache__/
 dist/
 .DS_Store
 .vite/
+.venv/
 
-poetry.lock
+uv.lock
+
+.coverage
+coverage.unit.xml
+coverage.integration.xml
 
 *.duckdb
 *.duckdb.wal

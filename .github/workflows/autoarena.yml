@@ -20,15 +20,14 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python_version }}
-      - name: Install poetry
-        run: pip install poetry
-      - name: Update dependencies
-        run: poetry update
+      - uses: astral-sh/setup-uv@v2
+      - name: Setup environment
+        run: uv venv --python ${{ matrix.python_version }} && source .venv/bin/activate
       - name: Install dependencies
-        run: poetry install
+        run: uv pip install --all-extras -r pyproject.toml
       - name: Run pre-commit
-        run: poetry run pre-commit run -a
+        run: uvx pre-commit run -a
       - name: Run unit tests
-        run: poetry run pytest -v tests/unit
+        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/unit
       - name: Run integration tests
-        run: poetry run pytest -v tests/integration
+        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/integration

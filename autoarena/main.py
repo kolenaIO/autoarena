@@ -6,9 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from autoarena.api.router import router
-from autoarena.args import get_command_line_args
 from autoarena.log import initialize_logger
-from autoarena.store.seed import setup_database, seed_initial_battles
+from autoarena.store.utils import setup_database
 from autoarena.ui_router import ui_router
 
 API_V1_STR = "/api/v1"
@@ -16,10 +15,7 @@ API_V1_STR = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    args = get_command_line_args()
     setup_database()
-    if args.battles_parquet is not None:
-        seed_initial_battles(args.battles_parquet)
     logger.info("AutoArena ready")
     yield
 

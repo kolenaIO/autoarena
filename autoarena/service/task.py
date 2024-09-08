@@ -133,22 +133,16 @@ class TaskService:
             # TODO: stream to database?
             # 5. upload judgements to database
             judge_id_by_name = {j.name: j.id for j in enabled_auto_judges}
-            with get_database_connection() as conn:
-                dfs_h2h_judged = []
-                for judge_name, judge_responses in responses.items():
-                    df_h2h_judged = df_h2h.copy()
-                    df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
-                    df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
-                    df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
-                    dfs_h2h_judged.append(df_h2h_judged)
-                # randomize order of ratings to avoid biased elos when multiple judges are present
-                df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
-                conn.execute("""
-                    INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
-                    SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
-                    FROM df_h2h_judged_all
-                    ON CONFLICT (result_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner
-                """)
+            dfs_h2h_judged = []
+            for judge_name, judge_responses in responses.items():
+                df_h2h_judged = df_h2h.copy()
+                df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
+                df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
+                df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
+                dfs_h2h_judged.append(df_h2h_judged)
+            # randomize order of ratings to avoid biased elos when multiple judges are present
+            df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
+            HeadToHeadService.upload_head_to_heads(df_h2h_judged_all)
 
             # 6. recompute elo scores and confidence intervals
             TaskService.update(task_id, "Recomputing leaderboard rankings", progress=0.96)

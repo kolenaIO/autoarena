@@ -46,14 +46,9 @@ def router() -> APIRouter:
         project_id: Annotated[int, Form()],
         background_tasks: BackgroundTasks,
     ) -> api.Model:
-        contents = await file.read()
         if file.content_type != "text/csv":
             raise ValueError(f"unsupported file type: {file.content_type}")
-        df_result = pd.read_csv(BytesIO(contents))
-        required_columns = {"prompt", "response"}
-        missing_columns = required_columns - set(df_result.columns)
-        if len(missing_columns) > 0:
-            raise ValueError(f"missing required column(s): {missing_columns}")
+        df_result = pd.read_csv(BytesIO(await file.read()))
         new_model = ModelService.upload_results(project_id, new_model_name, df_result)
         background_tasks.add_task(TaskService.auto_judge, project_id, new_model.id, new_model.name)
         return new_model
@@ -84,7 +79,7 @@ def router() -> APIRouter:
     # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/model/{model_id}/download/results")
     async def download_model_results_csv(model_id: int) -> StreamingResponse:
-        df_result = ModelService.get_df_result(model_id)
+        df_result = ModelService.get_df_result(model_id)[["prompt", "response"]]
         model_name = df_result.iloc[0].model
         stream = StringIO()
         df_result.to_csv(stream, index=False)

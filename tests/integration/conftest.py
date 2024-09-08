@@ -4,7 +4,7 @@ from typing import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
-from autoarena.store.seed import setup_database
+from autoarena.store.utils import setup_database
 from autoarena.store import database
 from autoarena.main import main, API_V1_STR
 
@@ -20,5 +20,6 @@ def with_empty_database() -> Iterator[None]:
 
 
 @pytest.fixture(scope="function")
-def api_v1_client(with_empty_database: None) -> TestClient:
-    return TestClient(main(), base_url=f"http://testserver{API_V1_STR}")
+def api_v1_client(with_empty_database: None) -> Iterator[TestClient]:
+    with TestClient(main(), base_url=f"http://testserver{API_V1_STR}") as client:
+        yield client

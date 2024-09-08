@@ -7,6 +7,22 @@ from autoarena.judge.factory import judge_factory
 from autoarena.judge.utils import CleaningJudge
 from autoarena.service.judge import JudgeService
 
+H2H = api.HeadToHead(prompt="What is 2+2?", result_a_id=1, result_b_id=2, response_a="4", response_b="100 million")
+
+
+def get_api_judge(judge_type: api.JudgeType, model_name: str) -> api.Judge:
+    return api.Judge(
+        id=0,
+        judge_type=judge_type,
+        created=datetime.utcnow(),
+        name=f"{judge_type.name}",
+        model_name=model_name,
+        system_prompt=JudgeService.get_default_system_prompt(),
+        description="Example description",
+        enabled=True,
+        votes=0,
+    )
+
 
 @pytest.mark.parametrize(
     "judge_type,model_name",
@@ -19,21 +35,8 @@ from autoarena.service.judge import JudgeService
     ],
 )
 def test__judge__proprietary(judge_type: api.JudgeType, model_name: str) -> None:
-    judge_api = api.Judge(
-        id=0,
-        judge_type=judge_type,
-        created=datetime.utcnow(),
-        name=f"{judge_type.name}",
-        model_name=model_name,
-        system_prompt=JudgeService.get_default_system_prompt(),
-        description="Example description",
-        enabled=True,
-        votes=0,
-    )
-    judge_instance = judge_factory(judge_api, wrappers=[CleaningJudge])
-    h2h = api.HeadToHead(prompt="What is 2+2?", result_a_id=1, result_b_id=2, response_a="4", response_b="100 million")
-    winner = judge_instance.judge(h2h)
-    assert winner == "A"  # TODO: will all judges pass this?
+    judge_instance = judge_factory(get_api_judge(judge_type, model_name), wrappers=[CleaningJudge])
+    assert judge_instance.judge(H2H) == "A"
 
 
 @pytest.mark.skip(reason="Not implemented -- auth is a little more difficult than an API key here")
@@ -41,6 +44,6 @@ def test__judge__bedrock() -> None:
     raise NotImplementedError
 
 
-@pytest.mark.skip(reason="Not implemented -- requires Ollama service running in environment")
 def test__judge__ollama() -> None:
-    raise NotImplementedError
+    judge_instance = judge_factory(get_api_judge(api.JudgeType.OLLAMA, "qwen2:0.5b"))
+    assert judge_instance.judge(H2H) == "A"

@@ -36,14 +36,8 @@ def seed_head_to_heads(head_to_heads: str) -> None:
 
     # 3. seed with head-to-heads
     df_model = ModelService.get_all_df(project_id)[["id", "name"]]
-    df_results = []
-    for r in tqdm(df_model.itertuples(), total=len(df_model), desc="load head-to-heads"):
-        df_result = ModelService.get_df_result(r.id)
-        df_result["name"] = r.name
-        df_results.append(df_result)
-
-    df_result = pd.concat(df_results)
-    right_on = ["name", "prompt", "response"]
+    df_result = pd.concat([ModelService.get_df_result(r.id) for r in df_model.itertuples()])
+    right_on = ["model", "prompt", "response"]
     df = df.merge(df_result, left_on=["model_a", "prompt", "response_a"], right_on=right_on, how="left")
     df = df.rename(columns=dict(result_id="result_a_id"))
     df = df.merge(df_result, left_on=["model_b", "prompt", "response_b"], right_on=right_on, how="left")

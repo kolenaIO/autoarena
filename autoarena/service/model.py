@@ -151,11 +151,13 @@ class ModelService:
             df_result = conn.execute(
                 """
                 SELECT
+                    m.name AS model,
                     r.id AS result_id,
                     r.prompt AS prompt,
                     r.response AS response
-                FROM result r
-                WHERE r.model_id = $model_id
+                FROM model m
+                JOIN result r ON m.id = r.model_id
+                WHERE m.id = $model_id
             """,
                 dict(model_id=model_id),
             ).df()

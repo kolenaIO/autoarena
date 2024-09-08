@@ -79,7 +79,7 @@ def router() -> APIRouter:
     # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/model/{model_id}/download/results")
     async def download_model_results_csv(model_id: int) -> StreamingResponse:
-        df_result = ModelService.get_df_result(model_id)[["prompt", "response"]]
+        df_result = ModelService.get_df_result(model_id)
         model_name = df_result.iloc[0].model
         stream = StringIO()
         df_result.to_csv(stream, index=False)

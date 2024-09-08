@@ -1,4 +1,4 @@
-name: AutoArena
+name: CI
 on:
   push:
     branches:
@@ -6,6 +6,9 @@ on:
   pull_request:
     branches:
       - trunk
+
+env:
+  NODE_VERSION: 20.11.1
 
 jobs:
   lint:
@@ -44,3 +47,58 @@ jobs:
           path: "./ui/dist"
       - name: Run integration tests
         run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/integration
+
+  ui-lint:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Run linting
+        run: yarn lint
+
+  ui-build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Run build
+        run: yarn build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ui-build
+          path: "./dist"
+
+  ui-test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ui
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: yarn
+          cache-dependency-path: "./ui/yarn.lock"
+      - name: Install dependencies
+        run: yarn --frozen-lockfile
+      - name: Run tests
+        run: yarn test

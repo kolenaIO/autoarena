@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: yarn
-          cache-dependency-path: "./ui/yarn.lock"
+          cache-dependency-path: "./yarn.lock"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run linting
@@ -76,7 +76,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: yarn
-          cache-dependency-path: "./ui/yarn.lock"
+          cache-dependency-path: "./yarn.lock"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run build
@@ -84,7 +84,7 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: ui-build
-          path: "./dist"
+          path: "./ui/dist"
 
   ui-test:
     runs-on: ubuntu-latest
@@ -97,7 +97,7 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: yarn
-          cache-dependency-path: "./ui/yarn.lock"
+          cache-dependency-path: "./yarn.lock"
       - name: Install dependencies
         run: yarn --frozen-lockfile
       - name: Run tests

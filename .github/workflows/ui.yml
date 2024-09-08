@@ -44,8 +44,12 @@ jobs:
         run: yarn --frozen-lockfile
       - name: Run build
         run: yarn build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ui-build
+          path: "./dist"
 
-  ui-unit-test:
+  ui-test:
     runs-on: ubuntu-latest
     defaults:
       run:

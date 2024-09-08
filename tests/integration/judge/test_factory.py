@@ -96,7 +96,7 @@ def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None
         api.JudgeType.COHERE,
         api.JudgeType.GEMINI,
         api.JudgeType.TOGETHER,
-        # api.JudgeType.BEDROCK,  # TODO: set up Bedrock credentials
+        api.JudgeType.BEDROCK,
         api.JudgeType.CUSTOM,
     ],
 )

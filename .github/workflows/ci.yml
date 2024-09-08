@@ -47,8 +47,14 @@ jobs:
           path: "./ui/dist"
       - name: Install Ollama
         run: curl -fsSL https://ollama.com/install.sh | sudo -E sh
-      - name: Pull qwen2:0.5b model for testing
+      - name: Ollama pull qwen2:0.5b model used in tests
         run: ollama pull qwen2:0.5b
+      - name: Configure AWS credentials for Bedrock
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-2
       - name: Run integration tests
         run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/integration
         env:

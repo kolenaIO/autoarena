@@ -82,7 +82,7 @@ class TaskService:
         all_judges = JudgeService.get_all(project_id)
         enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
         if len(enabled_auto_judges) == 0:
-            logger.warning(f"No automated judges found, cant run automated judgement for model '{model_name}'")
+            logger.warning(f"No automated judges found, can't run automated judgement for model '{model_name}'")
             return  # do nothing if no judges are configured, do not create a task
         t_start = time.time()
         status = f"Started automated judging task for model '{model_name}'"

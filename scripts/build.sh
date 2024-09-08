@@ -6,4 +6,4 @@ pushd ui
 yarn build
 popd
 
-poetry build --format=sdist
+uvx hatch build -t sdist

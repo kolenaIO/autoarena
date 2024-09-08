@@ -69,7 +69,7 @@ def test__judge_factory__automated__ollama() -> None:
         api.JudgeType.COHERE,
         api.JudgeType.GEMINI,
         api.JudgeType.TOGETHER,
-        api.JudgeType.BEDROCK,
+        # api.JudgeType.BEDROCK,  # credentials for bedrock access are set up in CI testing environment
     ],
 )
 def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None:

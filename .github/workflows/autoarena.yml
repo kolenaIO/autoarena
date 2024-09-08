@@ -28,6 +28,6 @@ jobs:
       - name: Run pre-commit
         run: uvx pre-commit run -a
       - name: Run unit tests
-        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.unit.xml --cov autoarena --cov-append tests/unit
+        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/unit
       - name: Run integration tests
-        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.integration.xml --cov autoarena --cov-append tests/integration
+        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/integration

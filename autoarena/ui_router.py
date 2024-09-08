@@ -8,7 +8,9 @@ from autoarena.error import NotFoundError
 
 
 def ui_router() -> APIRouter:
-    static_dir = Path(__file__).parent.parent / "ui" / "dist"
+    build_static_dir = Path(__file__).parent / "ui"
+    dev_static_dir = Path(__file__).parent.parent / "ui" / "dist"
+    static_dir = build_static_dir if build_static_dir.exists() else dev_static_dir
 
     r = APIRouter()
 

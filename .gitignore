@@ -11,8 +11,7 @@ dist/
 uv.lock
 
 .coverage
-coverage.unit.xml
-coverage.integration.xml
+coverage.xml
 
 *.duckdb
 *.duckdb.wal

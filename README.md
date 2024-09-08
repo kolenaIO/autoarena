@@ -1,16 +1,18 @@
 # AutoArena
 
-AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation. Run with:
+AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation. Get started by:
 
 ```
-python3 -m autoarena
+pip install autoarena
+python -m autoarena
 ```
 
-Data is stored in an `autoarena.duckdb` file on your local machine.
+Data is stored in an `autoarena.duckdb` file in the directory where you invoked AutoArena.
 
 ## Development
 
-To set up this repository for development, run:
+AutoArena uses [uv](https://github.com/astral-sh/uv) to manage dependencies. To set up this repository for development,
+run:
 
 ```shell
 uv venv && source .venv/bin/activate

@@ -1,7 +1,8 @@
 import pytest
 
 from autoarena.judge.utils import FixingJudge
-from tests.unit.judge.test_utils import DummyJudge, DUMMY_H2H
+from tests.unit.judge.test_utils import DUMMY_H2H
+from tests.unit.judge.conftest import DummyJudge
 
 
 # this involves downloading and running a classification model and can be quite slow -- consider it an integration test

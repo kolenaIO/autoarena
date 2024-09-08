@@ -1,3 +1,5 @@
+import os
+
 import google.generativeai as genai
 
 from autoarena.api import api
@@ -12,6 +14,7 @@ class GeminiJudge(AutomatedJudge):
 
     def __init__(self, model_name: str, system_prompt: str) -> None:
         super().__init__(model_name, system_prompt)
+        genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
         self._model = genai.GenerativeModel(model_name)
 
     @property
@@ -24,6 +27,7 @@ class GeminiJudge(AutomatedJudge):
 
     @staticmethod
     def verify_environment() -> None:
+        genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
         # TODO: this takes a while, likely due to retries -- haven't figured out how to disable
         list(genai.list_models(page_size=1))
 

@@ -14,17 +14,17 @@ from autoarena.service.project import ProjectService
 from autoarena.store.seed import setup_database
 
 
-# TODO: this should call an API rather than hand-rolling here -- at the very least use services to manipulate database
 def seed_head_to_heads(head_to_heads: str) -> None:
     project_name = Path(head_to_heads).stem
     df = pd.read_parquet(head_to_heads)
 
-    # 1. seed with project
+    # 1. seed project
     setup_database()
     project_id = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name)).id
 
-    # 2. seed with models
+    # 2. seed models
     models = set(df.model_a) & set(df.model_b)
+    model_ids: list[int] = []
     for model in tqdm(models, total=len(models), desc="seed models"):
         cols = ["prompt", "response"]
         df_model_result_a = df[df.model_a == model].rename(columns=dict(response_a="response"))[cols]
@@ -32,11 +32,10 @@ def seed_head_to_heads(head_to_heads: str) -> None:
         df_model_result = pd.concat([df_model_result_a, df_model_result_b])
         df_model_result = df_model_result.drop_duplicates(subset=["prompt"], keep="last")  # drop duplicate rows
         df_model_result = df_model_result.dropna(subset=["response"])
-        ModelService.upload_results(project_id, model, df_model_result)
+        model_ids.append(ModelService.upload_results(project_id, model, df_model_result).id)
 
-    # 3. seed with head-to-heads
-    df_model = ModelService.get_all_df(project_id)[["id", "name"]]
-    df_result = pd.concat([ModelService.get_df_result(r.id) for r in df_model.itertuples()])
+    # 3. seed head-to-heads
+    df_result = pd.concat([ModelService.get_df_result(model_id) for model_id in model_ids])
     right_on = ["model", "prompt", "response"]
     df = df.merge(df_result, left_on=["model_a", "prompt", "response_a"], right_on=right_on, how="left")
     df = df.rename(columns=dict(result_id="result_a_id"))
@@ -47,7 +46,7 @@ def seed_head_to_heads(head_to_heads: str) -> None:
     df["judge_id"] = [j for j in JudgeService.get_all(project_id) if j.name == HumanJudge().name][0].id
     HeadToHeadService.upload_head_to_heads(df[["result_a_id", "result_b_id", "judge_id", "winner"]])
 
-    # 4. seed with elo scores
+    # 4. seed elo scores
     EloService.reseed_scores(project_id)
 
 

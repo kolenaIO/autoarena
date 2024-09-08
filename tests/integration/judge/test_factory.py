@@ -89,6 +89,19 @@ def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None
             verify_judge_type_environment(judge_type)
 
 
-@pytest.mark.parametrize("judge_type", JUDGE_TYPE_TO_CLASS.keys())
+@pytest.mark.parametrize(
+    "judge_type",
+    [
+        api.JudgeType.HUMAN,
+        api.JudgeType.OLLAMA,
+        api.JudgeType.OPENAI,
+        api.JudgeType.ANTHROPIC,
+        api.JudgeType.COHERE,
+        api.JudgeType.GEMINI,
+        api.JudgeType.TOGETHER,
+        # api.JudgeType.BEDROCK,  # TODO: set up Bedrock credentials
+        api.JudgeType.CUSTOM,
+    ],
+)
 def test__verify_judge_type_environment(judge_type: api.JudgeType) -> None:
     verify_judge_type_environment(judge_type)

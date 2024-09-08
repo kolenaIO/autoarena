@@ -11,7 +11,7 @@ from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
 from autoarena.service.model import ModelService
 from autoarena.service.project import ProjectService
-from autoarena.store.utils import id_slug, setup_database
+from autoarena.store.seed import setup_database
 
 
 # TODO: this should call an API rather than hand-rolling here -- at the very least use services to manipulate database
@@ -44,8 +44,6 @@ def seed_head_to_heads(head_to_heads: str) -> None:
     df = df.rename(columns=dict(result_id="result_b_id"))
     df = df.dropna(subset=["result_a_id", "result_b_id"])
     df[["result_a_id", "result_b_id"]] = df[["result_a_id", "result_b_id"]].astype(int)
-    df["result_id_slug"] = df.apply(lambda r: id_slug(r.result_a_id, r.result_b_id), axis=1)
-    df = df.drop_duplicates(subset=["result_id_slug"], keep="first")
     df["judge_id"] = [j for j in JudgeService.get_all(project_id) if j.name == HumanJudge().name][0].id
     HeadToHeadService.upload_head_to_heads(df[["result_a_id", "result_b_id", "judge_id", "winner"]])
 

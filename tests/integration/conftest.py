@@ -4,7 +4,7 @@ from typing import Iterator
 import pytest
 from fastapi.testclient import TestClient
 
-from autoarena.store.utils import setup_database
+from autoarena.store.seed import setup_database
 from autoarena.store import database
 from autoarena.main import main, API_V1_STR
 

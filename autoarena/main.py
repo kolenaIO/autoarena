@@ -7,7 +7,7 @@ from loguru import logger
 
 from autoarena.api.router import router
 from autoarena.log import initialize_logger
-from autoarena.store.utils import setup_database
+from autoarena.store.seed import setup_database
 from autoarena.ui_router import ui_router
 
 API_V1_STR = "/api/v1"

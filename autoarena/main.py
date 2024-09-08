@@ -24,7 +24,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     yield
 
 
-def app() -> FastAPI:
+def main() -> FastAPI:
     initialize_logger()
 
     app = FastAPI(

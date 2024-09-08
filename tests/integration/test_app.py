@@ -3,7 +3,7 @@ import subprocess
 
 def test__app__main() -> None:
     try:
-        out = subprocess.run(["python", "-m", "autoarena"], timeout=1, capture_output=True)
+        out = subprocess.run(["python", "-m", "autoarena"], timeout=5, capture_output=True)
         assert out.returncode == 0
     except subprocess.TimeoutExpired as e:
         assert e.stderr is not None

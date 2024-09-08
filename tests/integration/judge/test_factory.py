@@ -1,4 +1,3 @@
-from datetime import datetime
 from typing import Type, Optional
 
 import pytest
@@ -10,17 +9,22 @@ from autoarena.judge.cohere import CohereJudge
 from autoarena.judge.factory import judge_factory, verify_judge_type_environment, JUDGE_TYPE_TO_CLASS
 from autoarena.judge.gemini import GeminiJudge
 from autoarena.judge.human import HumanJudge
+from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
-from tests.integration.judge.conftest import unset_environment_variable, temporary_environment_variable
+from tests.integration.judge.conftest import (
+    unset_environment_variable,
+    temporary_environment_variable,
+    api_judge,
+    TEST_JUDGE_MODEL_NAMES,
+)
 
 
 @pytest.mark.parametrize(
     "judge_type,expected_type,required_api_key",
     [
         (api.JudgeType.HUMAN, HumanJudge, None),
-        # TODO: reenable as integration test (requires communication with Ollama service to instantiate)
-        # (api.JudgeType.OLLAMA, OllamaJudge, None),
+        (api.JudgeType.OLLAMA, OllamaJudge, None),
         (api.JudgeType.OPENAI, OpenAIJudge, "OPENAI_API_KEY"),
         (api.JudgeType.ANTHROPIC, AnthropicJudge, "ANTHROPIC_API_KEY"),
         (api.JudgeType.COHERE, CohereJudge, "COHERE_API_KEY"),
@@ -35,17 +39,8 @@ def test__judge_factory(
     required_api_key: Optional[str],
 ) -> None:
     name = f"{expected_type.__name__}" if expected_type is not None else "missing type"
-    request = api.Judge(
-        id=-1,
-        judge_type=judge_type,
-        created=datetime.utcnow(),
-        name=name,
-        model_name=name,
-        system_prompt="example system prompt",
-        description="example_description",
-        enabled=True,
-        votes=0,
-    )
+    model_name = TEST_JUDGE_MODEL_NAMES.get(judge_type, name)
+    request = api_judge(judge_type, model_name)
 
     # verify that instantiation fails without API key when one is necessary
     if required_api_key is not None:
@@ -71,7 +66,7 @@ def test__judge_factory(
 @pytest.mark.parametrize(
     "judge_type",
     [
-        api.JudgeType.OLLAMA,
+        # api.JudgeType.OLLAMA,  # ollama is set up in CI testing environment
         api.JudgeType.OPENAI,
         api.JudgeType.ANTHROPIC,
         api.JudgeType.COHERE,
@@ -94,7 +89,6 @@ def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None
             verify_judge_type_environment(judge_type)
 
 
-@pytest.mark.skip(reason="Not implemented in CI yet")  # TODO
 @pytest.mark.parametrize("judge_type", JUDGE_TYPE_TO_CLASS.keys())
 def test__verify_judge_type_environment(judge_type: api.JudgeType) -> None:
     verify_judge_type_environment(judge_type)

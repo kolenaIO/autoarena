@@ -74,10 +74,12 @@ def router() -> APIRouter:
 
     @r.delete("/model/{model_id}")
     def delete_model(model_id: int, background_tasks: BackgroundTasks) -> None:
-        # TODO: this should technically be idempotent, but will currently fail if the model does not exist
-        project_id = ModelService.get_project_id(model_id)
-        ModelService.delete(model_id)
-        background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+        try:
+            project_id = ModelService.get_project_id(model_id)
+            ModelService.delete(model_id)
+            background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+        except NotFoundError:
+            pass
 
     # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/model/{model_id}/download/results")

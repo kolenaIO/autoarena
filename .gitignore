@@ -6,6 +6,7 @@ __pycache__/
 dist/
 .DS_Store
 .vite/
+.venv/
 
 uv.lock
 

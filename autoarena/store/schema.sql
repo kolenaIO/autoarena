@@ -9,7 +9,7 @@ CREATE SEQUENCE IF NOT EXISTS judge_id START 1;
 CREATE TABLE IF NOT EXISTS judge (
     id INTEGER PRIMARY KEY DEFAULT nextval('judge_id'),
     project_id INTEGER NOT NULL,
-    judge_type TEXT NOT NULL, -- e.g. 'human', 'ollama', 'openai'
+    judge_type TEXT NOT NULL, -- e.g. 'human', 'ollama', 'openai'; see api.JudgeType
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     name TEXT NOT NULL,
     model_name TEXT, -- null for 'human' type
@@ -71,7 +71,7 @@ CREATE SEQUENCE IF NOT EXISTS task_id START 1;
 CREATE TABLE IF NOT EXISTS task (
     id INTEGER PRIMARY KEY DEFAULT nextval('task_id'),
     project_id INTEGER NOT NULL,
-    task_type TEXT NOT NULL, -- e.g. 'fine-tune', 'auto-judge', 'recompute-confidence-intervals'
+    task_type TEXT NOT NULL, -- e.g. 'auto-judge', 'recompute-leaderboard'; see api.TaskType
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     progress DOUBLE PRECISION NOT NULL DEFAULT 0, -- on [0,1]
     status TEXT NOT NULL DEFAULT 'Started', -- freeform

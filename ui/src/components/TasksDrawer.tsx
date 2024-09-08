@@ -95,19 +95,19 @@ export function TasksDrawer() {
 function TaskAccordionItem({ task }: { task: Task }) {
   const slug = `${task.task_type}-${moment(task.created).format('YYYYMMDD-hhmmss-SSS')}`;
   const IconComponent =
-    task.task_type === 'recompute-confidence-intervals'
+    task.task_type === 'recompute-leaderboard'
       ? IconCalculator
       : task.task_type === 'auto-judge'
         ? IconGavel
         : IconBooks;
   const taskTitle =
-    task.task_type === 'recompute-confidence-intervals'
+    task.task_type === 'recompute-leaderboard'
       ? 'Recompute Leaderboard Rankings'
       : task.task_type === 'auto-judge'
         ? 'Automated Head-to-Head Judging'
         : 'Custom Judge Fine-Tuning';
   const iconColor =
-    task.task_type === 'recompute-confidence-intervals'
+    task.task_type === 'recompute-leaderboard'
       ? 'var(--mantine-color-blue-6)'
       : task.task_type === 'auto-judge'
         ? 'var(--mantine-color-orange-6)'

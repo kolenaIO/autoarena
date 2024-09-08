@@ -1,10 +1,14 @@
+from pathlib import Path
+
 from fastapi.testclient import TestClient
+
+UI_DIST = Path(__file__).parent / ".." / ".." / "ui" / "dist"
 
 
 def test__ui(client: TestClient) -> None:
     response = client.get("/")
     assert response.status_code == 200
-    assert "<!doctype html>" in response.text
+    assert response.text == (UI_DIST / "index.html").read_text()
 
 
 def test__ui__path(client: TestClient) -> None:
@@ -14,6 +18,12 @@ def test__ui__path(client: TestClient) -> None:
 
 
 def test__ui__assets(client: TestClient) -> None:
-    # rather than requiring the assets be built to run this test, just ensure that the asset route is properly 404'ing
+    example_file = next((UI_DIST / "assets").glob("*.jpg"))
+    response = client.get(f"/assets/{example_file.name}")
+    assert response.status_code == 200
+    assert response.content == example_file.read_bytes()
+
+
+def test__ui__assets__not_found(client: TestClient) -> None:
     response = client.get("/assets/does-not-exist.jpg")
     assert response.status_code == 404

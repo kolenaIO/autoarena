@@ -7,7 +7,7 @@ import pytest
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import Judge
-from autoarena.judge.utils import CleaningJudge, RetryingJudge, FixingJudge, ABShufflingJudge, rate_limit
+from autoarena.judge.utils import CleaningJudge, RetryingJudge, ABShufflingJudge, rate_limit
 
 
 class DummyJudge(Judge):
@@ -69,22 +69,6 @@ def test__ab_shuffling_judge() -> None:
 def test__cleaning_judge(raw: str, expected: str) -> None:
     test_judge = DummyJudge([raw])
     assert CleaningJudge(test_judge).judge(DUMMY_H2H) == expected
-
-
-@pytest.mark.parametrize(
-    "raw,expected",
-    [
-        ("A", "A"),
-        ("B", "B"),
-        ("-", "-"),
-        ("A is better.", "A"),
-        ("Response B is better, because it does a better job than A.", "B"),
-        ("Neither A nor B are that good.", "-"),
-    ],
-)
-def test__fixing_judge(raw: str, expected: str) -> None:
-    test_judge = DummyJudge([raw])
-    assert FixingJudge(test_judge).judge(DUMMY_H2H) == expected
 
 
 def test__retrying_judge() -> None:

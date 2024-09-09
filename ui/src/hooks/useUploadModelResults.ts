@@ -20,7 +20,6 @@ export function useUploadModelResults({ projectSlug, options }: Params) {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('new_model_name', modelName);
-      formData.append('project_id', String(projectSlug));
       const response = await fetch(`${getProjectUrl(projectSlug)}/model`, { method: 'POST', body: formData });
       const result: Model = await response.json();
       return result;

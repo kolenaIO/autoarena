@@ -3,13 +3,15 @@ import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useEffect } from 'react';
 import { useJudgeDefaultSystemPrompt } from '../../hooks/useJudgeDefaultSystemPrompt.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 
 type Props = {
   value: string;
   setValue: (prompt: string) => void;
 };
 export function ConfigureSystemPromptCollapse({ value, setValue }: Props) {
-  const { data: defaultSystemPrompt } = useJudgeDefaultSystemPrompt();
+  const { projectSlug = '' } = useUrlState();
+  const { data: defaultSystemPrompt } = useJudgeDefaultSystemPrompt(projectSlug);
   const [isOpen, { toggle }] = useDisclosure(false);
 
   useEffect(() => {

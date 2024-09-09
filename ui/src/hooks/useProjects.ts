@@ -1,4 +1,4 @@
-import { BASE_API_URL } from '../lib/baseRoutes.ts';
+import { BASE_API_URL } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 const PROJECTS_ENDPOINT = `${BASE_API_URL}/projects`;

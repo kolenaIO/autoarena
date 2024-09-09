@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
-function getModelResultsEndpoint(modelId: number) {
-  return `${BASE_API_URL}/model/${modelId}/results`;
-}
-
-export function getModelResultsQueryKey(modelId: number) {
-  return [`${BASE_API_URL}/model`, modelId, '/results'];
+export function getModelResultsQueryKey(projectSlug: string, modelId: number) {
+  return [getProjectUrl(projectSlug), '/model', modelId, '/results'];
 }
 
 export type ModelResult = {
@@ -14,11 +10,15 @@ export type ModelResult = {
   response: string;
 };
 
-export function useModelResults(modelId: number | undefined) {
+type Params = {
+  projectSlug?: string;
+  modelId?: number;
+};
+export function useModelResults({ projectSlug, modelId }: Params) {
   return useQuery({
-    queryKey: getModelResultsQueryKey(modelId ?? -1),
+    queryKey: getModelResultsQueryKey(projectSlug ?? '', modelId ?? -1),
     queryFn: async () => {
-      const url = getModelResultsEndpoint(modelId ?? -1);
+      const url = `${getProjectUrl(projectSlug)}/model/${modelId}/results`;
       const response = await fetch(url);
       if (!response.ok) {
         return;
@@ -26,6 +26,6 @@ export function useModelResults(modelId: number | undefined) {
       const result: ModelResult[] = await response.json();
       return result;
     },
-    enabled: modelId != null,
+    enabled: projectSlug != null && modelId != null,
   });
 }

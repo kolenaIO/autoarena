@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
 export type HeadToHeadHistoryItem = {
   judge_id: number;

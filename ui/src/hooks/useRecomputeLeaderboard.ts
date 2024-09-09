@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 
 function getDeleteJudgeQueryKey(projectSlug: string) {

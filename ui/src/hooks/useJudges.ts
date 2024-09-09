@@ -1,11 +1,9 @@
-import { BASE_API_URL } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { JudgeType } from '../components/Judges/types.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
-const JUDGES_ENDPOINT = `${BASE_API_URL}/judges`;
-
 export function getJudgesQueryKey(projectSlug: string) {
-  return [JUDGES_ENDPOINT, projectSlug];
+  return [getProjectUrl(projectSlug), '/judges'];
 }
 
 export type Judge = {
@@ -24,7 +22,7 @@ export function useJudges(projectSlug: string | undefined) {
   return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${JUDGES_ENDPOINT}/${projectSlug}`;
+      const url = `${getProjectUrl(projectSlug ?? '')}/judges`;
       const response = await fetch(url);
       if (!response.ok) {
         return;

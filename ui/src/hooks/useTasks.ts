@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
 export function getTasksQueryKey(projectSlug: string) {
   return [getProjectUrl(projectSlug), '/tasks'];

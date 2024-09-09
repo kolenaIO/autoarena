@@ -1,14 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
-function getModelEloHistoryEndpoint(modelId: number, judgeId: number | undefined) {
+function getModelEloHistoryEndpoint(projectSlug: string, modelId: number, judgeId: number | undefined) {
   const params = judgeId != null ? new URLSearchParams({ judge_id: String(judgeId) }) : undefined;
-  const url = `${BASE_API_URL}/model/${modelId}/elo-history`;
+  const url = `${getProjectUrl(projectSlug)}/model/${modelId}/elo-history`;
   return params != null ? `${url}?${params}` : url;
 }
 
-export function getModelEloHistoryQueryKey(modelId?: number, judgeId?: number) {
-  return ['model', 'elo-history', ...(modelId != null ? [modelId] : []), ...(judgeId != null ? [judgeId] : [])];
+export function getModelEloHistoryQueryKey(projectSlug: string, modelId?: number, judgeId?: number) {
+  return [getProjectUrl(projectSlug), '/model', modelId, '/elo-history', judgeId];
 }
 
 export type EloHistoryItem = {
@@ -19,11 +19,16 @@ export type EloHistoryItem = {
   elo: number;
 };
 
-export function useModelEloHistory(modelId: number | undefined, judgeId: number | undefined) {
+type Params = {
+  projectSlug?: string;
+  modelId?: number;
+  judgeId?: number;
+};
+export function useModelEloHistory({ projectSlug, modelId, judgeId }: Params) {
   return useQuery({
-    queryKey: getModelEloHistoryQueryKey(modelId, judgeId),
+    queryKey: getModelEloHistoryQueryKey(projectSlug ?? '', modelId, judgeId),
     queryFn: async () => {
-      const url = getModelEloHistoryEndpoint(modelId ?? -1, judgeId);
+      const url = getModelEloHistoryEndpoint(projectSlug ?? '', modelId ?? -1, judgeId);
       const response = await fetch(url);
       if (!response.ok) {
         return;
@@ -31,6 +36,6 @@ export function useModelEloHistory(modelId: number | undefined, judgeId: number 
       const result: EloHistoryItem[] = await response.json();
       return result;
     },
-    enabled: modelId != null,
+    enabled: projectSlug != null && modelId != null,
   });
 }

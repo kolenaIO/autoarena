@@ -1,4 +1,4 @@
-import { getProjectUrl } from '../lib/baseRoutes.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { Model } from './useModels.ts';
 

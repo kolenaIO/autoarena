@@ -19,14 +19,6 @@ TEST_QUESTIONS = [
 
 @pytest.fixture
 def model_responses(project_slug: str) -> tuple[int, int]:
-    create_judge_request = api.CreateJudgeRequest(
-        judge_type=api.JudgeType.OPENAI,
-        name=TEST_JUDGE_MODEL_NAMES[api.JudgeType.OPENAI],
-        model_name=TEST_JUDGE_MODEL_NAMES[api.JudgeType.OPENAI],
-        system_prompt=JudgeService.get_default_system_prompt(),
-        description="Just for testing",
-    )
-    JudgeService.create(project_slug, create_judge_request)  # should be enabled by default
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
     model_a_id = ModelService.upload_responses(project_slug, "good-answers", df_good_answer).id
     df_bad_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(wrong="response"))
@@ -34,8 +26,20 @@ def model_responses(project_slug: str) -> tuple[int, int]:
     return model_a_id, model_b_id
 
 
+def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
+    return api.CreateJudgeRequest(
+        judge_type=judge_type,
+        name=TEST_JUDGE_MODEL_NAMES[judge_type],
+        model_name=TEST_JUDGE_MODEL_NAMES[judge_type],
+        system_prompt=JudgeService.get_default_system_prompt(),
+        description="Just for testing",
+    )
+
+
 # test here rather than via API as synchronous autojudging is not exposed via the API
 def test__task__auto_judge(project_slug: str, model_responses) -> None:
+    JudgeService.create(project_slug, create_judge_request(api.JudgeType.OPENAI))  # should be enabled by default
+    JudgeService.create(project_slug, create_judge_request(api.JudgeType.COHERE))
     model_a_id, model_b_id = model_responses
     TaskService.auto_judge(project_slug, model_a_id, "good-answers")
 
@@ -44,8 +48,8 @@ def test__task__auto_judge(project_slug: str, model_responses) -> None:
     model_a = [m for m in models if m.id == model_a_id][0]
     model_b = [m for m in models if m.id == model_b_id][0]
     assert model_a.elo > model_b.elo
-    assert model_a.votes == len(TEST_QUESTIONS)
-    assert model_b.votes == len(TEST_QUESTIONS)
+    assert model_a.votes == 2 * len(TEST_QUESTIONS)
+    assert model_b.votes == 2 * len(TEST_QUESTIONS)
 
     # assert that the task was created and updated
     tasks = TaskService.get_all(project_slug)

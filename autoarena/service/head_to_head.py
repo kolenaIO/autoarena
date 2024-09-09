@@ -116,7 +116,7 @@ class HeadToHeadService:
         df_h2h_deduped["response_id_slug"] = df_h2h_deduped.apply(
             lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1
         )
-        df_h2h_deduped = df_h2h_deduped.drop_duplicates(subset=["response_id_slug"], keep="first")
+        df_h2h_deduped = df_h2h_deduped.drop_duplicates(subset=["response_id_slug", "judge_id"], keep="first")
         if len(df_h2h_deduped) != len(df_h2h):
             logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
         with ProjectService.connect(project_slug) as conn:

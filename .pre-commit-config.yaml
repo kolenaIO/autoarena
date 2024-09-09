@@ -26,8 +26,8 @@ repos:
   - repo: local
     hooks:
       - id: yarn-lint-fix
-        name: yarn lint:fix
-        entry: /usr/bin/env bash -c 'pushd ui >/dev/null; yarn lint:fix; popd >/dev/null'
+        name: yarn lint:staged
+        entry: /usr/bin/env bash -c 'pushd ui >/dev/null; yarn lint:staged; popd >/dev/null'
         language: script
   - repo: local
     hooks:

@@ -1,6 +1,7 @@
 from loguru import logger
 
 from autoarena.api import api
+from autoarena.error import NotFoundError
 from autoarena.judge.base import Judge
 from autoarena.judge.factory import verify_judge_type_environment
 from autoarena.judge.utils import BASIC_SYSTEM_PROMPT
@@ -16,8 +17,12 @@ class JudgeService:
     def get_project_id(judge_id: int) -> int:
         with get_database_connection() as conn:
             params = dict(judge_id=judge_id)
-            ((project_id,),) = conn.execute("SELECT project_id FROM judge WHERE id = $judge_id", params).fetchall()
-        return project_id
+            records = conn.execute("SELECT project_id FROM judge WHERE id = $judge_id", params).fetchall()
+        try:
+            ((project_id,),) = records
+            return project_id
+        except ValueError:
+            raise NotFoundError(f"Judge with ID '{judge_id}' not found")
 
     @staticmethod
     def get_all(project_id: int) -> list[api.Judge]:

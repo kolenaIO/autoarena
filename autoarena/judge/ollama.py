@@ -42,5 +42,6 @@ class OllamaJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
+            options=dict(temperature=0, seed=0),
         )
         return response["message"]["content"]

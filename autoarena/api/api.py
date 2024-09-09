@@ -81,7 +81,10 @@ class HeadToHeadJudgementRequest:  # this is always coming from humans
     winner: WinnerType
 
 
-TaskType = Literal["auto-judge", "fine-tune", "recompute-confidence-intervals"]
+class TaskType(str, Enum):
+    AUTO_JUDGE = "auto-judge"
+    RECOMPUTE_LEADERBOARD = "recompute-leaderboard"
+    FINE_TUNE = "fine-tune"
 
 
 @dataclass(frozen=True)

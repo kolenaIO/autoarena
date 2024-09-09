@@ -6,6 +6,7 @@ from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
+from autoarena.error import NotFoundError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
 from autoarena.service.head_to_head import HeadToHeadService
@@ -45,14 +46,9 @@ def router() -> APIRouter:
         project_id: Annotated[int, Form()],
         background_tasks: BackgroundTasks,
     ) -> api.Model:
-        contents = await file.read()
         if file.content_type != "text/csv":
             raise ValueError(f"unsupported file type: {file.content_type}")
-        df_result = pd.read_csv(BytesIO(contents))
-        required_columns = {"prompt", "response"}
-        missing_columns = required_columns - set(df_result.columns)
-        if len(missing_columns) > 0:
-            raise ValueError(f"missing required column(s): {missing_columns}")
+        df_result = pd.read_csv(BytesIO(await file.read()))
         new_model = ModelService.upload_results(project_id, new_model_name, df_result)
         background_tasks.add_task(TaskService.auto_judge, project_id, new_model.id, new_model.name)
         return new_model
@@ -73,10 +69,12 @@ def router() -> APIRouter:
 
     @r.delete("/model/{model_id}")
     def delete_model(model_id: int, background_tasks: BackgroundTasks) -> None:
-        # TODO: this should technically be idempotent, but will currently fail if the model does not exist
-        project_id = ModelService.get_project_id(model_id)
-        ModelService.delete(model_id)
-        background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+        try:
+            project_id = ModelService.get_project_id(model_id)
+            ModelService.delete(model_id)
+            background_tasks.add_task(TaskService.recompute_leaderboard, project_id)
+        except NotFoundError:
+            pass
 
     # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/model/{model_id}/download/results")
@@ -117,7 +115,7 @@ def router() -> APIRouter:
     ) -> None:
         HeadToHeadService.submit_judgement(request)
         # recompute confidence intervals in the background if we aren't doing so already
-        background_tasks.add_task(TaskService.recompute_confidence_intervals, request.project_id)
+        background_tasks.add_task(TaskService.recompute_leaderboard, request.project_id)
 
     @r.get("/tasks/{project_id}")
     def get_tasks(project_id: int) -> list[api.Task]:
@@ -149,10 +147,12 @@ def router() -> APIRouter:
 
     @r.delete("/judge/{judge_id}")
     def delete_judge(judge_id: int, background_tasks: BackgroundTasks) -> None:
-        # TODO: this should technically be idempotent, but will currently fail if the judge does not exist
-        project_id = JudgeService.get_project_id(judge_id)
-        JudgeService.delete(judge_id)
-        background_tasks.add_task(TaskService.recompute_confidence_intervals, project_id)
+        try:
+            project_id = JudgeService.get_project_id(judge_id)
+            JudgeService.delete(judge_id)
+            background_tasks.add_task(TaskService.recompute_leaderboard, project_id)
+        except NotFoundError:
+            pass
 
     @r.put("/elo/reseed-scores/{project_id}")
     def reseed_scores(project_id: int) -> None:

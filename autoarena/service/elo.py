@@ -118,8 +118,8 @@ class EloService:
             elo_a, elo_b = EloService.compute_elo_single(rating[model_a], rating[model_b], winner, config=config)
             rating[model_a] = elo_a
             rating[model_b] = elo_b
-        df_elos = pd.DataFrame(dict(rating).items(), columns=["model", "elo"])
-        return df_elos.sort_values(by="elo", ascending=False)
+        df_elo = pd.DataFrame(dict(rating).items(), columns=["model", "elo"])
+        return df_elo.sort_values(by="elo", ascending=False)
 
     @staticmethod
     def get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:

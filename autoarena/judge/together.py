@@ -15,7 +15,7 @@ class TogetherJudge(AutomatedJudge):
 
     @property
     def judge_type(self) -> api.JudgeType:
-        return api.JudgeType.COHERE
+        return api.JudgeType.TOGETHER
 
     @property
     def description(self) -> str:

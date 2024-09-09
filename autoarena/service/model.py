@@ -102,9 +102,12 @@ class ModelService:
 
     @staticmethod
     def upload_results(project_id: int, model_name: str, df_result: pd.DataFrame) -> api.Model:
+        required_columns = {"prompt", "response"}
+        missing_columns = required_columns - set(df_result.columns)
+        if len(missing_columns) > 0:
+            raise ValueError(f"missing required column(s): {missing_columns}")
         with get_database_connection(transaction=True) as conn:
             extra_stats = ModelService.compute_numeric_stats(df_result)
-            print(extra_stats)
             ((new_model_id,),) = conn.execute(
                 """
                 INSERT INTO model (project_id, name, extra_stats)
@@ -160,11 +163,12 @@ class ModelService:
                 SELECT
                     r.id AS result_id,
                     m.name AS model,
+                    r.id AS result_id,
                     r.prompt AS prompt,
                     r.response AS response,
                     r.extra AS extra
                 FROM model m
-                JOIN result r ON r.model_id = m.id
+                JOIN result r ON m.id = r.model_id
                 WHERE m.id = $model_id
             """,
                 dict(model_id=model_id),

@@ -2,11 +2,13 @@ import dataclasses
 import json
 
 import pandas as pd
+from loguru import logger
 
 from autoarena.api import api
 from autoarena.service.elo import EloService
 from autoarena.judge.human import HumanJudge
 from autoarena.store.database import get_database_connection
+from autoarena.store.utils import id_slug
 
 
 class HeadToHeadService:
@@ -109,3 +111,22 @@ class HeadToHeadService:
             elo_a, elo_b = EloService.compute_elo_single(model_a.elo, model_b.elo, request.winner)
             for model_id, elo in [(model_a.id, elo_a), (model_b.id, elo_b)]:
                 conn.execute("UPDATE model SET elo = $elo WHERE id = $model_id", dict(model_id=model_id, elo=elo))
+
+    @staticmethod
+    def upload_head_to_heads(df_h2h: pd.DataFrame) -> None:  # TODO: return type?
+        required_columns = {"result_a_id", "result_b_id", "judge_id", "winner"}
+        missing_columns = required_columns - set(df_h2h.columns)
+        if len(missing_columns) > 0:
+            raise ValueError(f"missing required column(s): {missing_columns}")
+        df_h2h_deduped = df_h2h.copy()
+        df_h2h_deduped["result_id_slug"] = df_h2h_deduped.apply(lambda r: id_slug(r.result_a_id, r.result_b_id), axis=1)
+        df_h2h_deduped = df_h2h_deduped.drop_duplicates(subset=["result_id_slug"], keep="first")
+        if len(df_h2h_deduped) != len(df_h2h):
+            logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
+        with get_database_connection() as conn:
+            conn.execute("""
+                INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
+                SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
+                FROM df_h2h_deduped
+                ON CONFLICT (result_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner
+            """)

@@ -8,5 +8,5 @@ class FineTuningService:
     def create_task(project_id: int, request: api.CreateFineTuningTaskRequest) -> None:
         # 1. kick off fine-tuning job
         # 2. create judge when complete
-        task_id = TaskService.create(project_id, "fine-tune").id
+        task_id = TaskService.create(project_id, api.TaskType.FINE_TUNE).id
         TaskService.update(task_id, status=f"Fine-tuning '{request.base_model}' base model", progress=0.1)

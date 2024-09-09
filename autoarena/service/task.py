@@ -36,7 +36,7 @@ class TaskService:
                 VALUES ($project_id, $task_type, $status)
                 RETURNING id, created, progress, status
                 """,
-                dict(project_id=project_id, task_type=task_type, status=f"{TaskService._time_slug()} {status}"),
+                dict(project_id=project_id, task_type=task_type.value, status=f"{TaskService._time_slug()} {status}"),
             ).fetchall()
         return api.Task(id=task_id, task_type=task_type, created=created, progress=progress, status=status)
 
@@ -66,11 +66,11 @@ class TaskService:
 
     # TODO: should this really be a long-running task? It only takes ~5 seconds for ~50k battles
     @staticmethod
-    def recompute_confidence_intervals(project_id: int) -> None:
+    def recompute_leaderboard(project_id: int) -> None:
         task_objects = TaskService.get_all(project_id)
-        if len([t for t in task_objects if t.task_type == "recompute-confidence-intervals" and t.progress < 1]) > 0:
+        if len([t for t in task_objects if t.task_type is api.TaskType.RECOMPUTE_LEADERBOARD and t.progress < 1]) > 0:
             return  # only recompute if there isn't already a task in progress
-        task_id = TaskService.create(project_id, "recompute-confidence-intervals").id
+        task_id = TaskService.create(project_id, api.TaskType.RECOMPUTE_LEADERBOARD).id
         try:
             EloService.reseed_scores(project_id)
         finally:
@@ -82,11 +82,11 @@ class TaskService:
         all_judges = JudgeService.get_all(project_id)
         enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
         if len(enabled_auto_judges) == 0:
-            logger.warning(f"No automated judges found, cant run automated judgement for model '{model_name}'")
+            logger.warning(f"No automated judges found, can't run automated judgement for model '{model_name}'")
             return  # do nothing if no judges are configured, do not create a task
         t_start = time.time()
         status = f"Started automated judging task for model '{model_name}'"
-        task_id = TaskService.create(project_id, "auto-judge", status).id
+        task_id = TaskService.create(project_id, api.TaskType.AUTO_JUDGE, status).id
         logger.info(status)
 
         try:
@@ -136,22 +136,16 @@ class TaskService:
             # TODO: stream to database?
             # 5. upload judgements to database
             judge_id_by_name = {j.name: j.id for j in enabled_auto_judges}
-            with get_database_connection() as conn:
-                dfs_h2h_judged = []
-                for judge_name, judge_responses in responses.items():
-                    df_h2h_judged = df_h2h.copy()
-                    df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
-                    df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
-                    df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
-                    dfs_h2h_judged.append(df_h2h_judged)
-                # randomize order of ratings to avoid biased elos when multiple judges are present
-                df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
-                conn.execute("""
-                    INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
-                    SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
-                    FROM df_h2h_judged_all
-                    ON CONFLICT (result_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner
-                """)
+            dfs_h2h_judged = []
+            for judge_name, judge_responses in responses.items():
+                df_h2h_judged = df_h2h.copy()
+                df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
+                df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
+                df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
+                dfs_h2h_judged.append(df_h2h_judged)
+            # randomize order of ratings to avoid biased elos when multiple judges are present
+            df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
+            HeadToHeadService.upload_head_to_heads(df_h2h_judged_all)
 
             # 6. recompute elo scores and confidence intervals
             TaskService.update(task_id, "Recomputing leaderboard rankings", progress=0.96)

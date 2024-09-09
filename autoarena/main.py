@@ -22,14 +22,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 def main() -> FastAPI:
     initialize_logger()
-
-    app = FastAPI(
-        title="AutoArena",
-        lifespan=lifespan,
-        openapi_url=f"/{API_V1_STR}/openapi.json",  # TODO: these are currently clobbered by the UI router wildcard
-        docs_url=f"/{API_V1_STR}/docs",
-    )
-
+    app = FastAPI(title="AutoArena", lifespan=lifespan, docs_url=f"{API_V1_STR}/docs")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -37,7 +30,6 @@ def main() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-
     app.include_router(router(), prefix=API_V1_STR)
     app.include_router(ui_router())
     return app

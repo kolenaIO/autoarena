@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { BASE_API_URL } from '../components/paths.ts';
+import { Result } from './useModelResults.ts';
 
 const HEAD_TO_HEADS_ENDPOINT = `${BASE_API_URL}/head-to-heads`;
 
@@ -10,11 +11,8 @@ export type HeadToHeadHistoryItem = {
 };
 
 export type HeadToHead = {
-  prompt: string;
-  result_a_id: number;
-  response_a: string;
-  result_b_id: number;
-  response_b: string;
+  result_a: Result;
+  result_b: Result;
   history: HeadToHeadHistoryItem[];
 };
 

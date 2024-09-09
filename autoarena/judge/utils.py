@@ -43,7 +43,12 @@ DEFAULT_MAX_TOKENS = 12
 
 
 def get_user_prompt(h2h: api.HeadToHead) -> str:
-    return USER_PROMPT_TEMPLATE.format(prompt=h2h.prompt, response_a=h2h.response_a, response_b=h2h.response_b)
+    assert h2h.result_a.prompt == h2h.result_b.prompt, "Invalid head-to-head: prompts A and B must be the same"
+    return USER_PROMPT_TEMPLATE.format(
+        prompt=h2h.result_a.prompt,
+        response_a=h2h.result_a.response,
+        response_b=h2h.result_b.response,
+    )
 
 
 class ABShufflingJudge(WrappingJudge):
@@ -57,13 +62,7 @@ class ABShufflingJudge(WrappingJudge):
 
     @staticmethod
     def _shuffle_h2h(h2h: api.HeadToHead) -> api.HeadToHead:
-        return api.HeadToHead(
-            prompt=h2h.prompt,
-            result_a_id=h2h.result_b_id,
-            response_a=h2h.response_b,
-            result_b_id=h2h.result_a_id,
-            response_b=h2h.response_a,
-        )
+        return api.HeadToHead(result_a=h2h.result_b, result_b=h2h.result_a)
 
     @staticmethod
     def _shuffle_winner(winner: str) -> str:

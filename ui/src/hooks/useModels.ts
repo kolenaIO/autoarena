@@ -7,6 +7,14 @@ export function getModelsQueryKey(projectId: number) {
   return [MODELS_ENDPOINT, projectId];
 }
 
+export type ModelExtraStats = {
+  max: number;
+  min: number;
+  mean: number;
+  median: number;
+  stdev: number;
+  sum: number;
+};
 export type Model = {
   id: number;
   name: string;
@@ -16,6 +24,7 @@ export type Model = {
   q975?: number;
   datapoints: number;
   votes: number;
+  extra_stats: { [name: string]: ModelExtraStats };
 };
 
 export function useModels(projectId: number | undefined) {

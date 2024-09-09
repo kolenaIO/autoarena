@@ -7,6 +7,7 @@ import { useModelResults } from '../../hooks/useModelResults.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { ControlBar } from './ControlBar.tsx';
+import { ExtraResultData } from './ExtraResultData.tsx';
 
 type Props = {
   modelId: number;
@@ -47,6 +48,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
         <Paper withBorder p="md" flex={1} style={{ overflow: 'auto' }}>
           <MarkdownContent>{`**Response:**\n\n${result?.response}`}</MarkdownContent>
         </Paper>
+        <ExtraResultData extra={result?.extra} />
       </Stack>
 
       <ControlBar>

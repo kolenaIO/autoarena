@@ -1,4 +1,5 @@
 import dataclasses
+import json
 
 import pandas as pd
 from loguru import logger
@@ -14,7 +15,7 @@ class HeadToHeadService:
     @staticmethod
     def get_df(request: api.HeadToHeadsRequest) -> pd.DataFrame:
         with get_database_connection() as conn:
-            return conn.execute(
+            df_h2h = conn.execute(
                 """
                 SELECT
                     ra.model_id AS model_a_id,
@@ -24,6 +25,8 @@ class HeadToHeadService:
                     ra.prompt AS prompt,
                     ra.response AS response_a,
                     rb.response AS response_b,
+                    ra.extra AS extra_a,
+                    rb.extra AS extra_b,
                     IFNULL(ARRAY_CONCAT(
                         ARRAY_AGG({
                             'judge_id': j1.id,
@@ -50,22 +53,22 @@ class HeadToHeadService:
                 AND ($model_b_id IS NULL OR rb.model_id = $model_b_id)
                 AND ra.model_id != rb.model_id
                 AND ma.project_id = mb.project_id
-                GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response
+                GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response, ra.extra, rb.extra
                 ORDER BY ra.id, rb.id
                 """,
                 dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             ).df()
+        df_h2h["extra_a"] = df_h2h["extra_a"].apply(json.loads)
+        df_h2h["extra_b"] = df_h2h["extra_b"].apply(json.loads)
+        return df_h2h
 
     @staticmethod
     def get(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
         df_h2h = HeadToHeadService.get_df(request)
         return [
             api.HeadToHead(
-                prompt=r.prompt,
-                result_a_id=r.result_a_id,
-                response_a=r.response_a,
-                result_b_id=r.result_b_id,
-                response_b=r.response_b,
+                result_a=api.Result(id=r.result_a_id, prompt=r.prompt, response=r.response_a, extra=r.extra_a),
+                result_b=api.Result(id=r.result_b_id, prompt=r.prompt, response=r.response_b, extra=r.extra_b),
                 history=[api.HeadToHeadHistoryItem(**h) for h in r.history],
             )
             for r in df_h2h.itertuples()

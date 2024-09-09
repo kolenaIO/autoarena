@@ -54,7 +54,7 @@ def router() -> APIRouter:
         return new_model
 
     @r.get("/model/{model_id}/results")
-    def get_model_results(model_id: int) -> list[api.ModelResult]:
+    def get_model_results(model_id: int) -> list[api.Result]:
         return ModelService.get_results(model_id)
 
     @r.get("/model/{model_id}/elo-history")
@@ -80,9 +80,13 @@ def router() -> APIRouter:
     @r.get("/model/{model_id}/download/results")
     async def download_model_results_csv(model_id: int) -> StreamingResponse:
         df_result = ModelService.get_df_result(model_id)
+        extra_keys = set([k for r in df_result.itertuples() for k in r.extra.keys()])
+        for key in extra_keys:
+            df_result[key] = df_result.extra.apply(lambda ex: ex.get(key, None))
+        df_out = df_result[["prompt", "response", *extra_keys]]
         model_name = df_result.iloc[0].model
         stream = StringIO()
-        df_result.to_csv(stream, index=False)
+        df_out.to_csv(stream, index=False)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
         return response

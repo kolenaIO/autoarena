@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS model (
     elo DOUBLE PRECISION NOT NULL DEFAULT 1000,
     q025 DOUBLE PRECISION,
     q975 DOUBLE PRECISION,
+    extra_stats JSON NOT NULL DEFAULT '{}',
     FOREIGN KEY (project_id) REFERENCES project (id),
     UNIQUE (project_id, name)
 );
@@ -40,6 +41,7 @@ CREATE TABLE IF NOT EXISTS result (
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     prompt TEXT NOT NULL,
     response TEXT NOT NULL,
+    extra JSON NOT NULL DEFAULT '{}',
     FOREIGN KEY (model_id) REFERENCES model (id),
     -- TODO: should we allow dupes for nondeterminism? This is a convenience to skip duplicate inserts
     UNIQUE (model_id, prompt)

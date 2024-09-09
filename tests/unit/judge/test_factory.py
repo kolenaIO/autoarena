@@ -11,7 +11,7 @@ from autoarena.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
 
 
 def test__judge_factory__human() -> None:
-    request = api.Judge(
+    api_judge = api.Judge(
         id=0,
         judge_type=api.JudgeType.HUMAN,
         created=datetime.utcnow(),
@@ -22,7 +22,7 @@ def test__judge_factory__human() -> None:
         enabled=True,
         votes=0,
     )
-    judge = judge_factory(request)
+    judge = judge_factory(api_judge)
     assert type(judge) is HumanJudge
     assert judge.judge_type is api.JudgeType.HUMAN
     assert judge.name == "Human"
@@ -30,7 +30,11 @@ def test__judge_factory__human() -> None:
     assert judge.system_prompt is None
     assert judge.description is not None
     with pytest.raises(NotImplementedError):
-        judge.judge(api.HeadToHead(prompt="p", result_a_id=100, result_b_id=200, response_a="a", response_b="b"))
+        api_h2h = api.HeadToHead(
+            result_a=api.Result(id=100, prompt="p", response="a"),
+            result_b=api.Result(id=200, prompt="p", response="b"),
+        )
+        judge.judge(api_h2h)
 
 
 def test__judge_factory__custom() -> None:

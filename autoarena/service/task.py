@@ -107,8 +107,11 @@ class TaskService:
 
             # 4. stream judgement requests
             head_to_heads = [
-                api.HeadToHead(**r)
-                for _, r in df_h2h[["prompt", "result_a_id", "response_a", "result_b_id", "response_b"]].iterrows()
+                api.HeadToHead(
+                    result_a=api.Result(id=r.result_a_id, prompt=r.prompt, response=r.response_a, extra=r.extra_a),
+                    result_b=api.Result(id=r.result_b_id, prompt=r.prompt, response=r.response_b, extra=r.extra_b),
+                )
+                for r in df_h2h.itertuples()
             ]
             executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
@@ -116,7 +119,7 @@ class TaskService:
             n_total = n_h2h * len(judges)
             t_start_judging = time.time()
             for judge, h2h, winner in executor.execute(judges, head_to_heads):
-                responses[judge.name].append((h2h.result_a_id, h2h.result_b_id, winner))
+                responses[judge.name].append((h2h.result_a.id, h2h.result_b.id, winner))
                 n_this_judge = len(responses[judge.name])
                 n_responses = sum(len(r) for r in responses.values())
                 progress = 0.95 * (n_responses / n_total)

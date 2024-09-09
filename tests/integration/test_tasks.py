@@ -64,8 +64,8 @@ def test__task__recompute_leaderboard(model_results: tuple[int, int, int]) -> No
     for h2h in h2hs:
         submit_judgement_request = api.HeadToHeadJudgementRequest(
             project_id=project_id,
-            result_a_id=h2h.result_a_id,
-            result_b_id=h2h.result_b_id,
+            result_a_id=h2h.result_a.id,
+            result_b_id=h2h.result_b.id,
             winner="A",
         )
         HeadToHeadService.submit_judgement(submit_judgement_request)

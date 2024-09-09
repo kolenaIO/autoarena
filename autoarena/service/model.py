@@ -117,11 +117,11 @@ class ModelService:
                 dict(project_id=project_id, model_name=model_name, extra_stats=extra_stats),
             ).fetchall()
             extra_columns = list(set(df_result.columns) - {"prompt", "response"})
-            df_result["extra"] = df_result[extra_columns].apply(lambda r: r.to_dict(), axis=1)
+            df_result["extra"] = df_result[extra_columns].apply(lambda r: dict() if r.empty else r.to_dict(), axis=1)
             df_result["model_id"] = new_model_id
             conn.execute("""
                 INSERT INTO result (model_id, prompt, response, extra)
-                SELECT model_id, prompt, response, extra
+                SELECT model_id, prompt, response, IFNULL(extra, JSON('{}'))
                 FROM df_result
             """)
         models = ModelService.get_all(project_id)

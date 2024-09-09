@@ -36,7 +36,7 @@ class Result:
     id: int
     prompt: str
     response: str
-    extra: dict[str, Union[float, int, bool, str, None]]
+    extra: dict[str, Union[float, int, bool, str, None]] = dataclasses.field(default_factory=dict)
 
 
 @dataclass(frozen=True)

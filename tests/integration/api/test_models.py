@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
-from autoarena.api import api
 from tests.integration.api.conftest import DF_RESULT
 
 
@@ -12,7 +11,12 @@ from tests.integration.api.conftest import DF_RESULT
 def n_model_a_votes(api_v1_client: TestClient, project_id: int, model_id: int, model_b_id: int) -> int:
     h2h = api_v1_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     for h in h2h:
-        request = dict(project_id=project_id, result_a_id=h["result_a_id"], result_b_id=h["result_b_id"], winner="A")
+        request = dict(
+            project_id=project_id,
+            result_a_id=h["result_a"]["id"],
+            result_b_id=h["result_b"]["id"],
+            winner="A",
+        )
         assert api_v1_client.post("/head-to-head/judgement", json=request).json() is None
     return len(h2h)
 
@@ -32,8 +36,8 @@ def test__models__upload(api_v1_client: TestClient, project_id: int, model_id: i
 
 def test__models__get_results(api_v1_client: TestClient, project_id: int, model_id: int) -> None:
     assert api_v1_client.get(f"/model/{model_id}/results").json() == [
-        api.ModelResult(prompt="p1", response="r1").__dict__,
-        api.ModelResult(prompt="p2", response="r2").__dict__,
+        dict(id=1, prompt="p1", response="r1", extra=dict()),
+        dict(id=2, prompt="p2", response="r2", extra=dict()),
     ]
 
 

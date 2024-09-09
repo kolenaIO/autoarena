@@ -1,17 +1,14 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { JudgeType } from '../components/Judges/types.ts';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/baseRoutes.ts';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
 
-const CREATE_JUDGE_ENDPOINT = `${BASE_API_URL}/judge`;
-
-function getCreateJudgeQueryKey(projectId: number) {
-  return [CREATE_JUDGE_ENDPOINT, projectId];
+function getCreateJudgeQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/judge', 'POST'];
 }
 
 type CreateJudgeRequest = {
-  project_id: number;
   judge_type: JudgeType;
   name: string;
   model_name: string;
@@ -20,15 +17,15 @@ type CreateJudgeRequest = {
 };
 
 type Params = {
-  projectId: number;
+  projectSlug: string;
   options?: UseMutationOptions<Judge, Error, CreateJudgeRequest>;
 };
-export function useCreateJudge({ projectId, options = {} }: Params) {
+export function useCreateJudge({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getCreateJudgeQueryKey(projectId),
+    mutationKey: getCreateJudgeQueryKey(projectSlug),
     mutationFn: async (request: CreateJudgeRequest) => {
-      const response = await fetch(CREATE_JUDGE_ENDPOINT, {
+      const response = await fetch(`${getProjectUrl(projectSlug)}/judge`, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
@@ -53,7 +50,7 @@ export function useCreateJudge({ projectId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectId) });
+      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
     },
     ...options,
   });

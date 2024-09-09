@@ -3,7 +3,7 @@ import moment from 'moment';
 import { IconDownload, IconGavel } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
-import { BASE_API_URL } from '../paths.ts';
+import { BASE_API_URL } from '../../lib/baseRoutes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useTriggerModelJudgement } from '../../hooks/useTriggerModelJudgement.ts';

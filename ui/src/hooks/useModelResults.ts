@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/baseRoutes.ts';
 
 function getModelResultsEndpoint(modelId: number) {
   return `${BASE_API_URL}/model/${modelId}/results`;

@@ -10,23 +10,24 @@ type Props = {
   onClose: () => void;
 };
 export function DeleteProjectModal({ isOpen, onClose }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { data: project } = useProject(projectId);
+  const { projectSlug = '' } = useUrlState();
+  const { data: project } = useProject(projectSlug);
   const { mutate: deleteProject } = useDeleteProject();
   const navigate = useNavigate();
 
   function handleDeleteProject() {
-    deleteProject(projectId);
+    deleteProject(projectSlug);
     navigate('/');
     onClose();
   }
 
+  // TODO: update message to refer to filename
   return (
     <Modal opened={isOpen} centered onClose={onClose} title="Confirm Project Deletion">
       <Stack>
         <Stack gap="sm">
           <Text size="sm">Confirm deletion of project:</Text>
-          <Code block>{project?.name}</Code>
+          <Code block>{project?.slug}</Code>
           <Text size="sm">This action cannot be undone.</Text>
         </Stack>
         <ConfirmOrCancelBar

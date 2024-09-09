@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/baseRoutes.ts';
 
 const JUDGE_DEFAULT_SYSTEM_PROMPT_ENDPOINT = `${BASE_API_URL}/judge/default-system-prompt`;
 

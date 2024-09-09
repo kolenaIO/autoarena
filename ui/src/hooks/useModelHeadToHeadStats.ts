@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/baseRoutes.ts';
 
 const MODEL_HEAD_TO_HEAD_STATS_ENDPOINT = `${BASE_API_URL}/model`;
 const MODEL_HEAD_TO_HEAD_STATS_STUB = 'head-to-head/stats';

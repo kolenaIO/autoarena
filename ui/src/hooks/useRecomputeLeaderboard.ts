@@ -1,24 +1,22 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/baseRoutes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 
-const RECOMPUTE_LEADERBOARD_ENDPOINT = `${BASE_API_URL}/elo/reseed-scores`;
-
-function getDeleteJudgeQueryKey() {
-  return [RECOMPUTE_LEADERBOARD_ENDPOINT];
+function getDeleteJudgeQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/elo/reseed-scores'];
 }
 
 type Params = {
-  projectId: number;
+  projectSlug: string;
   options?: UseMutationOptions<void, Error, void>;
 };
-export function useRecomputeLeaderboard({ projectId, options = {} }: Params) {
+export function useRecomputeLeaderboard({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getDeleteJudgeQueryKey(),
+    mutationKey: getDeleteJudgeQueryKey(projectSlug),
     mutationFn: async () => {
-      const url = `${RECOMPUTE_LEADERBOARD_ENDPOINT}/${projectId}`;
+      const url = `${getProjectUrl(projectSlug)}/elo/reseed-scores`;
       await fetch(url, { method: 'PUT' });
     },
     onSuccess: () => {
@@ -29,7 +27,7 @@ export function useRecomputeLeaderboard({ projectId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectId) });
+      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
     },
     ...options,
   });

@@ -1,26 +1,24 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/baseRoutes.ts';
 import { getJudgesQueryKey } from './useJudges.ts';
 import { getModelEloHistoryQueryKey } from './useModelEloHistory.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 
-const DELETE_JUDGE_ENDPOINT = `${BASE_API_URL}/judge`;
-
-function getDeleteJudgeQueryKey() {
-  return [DELETE_JUDGE_ENDPOINT, 'DELETE'];
+function getDeleteJudgeQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/judge', 'DELETE'];
 }
 
 type Params = {
-  projectId: number;
+  projectSlug: string;
   options?: UseMutationOptions<void, Error, number>;
 };
-export function useDeleteJudge({ projectId, options = {} }: Params) {
+export function useDeleteJudge({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getDeleteJudgeQueryKey(),
+    mutationKey: getDeleteJudgeQueryKey(projectSlug),
     mutationFn: async (judgeId: number) => {
-      const url = `${DELETE_JUDGE_ENDPOINT}/${judgeId}`;
+      const url = `${getProjectUrl(projectSlug)}/judge/${judgeId}`;
       await fetch(url, { method: 'DELETE' });
     },
     onError: () => {
@@ -31,7 +29,7 @@ export function useDeleteJudge({ projectId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectId) });
+      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
       queryClient.invalidateQueries({ queryKey: getModelEloHistoryQueryKey() }); // invalidate all
       queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey() });
     },

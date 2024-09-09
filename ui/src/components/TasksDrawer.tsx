@@ -11,22 +11,22 @@ import { getModelsQueryKey } from '../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../hooks/useClearCompletedTasks.ts';
 
 export function TasksDrawer() {
-  const { projectId } = useUrlState();
+  const { projectSlug } = useUrlState();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
   const { data: tasks } = useTasks({
-    projectId,
+    projectSlug: projectSlug,
     options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
   });
-  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectId });
+  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug: projectSlug });
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ progress }) => progress < 1), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ progress }) => progress >= 1), [tasksSorted]);
 
   // reload models if any tasks are newly completed
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectId ?? -1) });
+    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
   }, [tasksCompleted.length]);
 
   return (

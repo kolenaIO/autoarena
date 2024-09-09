@@ -15,13 +15,13 @@ type Props = {
 };
 export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const [isEnabled, setIsEnabled] = useState(enabled);
-  const { mutate: updateJudge } = useUpdateJudge({ projectId });
+  const { mutate: updateJudge } = useUpdateJudge({ projectSlug });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
 
   function handleToggleEnabled() {
-    updateJudge({ project_id: projectId, judge_id: id, enabled: !enabled });
+    updateJudge({ judge_id: id, enabled: !enabled });
     setIsEnabled(prev => !prev);
   }
 
@@ -71,7 +71,7 @@ export function JudgeAccordionItem({ judge }: Props) {
           ) : (
             <Text>
               Visit the{' '}
-              <Link to={`/project/${projectId}/compare`}>
+              <Link to={`/project/${projectSlug}/compare`}>
                 <Text span c="kolena.8">
                   Head-to-Head
                 </Text>

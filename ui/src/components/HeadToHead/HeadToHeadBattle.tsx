@@ -16,12 +16,12 @@ type Props = {
   modelBId: number;
 };
 export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const navigate = useNavigate();
   const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
   // TODO: loading state?
-  const { data: battles, isLoading } = useHeadToHeads({ modelAId, modelBId });
-  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
+  const { data: battles, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
+  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectSlug });
   const [battleIndex, setBattleIndex] = useState(0);
   const battle = useMemo(() => battles?.[battleIndex], [battles, battleIndex]);
   const nBattles: number = battles?.length ?? 0;
@@ -41,7 +41,6 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
     return () => {
       if (battle != null) {
         submitJudgement({
-          project_id: projectId,
           result_a_id: battle.result_a_id,
           result_b_id: battle.result_b_id,
           winner: vote,
@@ -81,7 +80,7 @@ export function HeadToHeadBattle({ modelAId, modelBId }: Props) {
       description={
         <Stack>
           <Text>Judged all {nBattles.toLocaleString()} head-to-head matchups between selected models</Text>
-          <Button onClick={() => navigate(`/project/${projectId}`)}>View Leaderboard</Button>
+          <Button onClick={() => navigate(`/project/${projectSlug}`)}>View Leaderboard</Button>
         </Stack>
       }
     />

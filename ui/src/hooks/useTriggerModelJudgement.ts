@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/baseRoutes.ts';
 
 function getTriggerModelJudgementEndpoint(modelId: number | undefined) {
   return `${BASE_API_URL}/model/${modelId}/judge`;

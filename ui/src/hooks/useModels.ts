@@ -1,10 +1,8 @@
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/baseRoutes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
-const MODELS_ENDPOINT = `${BASE_API_URL}/models`;
-
-export function getModelsQueryKey(projectId: number) {
-  return [MODELS_ENDPOINT, projectId];
+export function getModelsQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/models'];
 }
 
 export type Model = {
@@ -18,19 +16,18 @@ export type Model = {
   votes: number;
 };
 
-export function useModels(projectId: number | undefined) {
+export function useModels(projectSlug: string | undefined) {
   return useQueryWithErrorToast({
-    queryKey: getModelsQueryKey(projectId ?? -1),
+    queryKey: getModelsQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${MODELS_ENDPOINT}/${projectId}`;
-      const response = await fetch(url);
+      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/models`);
       if (!response.ok) {
         return;
       }
       const result: Model[] = await response.json();
       return result;
     },
-    enabled: projectId != null,
+    enabled: projectSlug != null,
     errorMessage: 'Failed to fetch models',
   });
 }

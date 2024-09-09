@@ -7,13 +7,13 @@ type Props = {
   selectedModels: RankedModel[];
 };
 export function ExploreSelectedModels({ selectedModels }: Props) {
-  const { projectId } = useUrlState();
+  const { projectSlug } = useUrlState();
   const navigate = useNavigate();
 
   function handleGoCompare() {
     const modelA = selectedModels[0];
     const modelB = selectedModels[1];
-    if ((modelA == null && modelB == null) || projectId == null) {
+    if ((modelA == null && modelB == null) || projectSlug == null) {
       return;
     }
     const params = new URLSearchParams();
@@ -23,7 +23,7 @@ export function ExploreSelectedModels({ selectedModels }: Props) {
     if (modelB != null) {
       params.append('modelB', String(modelB.id));
     }
-    navigate(`/project/${projectId}/compare?${params}`);
+    navigate(`/project/${projectSlug}/compare?${params}`);
   }
 
   return (

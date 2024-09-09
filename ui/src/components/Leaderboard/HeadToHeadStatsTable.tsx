@@ -46,7 +46,7 @@ type Props = {
   modelId: number;
 };
 export function HeadToHeadStatsTable({ modelId }: Props) {
-  const { projectId = -1, judgeId } = useUrlState();
+  const { projectSlug = '', judgeId } = useUrlState();
   const navigate = useNavigate();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge(modelId, judgeId);
 
@@ -97,7 +97,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         minHeight={statsRecords.length === 0 ? 180 : undefined}
         highlightOnHover
         onRowClick={({ record: { other_model_id } }) => {
-          navigate(`/project/${projectId}/compare?modelA=${modelId}&modelB=${other_model_id}`);
+          navigate(`/project/${projectSlug}/compare?modelA=${modelId}&modelB=${other_model_id}`);
         }}
         page={pageNumber}
         onPageChange={setPageNumber}

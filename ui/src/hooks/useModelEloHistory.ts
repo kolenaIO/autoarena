@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/baseRoutes.ts';
 
 function getModelEloHistoryEndpoint(modelId: number, judgeId: number | undefined) {
   const params = judgeId != null ? new URLSearchParams({ judge_id: String(judgeId) }) : undefined;

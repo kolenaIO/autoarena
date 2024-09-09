@@ -17,11 +17,11 @@ type Props = {
   tab: Tab;
 };
 export function Page({ tab }: Props) {
-  const { projectId } = useUrlState();
+  const { projectSlug } = useUrlState();
   const navigate = useNavigate();
 
   function setTab(newTab: string | null) {
-    const baseUrl = `/project/${projectId}`;
+    const baseUrl = `/project/${projectSlug}`;
     switch (newTab) {
       case TAB_LEADERBOARD:
         navigate(baseUrl);
@@ -55,15 +55,15 @@ export function Page({ tab }: Props) {
         <Tabs.Tab
           ml="xl"
           value={TAB_LEADERBOARD}
-          disabled={projectId == null}
+          disabled={projectSlug == null}
           leftSection={<IconCrown {...iconProps} />}
         >
           {TAB_LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_COMPARISON} disabled={projectId == null} leftSection={<IconSwords {...iconProps} />}>
+        <Tabs.Tab value={TAB_COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
           {TAB_COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_JUDGES} disabled={projectId == null} leftSection={<IconGavel {...iconProps} />}>
+        <Tabs.Tab value={TAB_JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
           {TAB_JUDGES}
         </Tabs.Tab>
         <Group gap="lg" align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
@@ -73,7 +73,7 @@ export function Page({ tab }: Props) {
       </Tabs.List>
 
       <Tabs.Panel value={TAB_LEADERBOARD}>
-        {projectId != null ? (
+        {projectSlug != null ? (
           <Leaderboard />
         ) : (
           <Stack justify="center" align="center" h="calc(100vh - 56px)">

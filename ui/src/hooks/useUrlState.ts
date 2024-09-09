@@ -1,13 +1,13 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
 
 export function useUrlState() {
-  const { projectId: projectIdFromUrl } = useParams();
+  const { projectSlug: projectSlugFromUrl } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
-  const projectId = projectIdFromUrl != null ? Number(projectIdFromUrl) : undefined;
-  function setProjectId(newProjectId: number | null | undefined) {
-    navigate(newProjectId != null ? `/project/${newProjectId}` : '/');
+  const projectSlug = typeof projectSlugFromUrl === 'string' ? projectSlugFromUrl : undefined;
+  function setProjectSlug(newProjectSlug: string | null | undefined) {
+    navigate(newProjectSlug != null ? `/project/${newProjectSlug}` : '/');
   }
 
   const judgeIdFromUrl = searchParams.get('judgeId');
@@ -21,5 +21,5 @@ export function useUrlState() {
     setSearchParams(newSearchParams);
   }
 
-  return { projectId, setProjectId, judgeId, setJudgeId };
+  return { projectSlug, setProjectSlug, judgeId, setJudgeId };
 }

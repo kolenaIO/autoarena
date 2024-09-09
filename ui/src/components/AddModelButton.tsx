@@ -26,11 +26,11 @@ type Props = {
   size?: MantineSize;
 };
 export function AddModelButton({ variant, size }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { data: models } = useModels(projectId);
-  const { data: judges } = useJudges(projectId);
+  const { projectSlug = '' } = useUrlState();
+  const { data: models } = useModels(projectSlug);
+  const { data: judges } = useJudges(projectSlug);
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: uploadModelResults } = useUploadModelResults({ projectId });
+  const { mutate: uploadModelResults } = useUploadModelResults({ projectSlug });
 
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');

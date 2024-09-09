@@ -10,12 +10,12 @@ import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
 import { HeadToHeadSingleModel } from './HeadToHeadSingleModel.tsx';
 
 export function HeadToHead() {
-  const { projectId } = useUrlState();
+  const { projectSlug } = useUrlState();
   // TODO: migrate this to useUrlState
   const [searchParams, setSearchParams] = useSearchParams();
   const urlModelAId = searchParams.get('modelA');
   const urlModelBId = searchParams.get('modelB');
-  const { data: models } = useModels(projectId);
+  const { data: models } = useModels(projectSlug);
   const allSelectModels = useMemo(
     () =>
       sortBy<{ value: string; label: string }>(

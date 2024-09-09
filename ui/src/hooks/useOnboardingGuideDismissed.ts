@@ -1,8 +1,8 @@
 import { useLocalStorage } from '@mantine/hooks';
 
-export function useOnboardingGuideDismissed(projectId: number | undefined) {
+export function useOnboardingGuideDismissed(projectSlug: string | undefined) {
   return useLocalStorage<boolean>({
-    key: `/project/${projectId}/onboarding-guide-dismissed`,
+    key: `/project/${projectSlug}/onboarding-guide-dismissed`,
     defaultValue: false,
     deserialize: value => value === 'true',
     serialize: value => (value ? 'true' : 'false'),

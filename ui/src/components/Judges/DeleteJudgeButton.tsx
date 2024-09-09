@@ -9,9 +9,9 @@ type Props = {
   judge: Judge;
 };
 export function DeleteJudgeButton({ judge }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: deleteJudge } = useDeleteJudge({ projectId });
+  const { mutate: deleteJudge } = useDeleteJudge({ projectSlug });
 
   function handleDelete() {
     deleteJudge(judge.id);

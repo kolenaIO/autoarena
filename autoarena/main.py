@@ -7,7 +7,7 @@ from loguru import logger
 
 from autoarena.api.router import router
 from autoarena.log import initialize_logger
-from autoarena.store.seed import setup_database
+from autoarena.store.database import get_data_directory
 from autoarena.ui_router import ui_router
 
 API_V1_STR = "/api/v1"
@@ -15,8 +15,8 @@ API_V1_STR = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    setup_database()
-    logger.info("AutoArena ready")
+    logger.info(f"Using data directory: {get_data_directory()}")
+    logger.success("AutoArena ready")
     yield
 
 

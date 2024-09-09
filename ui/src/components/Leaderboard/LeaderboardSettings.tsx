@@ -6,8 +6,8 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { DeleteProjectModal } from '../DeleteProjectModal.tsx';
 
 export function LeaderboardSettings() {
-  const { projectId = -1 } = useUrlState();
-  const { mutate: recomputeLeaderboard, isPending } = useRecomputeLeaderboard({ projectId });
+  const { projectSlug = '' } = useUrlState();
+  const { mutate: recomputeLeaderboard, isPending } = useRecomputeLeaderboard({ projectSlug });
   const [isDeleteProjectModalOpen, { toggle, close }] = useDisclosure(false);
 
   return (

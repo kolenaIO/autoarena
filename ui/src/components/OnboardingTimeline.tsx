@@ -16,11 +16,11 @@ type Props = {
   dismissable?: boolean;
 };
 export function OnboardingTimeline({ dismissable = true }: Props) {
-  const { projectId } = useUrlState();
-  const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectId);
-  const { data: models, isLoading: isLoadingModels } = useModels(projectId);
-  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectId);
-  const [onboardingGuideDismissed, setOnboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
+  const { projectSlug } = useUrlState();
+  const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectSlug);
+  const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);
+  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectSlug);
+  const [onboardingGuideDismissed, setOnboardingGuideDismissed] = useOnboardingGuideDismissed(projectSlug);
   const [activeStage, setActiveStage] = useState(-1);
 
   const hasCreatedProject = activeProject != null;
@@ -101,15 +101,18 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             title={
               <TimelineItemTitle
                 title="Create project"
-                timestamp={activeProject?.created}
                 action={activeStage === -1 ? <CreateProjectButton size="xs" /> : undefined}
               />
             }
           >
             <Text {...subtitleProps}>
-              {activeProject != null
-                ? `Created project '${activeProject?.name}'`
-                : 'Create a project or select existing project'}
+              {activeProject != null ? (
+                <>
+                  Created project '{activeProject?.slug}' at <Code>{activeProject?.filepath}</Code>
+                </>
+              ) : (
+                'Create a project or select existing project'
+              )}
             </Text>
           </Timeline.Item>
 
@@ -142,7 +145,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
                 timestamp={firstJudge?.created}
                 action={
                   activeStage === 1 ? (
-                    <Anchor href={`/project/${projectId}/judges`}>
+                    <Anchor href={`/project/${projectSlug}/judges`}>
                       <Button leftSection={<IconGavel size={18} />} size="xs">
                         Configure Judge
                       </Button>

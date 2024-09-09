@@ -1,27 +1,25 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { getTasksQueryKey } from './useTasks.ts';
 
-const CLEAR_COMPLETED_TASKS_ENDPOINT = `${BASE_API_URL}/tasks`;
-
-function getClearCompletedTasksQueryKey() {
-  return [CLEAR_COMPLETED_TASKS_ENDPOINT, 'DELETE'];
+function getClearCompletedTasksQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/tasks', 'DELETE'];
 }
 
 type Params = {
-  projectId?: number;
+  projectSlug?: string;
   options?: UseMutationOptions<void, Error, void>;
 };
-export function useClearCompletedTasks({ projectId, options = {} }: Params) {
+export function useClearCompletedTasks({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getClearCompletedTasksQueryKey(),
+    mutationKey: getClearCompletedTasksQueryKey(projectSlug ?? ''),
     mutationFn: async () => {
-      const url = `${CLEAR_COMPLETED_TASKS_ENDPOINT}/${projectId}/completed`;
+      const url = `${getProjectUrl(projectSlug ?? '')}/tasks/completed`;
       await fetch(url, { method: 'DELETE' });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectId ?? -1) });
+      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
     },
     ...options,
   });

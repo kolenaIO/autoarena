@@ -1,20 +1,21 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
-function getTriggerModelJudgementEndpoint(modelId: number | undefined) {
-  return `${BASE_API_URL}/model/${modelId}/judge`;
+function getTriggerModelJudgementQueryKey(projectSlug: string, modelId: number | undefined) {
+  return [getProjectUrl(projectSlug), '/model', modelId, '/judge'];
 }
 
 type Params = {
+  projectSlug: string;
   modelId?: number;
   options?: UseMutationOptions<void, Error, void>;
 };
-export function useTriggerModelJudgement({ modelId, options = {} }: Params) {
+export function useTriggerModelJudgement({ projectSlug, modelId, options = {} }: Params) {
   return useMutation({
-    mutationKey: [getTriggerModelJudgementEndpoint(modelId)],
+    mutationKey: getTriggerModelJudgementQueryKey(projectSlug, modelId),
     mutationFn: async () => {
-      await fetch(getTriggerModelJudgementEndpoint(modelId), { method: 'POST' });
+      await fetch(`${getProjectUrl(projectSlug)}/model/${modelId}/judge`, { method: 'POST' });
     },
     onSuccess: () => {
       notifications.show({

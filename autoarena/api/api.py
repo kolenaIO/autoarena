@@ -8,9 +8,9 @@ from pydantic.dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Project:
-    id: int
-    name: str
-    created: datetime
+    slug: str  # stem of the database file
+    filename: str  # name of database file
+    filepath: str  # full path to database file
 
 
 @dataclass(frozen=True)
@@ -75,7 +75,6 @@ class HeadToHead:
 
 @dataclass(frozen=True)
 class HeadToHeadJudgementRequest:  # this is always coming from humans
-    project_id: int
     result_a_id: int
     result_b_id: int
     winner: WinnerType
@@ -123,7 +122,6 @@ class Judge:
 
 @dataclass(frozen=True)
 class CreateJudgeRequest:
-    project_id: int
     judge_type: JudgeType
     name: str
     model_name: str
@@ -133,8 +131,6 @@ class CreateJudgeRequest:
 
 @dataclass(frozen=True)
 class UpdateJudgeRequest:
-    project_id: int
-    judge_id: int
     enabled: bool
     # TODO: update name, description, system prompt?
 

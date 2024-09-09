@@ -16,15 +16,15 @@ type Props = {
   modelBId: number;
 };
 export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const navigate = useNavigate();
   const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
   // TODO: loading state?
-  const { data: headToHeads, isLoading } = useHeadToHeads({ modelAId, modelBId });
-  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
+  const { data: battles, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
+  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
-  const headToHead = useMemo(() => headToHeads?.[headToHeadIndex], [headToHeads, headToHeadIndex]);
-  const nHeadToHeads: number = headToHeads?.length ?? 0;
+  const headToHead = useMemo(() => battles?.[headToHeadIndex], [battles, headToHeadIndex]);
+  const nHeadToHeads: number = battles?.length ?? 0;
 
   useEffect(() => {
     setHeadToHeadIndex(0);
@@ -41,7 +41,6 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     return () => {
       if (headToHead != null) {
         submitJudgement({
-          project_id: projectId,
           result_a_id: headToHead.result_a_id,
           result_b_id: headToHead.result_b_id,
           winner: vote,
@@ -81,7 +80,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
       description={
         <Stack>
           <Text>Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between selected models</Text>
-          <Button onClick={() => navigate(`/project/${projectId}`)}>View Leaderboard</Button>
+          <Button onClick={() => navigate(`/project/${projectSlug}`)}>View Leaderboard</Button>
         </Stack>
       }
     />

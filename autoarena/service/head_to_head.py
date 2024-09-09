@@ -6,14 +6,14 @@ from loguru import logger
 from autoarena.api import api
 from autoarena.service.elo import EloService
 from autoarena.judge.human import HumanJudge
-from autoarena.store.database import get_database_connection
+from autoarena.service.project import ProjectService
 from autoarena.store.utils import id_slug
 
 
 class HeadToHeadService:
     @staticmethod
-    def get_df(request: api.HeadToHeadsRequest) -> pd.DataFrame:
-        with get_database_connection() as conn:
+    def get_df(project_slug: str, request: api.HeadToHeadsRequest) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
             return conn.execute(
                 """
                 SELECT
@@ -49,7 +49,6 @@ class HeadToHeadService:
                 WHERE ra.model_id = $model_a_id
                 AND ($model_b_id IS NULL OR rb.model_id = $model_b_id)
                 AND ra.model_id != rb.model_id
-                AND ma.project_id = mb.project_id
                 GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response
                 ORDER BY ra.id, rb.id
                 """,
@@ -57,8 +56,8 @@ class HeadToHeadService:
             ).df()
 
     @staticmethod
-    def get(request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
-        df_h2h = HeadToHeadService.get_df(request)
+    def get(project_slug: str, request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
+        df_h2h = HeadToHeadService.get_df(project_slug, request)
         return [
             api.HeadToHead(
                 prompt=r.prompt,
@@ -72,8 +71,8 @@ class HeadToHeadService:
         ]
 
     @staticmethod
-    def submit_judgement(request: api.HeadToHeadJudgementRequest) -> None:
-        with get_database_connection() as conn:
+    def submit_judgement(project_slug: str, request: api.HeadToHeadJudgementRequest) -> None:
+        with ProjectService.connect(project_slug) as conn:
             # 1. insert head-to-head record
             human_judge = HumanJudge()
             conn.execute(
@@ -81,8 +80,7 @@ class HeadToHeadService:
                 INSERT INTO head_to_head (result_id_slug, result_a_id, result_b_id, judge_id, winner)
                 SELECT id_slug($result_a_id, $result_b_id), $result_a_id, $result_b_id, j.id, $winner
                 FROM judge j
-                WHERE j.project_id = $project_id
-                AND j.name = $judge_name
+                WHERE j.name = $judge_name
                 ON CONFLICT (result_id_slug, judge_id) DO UPDATE SET
                     winner = IF(result_a_id = $result_b_id, invert_winner(EXCLUDED.winner), EXCLUDED.winner)
             """,
@@ -109,7 +107,7 @@ class HeadToHeadService:
                 conn.execute("UPDATE model SET elo = $elo WHERE id = $model_id", dict(model_id=model_id, elo=elo))
 
     @staticmethod
-    def upload_head_to_heads(df_h2h: pd.DataFrame) -> None:  # TODO: return type?
+    def upload_head_to_heads(project_slug: str, df_h2h: pd.DataFrame) -> None:  # TODO: return type?
         required_columns = {"result_a_id", "result_b_id", "judge_id", "winner"}
         missing_columns = required_columns - set(df_h2h.columns)
         if len(missing_columns) > 0:
@@ -119,7 +117,7 @@ class HeadToHeadService:
         df_h2h_deduped = df_h2h_deduped.drop_duplicates(subset=["result_id_slug"], keep="first")
         if len(df_h2h_deduped) != len(df_h2h):
             logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
-        with get_database_connection() as conn:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute("""
                 INSERT INTO head_to_head (result_id_slug, result_a_id, result_b_id, judge_id, winner)
                 SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner

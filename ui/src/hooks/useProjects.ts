@@ -1,18 +1,18 @@
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 const PROJECTS_ENDPOINT = `${BASE_API_URL}/projects`;
 export const PROJECTS_QUERY_KEY = [PROJECTS_ENDPOINT];
 
 export type Project = {
-  id: number;
-  name: string;
-  created: string;
+  slug: string;
+  filename: string;
+  filepath: string;
 };
 
 export function useProjects() {
   return useQueryWithErrorToast({
-    queryKey: [PROJECTS_ENDPOINT],
+    queryKey: PROJECTS_QUERY_KEY,
     queryFn: async () => {
       const response = await fetch(PROJECTS_ENDPOINT);
       if (!response.ok) {

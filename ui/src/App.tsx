@@ -39,9 +39,9 @@ const queryClient = new QueryClient({});
 
 const router = createBrowserRouter([
   { path: '/', element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: '/project/:projectId', element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: '/project/:projectId/compare', element: <Page tab={TAB_COMPARISON} /> },
-  { path: '/project/:projectId/judges', element: <Page tab={TAB_JUDGES} /> },
+  { path: '/project/:projectSlug', element: <Page tab={TAB_LEADERBOARD} /> },
+  { path: '/project/:projectSlug/compare', element: <Page tab={TAB_COMPARISON} /> },
+  { path: '/project/:projectSlug/judges', element: <Page tab={TAB_JUDGES} /> },
   { path: '*', element: <PageNotFound /> },
 ]);
 

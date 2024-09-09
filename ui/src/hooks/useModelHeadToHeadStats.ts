@@ -1,15 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
-const MODEL_HEAD_TO_HEAD_STATS_ENDPOINT = `${BASE_API_URL}/model`;
-const MODEL_HEAD_TO_HEAD_STATS_STUB = 'head-to-head/stats';
-
-export function getModelHeadToHeadStatsEndpoint(modelId: number) {
-  return `${MODEL_HEAD_TO_HEAD_STATS_ENDPOINT}/${modelId}/${MODEL_HEAD_TO_HEAD_STATS_STUB}`;
+export function getModelHeadToHeadStatsEndpoint(projectSlug: string, modelId: number) {
+  return `${getProjectUrl(projectSlug)}/model/${modelId}/head-to-head/stats`;
 }
 
-export function getModelHeadToHeadStatsQueryKey(modelId?: number) {
-  return ['model', 'head-to-head/stats', ...(modelId != null ? [modelId] : [])];
+export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {
+  return [getProjectUrl(projectSlug), '/model', modelId, '/head-to-head/stats'];
 }
 
 export type ModelHeadToHeadStats = {
@@ -22,11 +19,15 @@ export type ModelHeadToHeadStats = {
   count_ties: number;
 };
 
-export function useModelHeadToHeadStats(modelId: number | undefined) {
+type Params = {
+  projectSlug?: string;
+  modelId?: number;
+};
+export function useModelHeadToHeadStats({ projectSlug, modelId }: Params) {
   return useQuery({
-    queryKey: getModelHeadToHeadStatsQueryKey(modelId),
+    queryKey: getModelHeadToHeadStatsQueryKey(projectSlug ?? '', modelId),
     queryFn: async () => {
-      const url = getModelHeadToHeadStatsEndpoint(modelId ?? -1);
+      const url = getModelHeadToHeadStatsEndpoint(projectSlug ?? '', modelId ?? -1);
       const response = await fetch(url);
       if (!response.ok) {
         return;
@@ -34,6 +35,6 @@ export function useModelHeadToHeadStats(modelId: number | undefined) {
       const result: ModelHeadToHeadStats[] = await response.json();
       return result;
     },
-    enabled: modelId != null,
+    enabled: projectSlug != null && modelId != null,
   });
 }

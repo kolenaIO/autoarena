@@ -1,29 +1,26 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
 
-const UPDATE_JUDGE_ENDPOINT = `${BASE_API_URL}/judge`;
-
-function getUpdateJudgeQueryKey(projectId: number) {
-  return [UPDATE_JUDGE_ENDPOINT, projectId];
+function getUpdateJudgeQueryKey(projectSlug: string, judgeId: number) {
+  return [getProjectUrl(projectSlug), '/judge', judgeId];
 }
 
 type UpdateJudgeRequest = {
-  project_id: number;
-  judge_id: number;
   enabled: boolean;
 };
 
 type Params = {
-  projectId: number;
+  projectSlug: string;
+  judgeId: number;
   options?: UseMutationOptions<Judge, Error, UpdateJudgeRequest>;
 };
-export function useUpdateJudge({ projectId, options = {} }: Params) {
+export function useUpdateJudge({ projectSlug, judgeId, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getUpdateJudgeQueryKey(projectId),
+    mutationKey: getUpdateJudgeQueryKey(projectSlug, judgeId),
     mutationFn: async (request: UpdateJudgeRequest) => {
-      const response = await fetch(UPDATE_JUDGE_ENDPOINT, {
+      const response = await fetch(`${getProjectUrl(projectSlug)}/judge/${judgeId}`, {
         method: 'PUT',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
@@ -32,7 +29,7 @@ export function useUpdateJudge({ projectId, options = {} }: Params) {
       return result;
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectId) });
+      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
     },
     ...options,
   });

@@ -17,25 +17,25 @@ DF_RESPONSE_B = pd.DataFrame([("p1", "b"), ("p2", "bb"), ("p3", "bbb")], columns
 
 
 @pytest.fixture
-def model_id(api_v1_client: TestClient, project_slug: str) -> int:
+def model_id(project_client: TestClient) -> int:
     buf = StringIO()
     DF_RESPONSE.to_csv(buf, index=False)
     buf.seek(0)
     data = dict(new_model_name="test-model-a")
     files = dict(file=("example.csv", buf.read()))
-    return api_v1_client.post(f"/project/{project_slug}/model", data=data, files=files).json()["id"]
+    return project_client.post("/model", data=data, files=files).json()["id"]
 
 
 @pytest.fixture
-def model_b_id(api_v1_client: TestClient, project_slug: str) -> int:
+def model_b_id(project_client: TestClient) -> int:
     buf = StringIO()
     DF_RESPONSE_B.to_csv(buf, index=False)
     buf.seek(0)
     data = dict(new_model_name="test-model-b")
     files = dict(file=("example.csv", buf.read()))
-    return api_v1_client.post(f"/project/{project_slug}/model", data=data, files=files).json()["id"]
+    return project_client.post("/model", data=data, files=files).json()["id"]
 
 
 @pytest.fixture
-def judge_id(api_v1_client: TestClient, project_slug: str) -> int:
-    return api_v1_client.post(f"/project/{project_slug}/judge", json=CREATE_JUDGE_REQUEST).json()["id"]
+def judge_id(project_client: TestClient) -> int:
+    return project_client.post("/judge", json=CREATE_JUDGE_REQUEST).json()["id"]

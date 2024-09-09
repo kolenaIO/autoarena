@@ -28,24 +28,24 @@ class HeadToHeadService:
                         ARRAY_AGG({
                             'judge_id': j1.id,
                             'judge_name': j1.name,
-                            'winner': b1.winner,
-                        }) FILTER (b1.winner IS NOT NULL),
+                            'winner': h1.winner,
+                        }) FILTER (h1.winner IS NOT NULL),
                         ARRAY_AGG({
                             'judge_id': j2.id,
                             'judge_name': j2.name,
-                            'winner': CASE WHEN b2.winner = 'A' THEN 'B'
-                                           WHEN b2.winner = 'B' THEN 'A'
-                                           ELSE b2.winner END,
-                        }) FILTER (b2.winner IS NOT NULL)
+                            'winner': CASE WHEN h2.winner = 'A' THEN 'B'
+                                           WHEN h2.winner = 'B' THEN 'A'
+                                           ELSE h2.winner END,
+                        }) FILTER (h2.winner IS NOT NULL)
                     ), []) AS history
                 FROM result ra
                 JOIN result rb ON ra.prompt = rb.prompt
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
-                LEFT JOIN battle b1 ON b1.result_a_id = ra.id AND b1.result_b_id = rb.id
-                LEFT JOIN judge j1 ON j1.id = b1.judge_id
-                LEFT JOIN battle b2 ON b2.result_b_id = ra.id AND b2.result_a_id = rb.id
-                LEFT JOIN judge j2 ON j2.id = b2.judge_id
+                LEFT JOIN head_to_head h1 ON h1.result_a_id = ra.id AND h1.result_b_id = rb.id
+                LEFT JOIN judge j1 ON j1.id = h1.judge_id
+                LEFT JOIN head_to_head h2 ON h2.result_b_id = ra.id AND h2.result_a_id = rb.id
+                LEFT JOIN judge j2 ON j2.id = h2.judge_id
                 WHERE ra.model_id = $model_a_id
                 AND ($model_b_id IS NULL OR rb.model_id = $model_b_id)
                 AND ra.model_id != rb.model_id
@@ -71,15 +71,14 @@ class HeadToHeadService:
             for r in df_h2h.itertuples()
         ]
 
-    # TODO: naming is weird -- 'judgement', 'rating', 'vote', 'battle' all used
     @staticmethod
     def submit_judgement(request: api.HeadToHeadJudgementRequest) -> None:
         with get_database_connection() as conn:
-            # 1. insert battle record
+            # 1. insert head-to-head record
             human_judge = HumanJudge()
             conn.execute(
                 """
-                INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
+                INSERT INTO head_to_head (result_id_slug, result_a_id, result_b_id, judge_id, winner)
                 SELECT id_slug($result_a_id, $result_b_id), $result_a_id, $result_b_id, j.id, $winner
                 FROM judge j
                 WHERE j.project_id = $project_id
@@ -122,7 +121,7 @@ class HeadToHeadService:
             logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
         with get_database_connection() as conn:
             conn.execute("""
-                INSERT INTO battle (result_id_slug, result_a_id, result_b_id, judge_id, winner)
+                INSERT INTO head_to_head (result_id_slug, result_a_id, result_b_id, judge_id, winner)
                 SELECT id_slug(result_a_id, result_b_id), result_a_id, result_b_id, judge_id, winner
                 FROM df_h2h_deduped
                 ON CONFLICT (result_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner

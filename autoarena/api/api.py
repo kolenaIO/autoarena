@@ -131,7 +131,6 @@ class CreateJudgeRequest:
 
 @dataclass(frozen=True)
 class UpdateJudgeRequest:
-    judge_id: int
     enabled: bool
     # TODO: update name, description, system prompt?
 

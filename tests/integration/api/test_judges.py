@@ -30,13 +30,16 @@ def test__judges__create(project_client: TestClient) -> None:
 
 
 def test__judges__update(project_client: TestClient, judge_id: int) -> None:
-    update_request = dict(judge_id=judge_id, enabled=False)
-    updated_judge = project_client.put("/judge", json=update_request).json()
-    assert updated_judge["enabled"] == update_request["enabled"]
+    existing = project_client.get("/judges").json()[-1]
+    assert existing["id"] == judge_id
+    assert existing["enabled"]
+
+    updated_judge = project_client.put(f"/judge/{judge_id}", json=dict(enabled=False)).json()
+    assert not updated_judge["enabled"]
 
     # update is idempotent
-    updated_judge = project_client.put("/judge", json=update_request).json()
-    assert updated_judge["enabled"] == update_request["enabled"]
+    updated_judge = project_client.put(f"/judge/{judge_id}", json=dict(enabled=False)).json()
+    assert not updated_judge["enabled"]
 
 
 def test__judges__can_access(project_client: TestClient) -> None:

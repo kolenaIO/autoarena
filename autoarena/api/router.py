@@ -133,10 +133,9 @@ def router() -> APIRouter:
     def create_judge(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
         return JudgeService.create(project_slug, request)
 
-    # TODO: judge ID as path param?
-    @r.put("/project/{project_slug}/judge")
-    def update_judge(project_slug: str, request: api.UpdateJudgeRequest) -> api.Judge:
-        return JudgeService.update(project_slug, request)
+    @r.put("/project/{project_slug}/judge/{judge_id}")
+    def update_judge(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
+        return JudgeService.update(project_slug, judge_id, request)
 
     @r.get("/project/{project_slug}/judge/{judge_type}/can-access")
     def check_can_access(project_slug: str, judge_type: api.JudgeType) -> bool:

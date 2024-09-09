@@ -2,25 +2,25 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { getProjectUrl } from '../lib/routes.ts';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
 
-function getUpdateJudgeQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judge'];
+function getUpdateJudgeQueryKey(projectSlug: string, judgeId: number) {
+  return [getProjectUrl(projectSlug), '/judge', judgeId];
 }
 
 type UpdateJudgeRequest = {
-  judge_id: number;
   enabled: boolean;
 };
 
 type Params = {
   projectSlug: string;
-  options?: UseMutationOptions<Judge, Error, UpdateJudgeRequest>;
+  judgeId: number;
+  options?: UseMutationOptions<Judge, Error, [number, UpdateJudgeRequest]>;
 };
-export function useUpdateJudge({ projectSlug, options = {} }: Params) {
+export function useUpdateJudge({ projectSlug, judgeId, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getUpdateJudgeQueryKey(projectSlug),
+    mutationKey: getUpdateJudgeQueryKey(projectSlug, judgeId),
     mutationFn: async (request: UpdateJudgeRequest) => {
-      const response = await fetch(`${getProjectUrl(projectSlug)}/judge`, {
+      const response = await fetch(`${getProjectUrl(projectSlug)}/judge/${judgeId}`, {
         method: 'PUT',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

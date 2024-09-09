@@ -93,13 +93,13 @@ class JudgeService:
         return [j for j in JudgeService.get_all(project_slug) if j.name == judge.name][0]
 
     @staticmethod
-    def update(project_slug: str, request: api.UpdateJudgeRequest) -> api.Judge:
+    def update(project_slug: str, judge_id, request: api.UpdateJudgeRequest) -> api.Judge:
         with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",
-                dict(judge_id=request.judge_id, enabled=request.enabled),
+                dict(judge_id=judge_id, enabled=request.enabled),
             )
-        return [j for j in JudgeService.get_all(project_slug) if j.id == request.judge_id][0]
+        return [j for j in JudgeService.get_all(project_slug) if j.id == judge_id][0]
 
     @staticmethod
     def delete(project_slug: str, judge_id: int) -> None:

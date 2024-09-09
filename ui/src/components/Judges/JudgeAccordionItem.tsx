@@ -17,11 +17,11 @@ export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
   const { projectSlug = '' } = useUrlState();
   const [isEnabled, setIsEnabled] = useState(enabled);
-  const { mutate: updateJudge } = useUpdateJudge({ projectSlug });
+  const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
 
   function handleToggleEnabled() {
-    updateJudge({ judge_id: id, enabled: !enabled });
+    updateJudge({ enabled: !enabled });
     setIsEnabled(prev => !prev);
   }
 

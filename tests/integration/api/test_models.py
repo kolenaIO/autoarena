@@ -25,7 +25,7 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     models = project_client.get("/models").json()
     assert len(models) == 1
     assert models[0]["name"] == "test-model-a"
-    assert models[0]["datapoints"] == 2
+    assert models[0]["n_responses"] == 2
     assert models[0]["votes"] == 0
 
 

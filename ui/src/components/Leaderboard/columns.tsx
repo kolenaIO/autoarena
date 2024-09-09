@@ -17,7 +17,7 @@ export const LOADING_MODELS: Model[] = Array(16)
       elo,
       q025: elo - Math.random() * 50,
       q975: elo + Math.random() * 50,
-      datapoints: 500 + Math.random() * 1000,
+      n_responses: 500 + Math.random() * 1000,
       votes: Math.floor(elo),
     };
   })
@@ -47,10 +47,10 @@ export const LEADERBOARD_COLUMNS: DataTableColumn<RankedModel>[] = [
       ),
   },
   {
-    accessor: 'datapoints',
+    accessor: 'n_responses',
     sortable: true,
-    title: '# Datapoints',
-    render: ({ datapoints }) => datapoints.toLocaleString(),
+    title: '# Responses',
+    render: ({ n_responses }) => n_responses.toLocaleString(),
   },
   { accessor: 'votes', sortable: true, title: '# Votes', render: ({ votes }) => votes.toLocaleString() },
 ];

@@ -26,7 +26,7 @@ class Model:
     elo: float
     q025: Optional[float]
     q975: Optional[float]
-    datapoints: int
+    n_responses: int
     votes: int
 
 

@@ -9,8 +9,8 @@ from autoarena.service.project import ProjectService
 
 class ModelService:
     MODELS_QUERY = """
-        WITH datapoint_count AS (
-            SELECT r.model_id, COUNT(1) AS datapoint_count
+        WITH response_count AS (
+            SELECT r.model_id, COUNT(1) AS response_count
             FROM response r
             GROUP BY r.model_id
         ), vote_count_a AS ( -- this is inelegant but this query is tricky to write
@@ -33,10 +33,10 @@ class ModelService:
             elo,
             q025,
             q975,
-            IFNULL(dc.datapoint_count, 0) AS datapoints,
+            IFNULL(rc.response_count, 0) AS n_responses,
             IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
         FROM model m
-        LEFT JOIN datapoint_count dc ON m.id = dc.model_id
+        LEFT JOIN response_count rc ON m.id = rc.model_id
         LEFT JOIN vote_count_a vca ON m.id = vca.model_id
         LEFT JOIN vote_count_b vcb ON m.id = vcb.model_id
         """
@@ -79,7 +79,7 @@ class ModelService:
         df_votes["votes"] = df_votes["count_x"] + df_votes["count_y"]
         df_out = df_out.merge(df_votes, left_on="id", right_index=True, how="left")
         df_out["votes"] = df_out["votes_y"].replace({np.nan: 0})
-        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "datapoints", "votes"]]
+        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "n_responses", "votes"]]
         return [api.Model(**r) for _, r in df_out.iterrows()]
 
     @staticmethod

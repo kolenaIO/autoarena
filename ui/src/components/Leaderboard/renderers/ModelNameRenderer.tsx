@@ -2,20 +2,20 @@ import { Group, Text, Tooltip } from '@mantine/core';
 import { IconCrown } from '@tabler/icons-react';
 import { RankedModel } from '../types.ts';
 
-export function ModelNameRenderer({ name, votes, rank }: RankedModel) {
+export function ModelNameRenderer({ name, n_votes, rank }: RankedModel) {
   return (
     <Group align="center">
-      {votes > 0 ? (
+      {n_votes > 0 ? (
         <Text size="md">{name}</Text>
       ) : (
-        <Tooltip openDelay={200} label="No votes yet">
+        <Tooltip label="No votes yet">
           <Text size="md" c="dimmed" fs="italic">
             {name}
           </Text>
         </Tooltip>
       )}
-      {rank === 1 && votes > 0 && (
-        <Tooltip openDelay={200} label="Champion">
+      {rank === 1 && n_votes > 0 && (
+        <Tooltip label="Champion">
           <IconCrown size={18} color="var(--mantine-color-yellow-6)" />
         </Tooltip>
       )}

@@ -26,7 +26,7 @@ export function JudgeSelect() {
       value={currentJudgeName}
       onChange={name => setJudgeId(name != null ? judgeIdByName[name] : undefined)}
       disabled={isLoadingJudges}
-      placeholder="Showing votes from all judges"
+      placeholder="Showing scores from all judges"
       clearable
     />
   );

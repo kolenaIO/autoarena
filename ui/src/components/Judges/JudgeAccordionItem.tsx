@@ -6,6 +6,7 @@ import { Judge } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
+import { pluralize } from '../../lib/string.ts';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
@@ -60,7 +61,7 @@ export function JudgeAccordionItem({ judge }: Props) {
               <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
               <Group>
                 <Text c="dimmed" size="xs" fs="italic">
-                  {judge.votes.toLocaleString()} votes submitted
+                  {pluralize(judge.n_votes, 'judgement')} submitted
                 </Text>
                 <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
                   {showSystemPrompt ? 'Hide' : 'Show'} System Prompt

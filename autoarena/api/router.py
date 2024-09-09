@@ -62,7 +62,7 @@ def router() -> APIRouter:
         return EloService.get_history(project_slug, model_id, judge_id)
 
     @r.post("/project/{project_slug}/model/{model_id}/judge")
-    def trigger_model_judgement(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
+    def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         model_name = ModelService.get_by_id(project_slug, model_id).name
         background_tasks.add_task(TaskService.auto_judge, project_slug, model_id, model_name)
 
@@ -105,13 +105,13 @@ def router() -> APIRouter:
     def get_head_to_heads(project_slug: str, request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
         return HeadToHeadService.get(project_slug, request)
 
-    @r.post("/project/{project_slug}/head-to-head/judgement")
-    def submit_head_to_head_judgement(
+    @r.post("/project/{project_slug}/head-to-head/vote")
+    def submit_head_to_head_vote(
         project_slug: str,
-        request: api.HeadToHeadJudgementRequest,
+        request: api.HeadToHeadVoteRequest,
         background_tasks: BackgroundTasks,
     ) -> None:
-        HeadToHeadService.submit_judgement(project_slug, request)
+        HeadToHeadService.submit_vote(project_slug, request)
         # recompute confidence intervals in the background if we aren't doing so already
         background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
 

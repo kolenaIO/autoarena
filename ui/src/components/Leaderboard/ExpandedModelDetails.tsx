@@ -6,7 +6,7 @@ import { DeleteModelButton } from '../DeleteModelButton.tsx';
 import { getProjectUrl } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useTriggerModelJudgement } from '../../hooks/useTriggerModelJudgement.ts';
+import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { EloHistoryPlot } from './EloHistoryPlot.tsx';
@@ -21,7 +21,7 @@ export function ExpandedModelDetails({ model }: Props) {
     modelId: model.id,
     judgeId,
   });
-  const { mutate: triggerModelJudgement } = useTriggerModelJudgement({ projectSlug, modelId: model.id });
+  const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({

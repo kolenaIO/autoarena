@@ -29,8 +29,8 @@ export function DeleteJudgeButton({ judge }: Props) {
             <Text size="sm">Confirm deletion of judge:</Text>
             <Code block>{judge.name}</Code>
             <Text size="sm">
-              This will remove all votes from this judge, and recompute leaderboard rankings accordingly. This action
-              cannot be undone.
+              This will remove all votes submitted by this judge and recompute leaderboard rankings accordingly. This
+              action cannot be undone.
             </Text>
           </Stack>
           <ConfirmOrCancelBar

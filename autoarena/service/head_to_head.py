@@ -71,7 +71,7 @@ class HeadToHeadService:
         ]
 
     @staticmethod
-    def submit_judgement(project_slug: str, request: api.HeadToHeadJudgementRequest) -> None:
+    def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
         with ProjectService.connect(project_slug) as conn:
             # 1. insert head-to-head record
             human_judge = HumanJudge()

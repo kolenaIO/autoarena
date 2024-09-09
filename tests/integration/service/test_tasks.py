@@ -48,8 +48,8 @@ def test__task__auto_judge(project_slug: str, model_responses) -> None:
     model_a = [m for m in models if m.id == model_a_id][0]
     model_b = [m for m in models if m.id == model_b_id][0]
     assert model_a.elo > model_b.elo
-    assert model_a.votes == 2 * len(TEST_QUESTIONS)
-    assert model_b.votes == 2 * len(TEST_QUESTIONS)
+    assert model_a.n_votes == 2 * len(TEST_QUESTIONS)
+    assert model_b.n_votes == 2 * len(TEST_QUESTIONS)
 
     # assert that the task was created and updated
     tasks = TaskService.get_all(project_slug)
@@ -63,19 +63,15 @@ def test__task__recompute_leaderboard(project_slug: str, model_responses) -> Non
     model_a_id, model_b_id = model_responses
     h2hs = HeadToHeadService.get(project_slug, api.HeadToHeadsRequest(model_a_id=model_a_id, model_b_id=model_b_id))
     for h2h in h2hs:
-        submit_judgement_request = api.HeadToHeadJudgementRequest(
-            response_a_id=h2h.response_a_id,
-            response_b_id=h2h.response_b_id,
-            winner="A",
-        )
-        HeadToHeadService.submit_judgement(project_slug, submit_judgement_request)
+        vote = api.HeadToHeadVoteRequest(response_a_id=h2h.response_a_id, response_b_id=h2h.response_b_id, winner="A")
+        HeadToHeadService.submit_vote(project_slug, vote)
     models_before = ModelService.get_all(project_slug)
     TaskService.recompute_leaderboard(project_slug)
     models_after = ModelService.get_all(project_slug)
 
     # assert that recomputation reproduced the same scores as the step-by-step from sequential judgements
     assert all(before.elo == after.elo for before, after in zip(models_before, models_after))
-    assert all(before.votes == after.votes == len(h2hs) for before, after in zip(models_before, models_after))
+    assert all(before.n_votes == after.n_votes == len(h2hs) for before, after in zip(models_before, models_after))
 
     # assert that the task was created and updated
     tasks = TaskService.get_all(project_slug)

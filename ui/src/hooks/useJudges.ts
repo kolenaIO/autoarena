@@ -15,7 +15,7 @@ export type Judge = {
   system_prompt: string | null;
   description: string;
   enabled: boolean;
-  votes: number;
+  n_votes: number;
 };
 
 export function useJudges(projectSlug: string | undefined) {

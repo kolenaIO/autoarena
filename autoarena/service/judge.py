@@ -26,7 +26,7 @@ class JudgeService:
                     j.system_prompt,
                     j,description,
                     j.enabled,
-                    SUM(IF(h.id IS NOT NULL, 1, 0)) AS votes
+                    SUM(IF(h.id IS NOT NULL, 1, 0)) AS n_votes
                 FROM judge j
                 LEFT JOIN head_to_head h ON h.judge_id = j.id
                 GROUP BY
@@ -69,7 +69,7 @@ class JudgeService:
             system_prompt=request.system_prompt,
             description=request.description,
             enabled=enabled,
-            votes=0,
+            n_votes=0,
         )
 
     @staticmethod

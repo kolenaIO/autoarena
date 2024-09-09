@@ -13,7 +13,7 @@ def n_model_a_votes(project_client: TestClient, model_id: int, model_b_id: int) 
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     for h in h2h:
         request = dict(response_a_id=h["response_a_id"], response_b_id=h["response_b_id"], winner="A")
-        assert project_client.post("/head-to-head/judgement", json=request).json() is None
+        assert project_client.post("/head-to-head/vote", json=request).json() is None
     return len(h2h)
 
 
@@ -25,8 +25,8 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     models = project_client.get("/models").json()
     assert len(models) == 1
     assert models[0]["name"] == "test-model-a"
-    assert models[0]["datapoints"] == 2
-    assert models[0]["votes"] == 0
+    assert models[0]["n_responses"] == 2
+    assert models[0]["n_votes"] == 0
 
 
 def test__models__get_responses(project_client: TestClient, model_id: int) -> None:
@@ -49,7 +49,7 @@ def test__models__download_responses_csv(project_client: TestClient, model_id: i
     assert df_response.equals(DF_RESPONSE)
 
 
-def test__models__trigger_judgement(project_client: TestClient, model_id: int) -> None:
+def test__models__trigger_auto_judge(project_client: TestClient, model_id: int) -> None:
     assert project_client.post(f"/model/{model_id}/judge").json() is None
     # TODO: actually check that task is kicked off? requires a configured auto-judge
 

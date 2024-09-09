@@ -8,6 +8,16 @@ authors = [
 readme = "README.md"
 license = "Apache-2.0"
 requires-python = ">=3.9,<4"
+keywords = [
+    "LLM",
+    "Machine Learning",
+    "ML",
+    "Artificial Intelligence",
+    "AI",
+    "AI Testing",
+    "AI Evaluation",
+    "LLM Evaluation",
+]
 classifiers = [
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.8",
@@ -24,7 +34,7 @@ classifiers = [
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Software Development :: Quality Assurance",
     "Topic :: Software Development :: Testing",
-    "Typing :: Typed"
+    "Typing :: Typed",
 ]
 dependencies = [
     "fastapi<1",
@@ -54,6 +64,10 @@ dev = [
     "pytest-cov>=5,<6",
     "twine>=5,<6"
 ]
+
+[project.urls]
+Homepage = "https://github.com/kolenaIO/autoarena"
+Repository = "https://github.com/kolenaIO/autoarena.git"
 
 [tool.ruff]
 line-length = 120

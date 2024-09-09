@@ -46,7 +46,7 @@ def test__models__delete(project_client: TestClient, model_id: int) -> None:
 def test__models__download_responses_csv(project_client: TestClient, model_id: int) -> None:
     response = project_client.get(f"/model/{model_id}/download/responses")
     df_response = pd.read_csv(StringIO(response.text))
-    assert df_response[DF_RESPONSE.columns].equals(DF_RESPONSE)
+    assert df_response.equals(DF_RESPONSE)
 
 
 def test__models__trigger_judgement(project_client: TestClient, model_id: int) -> None:
@@ -110,6 +110,7 @@ def test__models__download_head_to_heads_csv(
     response = project_client.get(f"/model/{model_id}/download/head-to-heads")
     human_judge_name = project_client.get("/judges").json()[0]["name"]
     df_h2h = pd.read_csv(StringIO(response.text))
+    assert set(df_h2h.columns) == {"prompt", "model_a", "model_b", "response_a", "response_b", "judge", "winner"}
     assert len(df_h2h) == n_model_a_votes
     assert all(df_h2h["judge"] == human_judge_name)
     assert all(df_h2h["winner"] == "A")

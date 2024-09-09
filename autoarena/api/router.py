@@ -77,20 +77,22 @@ def router() -> APIRouter:
     # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
     @r.get("/project/{project_slug}/model/{model_id}/download/responses")
     async def download_model_responses_csv(project_slug: str, model_id: int) -> StreamingResponse:
+        columns = ["prompt", "response"]
         df_response = ModelService.get_df_response(project_slug, model_id)
         model_name = df_response.iloc[0].model
         stream = StringIO()
-        df_response.to_csv(stream, index=False)
+        df_response[columns].to_csv(stream, index=False)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
         return response
 
     @r.get("/project/{project_slug}/model/{model_id}/download/head-to-heads")
     async def download_model_head_to_heads_csv(project_slug: str, model_id: int) -> StreamingResponse:
+        columns = ["prompt", "model_a", "model_b", "response_a", "response_b", "judge", "winner"]
         df_h2h = ModelService.get_df_head_to_head(project_slug, model_id)
         model = ModelService.get_by_id(project_slug, model_id)
         stream = StringIO()
-        df_h2h.to_csv(stream, index=False)
+        df_h2h[columns].to_csv(stream, index=False)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f'attachment; filename="{model.name}-head-to-head.csv"'
         return response

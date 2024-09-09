@@ -1,5 +1,21 @@
 # AutoArena
 
+<a href="https://www.apache.org/licenses/LICENSE-2.0">
+  <img src="https://img.shields.io/pypi/l/autoarena?style=flat-square" />
+</a>
+<a href="https://github.com/kolenaIO/autoarena/actions">
+  <img src="https://img.shields.io/github/checks-status/kolenaIO/kolena/trunk?logo=circleci&logoColor=white&style=flat-square" />
+</a>
+<a href="https://pypi.python.org/pypi/autoarena">
+  <img src="https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square" />
+</a>
+<a href="https://pypi.org/project/autoarena" target="_blank">
+  <img src="https://img.shields.io/pypi/pyversions/autoarena.svg" alt="Supported Python versions">
+</a>
+<a href="">
+  <img src="https://img.shields.io/badge/slack-autoarena-4f8eba?logo=slack&style=flat-square&color=4A154B" />
+</a>
+
 AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation.
 
 Install from [PyPI](https://pypi.org/project/autoarena/) and run with:

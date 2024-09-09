@@ -24,7 +24,7 @@ export function useDeleteModel({ projectSlug, options = {} }: Params) {
     onError: () => {
       notifications.show({
         title: 'Failed to delete model',
-        message: 'Unable to delete model and related results',
+        message: 'Unable to delete model and related responses',
         color: 'red',
       });
     },

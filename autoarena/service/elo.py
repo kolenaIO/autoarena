@@ -117,7 +117,17 @@ class EloService:
         return df_elo.sort_values(by="elo", ascending=False)
 
     @staticmethod
-    def get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
+    def compute_confidence_intervals(df_elo: pd.DataFrame, df_h2h: pd.DataFrame) -> pd.DataFrame:
+        df_bootstrap = EloService._get_bootstrap_result(df_h2h, num_rounds=200)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
+        # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
+        df_elo["elo"] = df_elo.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
+        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
+        return df_elo
+
+    @staticmethod
+    def _get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
         rows = []
         t_start = time.time()
         logger.info(f"Bootstrapping confidence intervals with {num_rounds} rounds...")
@@ -128,13 +138,3 @@ class EloService:
         logger.info(f"Bootstrapped confidence intervals in {time.time() - t_start:0.1f} seconds")
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
         return df[df.median().sort_values(ascending=False).index]
-
-    @staticmethod
-    def compute_confidence_intervals(df_elo: pd.DataFrame, df_h2h: pd.DataFrame) -> pd.DataFrame:
-        df_bootstrap = EloService.get_bootstrap_result(df_h2h, num_rounds=200)
-        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
-        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
-        # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
-        df_elo["elo"] = df_elo.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
-        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
-        return df_elo

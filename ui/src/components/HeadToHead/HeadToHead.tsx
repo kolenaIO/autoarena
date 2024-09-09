@@ -6,7 +6,7 @@ import { prop, sortBy } from 'ramda';
 import { useModels } from '../../hooks/useModels.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
-import { HeadToHeadBattle } from './HeadToHeadBattle.tsx';
+import { HeadToHeadTwoModels } from './HeadToHeadTwoModels.tsx';
 import { HeadToHeadSingleModel } from './HeadToHeadSingleModel.tsx';
 
 export function HeadToHead() {
@@ -110,7 +110,7 @@ export function HeadToHead() {
         </Group>
         <Divider />
         {modelA != null && modelB != null ? (
-          <HeadToHeadBattle modelAId={modelA.id} modelBId={modelB.id} />
+          <HeadToHeadTwoModels modelAId={modelA.id} modelBId={modelB.id} />
         ) : modelA != null || modelB != null ? (
           <HeadToHeadSingleModel modelId={modelA?.id ?? modelB?.id ?? -1} />
         ) : (

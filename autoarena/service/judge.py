@@ -26,9 +26,9 @@ class JudgeService:
                     j.system_prompt,
                     j,description,
                     j.enabled,
-                    SUM(IF(b.id IS NOT NULL, 1, 0)) AS votes
+                    SUM(IF(h.id IS NOT NULL, 1, 0)) AS votes
                 FROM judge j
-                LEFT JOIN battle b ON b.judge_id = j.id
+                LEFT JOIN head_to_head h ON h.judge_id = j.id
                 GROUP BY
                     j.id,
                     j.judge_type,
@@ -104,7 +104,7 @@ class JudgeService:
     @staticmethod
     def delete(project_slug: str, judge_id: int) -> None:
         with ProjectService.connect(project_slug) as conn:
-            conn.execute("DELETE FROM battle WHERE judge_id = $judge_id", dict(judge_id=judge_id))
+            conn.execute("DELETE FROM head_to_head WHERE judge_id = $judge_id", dict(judge_id=judge_id))
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
 
     @staticmethod

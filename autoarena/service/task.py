@@ -58,7 +58,7 @@ class TaskService:
     def _time_slug() -> str:
         return datetime.now().strftime("[%Y-%m-%d %H:%M:%S]")
 
-    # TODO: should this really be a long-running task? It only takes ~5 seconds for ~50k battles
+    # TODO: should this really be a long-running task? It only takes ~5 seconds for ~50k head-to-heads
     @staticmethod
     def recompute_leaderboard(project_slug: str) -> None:
         task_objects = TaskService.get_all(project_slug)

@@ -13,17 +13,17 @@ class ModelService:
             SELECT r.model_id, COUNT(1) AS datapoint_count
             FROM result r
             GROUP BY r.model_id
-        ), vote_count_a AS ( -- TODO: this is inelegant but this query is tricky to write
-            SELECT m.id AS model_id, SUM(IF(b.id IS NOT NULL, 1, 0)) AS vote_count
+        ), vote_count_a AS ( -- this is inelegant but this query is tricky to write
+            SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN result r ON r.model_id = m.id
-            LEFT JOIN battle b ON r.id = b.result_a_id
+            LEFT JOIN head_to_head h ON r.id = h.result_a_id
             GROUP BY m.id
         ), vote_count_b AS (
-            SELECT m.id AS model_id, SUM(IF(b.id IS NOT NULL, 1, 0)) AS vote_count
+            SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN result r ON r.model_id = m.id
-            LEFT JOIN battle b ON r.id = b.result_b_id
+            LEFT JOIN head_to_head h ON r.id = h.result_b_id
             GROUP BY m.id
         )
         SELECT
@@ -109,12 +109,12 @@ class ModelService:
         with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 """
-                DELETE FROM battle b
+                DELETE FROM head_to_head h
                 WHERE EXISTS (
                     SELECT 1
                     FROM result r
                     WHERE r.model_id = $model_id
-                    AND (b.result_a_id = r.id OR b.result_b_id = r.id)
+                    AND (h.result_a_id = r.id OR h.result_b_id = r.id)
                 )
                 """,
                 params,
@@ -157,11 +157,11 @@ class ModelService:
                     ra.response AS response_a,
                     rb.response AS response_b,
                     j.name AS judge,
-                    b.winner
-                FROM battle b
-                JOIN judge j ON b.judge_id = j.id
-                JOIN result ra ON ra.id = b.result_a_id
-                JOIN result rb ON rb.id = b.result_b_id
+                    h.winner
+                FROM head_to_head h
+                JOIN judge j ON h.judge_id = j.id
+                JOIN result ra ON ra.id = h.result_a_id
+                JOIN result rb ON rb.id = h.result_b_id
                 JOIN model ma ON ma.id = ra.model_id
                 JOIN model mb ON mb.id = rb.model_id
                 WHERE ma.id = $model_id
@@ -176,37 +176,37 @@ class ModelService:
         with ProjectService.connect(project_slug) as conn:
             df_h2h_stats = conn.execute(
                 """
-                WITH battle_result AS (
+                WITH head_to_head_result AS (
                     SELECT
                         ra.model_id,
                         rb.model_id AS other_model_id,
-                        b.judge_id,
-                        CASE WHEN b.winner = 'A' THEN TRUE WHEN b.winner = 'B' THEN FALSE END AS won
-                    FROM battle b
-                    JOIN result ra ON ra.id = b.result_a_id
-                    JOIN result rb ON rb.id = b.result_b_id
+                        h.judge_id,
+                        CASE WHEN h.winner = 'A' THEN TRUE WHEN h.winner = 'B' THEN FALSE END AS won
+                    FROM head_to_head h
+                    JOIN result ra ON ra.id = h.result_a_id
+                    JOIN result rb ON rb.id = h.result_b_id
                     UNION ALL
                     SELECT
                         rb.model_id,
                         ra.model_id AS other_model_id,
-                        b.judge_id,
-                        CASE WHEN b.winner = 'B' THEN TRUE WHEN b.winner = 'A' THEN FALSE END AS won
-                    FROM battle b
-                    JOIN result ra ON ra.id = b.result_a_id
-                    JOIN result rb ON rb.id = b.result_b_id
+                        h.judge_id,
+                        CASE WHEN h.winner = 'B' THEN TRUE WHEN h.winner = 'A' THEN FALSE END AS won
+                    FROM head_to_head h
+                    JOIN result ra ON ra.id = h.result_a_id
+                    JOIN result rb ON rb.id = h.result_b_id
                 )
                 SELECT
                     m_other.id AS other_model_id,
                     m_other.name AS other_model_name,
                     j.id AS judge_id,
                     j.name AS judge_name,
-                    SUM(IF(br.won IS TRUE, 1, 0)) AS count_wins,
-                    SUM(IF(br.won IS FALSE, 1, 0)) AS count_losses,
-                    SUM(IF(br.won IS NULL, 1, 0)) AS count_ties
-                FROM battle_result br
-                JOIN judge j ON j.id = br.judge_id
-                JOIN model m ON m.id = br.model_id
-                JOIN model m_other ON m_other.id = br.other_model_id
+                    SUM(IF(hr.won IS TRUE, 1, 0)) AS count_wins,
+                    SUM(IF(hr.won IS FALSE, 1, 0)) AS count_losses,
+                    SUM(IF(hr.won IS NULL, 1, 0)) AS count_ties
+                FROM head_to_head_result hr
+                JOIN judge j ON j.id = hr.judge_id
+                JOIN model m ON m.id = hr.model_id
+                JOIN model m_other ON m_other.id = hr.other_model_id
                 WHERE m.id = $model_id
                 GROUP BY m.id, m.name, m_other.id, m_other.name, j.id, j.name
             """,

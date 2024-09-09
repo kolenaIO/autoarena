@@ -54,9 +54,9 @@ export function ExpandedModelDetails({ model }: Props) {
           </Group>
         </Stack>
         <Group gap="xs">
-          <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/results`} target="_blank">
+          <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/responses`} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Results CSV
+              Download Responses CSV
             </Button>
           </Anchor>
           <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/head-to-heads`} target="_blank">

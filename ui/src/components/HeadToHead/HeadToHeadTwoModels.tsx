@@ -41,8 +41,8 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     return () => {
       if (headToHead != null) {
         submitJudgement({
-          result_a_id: headToHead.result_a_id,
-          result_b_id: headToHead.result_b_id,
+          response_a_id: headToHead.response_a_id,
+          response_b_id: headToHead.response_b_id,
           winner: vote,
         });
         setHeadToHeadIndex(prev => prev + 1);

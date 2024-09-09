@@ -11,19 +11,19 @@ class ModelService:
     MODELS_QUERY = """
         WITH datapoint_count AS (
             SELECT r.model_id, COUNT(1) AS datapoint_count
-            FROM result r
+            FROM response r
             GROUP BY r.model_id
         ), vote_count_a AS ( -- this is inelegant but this query is tricky to write
             SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
-            JOIN result r ON r.model_id = m.id
-            LEFT JOIN head_to_head h ON r.id = h.result_a_id
+            JOIN response r ON r.model_id = m.id
+            LEFT JOIN head_to_head h ON r.id = h.response_a_id
             GROUP BY m.id
         ), vote_count_b AS (
             SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
-            JOIN result r ON r.model_id = m.id
-            LEFT JOIN head_to_head h ON r.id = h.result_b_id
+            JOIN response r ON r.model_id = m.id
+            LEFT JOIN head_to_head h ON r.id = h.response_b_id
             GROUP BY m.id
         )
         SELECT
@@ -83,9 +83,9 @@ class ModelService:
         return [api.Model(**r) for _, r in df_out.iterrows()]
 
     @staticmethod
-    def upload_results(project_slug: str, model_name: str, df_result: pd.DataFrame) -> api.Model:
+    def upload_responses(project_slug: str, model_name: str, df_response: pd.DataFrame) -> api.Model:
         required_columns = {"prompt", "response"}
-        missing_columns = required_columns - set(df_result.columns)
+        missing_columns = required_columns - set(df_response.columns)
         if len(missing_columns) > 0:
             raise ValueError(f"missing required column(s): {missing_columns}")
         with ProjectService.connect(project_slug) as conn:
@@ -93,11 +93,11 @@ class ModelService:
                 "INSERT INTO model (name) VALUES ($model_name) RETURNING id",
                 dict(model_name=model_name),
             ).fetchall()
-            df_result["model_id"] = new_model_id
+            df_response["model_id"] = new_model_id
             conn.execute("""
-                INSERT INTO result (model_id, prompt, response)
+                INSERT INTO response (model_id, prompt, response)
                 SELECT model_id, prompt, response
-                FROM df_result
+                FROM df_response
             """)
         models = ModelService.get_all(project_slug)
         new_model = [model for model in models if model.id == new_model_id][0]
@@ -112,38 +112,38 @@ class ModelService:
                 DELETE FROM head_to_head h
                 WHERE EXISTS (
                     SELECT 1
-                    FROM result r
+                    FROM response r
                     WHERE r.model_id = $model_id
-                    AND (h.result_a_id = r.id OR h.result_b_id = r.id)
+                    AND (h.response_a_id = r.id OR h.response_b_id = r.id)
                 )
                 """,
                 params,
             )
-            conn.execute("DELETE FROM result WHERE model_id = $model_id", params)
+            conn.execute("DELETE FROM response WHERE model_id = $model_id", params)
             conn.execute("DELETE FROM model WHERE id = $model_id", params)
 
     @staticmethod
-    def get_results(project_slug: str, model_id: int) -> list[api.ModelResult]:
-        df_result = ModelService.get_df_result(project_slug, model_id)
-        return [api.ModelResult(prompt=r.prompt, response=r.response) for r in df_result.itertuples()]
+    def get_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
+        df_response = ModelService.get_df_response(project_slug, model_id)
+        return [api.ModelResponse(prompt=r.prompt, response=r.response) for r in df_response.itertuples()]
 
     @staticmethod
-    def get_df_result(project_slug: str, model_id: int) -> pd.DataFrame:
+    def get_df_response(project_slug: str, model_id: int) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_result = conn.execute(
+            df_response = conn.execute(
                 """
                 SELECT
                     m.name AS model,
-                    r.id AS result_id,
+                    r.id AS response_id,
                     r.prompt AS prompt,
                     r.response AS response
                 FROM model m
-                JOIN result r ON m.id = r.model_id
+                JOIN response r ON m.id = r.model_id
                 WHERE m.id = $model_id
             """,
                 dict(model_id=model_id),
             ).df()
-        return df_result
+        return df_response
 
     @staticmethod
     def get_df_head_to_head(project_slug: str, model_id: int) -> pd.DataFrame:
@@ -160,8 +160,8 @@ class ModelService:
                     h.winner
                 FROM head_to_head h
                 JOIN judge j ON h.judge_id = j.id
-                JOIN result ra ON ra.id = h.result_a_id
-                JOIN result rb ON rb.id = h.result_b_id
+                JOIN response ra ON ra.id = h.response_a_id
+                JOIN response rb ON rb.id = h.response_b_id
                 JOIN model ma ON ma.id = ra.model_id
                 JOIN model mb ON mb.id = rb.model_id
                 WHERE ma.id = $model_id
@@ -176,15 +176,15 @@ class ModelService:
         with ProjectService.connect(project_slug) as conn:
             df_h2h_stats = conn.execute(
                 """
-                WITH head_to_head_result AS (
+                WITH head_to_head_response AS (
                     SELECT
                         ra.model_id,
                         rb.model_id AS other_model_id,
                         h.judge_id,
                         CASE WHEN h.winner = 'A' THEN TRUE WHEN h.winner = 'B' THEN FALSE END AS won
                     FROM head_to_head h
-                    JOIN result ra ON ra.id = h.result_a_id
-                    JOIN result rb ON rb.id = h.result_b_id
+                    JOIN response ra ON ra.id = h.response_a_id
+                    JOIN response rb ON rb.id = h.response_b_id
                     UNION ALL
                     SELECT
                         rb.model_id,
@@ -192,8 +192,8 @@ class ModelService:
                         h.judge_id,
                         CASE WHEN h.winner = 'B' THEN TRUE WHEN h.winner = 'A' THEN FALSE END AS won
                     FROM head_to_head h
-                    JOIN result ra ON ra.id = h.result_a_id
-                    JOIN result rb ON rb.id = h.result_b_id
+                    JOIN response ra ON ra.id = h.response_a_id
+                    JOIN response rb ON rb.id = h.response_b_id
                 )
                 SELECT
                     m_other.id AS other_model_id,
@@ -203,7 +203,7 @@ class ModelService:
                     SUM(IF(hr.won IS TRUE, 1, 0)) AS count_wins,
                     SUM(IF(hr.won IS FALSE, 1, 0)) AS count_losses,
                     SUM(IF(hr.won IS NULL, 1, 0)) AS count_ties
-                FROM head_to_head_result hr
+                FROM head_to_head_response hr
                 JOIN judge j ON j.id = hr.judge_id
                 JOIN model m ON m.id = hr.model_id
                 JOIN model m_other ON m_other.id = hr.other_model_id

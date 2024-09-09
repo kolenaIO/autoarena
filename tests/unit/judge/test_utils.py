@@ -8,7 +8,7 @@ from autoarena.judge.base import Judge
 from autoarena.judge.utils import CleaningJudge, RetryingJudge, ABShufflingJudge, rate_limit
 from tests.unit.judge.conftest import DummyJudge
 
-DUMMY_H2H = api.HeadToHead(prompt="test prompt", result_a_id=-1, result_b_id=-2, response_a="a", response_b="b")
+DUMMY_H2H = api.HeadToHead(prompt="test prompt", response_a_id=-1, response_b_id=-2, response_a="a", response_b="b")
 
 
 def test__ab_shuffling_judge() -> None:

@@ -5,14 +5,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from autoarena.api import api
-from tests.integration.api.conftest import DF_RESULT
+from tests.integration.api.conftest import DF_RESPONSE
 
 
 @pytest.fixture
 def n_model_a_votes(project_client: TestClient, model_id: int, model_b_id: int) -> int:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     for h in h2h:
-        request = dict(result_a_id=h["result_a_id"], result_b_id=h["result_b_id"], winner="A")
+        request = dict(response_a_id=h["response_a_id"], response_b_id=h["response_b_id"], winner="A")
         assert project_client.post("/head-to-head/judgement", json=request).json() is None
     return len(h2h)
 
@@ -29,10 +29,10 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     assert models[0]["votes"] == 0
 
 
-def test__models__get_results(project_client: TestClient, model_id: int) -> None:
-    assert project_client.get(f"/model/{model_id}/results").json() == [
-        api.ModelResult(prompt="p1", response="r1").__dict__,
-        api.ModelResult(prompt="p2", response="r2").__dict__,
+def test__models__get_responses(project_client: TestClient, model_id: int) -> None:
+    assert project_client.get(f"/model/{model_id}/responses").json() == [
+        api.ModelResponse(prompt="p1", response="r1").__dict__,
+        api.ModelResponse(prompt="p2", response="r2").__dict__,
     ]
 
 
@@ -43,10 +43,10 @@ def test__models__delete(project_client: TestClient, model_id: int) -> None:
         assert project_client.get("/models").json() == []
 
 
-def test__models__download_results_csv(project_client: TestClient, model_id: int) -> None:
-    response = project_client.get(f"/model/{model_id}/download/results")
-    df_result = pd.read_csv(StringIO(response.text))
-    assert df_result[DF_RESULT.columns].equals(DF_RESULT)
+def test__models__download_responses_csv(project_client: TestClient, model_id: int) -> None:
+    response = project_client.get(f"/model/{model_id}/download/responses")
+    df_response = pd.read_csv(StringIO(response.text))
+    assert df_response[DF_RESPONSE.columns].equals(DF_RESPONSE)
 
 
 def test__models__trigger_judgement(project_client: TestClient, model_id: int) -> None:

@@ -102,7 +102,7 @@ class TaskService:
             # 4. stream judgement requests
             head_to_heads = [
                 api.HeadToHead(**r)
-                for _, r in df_h2h[["prompt", "result_a_id", "response_a", "result_b_id", "response_b"]].iterrows()
+                for _, r in df_h2h[["prompt", "response_a_id", "response_a", "response_b_id", "response_b"]].iterrows()
             ]
             executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
@@ -110,7 +110,7 @@ class TaskService:
             n_total = n_h2h * len(judges)
             t_start_judging = time.time()
             for judge, h2h, winner in executor.execute(judges, head_to_heads):
-                responses[judge.name].append((h2h.result_a_id, h2h.result_b_id, winner))
+                responses[judge.name].append((h2h.response_a_id, h2h.response_b_id, winner))
                 n_this_judge = len(responses[judge.name])
                 n_responses = sum(len(r) for r in responses.values())
                 progress = 0.95 * (n_responses / n_total)
@@ -131,8 +131,8 @@ class TaskService:
             for judge_name, judge_responses in responses.items():
                 df_h2h_judged = df_h2h.copy()
                 df_h2h_judged["judge_id"] = judge_id_by_name[judge_name]
-                df_judgement = pd.DataFrame(judge_responses, columns=["result_a_id", "result_b_id", "winner"])
-                df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["result_a_id", "result_b_id"], how="left")
+                df_judgement = pd.DataFrame(judge_responses, columns=["response_a_id", "response_b_id", "winner"])
+                df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["response_a_id", "response_b_id"], how="left")
                 dfs_h2h_judged.append(df_h2h_judged)
             # randomize order of ratings to avoid biased elos when multiple judges are present
             df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841

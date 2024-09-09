@@ -30,7 +30,7 @@ def test__judge_factory__human() -> None:
     assert judge.system_prompt is None
     assert judge.description is not None
     with pytest.raises(NotImplementedError):
-        judge.judge(api.HeadToHead(prompt="p", result_a_id=100, result_b_id=200, response_a="a", response_b="b"))
+        judge.judge(api.HeadToHead(prompt="p", response_a_id=100, response_b_id=200, response_a="a", response_b="b"))
 
 
 def test__judge_factory__custom() -> None:

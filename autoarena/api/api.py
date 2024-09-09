@@ -31,7 +31,7 @@ class Model:
 
 
 @dataclass(frozen=True)
-class ModelResult:
+class ModelResponse:
     prompt: str
     response: str
 
@@ -66,17 +66,17 @@ class HeadToHeadHistoryItem:
 @dataclass(frozen=True)
 class HeadToHead:
     prompt: str
-    result_a_id: int
+    response_a_id: int
     response_a: str
-    result_b_id: int
+    response_b_id: int
     response_b: str
     history: list[HeadToHeadHistoryItem] = dataclasses.field(default_factory=list)
 
 
 @dataclass(frozen=True)
 class HeadToHeadJudgementRequest:  # this is always coming from humans
-    result_a_id: int
-    result_b_id: int
+    response_a_id: int
+    response_b_id: int
     winner: WinnerType
 
 

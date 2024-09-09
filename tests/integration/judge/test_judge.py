@@ -5,7 +5,7 @@ from autoarena.judge.factory import judge_factory
 from autoarena.judge.utils import CleaningJudge
 from tests.integration.judge.conftest import api_judge, TEST_JUDGE_MODEL_NAMES
 
-H2H = api.HeadToHead(prompt="What is 2+2?", result_a_id=1, result_b_id=2, response_a="4", response_b="100 million")
+H2H = api.HeadToHead(prompt="What is 2+2?", response_a_id=1, response_b_id=2, response_a="4", response_b="100 million")
 
 
 @pytest.mark.parametrize(

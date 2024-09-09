@@ -9,9 +9,9 @@ export type HeadToHeadHistoryItem = {
 
 export type HeadToHead = {
   prompt: string;
-  result_a_id: number;
+  response_a_id: number;
   response_a: string;
-  result_b_id: number;
+  response_b_id: number;
   response_b: string;
   history: HeadToHeadHistoryItem[];
 };

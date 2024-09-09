@@ -37,8 +37,8 @@ class EloService:
                     h.winner
                 FROM head_to_head h
                 JOIN judge j ON h.judge_id = j.id
-                JOIN result ra ON h.result_a_id = ra.id
-                JOIN result rb ON h.result_b_id = rb.id
+                JOIN response ra ON h.response_a_id = ra.id
+                JOIN response rb ON h.response_b_id = rb.id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
                 ORDER BY h.id -- ensure we are replaying head-to-heads in the order they were submitted

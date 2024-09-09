@@ -6,13 +6,15 @@ import { pluralize } from '../../lib/string.ts';
 import { useModelResults } from '../../hooks/useModelResults.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { MarkdownContent } from '../MarkdownContent.tsx';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 import { ControlBar } from './ControlBar.tsx';
 
 type Props = {
   modelId: number;
 };
 export function HeadToHeadSingleModel({ modelId }: Props) {
-  const { data: modelResults, isLoading } = useModelResults(modelId);
+  const { projectSlug } = useUrlState();
+  const { data: modelResults, isLoading } = useModelResults({ projectSlug, modelId });
   const [resultIndex, setResultIndex] = useState(0);
 
   const result = useMemo(() => (modelResults ?? [])?.[resultIndex], [modelResults, resultIndex]);

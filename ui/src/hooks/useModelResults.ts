@@ -18,7 +18,7 @@ export function useModelResults({ projectSlug, modelId }: Params) {
   return useQuery({
     queryKey: getModelResultsQueryKey(projectSlug ?? '', modelId ?? -1),
     queryFn: async () => {
-      const url = `${getProjectUrl(projectSlug)}/model/${modelId}/results`;
+      const url = `${getProjectUrl(projectSlug ?? '')}/model/${modelId}/results`;
       const response = await fetch(url);
       if (!response.ok) {
         return;

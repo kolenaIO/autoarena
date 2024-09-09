@@ -16,8 +16,12 @@ type Props = {
 };
 export function ExpandedModelDetails({ model }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
-  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge(model.id, judgeId);
-  const { mutate: triggerModelJudgement } = useTriggerModelJudgement({ modelId: model.id });
+  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({
+    projectSlug,
+    modelId: model.id,
+    judgeId,
+  });
+  const { mutate: triggerModelJudgement } = useTriggerModelJudgement({ projectSlug, modelId: model.id });
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({

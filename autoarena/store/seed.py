@@ -5,7 +5,7 @@ from autoarena.store.database import SCHEMA_FILE, get_database_connection
 
 def setup_database() -> None:
     schema_sql = SCHEMA_FILE.read_text()
-    with get_database_connection() as conn:
+    with get_database_connection(transaction=True) as conn:
         conn.sql(schema_sql)
     close_pending_tasks()
 

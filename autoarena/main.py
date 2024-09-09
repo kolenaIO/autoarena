@@ -16,7 +16,7 @@ API_V1_STR = "/api/v1"
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     setup_database()
-    logger.info("AutoArena ready")
+    logger.success("AutoArena ready")
     yield
 
 
@@ -26,7 +26,7 @@ def main() -> FastAPI:
     app = FastAPI(
         title="AutoArena",
         lifespan=lifespan,
-        openapi_url=f"/{API_V1_STR}/openapi.json",
+        openapi_url=f"/{API_V1_STR}/openapi.json",  # TODO: these are currently clobbered by the UI router wildcard
         docs_url=f"/{API_V1_STR}/docs",
     )
 

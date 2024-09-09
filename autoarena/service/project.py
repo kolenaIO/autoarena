@@ -13,7 +13,7 @@ class ProjectService:
 
     @staticmethod
     def create_idempotent(request: api.CreateProjectRequest) -> api.Project:
-        with get_database_connection() as conn:
+        with get_database_connection(transaction=True) as conn:
             params = dict(name=request.name)
             conn.execute("INSERT INTO project (name) VALUES ($name) ON CONFLICT (name) DO NOTHING", params)
             ((project_id, name, created),) = conn.execute(
@@ -26,7 +26,7 @@ class ProjectService:
     @staticmethod
     def delete(project_id: int) -> None:
         params = dict(project_id=project_id)
-        with get_database_connection() as conn:  # wish duckdb had cascading deletes...
+        with get_database_connection(transaction=True) as conn:  # wish duckdb had cascading deletes...
             conn.execute("DELETE FROM task WHERE project_id = $project_id", params)
             conn.execute(
                 """

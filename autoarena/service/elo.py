@@ -53,7 +53,7 @@ class EloService:
         df_h2h = EloService.get_df_head_to_head(project_id)
         df_elo = EloService.compute_elo(df_h2h)
         df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)
-        with get_database_connection() as conn:
+        with get_database_connection(transaction=True) as conn:
             conn.execute(  # reset all scores before updating new ones
                 "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL WHERE project_id = $project_id",
                 dict(project_id=project_id, default_elo=EloConfig.default_score),

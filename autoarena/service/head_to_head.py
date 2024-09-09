@@ -74,7 +74,7 @@ class HeadToHeadService:
     # TODO: naming is weird -- 'judgement', 'rating', 'vote', 'battle' all used
     @staticmethod
     def submit_judgement(request: api.HeadToHeadJudgementRequest) -> None:
-        with get_database_connection() as conn:
+        with get_database_connection(transaction=True) as conn:
             # 1. insert battle record
             human_judge = HumanJudge()
             conn.execute(

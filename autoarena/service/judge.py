@@ -120,7 +120,7 @@ class JudgeService:
 
     @staticmethod
     def delete(judge_id: int) -> None:
-        with get_database_connection() as conn:
+        with get_database_connection(transaction=True) as conn:
             conn.execute("DELETE FROM battle WHERE judge_id = $judge_id", dict(judge_id=judge_id))
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
 

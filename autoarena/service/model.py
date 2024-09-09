@@ -101,7 +101,7 @@ class ModelService:
         missing_columns = required_columns - set(df_result.columns)
         if len(missing_columns) > 0:
             raise ValueError(f"missing required column(s): {missing_columns}")
-        with get_database_connection() as conn:
+        with get_database_connection(transaction=True) as conn:
             params = dict(project_id=project_id, model_name=model_name)
             ((new_model_id,),) = conn.execute(
                 """
@@ -124,7 +124,7 @@ class ModelService:
     @staticmethod
     def delete(model_id: int) -> None:
         params = dict(model_id=model_id)
-        with get_database_connection() as conn:
+        with get_database_connection(transaction=True) as conn:
             conn.execute(
                 """
                 DELETE FROM battle b

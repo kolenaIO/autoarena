@@ -4,7 +4,6 @@ on:
   push:
     tags:
       - "*"
-      -
 env:
   PYTHON_VERSION: "3.12"
   NODE_VERSION: "20.11.1"
@@ -46,9 +45,12 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
+      - name: Generate a changelog
+        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.tar.gz
+          body_path: CHANGELOG.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

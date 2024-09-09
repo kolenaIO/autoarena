@@ -30,12 +30,12 @@ class ProjectService:
             conn.execute("DELETE FROM task WHERE project_id = $project_id", params)
             conn.execute(
                 """
-                DELETE FROM battle b
+                DELETE FROM head_to_head h
                 WHERE EXISTS (
                     SELECT 1
                     FROM result r
                     JOIN model m ON m.id = r.model_id
-                    WHERE (b.result_a_id = r.id OR b.result_b_id = r.id)
+                    WHERE (h.result_a_id = r.id OR h.result_b_id = r.id)
                     AND m.project_id = $project_id
                 )
                 """,

@@ -51,9 +51,9 @@ CREATE TABLE IF NOT EXISTS result (
 CREATE OR REPLACE MACRO id_slug(id_a, id_b) AS
     IF(id_a < id_b, id_a, id_b)::INTEGER || '-' || IF(id_a < id_b, id_b, id_a)::INTEGER;
 CREATE OR REPLACE MACRO invert_winner(winner) AS IF(winner = 'A', 'B', IF(winner = 'B', 'A', winner));
-CREATE SEQUENCE IF NOT EXISTS battle_id START 1;
-CREATE TABLE IF NOT EXISTS battle (
-    id INTEGER PRIMARY KEY DEFAULT nextval('battle_id'),
+CREATE SEQUENCE IF NOT EXISTS head_to_head_id START 1;
+CREATE TABLE IF NOT EXISTS head_to_head (
+    id INTEGER PRIMARY KEY DEFAULT nextval('head_to_head_id'),
     result_id_slug TEXT NOT NULL, -- see id_slug macro
     result_a_id INTEGER NOT NULL,
     result_b_id INTEGER NOT NULL,

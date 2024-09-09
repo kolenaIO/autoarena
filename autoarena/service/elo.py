@@ -34,16 +34,16 @@ class EloService:
                     ma.name AS model_a,
                     mb.id AS model_b_id,
                     mb.name AS model_b,
-                    b.winner
-                FROM battle b
-                JOIN judge j ON b.judge_id = j.id
-                JOIN result ra ON b.result_a_id = ra.id
-                JOIN result rb ON b.result_b_id = rb.id
+                    h.winner
+                FROM head_to_head h
+                JOIN judge j ON h.judge_id = j.id
+                JOIN result ra ON h.result_a_id = ra.id
+                JOIN result rb ON h.result_b_id = rb.id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
                 WHERE ma.project_id = $project_id
                 AND mb.project_id = $project_id
-                ORDER BY b.id -- ensure we are replaying battles in the order they were submitted
+                ORDER BY h.id -- ensure we are replaying head-to-heads in the order they were submitted
             """,
                 dict(project_id=project_id),
             ).df()

@@ -16,7 +16,7 @@ API_V1_STR = "/api/v1"
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
     setup_database()
-    logger.info("AutoArena ready")
+    logger.success("AutoArena ready")
     yield
 
 

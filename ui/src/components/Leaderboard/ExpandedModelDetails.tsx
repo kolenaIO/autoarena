@@ -1,4 +1,4 @@
-import { Anchor, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
+import { Anchor, Box, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
 import moment from 'moment';
 import { IconDownload, IconGavel } from '@tabler/icons-react';
 import { useMemo } from 'react';
@@ -29,51 +29,53 @@ export function ExpandedModelDetails({ model }: Props) {
   );
 
   return (
-    <Stack bg="gray.1" gap="xs" pt="xs" p="xl" maw={1080}>
-      <Group justify="space-between">
-        <Stack gap={2} fz="xs">
+    <Box bg="gray.1">
+      <Stack gap="xs" pt="xs" p="xl" maw={1080}>
+        <Group justify="space-between">
+          <Stack gap={2} fz="xs">
+            <Group gap="xs">
+              <Text inherit fw="bold">
+                Created:
+              </Text>
+              <Text inherit>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Text>
+            </Group>
+            <Group gap="xs">
+              <Text inherit fw="bold">
+                Record (Win - Loss - Tie):
+              </Text>
+              <Text inherit>
+                <Skeleton visible={isLoading}>
+                  {nWins.toLocaleString()} - {nLosses.toLocaleString()} - {nTies.toLocaleString()}
+                </Skeleton>
+              </Text>
+            </Group>
+          </Stack>
           <Group gap="xs">
-            <Text inherit fw="bold">
-              Created:
-            </Text>
-            <Text inherit>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Text>
-          </Group>
-          <Group gap="xs">
-            <Text inherit fw="bold">
-              Record (Win - Loss - Tie):
-            </Text>
-            <Text inherit>
-              <Skeleton visible={isLoading}>
-                {nWins.toLocaleString()} - {nLosses.toLocaleString()} - {nTies.toLocaleString()}
-              </Skeleton>
-            </Text>
-          </Group>
-        </Stack>
-        <Group gap="xs">
-          <Anchor href={`${BASE_API_URL}/model/${model.id}/download/results`} target="_blank">
-            <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Results CSV
+            <Anchor href={`${BASE_API_URL}/model/${model.id}/download/results`} target="_blank">
+              <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
+                Download Results CSV
+              </Button>
+            </Anchor>
+            <Anchor href={`${BASE_API_URL}/model/${model.id}/download/head-to-heads`} target="_blank">
+              <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
+                Download Head-to-Heads CSV
+              </Button>
+            </Anchor>
+            <Button
+              variant="light"
+              color="orange"
+              size="xs"
+              leftSection={<IconGavel size={20} />}
+              onClick={() => triggerModelJudgement()}
+            >
+              Run Automated Judgement
             </Button>
-          </Anchor>
-          <Anchor href={`${BASE_API_URL}/model/${model.id}/download/head-to-heads`} target="_blank">
-            <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Head-to-Heads CSV
-            </Button>
-          </Anchor>
-          <Button
-            variant="light"
-            color="orange"
-            size="xs"
-            leftSection={<IconGavel size={20} />}
-            onClick={() => triggerModelJudgement()}
-          >
-            Run Automated Judgement
-          </Button>
-          <DeleteModelButton model={model} />
+            <DeleteModelButton model={model} />
+          </Group>
         </Group>
-      </Group>
-      <EloHistoryPlot modelId={model.id} />
-      <HeadToHeadStatsTable modelId={model.id} />
-    </Stack>
+        <EloHistoryPlot modelId={model.id} />
+        <HeadToHeadStatsTable modelId={model.id} />
+      </Stack>
+    </Box>
   );
 }

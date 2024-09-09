@@ -4,7 +4,7 @@ import { getProjectUrl } from '../lib/routes.ts';
 import { getModelsQueryKey, Model } from './useModels.ts';
 import { getTasksQueryKey } from './useTasks.ts';
 
-function getUploadModelResultsQueryKey(projectSlug: string) {
+function getUploadModelResponsesQueryKey(projectSlug: string) {
   return [`${getProjectUrl(projectSlug)}`, '/model', 'POST'];
 }
 
@@ -12,10 +12,10 @@ type Params = {
   projectSlug: string;
   options?: UseMutationOptions<Model, Error, [File, string]>;
 };
-export function useUploadModelResults({ projectSlug, options }: Params) {
+export function useUploadModelResponses({ projectSlug, options }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getUploadModelResultsQueryKey(projectSlug),
+    mutationKey: getUploadModelResponsesQueryKey(projectSlug),
     mutationFn: async ([file, modelName]) => {
       const formData = new FormData();
       formData.append('file', file);
@@ -27,7 +27,7 @@ export function useUploadModelResults({ projectSlug, options }: Params) {
     onError: () => {
       notifications.show({
         title: 'Failed to add model',
-        message: 'Unable to add model and results',
+        message: 'Unable to add model and responses',
         color: 'red',
       });
     },

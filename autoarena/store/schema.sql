@@ -20,9 +20,9 @@ CREATE TABLE IF NOT EXISTS model (
     q975 DOUBLE PRECISION
 );
 
-CREATE SEQUENCE IF NOT EXISTS result_id START 1;
-CREATE TABLE IF NOT EXISTS result (
-    id INTEGER PRIMARY KEY DEFAULT nextval('result_id'),
+CREATE SEQUENCE IF NOT EXISTS response_id START 1;
+CREATE TABLE IF NOT EXISTS response (
+    id INTEGER PRIMARY KEY DEFAULT nextval('response_id'),
     model_id INTEGER NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     prompt TEXT NOT NULL,
@@ -41,17 +41,17 @@ CREATE OR REPLACE MACRO invert_winner(winner) AS IF(winner = 'A', 'B', IF(winner
 CREATE SEQUENCE IF NOT EXISTS head_to_head_id START 1;
 CREATE TABLE IF NOT EXISTS head_to_head (
     id INTEGER PRIMARY KEY DEFAULT nextval('head_to_head_id'),
-    result_id_slug TEXT NOT NULL, -- see id_slug macro
-    result_a_id INTEGER NOT NULL,
-    result_b_id INTEGER NOT NULL,
+    response_id_slug TEXT NOT NULL, -- see id_slug macro
+    response_a_id INTEGER NOT NULL,
+    response_b_id INTEGER NOT NULL,
     judge_id INTEGER NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     winner TEXT NOT NULL, -- e.g. "A", "B", "-"
-    FOREIGN KEY (result_a_id) REFERENCES result (id),
-    FOREIGN KEY (result_b_id) REFERENCES result (id),
+    FOREIGN KEY (response_a_id) REFERENCES response (id),
+    FOREIGN KEY (response_b_id) REFERENCES response (id),
     FOREIGN KEY (judge_id) REFERENCES judge (id),
     -- TODO: allow duplicate ratings from same judge (e.g. human)? Unique for now for convenience
-    UNIQUE (result_id_slug, judge_id)
+    UNIQUE (response_id_slug, judge_id)
 );
 
 CREATE SEQUENCE IF NOT EXISTS task_id START 1;

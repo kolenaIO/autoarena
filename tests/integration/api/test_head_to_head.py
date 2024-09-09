@@ -26,15 +26,15 @@ def test__head_to_head__get(project_client: TestClient, model_id: int, model_b_i
     for a, b in zip(h2h, h2h_b):
         assert a["prompt"] == b["prompt"]
         assert a["response_a"] == b["response_b"]
-        assert a["result_a_id"] == b["result_b_id"]
+        assert a["response_a_id"] == b["response_b_id"]
         assert a["response_b"] == b["response_a"]
-        assert a["result_b_id"] == b["result_a_id"]
+        assert a["response_b_id"] == b["response_a_id"]
 
 
 def test__head_to_head__submit_judgement(project_client: TestClient, model_id: int, model_b_id: int) -> None:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
-    result_a_id, result_b_id = h2h[0]["result_a_id"], h2h[0]["result_b_id"]
-    judge_request = dict(result_a_id=result_a_id, result_b_id=result_b_id, winner="A")
+    response_a_id, response_b_id = h2h[0]["response_a_id"], h2h[0]["response_b_id"]
+    judge_request = dict(response_a_id=response_a_id, response_b_id=response_b_id, winner="A")
     assert project_client.post("/head-to-head/judgement", json=judge_request).json() is None
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     judges = project_client.get("/judges").json()
@@ -46,7 +46,7 @@ def test__head_to_head__submit_judgement(project_client: TestClient, model_id: i
     assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="B")]
 
     # overwrite previous judgement
-    judge_request = dict(result_a_id=result_a_id, result_b_id=result_b_id, winner="B")
+    judge_request = dict(response_a_id=response_a_id, response_b_id=response_b_id, winner="B")
     assert project_client.post("/head-to-head/judgement", json=judge_request).json() is None
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="B")]

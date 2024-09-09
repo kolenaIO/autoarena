@@ -7,8 +7,8 @@ function getSubmitHeadToHeadJudgementQueryKey(projectSlug: string) {
 }
 
 type HeadToHeadJudgementRequest = {
-  result_a_id: number;
-  result_b_id: number;
+  response_a_id: number;
+  response_b_id: number;
   winner: 'A' | 'B' | '-';
 };
 

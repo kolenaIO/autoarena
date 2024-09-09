@@ -12,14 +12,14 @@ CREATE_JUDGE_REQUEST = dict(
     description="Just for testing",
 )
 
-DF_RESULT = pd.DataFrame([("p1", "r1"), ("p2", "r2")], columns=["prompt", "response"])
-DF_RESULT_B = pd.DataFrame([("p1", "b"), ("p2", "bb"), ("p3", "bbb")], columns=["prompt", "response"])
+DF_RESPONSE = pd.DataFrame([("p1", "r1"), ("p2", "r2")], columns=["prompt", "response"])
+DF_RESPONSE_B = pd.DataFrame([("p1", "b"), ("p2", "bb"), ("p3", "bbb")], columns=["prompt", "response"])
 
 
 @pytest.fixture
 def model_id(api_v1_client: TestClient, project_slug: str) -> int:
     buf = StringIO()
-    DF_RESULT.to_csv(buf, index=False)
+    DF_RESPONSE.to_csv(buf, index=False)
     buf.seek(0)
     data = dict(new_model_name="test-model-a")
     files = dict(file=("example.csv", buf.read()))
@@ -29,7 +29,7 @@ def model_id(api_v1_client: TestClient, project_slug: str) -> int:
 @pytest.fixture
 def model_b_id(api_v1_client: TestClient, project_slug: str) -> int:
     buf = StringIO()
-    DF_RESULT_B.to_csv(buf, index=False)
+    DF_RESPONSE_B.to_csv(buf, index=False)
     buf.seek(0)
     data = dict(new_model_name="test-model-b")
     files = dict(file=("example.csv", buf.read()))

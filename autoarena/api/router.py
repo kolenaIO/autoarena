@@ -40,7 +40,7 @@ def router() -> APIRouter:
         return ModelService.get_all_ranked_by_judge(project_slug, judge_id)
 
     @r.post("/project/{project_slug}/model")
-    async def upload_model_results(
+    async def upload_model_responses(
         project_slug: str,
         file: UploadFile,
         new_model_name: Annotated[str, Form()],
@@ -48,14 +48,14 @@ def router() -> APIRouter:
     ) -> api.Model:
         if file.content_type != "text/csv":
             raise ValueError(f"unsupported file type: {file.content_type}")
-        df_result = pd.read_csv(BytesIO(await file.read()))
-        new_model = ModelService.upload_results(project_slug, new_model_name, df_result)
+        df_response = pd.read_csv(BytesIO(await file.read()))
+        new_model = ModelService.upload_responses(project_slug, new_model_name, df_response)
         background_tasks.add_task(TaskService.auto_judge, project_slug, new_model.id, new_model.name)
         return new_model
 
-    @r.get("/project/{project_slug}/model/{model_id}/results")
-    def get_model_results(project_slug: str, model_id: int) -> list[api.ModelResult]:
-        return ModelService.get_results(project_slug, model_id)
+    @r.get("/project/{project_slug}/model/{model_id}/responses")
+    def get_model_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
+        return ModelService.get_responses(project_slug, model_id)
 
     @r.get("/project/{project_slug}/model/{model_id}/elo-history")
     def get_elo_history(project_slug: str, model_id: int, judge_id: Optional[int] = None) -> list[api.EloHistoryItem]:
@@ -75,22 +75,24 @@ def router() -> APIRouter:
             pass
 
     # async for StreamingResponses to improve speed; see https://github.com/fastapi/fastapi/issues/2302
-    @r.get("/project/{project_slug}/model/{model_id}/download/results")
-    async def download_model_results_csv(project_slug: str, model_id: int) -> StreamingResponse:
-        df_result = ModelService.get_df_result(project_slug, model_id)
-        model_name = df_result.iloc[0].model
+    @r.get("/project/{project_slug}/model/{model_id}/download/responses")
+    async def download_model_responses_csv(project_slug: str, model_id: int) -> StreamingResponse:
+        columns = ["prompt", "response"]
+        df_response = ModelService.get_df_response(project_slug, model_id)
+        model_name = df_response.iloc[0].model
         stream = StringIO()
-        df_result.to_csv(stream, index=False)
+        df_response[columns].to_csv(stream, index=False)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
         return response
 
     @r.get("/project/{project_slug}/model/{model_id}/download/head-to-heads")
     async def download_model_head_to_heads_csv(project_slug: str, model_id: int) -> StreamingResponse:
-        df_result = ModelService.get_df_head_to_head(project_slug, model_id)
+        columns = ["prompt", "model_a", "model_b", "response_a", "response_b", "judge", "winner"]
+        df_h2h = ModelService.get_df_head_to_head(project_slug, model_id)
         model = ModelService.get_by_id(project_slug, model_id)
         stream = StringIO()
-        df_result.to_csv(stream, index=False)
+        df_h2h[columns].to_csv(stream, index=False)
         response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
         response.headers["Content-Disposition"] = f'attachment; filename="{model.name}-head-to-head.csv"'
         return response

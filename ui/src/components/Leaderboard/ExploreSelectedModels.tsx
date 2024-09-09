@@ -60,7 +60,7 @@ export function ExploreSelectedModels({ selectedModels }: Props) {
             )}
           </Text>
           <Button disabled={selectedModels.length < 1} onClick={handleGoCompare}>
-            {selectedModels.length === 1 ? 'View Results' : 'Compare Head-to-Head'}
+            {selectedModels.length === 1 ? 'View Responses' : 'Compare Head-to-Head'}
           </Button>
         </Stack>
       </Card>

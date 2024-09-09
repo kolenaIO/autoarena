@@ -25,24 +25,24 @@ def seed_head_to_heads(head_to_heads: str) -> None:
     model_ids: list[int] = []
     for model in tqdm(models, total=len(models), desc="seed models"):
         cols = ["prompt", "response"]
-        df_model_result_a = df[df.model_a == model].rename(columns=dict(response_a="response"))[cols]
-        df_model_result_b = df[df.model_b == model].rename(columns=dict(response_b="response"))[cols]
-        df_model_result = pd.concat([df_model_result_a, df_model_result_b])
-        df_model_result = df_model_result.drop_duplicates(subset=["prompt"], keep="last")  # drop duplicate rows
-        df_model_result = df_model_result.dropna(subset=["response"])
-        model_ids.append(ModelService.upload_results(project_slug, model, df_model_result).id)
+        df_model_response_a = df[df.model_a == model].rename(columns=dict(response_a="response"))[cols]
+        df_model_response_b = df[df.model_b == model].rename(columns=dict(response_b="response"))[cols]
+        df_model_response = pd.concat([df_model_response_a, df_model_response_b])
+        df_model_response = df_model_response.drop_duplicates(subset=["prompt"], keep="last")  # drop duplicate rows
+        df_model_response = df_model_response.dropna(subset=["response"])
+        model_ids.append(ModelService.upload_responses(project_slug, model, df_model_response).id)
 
     # 3. seed head-to-heads
-    df_result = pd.concat([ModelService.get_df_result(project_slug, model_id) for model_id in model_ids])
+    df_response = pd.concat([ModelService.get_df_response(project_slug, model_id) for model_id in model_ids])
     right_on = ["model", "prompt", "response"]
-    df = df.merge(df_result, left_on=["model_a", "prompt", "response_a"], right_on=right_on, how="left")
-    df = df.rename(columns=dict(result_id="result_a_id"))
-    df = df.merge(df_result, left_on=["model_b", "prompt", "response_b"], right_on=right_on, how="left")
-    df = df.rename(columns=dict(result_id="result_b_id"))
-    df = df.dropna(subset=["result_a_id", "result_b_id"])
-    df[["result_a_id", "result_b_id"]] = df[["result_a_id", "result_b_id"]].astype(int)
+    df = df.merge(df_response, left_on=["model_a", "prompt", "response_a"], right_on=right_on, how="left")
+    df = df.rename(columns=dict(response_id="response_a_id"))
+    df = df.merge(df_response, left_on=["model_b", "prompt", "response_b"], right_on=right_on, how="left")
+    df = df.rename(columns=dict(response_id="response_b_id"))
+    df = df.dropna(subset=["response_a_id", "response_b_id"])
+    df[["response_a_id", "response_b_id"]] = df[["response_a_id", "response_b_id"]].astype(int)
     df["judge_id"] = [j for j in JudgeService.get_all(project_slug) if j.name == HumanJudge().name][0].id
-    HeadToHeadService.upload_head_to_heads(project_slug, df[["result_a_id", "result_b_id", "judge_id", "winner"]])
+    HeadToHeadService.upload_head_to_heads(project_slug, df[["response_a_id", "response_b_id", "judge_id", "winner"]])
 
     # 4. seed elo scores
     EloService.reseed_scores(project_slug)

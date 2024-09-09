@@ -59,9 +59,9 @@ class ABShufflingJudge(WrappingJudge):
     def _shuffle_h2h(h2h: api.HeadToHead) -> api.HeadToHead:
         return api.HeadToHead(
             prompt=h2h.prompt,
-            result_a_id=h2h.result_b_id,
+            response_a_id=h2h.response_b_id,
             response_a=h2h.response_b,
-            result_b_id=h2h.result_a_id,
+            response_b_id=h2h.response_a_id,
             response_b=h2h.response_a,
         )
 

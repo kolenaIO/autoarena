@@ -18,7 +18,7 @@ TEST_QUESTIONS = [
 
 
 @pytest.fixture
-def model_results(project_slug: str) -> tuple[int, int]:
+def model_responses(project_slug: str) -> tuple[int, int]:
     create_judge_request = api.CreateJudgeRequest(
         judge_type=api.JudgeType.OPENAI,
         name=TEST_JUDGE_MODEL_NAMES[api.JudgeType.OPENAI],
@@ -28,15 +28,15 @@ def model_results(project_slug: str) -> tuple[int, int]:
     )
     JudgeService.create(project_slug, create_judge_request)  # should be enabled by default
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
-    model_a_id = ModelService.upload_results(project_slug, "good-answers", df_good_answer).id
+    model_a_id = ModelService.upload_responses(project_slug, "good-answers", df_good_answer).id
     df_bad_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(wrong="response"))
-    model_b_id = ModelService.upload_results(project_slug, "bad-answers", df_bad_answer).id
+    model_b_id = ModelService.upload_responses(project_slug, "bad-answers", df_bad_answer).id
     return model_a_id, model_b_id
 
 
 # test here rather than via API as synchronous autojudging is not exposed via the API
-def test__task__auto_judge(project_slug: str, model_results: tuple[int, int]) -> None:
-    model_a_id, model_b_id = model_results
+def test__task__auto_judge(project_slug: str, model_responses) -> None:
+    model_a_id, model_b_id = model_responses
     TaskService.auto_judge(project_slug, model_a_id, "good-answers")
 
     # assert that judging happened as expected
@@ -55,13 +55,13 @@ def test__task__auto_judge(project_slug: str, model_results: tuple[int, int]) ->
     assert len(tasks[0].status) > 0
 
 
-def test__task__recompute_leaderboard(project_slug: str, model_results: tuple[int, int]) -> None:
-    model_a_id, model_b_id = model_results
+def test__task__recompute_leaderboard(project_slug: str, model_responses) -> None:
+    model_a_id, model_b_id = model_responses
     h2hs = HeadToHeadService.get(project_slug, api.HeadToHeadsRequest(model_a_id=model_a_id, model_b_id=model_b_id))
     for h2h in h2hs:
         submit_judgement_request = api.HeadToHeadJudgementRequest(
-            result_a_id=h2h.result_a_id,
-            result_b_id=h2h.result_b_id,
+            response_a_id=h2h.response_a_id,
+            response_b_id=h2h.response_b_id,
             winner="A",
         )
         HeadToHeadService.submit_judgement(project_slug, submit_judgement_request)

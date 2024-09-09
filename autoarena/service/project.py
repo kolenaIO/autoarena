@@ -5,6 +5,7 @@ import duckdb
 from loguru import logger
 
 from autoarena.api import api
+from autoarena.error import NotFoundError
 from autoarena.judge.human import HumanJudge
 from autoarena.store import database
 from autoarena.store.database import get_database_connection, SCHEMA_FILE
@@ -15,6 +16,8 @@ class ProjectService:
     @contextmanager
     def connect(slug: str) -> duckdb.DuckDBPyConnection:
         path = ProjectService._slug_to_path(slug)
+        if not path.exists():
+            raise NotFoundError(f"File for project '{slug}' not found (expected: {path})")
         with get_database_connection(path) as conn:
             yield conn
 

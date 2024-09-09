@@ -1,7 +1,10 @@
 import { Anchor, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { notifications } from '@mantine/notifications';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useProject } from '../hooks/useProject.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
@@ -18,7 +21,20 @@ type Props = {
 };
 export function Page({ tab }: Props) {
   const { projectSlug } = useUrlState();
+  const { data: project, isLoading: isLoadingProject } = useProject(projectSlug);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (projectSlug != null && !isLoadingProject && project == null) {
+      notifications.show({
+        title: `Project ${projectSlug}' not found`,
+        message: <>The project '{projectSlug}' does not seem to exist in the expected file. Redirecting home.</>,
+        color: 'red',
+        key: 'project-not-found',
+      });
+      navigate('/');
+    }
+  }, [project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
     const baseUrl = `/project/${projectSlug}`;

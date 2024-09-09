@@ -2,15 +2,12 @@
 
 AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation.
 
-Get started with:
+Install from [PyPI](https://pypi.org/project/autoarena/) and run with:
 
 ```
 pip install autoarena
 python -m autoarena
 ```
-
-Data is stored in `./data/<project>.duckdb` files in the directory where you invoked AutoArena. See
-[`data/README.md`](./data/README.md) for more details on data storage in AutoArena.
 
 ## Usage
 
@@ -25,6 +22,11 @@ Getting started with AutoArena is simple:
    previous step to decide which of the models you've uploaded provided a better `response` to a given `prompt`.
 
 That's it! After these steps you're fully set up for automated evaluation on AutoArena.
+
+### Data Storage
+
+Data is stored in `./data/<project>.duckdb` files in the directory where you invoked AutoArena. See
+[`data/README.md`](./data/README.md) for more details on data storage in AutoArena.
 
 ## Development
 

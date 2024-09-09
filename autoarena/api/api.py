@@ -8,9 +8,9 @@ from pydantic.dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Project:
-    slug: str
-    filename: str
-    filepath: str
+    slug: str  # stem of the database file
+    filename: str  # name of database file
+    filepath: str  # full path to database file
 
 
 @dataclass(frozen=True)

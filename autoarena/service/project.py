@@ -14,41 +14,40 @@ class ProjectService:
     @staticmethod
     @contextmanager
     def connect(slug: str) -> duckdb.DuckDBPyConnection:
-        path = ProjectService._get_path(slug)
+        path = ProjectService._slug_to_path(slug)
         with get_database_connection(path) as conn:
             yield conn
 
     @staticmethod
     def get_all() -> list[api.Project]:
         paths = sorted(list(database.get_data_directory().glob("*.duckdb")))
-        return [api.Project(filepath=str(p), filename=p.name, slug=ProjectService._get_slug(p)) for p in paths]
+        return [api.Project(slug=ProjectService._path_to_slug(p), filename=p.name, filepath=str(p)) for p in paths]
 
     @staticmethod
     def create_idempotent(request: api.CreateProjectRequest) -> api.Project:
+        # TODO: should come up with a better way than this to have services point at one another, or remove the need
         from autoarena.service.judge import JudgeService
 
         data_directory = database.get_data_directory()
         data_directory.mkdir(parents=True, exist_ok=True)
         path = data_directory / f"{request.name}.duckdb"
-        slug = ProjectService._get_slug(path)
+        slug = ProjectService._path_to_slug(path)
         ProjectService._setup_database(path)
         JudgeService.create_idempotent(slug, HumanJudge())
         return api.Project(slug=slug, filename=path.name, filepath=str(path))
 
     @staticmethod
     def delete(slug: str) -> None:
-        path = ProjectService._get_path(slug)
+        path = ProjectService._slug_to_path(slug)
         path.unlink(missing_ok=True)
         logger.info(f"Removed file '{path}' containing project '{slug}'")
 
     @staticmethod
-    def _get_slug(path: Path) -> str:
-        # TODO: sanitize, lookup, lots to do here
+    def _path_to_slug(path: Path) -> str:
         return path.stem
 
     @staticmethod
-    def _get_path(slug: str) -> Path:
-        # TODO
+    def _slug_to_path(slug: str) -> Path:
         return database.get_data_directory() / f"{slug}.duckdb"
 
     @staticmethod

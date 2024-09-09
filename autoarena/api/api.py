@@ -27,7 +27,7 @@ class Model:
     q025: Optional[float]
     q975: Optional[float]
     n_responses: int
-    votes: int
+    n_votes: int
 
 
 @dataclass(frozen=True)
@@ -74,7 +74,7 @@ class HeadToHead:
 
 
 @dataclass(frozen=True)
-class HeadToHeadJudgementRequest:  # this is always coming from humans
+class HeadToHeadVoteRequest:  # this is always coming from humans
     response_a_id: int
     response_b_id: int
     winner: WinnerType
@@ -117,7 +117,7 @@ class Judge:
     system_prompt: Optional[str]
     description: str
     enabled: bool
-    votes: int
+    n_votes: int
 
 
 @dataclass(frozen=True)

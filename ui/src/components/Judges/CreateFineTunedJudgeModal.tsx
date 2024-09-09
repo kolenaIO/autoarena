@@ -24,7 +24,8 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   const [systemPrompt, setSystemPrompt] = useState('');
 
   const nVotes = useMemo(
-    () => (judges ?? []).filter(({ judge_type }) => judge_type === 'human').reduce((acc, { votes }) => acc + votes, 0),
+    () =>
+      (judges ?? []).filter(({ judge_type }) => judge_type === 'human').reduce((acc, { n_votes }) => acc + n_votes, 0),
     [judges]
   );
 

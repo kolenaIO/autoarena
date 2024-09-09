@@ -13,7 +13,7 @@ export type Model = {
   q025?: number; // these are only set once models have been rated
   q975?: number;
   n_responses: number;
-  votes: number;
+  n_votes: number;
 };
 
 export function useModels(projectSlug: string | undefined) {

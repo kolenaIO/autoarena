@@ -11,7 +11,7 @@ type Params = {
   modelId?: number;
   options?: UseMutationOptions<void, Error, void>;
 };
-export function useTriggerModelJudgement({ projectSlug, modelId, options = {} }: Params) {
+export function useTriggerModelAutoJudge({ projectSlug, modelId, options = {} }: Params) {
   return useMutation({
     mutationKey: getTriggerModelJudgementQueryKey(projectSlug, modelId),
     mutationFn: async () => {

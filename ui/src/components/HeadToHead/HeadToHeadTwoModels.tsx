@@ -5,7 +5,7 @@ import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useSubmitHeadToHeadJudgement } from '../../hooks/useSubmitHeadToHeadJudgement.ts';
+import { useSubmitHeadToHeadVote } from '../../hooks/useSubmitHeadToHeadVote.ts';
 import { pluralize } from '../../lib/string.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
@@ -21,7 +21,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
   // TODO: loading state?
   const { data: battles, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
-  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectSlug });
+  const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const headToHead = useMemo(() => battles?.[headToHeadIndex], [battles, headToHeadIndex]);
   const nHeadToHeads: number = battles?.length ?? 0;

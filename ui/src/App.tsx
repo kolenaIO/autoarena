@@ -3,7 +3,7 @@ import 'mantine-datatable/styles.layer.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/charts/styles.css';
 import './App.module.css';
-import { createTheme, MantineProvider, Modal } from '@mantine/core';
+import { createTheme, MantineProvider, Modal, Tooltip } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
@@ -17,6 +17,7 @@ const theme = createTheme({
   cursorType: 'pointer',
   components: {
     Modal: Modal.extend({ defaultProps: { transitionProps: { transition: 'fade', duration: 100 } } }),
+    Tooltip: Tooltip.extend({ defaultProps: { openDelay: 200 } }),
   },
   colors: {
     kolena: [

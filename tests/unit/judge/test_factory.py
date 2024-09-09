@@ -20,7 +20,7 @@ def test__judge_factory__human() -> None:
         system_prompt=None,
         description="Example description",
         enabled=True,
-        votes=0,
+        n_votes=0,
     )
     judge = judge_factory(request)
     assert type(judge) is HumanJudge
@@ -43,7 +43,7 @@ def test__judge_factory__custom() -> None:
         system_prompt="Always say 'A'",
         description="Example description",
         enabled=True,
-        votes=0,
+        n_votes=0,
     )
     with pytest.raises(NotImplementedError):
         judge_factory(request)
@@ -60,7 +60,7 @@ def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
         system_prompt=None,
         description="example_description",
         enabled=True,
-        votes=0,
+        n_votes=0,
     )
     judge = judge_factory(request, wrappers=wrappers)
     if len(wrappers) == 0:

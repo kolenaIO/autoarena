@@ -1,36 +1,23 @@
-CREATE SEQUENCE IF NOT EXISTS project_id START 1;
-CREATE TABLE IF NOT EXISTS project (
-    id INTEGER PRIMARY KEY DEFAULT nextval('project_id'),
-    created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    name TEXT NOT NULL UNIQUE
-);
-
 CREATE SEQUENCE IF NOT EXISTS judge_id START 1;
 CREATE TABLE IF NOT EXISTS judge (
     id INTEGER PRIMARY KEY DEFAULT nextval('judge_id'),
-    project_id INTEGER NOT NULL,
     judge_type TEXT NOT NULL, -- e.g. 'human', 'ollama', 'openai'; see api.JudgeType
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     model_name TEXT, -- null for 'human' type
     system_prompt TEXT, -- null for 'human' type
     description TEXT NOT NULL,
-    enabled BOOLEAN NOT NULL DEFAULT FALSE,
-    FOREIGN KEY (project_id) REFERENCES project (id),
-    UNIQUE (project_id, name)
+    enabled BOOLEAN NOT NULL DEFAULT FALSE
 );
 
 CREATE SEQUENCE IF NOT EXISTS model_id START 1;
 CREATE TABLE IF NOT EXISTS model (
     id INTEGER PRIMARY KEY DEFAULT nextval('model_id'),
-    project_id INTEGER NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
-    name TEXT NOT NULL,
+    name TEXT NOT NULL UNIQUE,
     elo DOUBLE PRECISION NOT NULL DEFAULT 1000,
     q025 DOUBLE PRECISION,
-    q975 DOUBLE PRECISION,
-    FOREIGN KEY (project_id) REFERENCES project (id),
-    UNIQUE (project_id, name)
+    q975 DOUBLE PRECISION
 );
 
 CREATE SEQUENCE IF NOT EXISTS result_id START 1;
@@ -70,10 +57,8 @@ CREATE TABLE IF NOT EXISTS battle (
 CREATE SEQUENCE IF NOT EXISTS task_id START 1;
 CREATE TABLE IF NOT EXISTS task (
     id INTEGER PRIMARY KEY DEFAULT nextval('task_id'),
-    project_id INTEGER NOT NULL,
     task_type TEXT NOT NULL, -- e.g. 'auto-judge', 'recompute-leaderboard'; see api.TaskType
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     progress DOUBLE PRECISION NOT NULL DEFAULT 0, -- on [0,1]
-    status TEXT NOT NULL DEFAULT 'Started', -- freeform
-    FOREIGN KEY (project_id) REFERENCES project (id)
+    status TEXT NOT NULL DEFAULT 'Started' -- freeform
 );

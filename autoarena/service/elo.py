@@ -7,7 +7,7 @@ from pydantic.dataclasses import dataclass
 from loguru import logger
 
 from autoarena.api import api
-from autoarena.store.database import get_database_connection
+from autoarena.service.project import ProjectService
 
 
 @dataclass(frozen=True)
@@ -23,8 +23,8 @@ DEFAULT_ELO_CONFIG = EloConfig()
 
 class EloService:
     @staticmethod
-    def get_df_head_to_head(project_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
+    def get_df_head_to_head(project_slug: str) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
             return conn.execute(
                 """
                 SELECT
@@ -41,45 +41,40 @@ class EloService:
                 JOIN result rb ON b.result_b_id = rb.id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
-                WHERE ma.project_id = $project_id
-                AND mb.project_id = $project_id
                 ORDER BY b.id -- ensure we are replaying battles in the order they were submitted
             """,
-                dict(project_id=project_id),
             ).df()
 
     @staticmethod
-    def reseed_scores(project_id: int) -> None:
-        df_h2h = EloService.get_df_head_to_head(project_id)
+    def reseed_scores(project_slug: str) -> None:
+        df_h2h = EloService.get_df_head_to_head(project_slug)
         df_elo = EloService.compute_elo(df_h2h)
         df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)
-        with get_database_connection() as conn:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute(  # reset all scores before updating new ones
-                "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL WHERE project_id = $project_id",
-                dict(project_id=project_id, default_elo=EloConfig.default_score),
+                "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL",
+                dict(default_elo=EloConfig.default_score),
             )
             conn.execute(
                 """
-                INSERT INTO model (project_id, name, elo, q025, q975)
-                SELECT $project_id, model, elo, q025, q975
+                INSERT INTO model (name, elo, q025, q975)
+                SELECT model, elo, q025, q975
                 FROM df_elo
-                ON CONFLICT (project_id, name) DO UPDATE SET
+                ON CONFLICT (name) DO UPDATE SET
                     elo = EXCLUDED.elo,
                     q025 = EXCLUDED.q025,
                     q975 = EXCLUDED.q975;
             """,
-                dict(project_id=project_id),
             )
 
     @staticmethod
     def get_history(
-        model_id: int, judge_id: Optional[int], config: EloConfig = DEFAULT_ELO_CONFIG
+        project_slug: str,
+        model_id: int,
+        judge_id: Optional[int],
+        config: EloConfig = DEFAULT_ELO_CONFIG,
     ) -> list[api.EloHistoryItem]:
-        # TODO: should come up with a better way to have services point at one another
-        from autoarena.service.model import ModelService
-
-        project_id = ModelService.get_project_id(model_id)
-        df_h2h = EloService.get_df_head_to_head(project_id)
+        df_h2h = EloService.get_df_head_to_head(project_slug)
         if judge_id is not None:
             df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
         rating: dict[int, float] = defaultdict(lambda: config.default_score)

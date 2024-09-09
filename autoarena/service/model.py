@@ -4,7 +4,7 @@ import pandas as pd
 from autoarena.api import api
 from autoarena.error import NotFoundError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
-from autoarena.store.database import get_database_connection
+from autoarena.service.project import ProjectService
 
 
 class ModelService:
@@ -42,8 +42,8 @@ class ModelService:
         """
 
     @staticmethod
-    def get_by_id(model_id: int) -> api.Model:
-        with get_database_connection() as conn:
+    def get_by_id(project_slug: str, model_id: int) -> api.Model:
+        with ProjectService.connect(project_slug) as conn:
             df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
         try:
             return [api.Model(**r) for _, r in df_model.iterrows()][0]
@@ -51,37 +51,24 @@ class ModelService:
             raise NotFoundError(f"Model with ID '{model_id}' not found")
 
     @staticmethod
-    def get_project_id(model_id: int) -> int:
-        try:
-            with get_database_connection() as conn:
-                params = dict(model_id=model_id)
-                ((project_id,),) = conn.execute("SELECT project_id FROM model WHERE id = $model_id", params).fetchall()
-            return project_id
-        except ValueError:
-            raise NotFoundError(f"Model with ID '{model_id}' not found")
-
-    @staticmethod
-    def get_all_df(project_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
-            df_model = conn.execute(
-                f"{ModelService.MODELS_QUERY} WHERE m.project_id = $project_id",
-                dict(project_id=project_id),
-            ).df()
+    def get_all_df(project_slug: str) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
+            df_model = conn.execute(ModelService.MODELS_QUERY).df()
         df_model = df_model.replace({np.nan: None})
         return df_model
 
     @staticmethod
-    def get_all(project_id: int) -> list[api.Model]:
-        df_model = ModelService.get_all_df(project_id)
+    def get_all(project_slug: str) -> list[api.Model]:
+        df_model = ModelService.get_all_df(project_slug)
         return [api.Model(**r) for _, r in df_model.iterrows()]
 
     @staticmethod
-    def get_all_ranked_by_judge(project_id: int, judge_id: int) -> list[api.Model]:
-        df_h2h = EloService.get_df_head_to_head(project_id)
+    def get_all_ranked_by_judge(project_slug: str, judge_id: int) -> list[api.Model]:
+        df_h2h = EloService.get_df_head_to_head(project_slug)
         df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
         df_elo = EloService.compute_elo(df_h2h)
         df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)  # TODO: is this too expensive?
-        df_model = ModelService.get_all_df(project_id)
+        df_model = ModelService.get_all_df(project_slug)
         df_out = pd.merge(df_model, df_elo, left_on="name", right_on="model", how="left")
         df_out[["elo", "q025", "q975"]] = df_out[["elo_y", "q025_y", "q975_y"]]
         df_out["elo"] = df_out["elo"].replace({np.nan: DEFAULT_ELO_CONFIG.default_score})
@@ -96,20 +83,15 @@ class ModelService:
         return [api.Model(**r) for _, r in df_out.iterrows()]
 
     @staticmethod
-    def upload_results(project_id: int, model_name: str, df_result: pd.DataFrame) -> api.Model:
+    def upload_results(project_slug: str, model_name: str, df_result: pd.DataFrame) -> api.Model:
         required_columns = {"prompt", "response"}
         missing_columns = required_columns - set(df_result.columns)
         if len(missing_columns) > 0:
             raise ValueError(f"missing required column(s): {missing_columns}")
-        with get_database_connection() as conn:
-            params = dict(project_id=project_id, model_name=model_name)
+        with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(
-                """
-                INSERT INTO model (project_id, name)
-                VALUES ($project_id, $model_name)
-                RETURNING id
-                """,
-                params,
+                "INSERT INTO model (name) VALUES ($model_name) RETURNING id",
+                dict(model_name=model_name),
             ).fetchall()
             df_result["model_id"] = new_model_id
             conn.execute("""
@@ -117,14 +99,14 @@ class ModelService:
                 SELECT model_id, prompt, response
                 FROM df_result
             """)
-        models = ModelService.get_all(project_id)
+        models = ModelService.get_all(project_slug)
         new_model = [model for model in models if model.id == new_model_id][0]
         return new_model
 
     @staticmethod
-    def delete(model_id: int) -> None:
+    def delete(project_slug: str, model_id: int) -> None:
         params = dict(model_id=model_id)
-        with get_database_connection() as conn:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 """
                 DELETE FROM battle b
@@ -141,13 +123,13 @@ class ModelService:
             conn.execute("DELETE FROM model WHERE id = $model_id", params)
 
     @staticmethod
-    def get_results(model_id: int) -> list[api.ModelResult]:
-        df_result = ModelService.get_df_result(model_id)
+    def get_results(project_slug: str, model_id: int) -> list[api.ModelResult]:
+        df_result = ModelService.get_df_result(project_slug, model_id)
         return [api.ModelResult(prompt=r.prompt, response=r.response) for r in df_result.itertuples()]
 
     @staticmethod
-    def get_df_result(model_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
+    def get_df_result(project_slug: str, model_id: int) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
             df_result = conn.execute(
                 """
                 SELECT
@@ -164,8 +146,8 @@ class ModelService:
         return df_result
 
     @staticmethod
-    def get_df_head_to_head(model_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
+    def get_df_head_to_head(project_slug: str, model_id: int) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
             df_h2h = conn.execute(
                 """
                 SELECT
@@ -189,10 +171,9 @@ class ModelService:
             ).df()
         return df_h2h
 
-    # TODO: should add tests for tricky logic like this
     @staticmethod
-    def get_head_to_head_stats(model_id: int) -> list[api.ModelHeadToHeadStats]:
-        with get_database_connection() as conn:
+    def get_head_to_head_stats(project_slug: str, model_id: int) -> list[api.ModelHeadToHeadStats]:
+        with ProjectService.connect(project_slug) as conn:
             df_h2h_stats = conn.execute(
                 """
                 WITH battle_result AS (

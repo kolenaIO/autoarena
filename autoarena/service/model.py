@@ -76,9 +76,9 @@ class ModelService:
         votes_a, votes_b = df_h2h.model_a_id.value_counts(), df_h2h.model_b_id.value_counts()
         df_votes = pd.merge(votes_a, votes_b, left_index=True, right_index=True, how="outer")
         df_votes = df_votes.replace({np.nan: 0})
-        df_votes["votes"] = df_votes["count_x"] + df_votes["count_y"]
+        df_votes["n_votes"] = df_votes["count_x"] + df_votes["count_y"]
         df_out = df_out.merge(df_votes, left_on="id", right_index=True, how="left")
-        df_out["votes"] = df_out["votes_y"].replace({np.nan: 0})
+        df_out["n_votes"] = df_out["n_votes_y"].replace({np.nan: 0})
         df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "n_responses", "n_votes"]]
         return [api.Model(**r) for _, r in df_out.iterrows()]
 

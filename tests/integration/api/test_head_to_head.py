@@ -31,11 +31,11 @@ def test__head_to_head__get(project_client: TestClient, model_id: int, model_b_i
         assert a["response_b_id"] == b["response_a_id"]
 
 
-def test__head_to_head__submit_judgement(project_client: TestClient, model_id: int, model_b_id: int) -> None:
+def test__head_to_head__submit_vote(project_client: TestClient, model_id: int, model_b_id: int) -> None:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     response_a_id, response_b_id = h2h[0]["response_a_id"], h2h[0]["response_b_id"]
     judge_request = dict(response_a_id=response_a_id, response_b_id=response_b_id, winner="A")
-    assert project_client.post("/head-to-head/judgement", json=judge_request).json() is None
+    assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     judges = project_client.get("/judges").json()
     assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="A")]
@@ -45,9 +45,9 @@ def test__head_to_head__submit_judgement(project_client: TestClient, model_id: i
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_b_id, model_b_id=model_id)).json()
     assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="B")]
 
-    # overwrite previous judgement
+    # overwrite previous vote
     judge_request = dict(response_a_id=response_a_id, response_b_id=response_b_id, winner="B")
-    assert project_client.post("/head-to-head/judgement", json=judge_request).json() is None
+    assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="B")]
     assert h2h[1]["history"] == []

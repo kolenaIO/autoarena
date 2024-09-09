@@ -9,7 +9,7 @@ def test__judges__default_human_judge(project_client: TestClient) -> None:
     assert len(default_project_judges) == 1
     assert default_project_judges[0]["judge_type"] == "human"
     assert default_project_judges[0]["enabled"]
-    assert default_project_judges[0]["votes"] == 0
+    assert default_project_judges[0]["n_votes"] == 0
 
 
 def test__judges__default_system_prompt(project_client: TestClient) -> None:

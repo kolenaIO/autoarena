@@ -25,7 +25,10 @@ export function Page({ tab }: Props) {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (projectSlug != null && !isLoadingProject && project == null) {
+    // TODO: this is nice functionality to have but sometimes there is a race condition where it fires after creating
+    //  a project but before it loads. Disable for now
+    const enableRedirect = false;
+    if (enableRedirect && projectSlug != null && !isLoadingProject && project == null) {
       notifications.show({
         title: `Project '${projectSlug}' not found`,
         message: <>The project '{projectSlug}' does not seem to exist in the expected file. Redirecting home.</>,

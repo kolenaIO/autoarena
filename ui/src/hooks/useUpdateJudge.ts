@@ -13,7 +13,7 @@ type UpdateJudgeRequest = {
 type Params = {
   projectSlug: string;
   judgeId: number;
-  options?: UseMutationOptions<Judge, Error, [number, UpdateJudgeRequest]>;
+  options?: UseMutationOptions<Judge, Error, UpdateJudgeRequest>;
 };
 export function useUpdateJudge({ projectSlug, judgeId, options = {} }: Params) {
   const queryClient = useQueryClient();

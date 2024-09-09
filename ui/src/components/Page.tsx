@@ -27,7 +27,7 @@ export function Page({ tab }: Props) {
   useEffect(() => {
     if (projectSlug != null && !isLoadingProject && project == null) {
       notifications.show({
-        title: `Project ${projectSlug}' not found`,
+        title: `Project '${projectSlug}' not found`,
         message: <>The project '{projectSlug}' does not seem to exist in the expected file. Redirecting home.</>,
         color: 'red',
         key: 'project-not-found',

@@ -1,12 +1,13 @@
 import functools
 import math
+import sys
 import time
 from typing import Callable
 
-try:
-    from typing import ParamSpec, TypeVar  # type: ignore
-except ImportError:  # added in 3.10
-    from typing_extensions import ParamSpec, TypeVar  # type: ignore
+if sys.version_info[:2] >= (3, 10):
+    from typing import ParamSpec, TypeVar
+else:
+    from typing_extensions import ParamSpec, TypeVar
 
 import numpy as np
 from loguru import logger

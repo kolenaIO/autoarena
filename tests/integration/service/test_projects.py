@@ -14,7 +14,7 @@ def test__connect__failed() -> None:
             ...
 
 
-def test__migration__new() -> None:
+def test__migration__new(test_data_directory: Path) -> None:
     project = ProjectService.create_idempotent(api.CreateProjectRequest(name="test__migration__new"))
     applied = ProjectService._get_applied_migrations(Path(project.filepath))
     available = get_available_migrations()
@@ -24,7 +24,7 @@ def test__migration__new() -> None:
         assert applied[i][1] == available[i].name
 
 
-def test__migration__new__failed() -> None:
+def test__migration__new__failed(test_data_directory: Path) -> None:
     migrations = get_available_migrations()
     next_migration_index = int(migrations[-1].name.split("__")[0]) + 1
     bad_migration_file = Path(MIGRATION_DIRECTORY) / f"{next_migration_index:03d}__bad.sql"
@@ -37,7 +37,7 @@ def test__migration__new__failed() -> None:
         bad_migration_file.unlink()
 
 
-def test__migration__existing() -> None:
+def test__migration__existing(test_data_directory: Path) -> None:
     migrations = get_available_migrations()
     next_migration_index = int(migrations[-1].name.split("__")[0]) + 1
     new_migration_file = Path(MIGRATION_DIRECTORY) / f"{next_migration_index:03d}__bad.sql"

@@ -1,5 +1,5 @@
 import { DataTableColumn } from 'mantine-datatable';
-import { Code } from '@mantine/core';
+import { Code, Text, Tooltip } from '@mantine/core';
 import { v4 as uuidv4 } from 'uuid';
 import { Model } from '../../hooks/useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
@@ -17,8 +17,8 @@ export const LOADING_MODELS: Model[] = Array(16)
       elo,
       q025: elo - Math.random() * 50,
       q975: elo + Math.random() * 50,
-      datapoints: 500 + Math.random() * 1000,
-      votes: Math.floor(elo),
+      n_responses: 500 + Math.random() * 1000,
+      n_votes: Math.floor(elo),
     };
   })
   .sort((a, b) => b.elo - a.elo);
@@ -37,7 +37,14 @@ export const LEADERBOARD_COLUMNS: DataTableColumn<RankedModel>[] = [
   { accessor: 'elo', sortable: true, render: ({ elo }) => <Code>{elo.toFixed(1)}</Code> },
   {
     accessor: 'q025',
-    title: 'CI 95%',
+    // TODO: add tooltip explaining 95% confidence interval
+    title: (
+      <Tooltip label="95% Confidence Interval">
+        <Text size="sm" fw="bold">
+          CI 95%
+        </Text>
+      </Tooltip>
+    ),
     render: ({ elo, q025, q975 }) =>
       q025 != null &&
       q975 != null && (
@@ -47,10 +54,15 @@ export const LEADERBOARD_COLUMNS: DataTableColumn<RankedModel>[] = [
       ),
   },
   {
-    accessor: 'datapoints',
+    accessor: 'n_responses',
     sortable: true,
-    title: '# Datapoints',
-    render: ({ datapoints }) => datapoints.toLocaleString(),
+    title: '# Responses',
+    render: ({ n_responses }) => n_responses.toLocaleString(),
   },
-  { accessor: 'votes', sortable: true, title: '# Votes', render: ({ votes }) => votes.toLocaleString() },
+  {
+    accessor: 'n_votes',
+    sortable: true,
+    title: '# Votes',
+    render: ({ n_votes }) => n_votes.toLocaleString(),
+  },
 ];

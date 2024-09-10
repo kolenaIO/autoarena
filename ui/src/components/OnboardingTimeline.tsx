@@ -9,18 +9,21 @@ import { useUrlState } from '../hooks/useUrlState.ts';
 import { Model, useModels } from '../hooks/useModels.ts';
 import { useOnboardingGuideDismissed } from '../hooks/useOnboardingGuideDismissed.ts';
 import { useProject } from '../hooks/useProject.ts';
+import { useProjects } from '../hooks/useProjects.ts';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
+import { ProjectSelect } from './ProjectSelect.tsx';
 
 type Props = {
   dismissable?: boolean;
 };
 export function OnboardingTimeline({ dismissable = true }: Props) {
-  const { projectId } = useUrlState();
-  const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectId);
-  const { data: models, isLoading: isLoadingModels } = useModels(projectId);
-  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectId);
-  const [onboardingGuideDismissed, setOnboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
+  const { projectSlug } = useUrlState();
+  const { data: projects } = useProjects();
+  const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectSlug);
+  const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);
+  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectSlug);
+  const [onboardingGuideDismissed, setOnboardingGuideDismissed] = useOnboardingGuideDismissed(projectSlug);
   const [activeStage, setActiveStage] = useState(-1);
 
   const hasCreatedProject = activeProject != null;
@@ -79,6 +82,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
     onboardingGuideDismissed,
   ]);
 
+  const hasProjects = projects?.length ?? 0 > 0;
   const iconProps = { size: 14 };
   const subtitleProps = { c: 'dimmed', size: 'sm', maw: 350 };
   const isLoading = isLoadingProjects || isLoadingModels || isLoadingJudges;
@@ -100,16 +104,23 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconPlus {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Create project"
-                timestamp={activeProject?.created}
-                action={activeStage === -1 ? <CreateProjectButton size="xs" /> : undefined}
+                title={hasProjects ? 'Select a project' : 'Create your first project'}
+                action={
+                  activeStage !== -1 ? undefined : hasProjects ? <ProjectSelect /> : <CreateProjectButton size="xs" />
+                }
               />
             }
           >
             <Text {...subtitleProps}>
-              {activeProject != null
-                ? `Created project '${activeProject?.name}'`
-                : 'Create a project or select existing project'}
+              {activeProject != null ? (
+                <>
+                  Created project '{activeProject?.slug}' at <Code>{activeProject?.filepath}</Code>
+                </>
+              ) : hasProjects ? (
+                'Select a project or create a new one'
+              ) : (
+                'Create a new project file'
+              )}
             </Text>
           </Timeline.Item>
 
@@ -117,7 +128,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconRobot {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Add first model"
+                title="Add first model responses"
                 timestamp={firstModel?.created}
                 action={activeStage === 0 ? <AddModelButton size="xs" /> : undefined}
               />
@@ -138,11 +149,11 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconGavel {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Configure automated judge"
+                title="Configure an automated judge"
                 timestamp={firstJudge?.created}
                 action={
                   activeStage === 1 ? (
-                    <Anchor href={`/project/${projectId}/judges`}>
+                    <Anchor href={`/project/${projectSlug}/judges`}>
                       <Button leftSection={<IconGavel size={18} />} size="xs">
                         Configure Judge
                       </Button>
@@ -163,7 +174,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconRobot {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Add second model"
+                title="Add responses from a second model"
                 timestamp={secondModel?.created}
                 action={activeStage === 2 ? <AddModelButton size="xs" /> : undefined}
               />

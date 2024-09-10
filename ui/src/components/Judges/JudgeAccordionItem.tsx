@@ -6,6 +6,7 @@ import { Judge } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
+import { pluralize } from '../../lib/string.ts';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
@@ -15,13 +16,13 @@ type Props = {
 };
 export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const [isEnabled, setIsEnabled] = useState(enabled);
-  const { mutate: updateJudge } = useUpdateJudge({ projectId });
+  const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
 
   function handleToggleEnabled() {
-    updateJudge({ project_id: projectId, judge_id: id, enabled: !enabled });
+    updateJudge({ enabled: !enabled });
     setIsEnabled(prev => !prev);
   }
 
@@ -60,7 +61,7 @@ export function JudgeAccordionItem({ judge }: Props) {
               <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
               <Group>
                 <Text c="dimmed" size="xs" fs="italic">
-                  {judge.votes.toLocaleString()} votes submitted
+                  {pluralize(judge.n_votes, 'judgement')} submitted
                 </Text>
                 <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
                   {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
@@ -71,7 +72,7 @@ export function JudgeAccordionItem({ judge }: Props) {
           ) : (
             <Text>
               Visit the{' '}
-              <Link to={`/project/${projectId}/compare`}>
+              <Link to={`/project/${projectSlug}/compare`}>
                 <Text span c="kolena.8">
                   Head-to-Head
                 </Text>

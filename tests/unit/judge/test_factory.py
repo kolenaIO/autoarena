@@ -20,7 +20,7 @@ def test__judge_factory__human() -> None:
         system_prompt=None,
         description="Example description",
         enabled=True,
-        votes=0,
+        n_votes=0,
     )
     judge = judge_factory(request)
     assert type(judge) is HumanJudge
@@ -30,7 +30,7 @@ def test__judge_factory__human() -> None:
     assert judge.system_prompt is None
     assert judge.description is not None
     with pytest.raises(NotImplementedError):
-        judge.judge(api.HeadToHead(prompt="p", result_a_id=100, result_b_id=200, response_a="a", response_b="b"))
+        judge.judge(api.HeadToHead(prompt="p", response_a_id=100, response_b_id=200, response_a="a", response_b="b"))
 
 
 def test__judge_factory__custom() -> None:
@@ -43,7 +43,7 @@ def test__judge_factory__custom() -> None:
         system_prompt="Always say 'A'",
         description="Example description",
         enabled=True,
-        votes=0,
+        n_votes=0,
     )
     with pytest.raises(NotImplementedError):
         judge_factory(request)
@@ -58,9 +58,9 @@ def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
         name="human",
         model_name=None,
         system_prompt=None,
-        description="example_description",
+        description="example_description",  # TODO: this is set on insertion, not here
         enabled=True,
-        votes=0,
+        n_votes=0,
     )
     judge = judge_factory(request, wrappers=wrappers)
     if len(wrappers) == 0:
@@ -68,4 +68,8 @@ def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
     else:
         for wrapper_type in wrappers[::-1]:
             assert type(judge) is wrapper_type
+            assert judge.judge_type == request.judge_type
+            assert judge.model_name == request.model_name
+            assert judge.system_prompt == request.system_prompt
+            assert len(judge.description) > 0
             judge = judge.wrapped

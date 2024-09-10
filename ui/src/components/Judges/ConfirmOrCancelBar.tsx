@@ -5,6 +5,7 @@ type Props = {
   onCancel: () => void;
   onConfirm?: () => void;
   action?: string;
+  submitForm?: boolean;
   confirmButtonProps?: ButtonProps;
   disabledTooltipLabel?: ReactNode;
 };
@@ -12,12 +13,19 @@ export function ConfirmOrCancelBar({
   onCancel,
   onConfirm,
   action = 'Confirm',
+  submitForm = false,
   confirmButtonProps = {},
   disabledTooltipLabel,
 }: Props) {
-  const isDisabled = onConfirm == null;
+  const isDisabled = onConfirm == null && !submitForm;
   const ConfirmButtonComponent = (
-    <Button onClick={onConfirm} disabled={isDisabled} flex={1} {...confirmButtonProps}>
+    <Button
+      type={submitForm ? 'submit' : undefined}
+      onClick={onConfirm}
+      disabled={isDisabled}
+      flex={1}
+      {...confirmButtonProps}
+    >
       {action}
     </Button>
   );
@@ -27,9 +35,7 @@ export function ConfirmOrCancelBar({
         Cancel
       </Button>
       {disabledTooltipLabel != null && isDisabled ? (
-        <Tooltip openDelay={200} label={disabledTooltipLabel}>
-          {ConfirmButtonComponent}
-        </Tooltip>
+        <Tooltip label={disabledTooltipLabel}>{ConfirmButtonComponent}</Tooltip>
       ) : (
         ConfirmButtonComponent
       )}

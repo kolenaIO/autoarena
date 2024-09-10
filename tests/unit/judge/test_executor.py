@@ -8,8 +8,8 @@ DUMMY_WINNERS = ["A", "B", "-"] * 50
 DUMMY_H2HS = [
     api.HeadToHead(
         prompt=f"prompt: {i}",
-        result_a_id=100 + i,
-        result_b_id=200 + i,
+        response_a_id=100 + i,
+        response_b_id=200 + i,
         response_a=f"response A: {i}",
         response_b=f"response b: {i}",
     )
@@ -34,7 +34,7 @@ def test__threaded_executor() -> None:
     winner_by_judge_name: dict[str, list[tuple[int, int, str]]] = defaultdict(list)
     for judge, h2h, winner in executor.execute([judge1, judge2], DUMMY_H2HS):
         existing = winner_by_judge_name[judge.name]
-        tup = (h2h.result_a_id, h2h.result_b_id, winner)
+        tup = (h2h.response_a_id, h2h.response_b_id, winner)
         winner_by_judge_name[judge.name] = sorted([*existing, tup], key=lambda t: t[0])
     assert [w for _, _, w in winner_by_judge_name[judge1.name]] == DUMMY_WINNERS
     assert [w for _, _, w in winner_by_judge_name[judge2.name]] == ["-"] * len(DUMMY_WINNERS)

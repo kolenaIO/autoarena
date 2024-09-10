@@ -3,8 +3,9 @@ from io import StringIO
 import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
+from pydantic.dataclasses import dataclass
 
-BASE_CREATE_JUDGE_REQUEST = dict(
+CREATE_JUDGE_REQUEST = dict(
     judge_type="ollama",
     name="llama3.1:8b",
     model_name="llama3.1:8b",
@@ -12,36 +13,43 @@ BASE_CREATE_JUDGE_REQUEST = dict(
     description="Just for testing",
 )
 
-DF_RESULT = pd.DataFrame([("p1", "r1"), ("p2", "r2")], columns=["prompt", "response"])
-DF_RESULT_B = pd.DataFrame([("p1", "b"), ("p2", "bb"), ("p3", "bbb")], columns=["prompt", "response"])
+DF_RESPONSE = pd.DataFrame([("p1", "r1"), ("p2", "r2")], columns=["prompt", "response"])
+DF_RESPONSE_B = pd.DataFrame([("p1", "b"), ("p2", "bb"), ("p3", "bbb")], columns=["prompt", "response"])
+
+
+@dataclass(frozen=True)
+class UploadModelBody:
+    data: dict[str, str]
+    files: dict[str, tuple[str, str]]
+
+
+def construct_upload_model_body(model_name_to_df: dict[str, pd.DataFrame]) -> UploadModelBody:
+    model_names = list(model_name_to_df.keys())
+    filenames = [f"{model_name}.csv" for model_name in model_names]
+    buffers = []
+    for model_name in model_names:
+        buf = StringIO()
+        model_name_to_df[model_name].to_csv(buf, index=False)
+        buf.seek(0)
+        buffers.append(buf)
+    return UploadModelBody(
+        data={f"{filename}||model_name": model_name for filename, model_name in zip(filenames, model_names)},
+        files={filename: (filename, buf.read()) for filename, buf in zip(filenames, buffers)},
+    )
 
 
 @pytest.fixture
-def project_id(api_v1_client: TestClient) -> int:
-    return api_v1_client.put("/project", json=dict(name="test-project")).json()["id"]
+def model_id(project_client: TestClient) -> int:
+    body = construct_upload_model_body({"test-model-a": DF_RESPONSE})
+    return project_client.post("/model", data=body.data, files=body.files).json()[0]["id"]
 
 
 @pytest.fixture
-def model_id(api_v1_client: TestClient, project_id: int) -> int:
-    buf = StringIO()
-    DF_RESULT.to_csv(buf, index=False)
-    buf.seek(0)
-    data = dict(new_model_name="test-model-a", project_id=str(project_id))
-    files = dict(file=("example.csv", buf.read()))
-    return api_v1_client.post("/model", data=data, files=files).json()["id"]
+def model_b_id(project_client: TestClient) -> int:
+    body = construct_upload_model_body({"test-model-b": DF_RESPONSE_B})
+    return project_client.post("/model", data=body.data, files=body.files).json()[0]["id"]
 
 
 @pytest.fixture
-def model_b_id(api_v1_client: TestClient, project_id: int) -> int:
-    buf = StringIO()
-    DF_RESULT_B.to_csv(buf, index=False)
-    buf.seek(0)
-    data = dict(new_model_name="test-model-b", project_id=str(project_id))
-    files = dict(file=("example.csv", buf.read()))
-    return api_v1_client.post("/model", data=data, files=files).json()["id"]
-
-
-@pytest.fixture
-def judge_id(api_v1_client: TestClient, project_id: int) -> int:
-    new_judge_request = dict(project_id=project_id, **BASE_CREATE_JUDGE_REQUEST)
-    return api_v1_client.post("/judge", json=new_judge_request).json()["id"]
+def judge_id(project_client: TestClient) -> int:
+    return project_client.post("/judge", json=CREATE_JUDGE_REQUEST).json()["id"]

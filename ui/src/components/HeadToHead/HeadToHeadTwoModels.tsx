@@ -12,7 +12,7 @@ import { useDisclosure, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useSubmitHeadToHeadJudgement } from '../../hooks/useSubmitHeadToHeadJudgement.ts';
+import { useSubmitHeadToHeadVote } from '../../hooks/useSubmitHeadToHeadVote.ts';
 import { pluralize } from '../../lib/string.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
@@ -23,15 +23,15 @@ type Props = {
   modelBId: number;
 };
 export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const navigate = useNavigate();
   const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
   // TODO: loading state?
-  const { data: headToHeads, isLoading } = useHeadToHeads({ modelAId, modelBId });
-  const { mutate: submitJudgement } = useSubmitHeadToHeadJudgement({ projectId });
+  const { data: battles, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
+  const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
-  const headToHead = useMemo(() => headToHeads?.[headToHeadIndex], [headToHeads, headToHeadIndex]);
-  const nHeadToHeads: number = headToHeads?.length ?? 0;
+  const headToHead = useMemo(() => battles?.[headToHeadIndex], [battles, headToHeadIndex]);
+  const nHeadToHeads: number = battles?.length ?? 0;
 
   useEffect(() => {
     setHeadToHeadIndex(0);
@@ -48,9 +48,8 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     return () => {
       if (headToHead != null) {
         submitJudgement({
-          project_id: projectId,
-          result_a_id: headToHead.result_a_id,
-          result_b_id: headToHead.result_b_id,
+          response_a_id: headToHead.response_a_id,
+          response_b_id: headToHead.response_b_id,
           winner: vote,
         });
         setHeadToHeadIndex(prev => prev + 1);
@@ -89,7 +88,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
       description={
         <Stack>
           <Text>Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between selected models</Text>
-          <Button onClick={() => navigate(`/project/${projectId}`)}>View Leaderboard</Button>
+          <Button onClick={() => navigate(`/project/${projectSlug}`)}>View Leaderboard</Button>
         </Stack>
       }
     />

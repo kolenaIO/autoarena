@@ -16,15 +16,16 @@ type Props = {
   onClose: () => void;
 };
 export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { mutate: createFineTuningTask } = useCreateFineTuningTask({ projectId });
-  const { data: project } = useProject(projectId);
-  const { data: judges } = useJudges(projectId);
+  const { projectSlug = '' } = useUrlState();
+  const { mutate: createFineTuningTask } = useCreateFineTuningTask({ projectSlug });
+  const { data: project } = useProject(projectSlug);
+  const { data: judges } = useJudges(projectSlug);
   const [baseModel, setBaseModel] = useState<string | null>(null);
   const [systemPrompt, setSystemPrompt] = useState('');
 
   const nVotes = useMemo(
-    () => (judges ?? []).filter(({ judge_type }) => judge_type === 'human').reduce((acc, { votes }) => acc + votes, 0),
+    () =>
+      (judges ?? []).filter(({ judge_type }) => judge_type === 'human').reduce((acc, { n_votes }) => acc + n_votes, 0),
     [judges]
   );
 
@@ -47,8 +48,8 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
       <Stack>
         <Text size="sm">
           Start a <b>fine-tuning job</b> to create a custom judge model using the {pluralize(nVotes, 'manual vote')}{' '}
-          submitted on the <Anchor href={`/project/${projectId}/compare`}>Head-to-Head</Anchor> tab within the{' '}
-          <Code>{project?.name}</Code> project.
+          submitted on the <Anchor href={`/project/${projectSlug}/compare`}>Head-to-Head</Anchor> tab within the{' '}
+          <Code>{project?.slug}</Code> project.
         </Text>
         <Select
           label="Base Model"

@@ -5,65 +5,93 @@ import pytest
 from fastapi.testclient import TestClient
 
 from autoarena.api import api
-from tests.integration.api.conftest import DF_RESULT
+from tests.integration.api.conftest import DF_RESPONSE, DF_RESPONSE_B, construct_upload_model_body
 
 
 @pytest.fixture
-def n_model_a_votes(api_v1_client: TestClient, project_id: int, model_id: int, model_b_id: int) -> int:
-    h2h = api_v1_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
+def n_model_a_votes(project_client: TestClient, model_id: int, model_b_id: int) -> int:
+    h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     for h in h2h:
-        request = dict(project_id=project_id, result_a_id=h["result_a_id"], result_b_id=h["result_b_id"], winner="A")
-        assert api_v1_client.post("/head-to-head/judgement", json=request).json() is None
+        request = dict(response_a_id=h["response_a_id"], response_b_id=h["response_b_id"], winner="A")
+        assert project_client.post("/head-to-head/vote", json=request).json() is None
     return len(h2h)
 
 
-def test__models__get__empty(api_v1_client: TestClient, project_id: int) -> None:
-    assert api_v1_client.get(f"/models/{project_id}").json() == []
-    assert api_v1_client.get("/models/-1").json() == []
+def test__models__get__empty(project_client: TestClient) -> None:
+    assert project_client.get("/models").json() == []
 
 
-def test__models__upload(api_v1_client: TestClient, project_id: int, model_id: int) -> None:
-    models = api_v1_client.get(f"/models/{project_id}").json()
+def test__models__upload(project_client: TestClient, model_id: int) -> None:
+    models = project_client.get("/models").json()
     assert len(models) == 1
     assert models[0]["name"] == "test-model-a"
-    assert models[0]["datapoints"] == 2
-    assert models[0]["votes"] == 0
+    assert models[0]["n_responses"] == 2
+    assert models[0]["n_votes"] == 0
 
 
-def test__models__get_results(api_v1_client: TestClient, project_id: int, model_id: int) -> None:
-    assert api_v1_client.get(f"/model/{model_id}/results").json() == [
-        api.ModelResult(prompt="p1", response="r1").__dict__,
-        api.ModelResult(prompt="p2", response="r2").__dict__,
+@pytest.mark.parametrize(
+    "df_bad",
+    [
+        pd.DataFrame.from_records([dict(bad="yes", missing="prompt and response")]),
+        pd.DataFrame.from_records([dict(bad="yes", missing="prompt", response="ok")]),
+        pd.DataFrame.from_records([dict(bad="yes", missing="response", prompt="what")]),
+    ],
+)
+def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame) -> None:
+    body = construct_upload_model_body(dict(bad=df_bad))
+    response = project_client.post("/model", data=body.data, files=body.files)
+    assert response.status_code == 400
+    assert "Missing required column(s)" in response.json()["detail"]
+
+
+def test__models__upload__multiple(project_client: TestClient) -> None:
+    body = construct_upload_model_body(dict(a=DF_RESPONSE, b=DF_RESPONSE_B))
+    models = project_client.post("/model", data=body.data, files=body.files).json()
+    assert len(models) == 2
+    assert models[0]["name"] == "a"
+    assert models[1]["name"] == "b"
+    assert models[0]["n_responses"] == len(DF_RESPONSE)
+    assert models[1]["n_responses"] == len(DF_RESPONSE_B)
+    assert models[0]["n_votes"] == models[1]["n_votes"] == 0
+
+
+def test__models__get_responses(project_client: TestClient, model_id: int) -> None:
+    assert project_client.get(f"/model/{model_id}/responses").json() == [
+        api.ModelResponse(prompt="p1", response="r1").__dict__,
+        api.ModelResponse(prompt="p2", response="r2").__dict__,
     ]
 
 
-def test__models__delete(api_v1_client: TestClient, project_id: int, model_id: int) -> None:
-    assert len(api_v1_client.get(f"/models/{project_id}").json()) == 1
+def test__models__delete(project_client: TestClient, model_id: int) -> None:
+    assert len(project_client.get("/models").json()) == 1
     for _ in range(3):  # check idempotence with loop
-        assert api_v1_client.delete(f"/model/{model_id}").json() is None
-        assert api_v1_client.get(f"/models/{project_id}").json() == []
+        assert project_client.delete(f"/model/{model_id}").json() is None
+        assert project_client.get("/models").json() == []
 
 
-def test__models__download_results_csv(api_v1_client: TestClient, model_id: int) -> None:
-    response = api_v1_client.get(f"/model/{model_id}/download/results")
-    df_result = pd.read_csv(StringIO(response.text))
-    assert df_result[DF_RESULT.columns].equals(DF_RESULT)
+def test__models__download_responses_csv(project_client: TestClient, model_id: int) -> None:
+    response = project_client.get(f"/model/{model_id}/download/responses")
+    df_response = pd.read_csv(StringIO(response.text))
+    assert df_response.equals(DF_RESPONSE)
 
 
-def test__models__trigger_judgement(api_v1_client: TestClient, model_id: int) -> None:
-    assert api_v1_client.post(f"/model/{model_id}/judge").json() is None
+def test__models__download_responses_csv__failed(project_client: TestClient) -> None:
+    assert project_client.get("/model/12345/download/responses").status_code == 404
+
+
+def test__models__trigger_auto_judge(project_client: TestClient, model_id: int) -> None:
+    assert project_client.post(f"/model/{model_id}/judge").json() is None
     # TODO: actually check that task is kicked off? requires a configured auto-judge
 
 
 def test__models__get_ranked_by_judge(
-    api_v1_client: TestClient,
-    project_id: int,
+    project_client: TestClient,
     model_id: int,
     model_b_id: int,
     n_model_a_votes: int,
 ) -> None:
-    (human_judge,) = api_v1_client.get(f"/judges/{project_id}").json()
-    models = api_v1_client.get(f"/models/{project_id}/by-judge/{human_judge['id']}").json()
+    (human_judge,) = project_client.get("/judges").json()
+    models = project_client.get(f"/models/by-judge/{human_judge['id']}").json()
     assert len(models) == n_model_a_votes
     assert models[0]["elo"] > models[1]["elo"]
     for model in models:
@@ -72,14 +100,13 @@ def test__models__get_ranked_by_judge(
 
 
 def test__models__get_elo_history(
-    api_v1_client: TestClient,
-    project_id: int,
+    project_client: TestClient,
     model_id: int,
     model_b_id: int,
     n_model_a_votes: int,
 ) -> None:
-    history = api_v1_client.get(f"/model/{model_id}/elo-history").json()
-    judges = api_v1_client.get(f"/judges/{project_id}").json()
+    history = project_client.get(f"/model/{model_id}/elo-history").json()
+    judges = project_client.get("/judges").json()
     assert len(history) == n_model_a_votes
     assert all(h["other_model_id"] == model_b_id for h in history)
     assert all(h["judge_id"] == judges[0]["id"] for h in history)
@@ -88,47 +115,49 @@ def test__models__get_elo_history(
 
 
 def test__models__get_elo_history__with_judge(
-    api_v1_client: TestClient,
-    project_id: int,
+    project_client: TestClient,
     model_id: int,
     model_b_id: int,
     n_model_a_votes: int,
     judge_id: int,
 ) -> None:
-    history = api_v1_client.get(f"/model/{model_id}/elo-history").json()
-    judges = api_v1_client.get(f"/judges/{project_id}").json()
+    history = project_client.get(f"/model/{model_id}/elo-history").json()
+    judges = project_client.get("/judges").json()
     params = dict(judge_id=str(judges[0]["id"]))
-    history_with_judge = api_v1_client.get(f"/model/{model_id}/elo-history", params=params).json()
+    history_with_judge = project_client.get(f"/model/{model_id}/elo-history", params=params).json()
     assert history == history_with_judge  # in this case, they're the same, since no other judges have voted
 
     # no votes, no history
     params = dict(judge_id=str(judge_id))
-    assert api_v1_client.get(f"/model/{model_id}/elo-history", params=params).json() == []
+    assert project_client.get(f"/model/{model_id}/elo-history", params=params).json() == []
 
 
 def test__models__download_head_to_heads_csv(
-    api_v1_client: TestClient,
-    project_id: int,
+    project_client: TestClient,
     model_id: int,
     n_model_a_votes: int,
 ) -> None:
-    response = api_v1_client.get(f"/model/{model_id}/download/head-to-heads")
-    human_judge_name = api_v1_client.get(f"/judges/{project_id}").json()[0]["name"]
+    response = project_client.get(f"/model/{model_id}/download/head-to-heads")
+    human_judge_name = project_client.get("/judges").json()[0]["name"]
     df_h2h = pd.read_csv(StringIO(response.text))
+    assert set(df_h2h.columns) == {"prompt", "model_a", "model_b", "response_a", "response_b", "judge", "winner"}
     assert len(df_h2h) == n_model_a_votes
     assert all(df_h2h["judge"] == human_judge_name)
     assert all(df_h2h["winner"] == "A")
 
 
+def test__models__download_head_to_heads_csv__failed(project_client: TestClient) -> None:
+    assert project_client.get("/model/12345/download/head-to-heads").status_code == 404
+
+
 def test__models__get_head_to_head_stats(
-    api_v1_client: TestClient,
-    project_id: int,
+    project_client: TestClient,
     model_id: int,
     model_b_id: int,
     n_model_a_votes: int,
 ) -> None:
-    stats = api_v1_client.get(f"/model/{model_id}/head-to-head/stats").json()
-    human_judge_id = api_v1_client.get(f"/judges/{project_id}").json()[0]["id"]
+    stats = project_client.get(f"/model/{model_id}/head-to-head/stats").json()
+    human_judge_id = project_client.get("/judges").json()[0]["id"]
     assert len(stats) == 1  # one opponent, one judge
     assert stats[0]["other_model_id"] == model_b_id
     assert stats[0]["judge_id"] == human_judge_id

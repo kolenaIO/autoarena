@@ -50,5 +50,5 @@ def api_judge(judge_type: api.JudgeType, model_name: str) -> api.Judge:
         system_prompt=JudgeService.get_default_system_prompt(),
         description="Example description",
         enabled=True,
-        votes=0,
+        n_votes=0,
     )

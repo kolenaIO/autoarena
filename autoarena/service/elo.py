@@ -7,7 +7,7 @@ from pydantic.dataclasses import dataclass
 from loguru import logger
 
 from autoarena.api import api
-from autoarena.store.database import get_database_connection
+from autoarena.service.project import ProjectService
 
 
 @dataclass(frozen=True)
@@ -23,8 +23,8 @@ DEFAULT_ELO_CONFIG = EloConfig()
 
 class EloService:
     @staticmethod
-    def get_df_head_to_head(project_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
+    def get_df_head_to_head(project_slug: str) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
             return conn.execute(
                 """
                 SELECT
@@ -37,49 +37,44 @@ class EloService:
                     h.winner
                 FROM head_to_head h
                 JOIN judge j ON h.judge_id = j.id
-                JOIN result ra ON h.result_a_id = ra.id
-                JOIN result rb ON h.result_b_id = rb.id
+                JOIN response ra ON h.response_a_id = ra.id
+                JOIN response rb ON h.response_b_id = rb.id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
-                WHERE ma.project_id = $project_id
-                AND mb.project_id = $project_id
                 ORDER BY h.id -- ensure we are replaying head-to-heads in the order they were submitted
             """,
-                dict(project_id=project_id),
             ).df()
 
     @staticmethod
-    def reseed_scores(project_id: int) -> None:
-        df_h2h = EloService.get_df_head_to_head(project_id)
+    def reseed_scores(project_slug: str) -> None:
+        df_h2h = EloService.get_df_head_to_head(project_slug)
         df_elo = EloService.compute_elo(df_h2h)
         df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)
-        with get_database_connection() as conn:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute(  # reset all scores before updating new ones
-                "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL WHERE project_id = $project_id",
-                dict(project_id=project_id, default_elo=EloConfig.default_score),
+                "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL",
+                dict(default_elo=EloConfig.default_score),
             )
             conn.execute(
                 """
-                INSERT INTO model (project_id, name, elo, q025, q975)
-                SELECT $project_id, model, elo, q025, q975
+                INSERT INTO model (name, elo, q025, q975)
+                SELECT model, elo, q025, q975
                 FROM df_elo
-                ON CONFLICT (project_id, name) DO UPDATE SET
+                ON CONFLICT (name) DO UPDATE SET
                     elo = EXCLUDED.elo,
                     q025 = EXCLUDED.q025,
                     q975 = EXCLUDED.q975;
             """,
-                dict(project_id=project_id),
             )
 
     @staticmethod
     def get_history(
-        model_id: int, judge_id: Optional[int], config: EloConfig = DEFAULT_ELO_CONFIG
+        project_slug: str,
+        model_id: int,
+        judge_id: Optional[int],
+        config: EloConfig = DEFAULT_ELO_CONFIG,
     ) -> list[api.EloHistoryItem]:
-        # TODO: should come up with a better way to have services point at one another
-        from autoarena.service.model import ModelService
-
-        project_id = ModelService.get_project_id(model_id)
-        df_h2h = EloService.get_df_head_to_head(project_id)
+        df_h2h = EloService.get_df_head_to_head(project_slug)
         if judge_id is not None:
             df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
         rating: dict[int, float] = defaultdict(lambda: config.default_score)
@@ -122,7 +117,17 @@ class EloService:
         return df_elo.sort_values(by="elo", ascending=False)
 
     @staticmethod
-    def get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
+    def compute_confidence_intervals(df_elo: pd.DataFrame, df_h2h: pd.DataFrame) -> pd.DataFrame:
+        df_bootstrap = EloService._get_bootstrap_result(df_h2h, num_rounds=200)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
+        # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
+        df_elo["elo"] = df_elo.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
+        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
+        return df_elo
+
+    @staticmethod
+    def _get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
         rows = []
         t_start = time.time()
         logger.info(f"Bootstrapping confidence intervals with {num_rounds} rounds...")
@@ -133,13 +138,3 @@ class EloService:
         logger.info(f"Bootstrapped confidence intervals in {time.time() - t_start:0.1f} seconds")
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
         return df[df.median().sort_values(ascending=False).index]
-
-    @staticmethod
-    def compute_confidence_intervals(df_elo: pd.DataFrame, df_h2h: pd.DataFrame) -> pd.DataFrame:
-        df_bootstrap = EloService.get_bootstrap_result(df_h2h, num_rounds=200)
-        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
-        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
-        # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
-        df_elo["elo"] = df_elo.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
-        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
-        return df_elo

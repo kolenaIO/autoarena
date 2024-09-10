@@ -4,8 +4,8 @@ import { useJudges } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 
 export function JudgeSelect() {
-  const { projectId, judgeId, setJudgeId } = useUrlState();
-  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectId);
+  const { projectSlug, judgeId, setJudgeId } = useUrlState();
+  const { data: judges, isLoading: isLoadingJudges } = useJudges(projectSlug);
 
   const judgeIdByName: { [name: string]: number } = useMemo(
     () => Object.fromEntries((judges ?? []).map(({ id, name }) => [name, id])),
@@ -26,7 +26,7 @@ export function JudgeSelect() {
       value={currentJudgeName}
       onChange={name => setJudgeId(name != null ? judgeIdByName[name] : undefined)}
       disabled={isLoadingJudges}
-      placeholder="Showing votes from all judges"
+      placeholder="Showing scores from all judges"
       clearable
     />
   );

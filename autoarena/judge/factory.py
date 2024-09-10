@@ -25,7 +25,7 @@ JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, Optional[Type[Judge]]] = {
 
 
 def judge_factory(judge: api.Judge, wrappers: Optional[list[Type[WrappingJudge]]] = None) -> Judge:
-    def judge_factory_inner(j: api.Judge):
+    def judge_factory_inner(j: api.Judge) -> Judge:
         if j.judge_type is api.JudgeType.CUSTOM:
             raise NotImplementedError(f"judge type '{j.judge_type}' not yet implemented")
         judge_class = JUDGE_TYPE_TO_CLASS.get(j.judge_type, None)

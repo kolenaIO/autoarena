@@ -12,8 +12,8 @@ type Props = {
   modelId: number;
 };
 export function EloHistoryPlot({ modelId }: Props) {
-  const { judgeId } = useUrlState();
-  const { data: eloHistory, isLoading } = useModelEloHistory(modelId, judgeId);
+  const { projectSlug, judgeId } = useUrlState();
+  const { data: eloHistory, isLoading } = useModelEloHistory({ projectSlug, modelId, judgeId });
 
   const chartData: ChartDatum[] = useMemo(
     () => (eloHistory ?? []).map((item, i) => ({ position: i + 1, ...item })),

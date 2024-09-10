@@ -18,18 +18,18 @@ import { rankBy } from './utils.ts';
 import { JudgeSelect } from './JudgeSelect.tsx';
 
 export function Leaderboard() {
-  const { projectId, judgeId } = useUrlState();
+  const { projectSlug, judgeId } = useUrlState();
   const [selectedRecords, setSelectedRecords] = useState<RankedModel[]>([]);
   const [filterValue, setFilterValue] = useState('');
-  const { data: models, isLoading: isLoadingModels } = useModels(projectId);
-  const [onboardingGuideDismissed] = useOnboardingGuideDismissed(projectId);
+  const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);
+  const [onboardingGuideDismissed] = useOnboardingGuideDismissed(projectSlug);
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<RankedModel>>({
     columnAccessor: 'rank',
     direction: 'asc',
   });
 
   const { data: modelsRankedByJudge, isLoading: isLoadingModelsRankedByJudge } = useModelsRankedByJudge(
-    projectId,
+    projectSlug,
     judgeId
   );
 

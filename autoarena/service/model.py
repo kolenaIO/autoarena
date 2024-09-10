@@ -1,29 +1,30 @@
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from autoarena.api import api
-from autoarena.error import NotFoundError
+from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
-from autoarena.store.database import get_database_connection
+from autoarena.service.project import ProjectService
 
 
 class ModelService:
     MODELS_QUERY = """
-        WITH datapoint_count AS (
-            SELECT r.model_id, COUNT(1) AS datapoint_count
-            FROM result r
+        WITH response_count AS (
+            SELECT r.model_id, COUNT(1) AS response_count
+            FROM response r
             GROUP BY r.model_id
         ), vote_count_a AS ( -- this is inelegant but this query is tricky to write
             SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
-            JOIN result r ON r.model_id = m.id
-            LEFT JOIN head_to_head h ON r.id = h.result_a_id
+            JOIN response r ON r.model_id = m.id
+            LEFT JOIN head_to_head h ON r.id = h.response_a_id
             GROUP BY m.id
         ), vote_count_b AS (
             SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
-            JOIN result r ON r.model_id = m.id
-            LEFT JOIN head_to_head h ON r.id = h.result_b_id
+            JOIN response r ON r.model_id = m.id
+            LEFT JOIN head_to_head h ON r.id = h.response_b_id
             GROUP BY m.id
         )
         SELECT
@@ -33,17 +34,17 @@ class ModelService:
             elo,
             q025,
             q975,
-            IFNULL(dc.datapoint_count, 0) AS datapoints,
-            IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS votes
+            IFNULL(rc.response_count, 0) AS n_responses,
+            IFNULL(vca.vote_count, 0) + IFNULL(vcb.vote_count, 0) AS n_votes
         FROM model m
-        LEFT JOIN datapoint_count dc ON m.id = dc.model_id
+        LEFT JOIN response_count rc ON m.id = rc.model_id
         LEFT JOIN vote_count_a vca ON m.id = vca.model_id
         LEFT JOIN vote_count_b vcb ON m.id = vcb.model_id
         """
 
     @staticmethod
-    def get_by_id(model_id: int) -> api.Model:
-        with get_database_connection() as conn:
+    def get_by_id(project_slug: str, model_id: int) -> api.Model:
+        with ProjectService.connect(project_slug) as conn:
             df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
         try:
             return [api.Model(**r) for _, r in df_model.iterrows()][0]
@@ -51,37 +52,24 @@ class ModelService:
             raise NotFoundError(f"Model with ID '{model_id}' not found")
 
     @staticmethod
-    def get_project_id(model_id: int) -> int:
-        try:
-            with get_database_connection() as conn:
-                params = dict(model_id=model_id)
-                ((project_id,),) = conn.execute("SELECT project_id FROM model WHERE id = $model_id", params).fetchall()
-            return project_id
-        except ValueError:
-            raise NotFoundError(f"Model with ID '{model_id}' not found")
-
-    @staticmethod
-    def get_all_df(project_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
-            df_model = conn.execute(
-                f"{ModelService.MODELS_QUERY} WHERE m.project_id = $project_id",
-                dict(project_id=project_id),
-            ).df()
+    def get_all_df(project_slug: str) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
+            df_model = conn.execute(ModelService.MODELS_QUERY).df()
         df_model = df_model.replace({np.nan: None})
         return df_model
 
     @staticmethod
-    def get_all(project_id: int) -> list[api.Model]:
-        df_model = ModelService.get_all_df(project_id)
+    def get_all(project_slug: str) -> list[api.Model]:
+        df_model = ModelService.get_all_df(project_slug)
         return [api.Model(**r) for _, r in df_model.iterrows()]
 
     @staticmethod
-    def get_all_ranked_by_judge(project_id: int, judge_id: int) -> list[api.Model]:
-        df_h2h = EloService.get_df_head_to_head(project_id)
+    def get_all_ranked_by_judge(project_slug: str, judge_id: int) -> list[api.Model]:
+        df_h2h = EloService.get_df_head_to_head(project_slug)
         df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
         df_elo = EloService.compute_elo(df_h2h)
         df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)  # TODO: is this too expensive?
-        df_model = ModelService.get_all_df(project_id)
+        df_model = ModelService.get_all_df(project_slug)
         df_out = pd.merge(df_model, df_elo, left_on="name", right_on="model", how="left")
         df_out[["elo", "q025", "q975"]] = df_out[["elo_y", "q025_y", "q975_y"]]
         df_out["elo"] = df_out["elo"].replace({np.nan: DEFAULT_ELO_CONFIG.default_score})
@@ -89,83 +77,81 @@ class ModelService:
         votes_a, votes_b = df_h2h.model_a_id.value_counts(), df_h2h.model_b_id.value_counts()
         df_votes = pd.merge(votes_a, votes_b, left_index=True, right_index=True, how="outer")
         df_votes = df_votes.replace({np.nan: 0})
-        df_votes["votes"] = df_votes["count_x"] + df_votes["count_y"]
+        df_votes["n_votes"] = df_votes["count_x"] + df_votes["count_y"]
         df_out = df_out.merge(df_votes, left_on="id", right_index=True, how="left")
-        df_out["votes"] = df_out["votes_y"].replace({np.nan: 0})
-        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "datapoints", "votes"]]
+        df_out["n_votes"] = df_out["n_votes_y"].replace({np.nan: 0})
+        df_out = df_out[["id", "name", "created", "elo", "q025", "q975", "n_responses", "n_votes"]]
         return [api.Model(**r) for _, r in df_out.iterrows()]
 
     @staticmethod
-    def upload_results(project_id: int, model_name: str, df_result: pd.DataFrame) -> api.Model:
+    def upload_responses(project_slug: str, model_name: str, df_response: pd.DataFrame) -> api.Model:
         required_columns = {"prompt", "response"}
-        missing_columns = required_columns - set(df_result.columns)
+        missing_columns = required_columns - set(df_response.columns)
         if len(missing_columns) > 0:
-            raise ValueError(f"missing required column(s): {missing_columns}")
-        with get_database_connection() as conn:
-            params = dict(project_id=project_id, model_name=model_name)
+            raise BadRequestError(f"Missing required column(s): {missing_columns}")
+        logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
+        with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(
-                """
-                INSERT INTO model (project_id, name)
-                VALUES ($project_id, $model_name)
-                RETURNING id
-                """,
-                params,
+                "INSERT INTO model (name) VALUES ($model_name) RETURNING id",
+                dict(model_name=model_name),
             ).fetchall()
-            df_result["model_id"] = new_model_id
+            df_response["model_id"] = new_model_id
             conn.execute("""
-                INSERT INTO result (model_id, prompt, response)
+                INSERT INTO response (model_id, prompt, response)
                 SELECT model_id, prompt, response
-                FROM df_result
+                FROM df_response
             """)
-        models = ModelService.get_all(project_id)
+        models = ModelService.get_all(project_slug)
         new_model = [model for model in models if model.id == new_model_id][0]
         return new_model
 
     @staticmethod
-    def delete(model_id: int) -> None:
+    def delete(project_slug: str, model_id: int) -> None:
         params = dict(model_id=model_id)
-        with get_database_connection() as conn:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 """
                 DELETE FROM head_to_head h
                 WHERE EXISTS (
                     SELECT 1
-                    FROM result r
+                    FROM response r
                     WHERE r.model_id = $model_id
-                    AND (h.result_a_id = r.id OR h.result_b_id = r.id)
+                    AND (h.response_a_id = r.id OR h.response_b_id = r.id)
                 )
                 """,
                 params,
             )
-            conn.execute("DELETE FROM result WHERE model_id = $model_id", params)
+            conn.execute("DELETE FROM response WHERE model_id = $model_id", params)
             conn.execute("DELETE FROM model WHERE id = $model_id", params)
 
     @staticmethod
-    def get_results(model_id: int) -> list[api.ModelResult]:
-        df_result = ModelService.get_df_result(model_id)
-        return [api.ModelResult(prompt=r.prompt, response=r.response) for r in df_result.itertuples()]
+    def get_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
+        df_response = ModelService.get_df_response(project_slug, model_id)
+        return [api.ModelResponse(prompt=r.prompt, response=r.response) for r in df_response.itertuples()]
 
     @staticmethod
-    def get_df_result(model_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
-            df_result = conn.execute(
+    def get_df_response(project_slug: str, model_id: int) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
+            df_response = conn.execute(
                 """
                 SELECT
                     m.name AS model,
-                    r.id AS result_id,
+                    r.id AS response_id,
                     r.prompt AS prompt,
                     r.response AS response
                 FROM model m
-                JOIN result r ON m.id = r.model_id
+                JOIN response r ON m.id = r.model_id
                 WHERE m.id = $model_id
             """,
                 dict(model_id=model_id),
             ).df()
-        return df_result
+        if len(df_response) == 0:
+            raise NotFoundError(f"Model with ID '{model_id}' not found")  # model can't exist without any responses
+        return df_response
 
     @staticmethod
-    def get_df_head_to_head(model_id: int) -> pd.DataFrame:
-        with get_database_connection() as conn:
+    def get_df_head_to_head(project_slug: str, model_id: int) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
             df_h2h = conn.execute(
                 """
                 SELECT
@@ -178,8 +164,8 @@ class ModelService:
                     h.winner
                 FROM head_to_head h
                 JOIN judge j ON h.judge_id = j.id
-                JOIN result ra ON ra.id = h.result_a_id
-                JOIN result rb ON rb.id = h.result_b_id
+                JOIN response ra ON ra.id = h.response_a_id
+                JOIN response rb ON rb.id = h.response_b_id
                 JOIN model ma ON ma.id = ra.model_id
                 JOIN model mb ON mb.id = rb.model_id
                 WHERE ma.id = $model_id
@@ -189,21 +175,20 @@ class ModelService:
             ).df()
         return df_h2h
 
-    # TODO: should add tests for tricky logic like this
     @staticmethod
-    def get_head_to_head_stats(model_id: int) -> list[api.ModelHeadToHeadStats]:
-        with get_database_connection() as conn:
+    def get_head_to_head_stats(project_slug: str, model_id: int) -> list[api.ModelHeadToHeadStats]:
+        with ProjectService.connect(project_slug) as conn:
             df_h2h_stats = conn.execute(
                 """
-                WITH head_to_head_result AS (
+                WITH head_to_head_response AS (
                     SELECT
                         ra.model_id,
                         rb.model_id AS other_model_id,
                         h.judge_id,
                         CASE WHEN h.winner = 'A' THEN TRUE WHEN h.winner = 'B' THEN FALSE END AS won
                     FROM head_to_head h
-                    JOIN result ra ON ra.id = h.result_a_id
-                    JOIN result rb ON rb.id = h.result_b_id
+                    JOIN response ra ON ra.id = h.response_a_id
+                    JOIN response rb ON rb.id = h.response_b_id
                     UNION ALL
                     SELECT
                         rb.model_id,
@@ -211,8 +196,8 @@ class ModelService:
                         h.judge_id,
                         CASE WHEN h.winner = 'B' THEN TRUE WHEN h.winner = 'A' THEN FALSE END AS won
                     FROM head_to_head h
-                    JOIN result ra ON ra.id = h.result_a_id
-                    JOIN result rb ON rb.id = h.result_b_id
+                    JOIN response ra ON ra.id = h.response_a_id
+                    JOIN response rb ON rb.id = h.response_b_id
                 )
                 SELECT
                     m_other.id AS other_model_id,
@@ -222,7 +207,7 @@ class ModelService:
                     SUM(IF(hr.won IS TRUE, 1, 0)) AS count_wins,
                     SUM(IF(hr.won IS FALSE, 1, 0)) AS count_losses,
                     SUM(IF(hr.won IS NULL, 1, 0)) AS count_ties
-                FROM head_to_head_result hr
+                FROM head_to_head_response hr
                 JOIN judge j ON j.id = hr.judge_id
                 JOIN model m ON m.id = hr.model_id
                 JOIN model m_other ON m_other.id = hr.other_model_id

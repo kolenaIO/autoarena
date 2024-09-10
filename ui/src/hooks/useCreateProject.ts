@@ -1,10 +1,8 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../components/paths.ts';
+import { BASE_API_URL } from '../lib/routes.ts';
 import { Project, PROJECTS_QUERY_KEY } from './useProjects.ts';
-
-const CREATE_PROJECT_ENDPOINT = `${BASE_API_URL}/project`;
 
 type CreateProjectRequest = {
   name: string;
@@ -16,9 +14,9 @@ export function useCreateProject({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: [CREATE_PROJECT_ENDPOINT],
+    mutationKey: [`${BASE_API_URL}/project`],
     mutationFn: async (request: CreateProjectRequest) => {
-      const response = await fetch(CREATE_PROJECT_ENDPOINT, {
+      const response = await fetch(`${BASE_API_URL}/project`, {
         method: 'PUT',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
@@ -29,10 +27,10 @@ export function useCreateProject({
     onSuccess: (project: Project) => {
       notifications.show({
         title: 'Created project',
-        message: `Switched to newly created project '${project.name}'`,
+        message: `Switched to newly created project '${project.slug}'`,
         color: 'green',
       });
-      navigate(`/project/${project.id}`);
+      navigate(`/project/${project.slug}`);
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });

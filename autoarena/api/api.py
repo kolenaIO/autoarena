@@ -8,9 +8,9 @@ from pydantic.dataclasses import dataclass
 
 @dataclass(frozen=True)
 class Project:
-    id: int
-    name: str
-    created: datetime
+    slug: str  # stem of the database file
+    filename: str  # name of database file
+    filepath: str  # full path to database file
 
 
 @dataclass(frozen=True)
@@ -26,12 +26,12 @@ class Model:
     elo: float
     q025: Optional[float]
     q975: Optional[float]
-    datapoints: int
-    votes: int
+    n_responses: int
+    n_votes: int
 
 
 @dataclass(frozen=True)
-class ModelResult:
+class ModelResponse:
     prompt: str
     response: str
 
@@ -66,18 +66,17 @@ class HeadToHeadHistoryItem:
 @dataclass(frozen=True)
 class HeadToHead:
     prompt: str
-    result_a_id: int
+    response_a_id: int
     response_a: str
-    result_b_id: int
+    response_b_id: int
     response_b: str
     history: list[HeadToHeadHistoryItem] = dataclasses.field(default_factory=list)
 
 
 @dataclass(frozen=True)
-class HeadToHeadJudgementRequest:  # this is always coming from humans
-    project_id: int
-    result_a_id: int
-    result_b_id: int
+class HeadToHeadVoteRequest:  # this is always coming from humans
+    response_a_id: int
+    response_b_id: int
     winner: WinnerType
 
 
@@ -87,13 +86,21 @@ class TaskType(str, Enum):
     FINE_TUNE = "fine-tune"
 
 
+class TaskStatus(str, Enum):
+    STARTED = "started"
+    IN_PROGRESS = "in-progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 @dataclass(frozen=True)
 class Task:
     id: int
     task_type: TaskType
     created: datetime
     progress: float  # on [0,1]
-    status: str
+    status: TaskStatus
+    logs: str
 
 
 class JudgeType(str, Enum):
@@ -118,12 +125,11 @@ class Judge:
     system_prompt: Optional[str]
     description: str
     enabled: bool
-    votes: int
+    n_votes: int
 
 
 @dataclass(frozen=True)
 class CreateJudgeRequest:
-    project_id: int
     judge_type: JudgeType
     name: str
     model_name: str
@@ -133,8 +139,6 @@ class CreateJudgeRequest:
 
 @dataclass(frozen=True)
 class UpdateJudgeRequest:
-    project_id: int
-    judge_id: int
     enabled: bool
     # TODO: update name, description, system prompt?
 

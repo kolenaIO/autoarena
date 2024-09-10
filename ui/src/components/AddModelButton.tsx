@@ -9,11 +9,13 @@ import {
   ButtonVariant,
   MantineSize,
   Group,
+  Transition,
+  CloseButton,
 } from '@mantine/core';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMemo, useState } from 'react';
-import { useUploadModelResults } from '../hooks/useUploadModelResults.ts';
+import { useUploadModelResponses } from '../hooks/useUploadModelResponses.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useModels } from '../hooks/useModels.ts';
 import { useJudges } from '../hooks/useJudges.ts';
@@ -26,66 +28,102 @@ type Props = {
   size?: MantineSize;
 };
 export function AddModelButton({ variant, size }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { data: models } = useModels(projectId);
-  const { data: judges } = useJudges(projectId);
+  const { projectSlug = '' } = useUrlState();
+  const { data: models } = useModels(projectSlug);
+  const { data: judges } = useJudges(projectSlug);
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: uploadModelResults } = useUploadModelResults({ projectId });
+  const { mutate: uploadModelResponses } = useUploadModelResponses({ projectSlug });
 
-  const [file, setFile] = useState<File | null>(null);
-  const [name, setName] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [names, setNames] = useState<string[]>([]);
 
   const existingModelNames = useMemo(() => new Set((models ?? []).map(({ name }) => name)), [models]);
-  const nameError = existingModelNames.has(name) ? `Model '${name}' already exists` : undefined;
+  const nameErrors = names.map(name => {
+    if (existingModelNames.has(name)) {
+      return `Model '${name}' already exists`;
+    }
+    if (names.filter(n => n === name).length > 1) {
+      return `Duplicate model name '${name}'`;
+    }
+  });
 
   const configuredAutoJudges = useMemo(() => (judges ?? []).filter(isEnabledAutoJudge), [judges]);
 
   function handleClose() {
-    setFile(null);
-    setName('');
+    setFiles([]);
+    setNames([]);
     close();
   }
 
   function handleSubmit() {
-    if (file != null) {
-      uploadModelResults([file, name]);
+    if (files.length > 0) {
+      uploadModelResponses([files, names]);
     }
     handleClose();
   }
 
-  const isDisabled = file == null || name === '' || nameError != null;
+  function handleRemove(i: number) {
+    return () => {
+      setFiles(prev => prev.filter((_, j) => i !== j));
+      setNames(prev => prev.filter((_, j) => i !== j));
+    };
+  }
+
+  const hasEmptyNames = names.some(name => name === '');
+  const isDisabled = files.length === 0 || hasEmptyNames || nameErrors.some(e => e != null);
   return (
     <>
       <Button variant={variant} size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
         Add Model
       </Button>
-      <Modal opened={isOpen} centered onClose={handleClose} title="Add Model">
+      <Modal opened={isOpen} centered onClose={handleClose} title="Add Model Responses">
         <Stack>
-          <FileInput
-            label="Model Results"
+          <FileInput<true>
+            label="Model Responses File"
             description={
               <Text inherit>
-                A <Code>.csv</Code> file containing <Code>prompt</Code> and <Code>response</Code> columns
+                One or more <Code>.csv</Code> files containing <Code>prompt</Code> and <Code>response</Code> columns
               </Text>
             }
-            placeholder="Select model results file..."
+            placeholder="Select file with model responses..."
             accept="text/csv"
-            value={file}
-            onChange={f => {
-              if (f != null && name == '') {
-                setName(f.name.slice(0, -4));
-              }
-              setFile(f);
+            value={files}
+            multiple
+            onChange={(f: File[]) => {
+              setFiles(f);
+              setNames(f.map(file => file.name.slice(0, -4)));
             }}
           />
-          <TextInput
-            label="Model Name"
-            placeholder="Enter model name..."
-            value={name}
-            onChange={event => setName(event.currentTarget.value)}
-            error={nameError}
-            flex={1}
-          />
+          <Transition mounted={files.length > 0} transition="slide-right" duration={200} timingFunction="ease">
+            {transitionStyle => (
+              <Stack style={transitionStyle}>
+                {files.map((file, i) => (
+                  <Group gap="xs" align="flex-start">
+                    <TextInput
+                      key={i}
+                      label={
+                        <Text size="sm" fw={500}>
+                          Model Name for <Code>{file.name}</Code>
+                        </Text>
+                      }
+                      placeholder={`Enter name for '${file.name}'...`}
+                      value={names[i]}
+                      onChange={event =>
+                        setNames(prev => {
+                          // not sure why currentTarget is sometimes missing
+                          const newName = event.currentTarget?.value ?? event.target?.value ?? '';
+                          return [...prev.slice(0, i), newName, ...prev.slice(i + 1, prev.length)];
+                        })
+                      }
+                      error={nameErrors[i]}
+                      flex={1}
+                    />
+                    <CloseButton mt="xl" size="sm" onClick={handleRemove(i)} />
+                  </Group>
+                ))}
+              </Stack>
+            )}
+          </Transition>
           <Group gap="xs" wrap="nowrap">
             {configuredAutoJudges.length > 0 ? <IconCheck size={18} color="green" /> : <IconX size={18} color="gray" />}
             <Text size="xs">
@@ -97,7 +135,7 @@ export function AddModelButton({ variant, size }: Props) {
                 </Text>
                 <Text inherit c="dimmed">
                   {configuredAutoJudges.length > 0
-                    ? 'Model will be ranked against existing models on leaderboard'
+                    ? `Model${files.length > 0 ? 's' : ''} will be ranked against existing models on leaderboard`
                     : 'Configure an automated judge to rank against existing models'}
                 </Text>
               </Stack>

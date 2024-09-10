@@ -12,9 +12,9 @@
 
 </div>
 
-- 🏆 Rank outputs from different LLMs, RAG systems, and prompts to find the best configuration of your system
-- ⚔️ Perform automated head-to-head evaluation using judge models from OpenAI, Anthropic, Cohere, and more
-- 🤖 Define and run your own custom judge models, connecting to internal services or implementing bespoke logic
+- 🏆 Rank outputs from different LLMs, RAG setups, and prompts to find the best configuration of your system
+- ⚔️ Perform automated head-to-head evaluation using judges from OpenAI, Anthropic, Cohere, and more
+- 🤖 Define and run your own custom judges, connecting to internal services or implementing bespoke logic
 - 💻 Run application locally, getting full control over your environment and data
 
 ![AutoArena user interface](./assets/autoarena.jpg)

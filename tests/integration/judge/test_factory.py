@@ -5,6 +5,7 @@ import pytest
 from autoarena.api import api
 from autoarena.judge.anthropic import AnthropicJudge
 from autoarena.judge.base import AutomatedJudge
+from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
 from autoarena.judge.factory import judge_factory, verify_judge_type_environment, JUDGE_TYPE_TO_CLASS
 from autoarena.judge.gemini import GeminiJudge
@@ -29,7 +30,7 @@ from tests.integration.judge.conftest import (
         (api.JudgeType.TOGETHER, TogetherJudge),
     ],
 )
-def test__judge_factory__automated(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
+def test__judge_factory__automated__with_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
     name = f"{expected_type.__name__}" if expected_type is not None else "missing type"
     model_name = TEST_JUDGE_MODEL_NAMES.get(judge_type, name)
     request = api_judge(judge_type, model_name)
@@ -50,12 +51,19 @@ def test__judge_factory__automated(judge_type: api.JudgeType, expected_type: Typ
     assert judge.description is not None
 
 
-def test__judge_factory__automated__ollama() -> None:
-    model_name = TEST_JUDGE_MODEL_NAMES[api.JudgeType.OLLAMA]
-    request = api_judge(api.JudgeType.OLLAMA, model_name)
+@pytest.mark.parametrize(
+    "judge_type,expected_type",
+    [
+        (api.JudgeType.OLLAMA, OllamaJudge),
+        (api.JudgeType.BEDROCK, BedrockJudge),
+    ],
+)
+def test__judge_factory__automated__no_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
+    model_name = TEST_JUDGE_MODEL_NAMES[judge_type]
+    request = api_judge(judge_type, model_name)
     judge = judge_factory(request)
-    assert type(judge) is OllamaJudge
-    assert judge.judge_type is api.JudgeType.OLLAMA
+    assert type(judge) is expected_type
+    assert judge.judge_type is judge_type
     assert judge.model_name == model_name
     assert judge.description is not None
 

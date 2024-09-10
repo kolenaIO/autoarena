@@ -10,7 +10,6 @@ import {
   MantineSize,
   Group,
   Transition,
-  Box,
 } from '@mantine/core';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
@@ -86,13 +85,17 @@ export function AddModelButton({ variant, size }: Props) {
               setNames(f.map(file => file.name.slice(0, -4)));
             }}
           />
-          {files.map((file, i) => (
-            <Transition mounted={names[i] != null} transition="slide-right" duration={400} timingFunction="ease">
-              {transitionStyle => (
-                <Box style={transitionStyle}>
+          <Transition mounted={files.length > 0} transition="slide-right" duration={200} timingFunction="ease">
+            {transitionStyle => (
+              <Stack style={transitionStyle}>
+                {files.map((file, i) => (
                   <TextInput
                     key={i}
-                    label={`Model Name for '${file.name}'`}
+                    label={
+                      <Text size="sm" fw={500}>
+                        Model Name for <Code>{file.name}</Code>
+                      </Text>
+                    }
                     placeholder={`Enter name for '${file.name}'...`}
                     value={names[i]}
                     onChange={event =>
@@ -105,10 +108,10 @@ export function AddModelButton({ variant, size }: Props) {
                     error={nameErrors[i]}
                     flex={1}
                   />
-                </Box>
-              )}
-            </Transition>
-          ))}
+                ))}
+              </Stack>
+            )}
+          </Transition>
           <Group gap="xs" wrap="nowrap">
             {configuredAutoJudges.length > 0 ? <IconCheck size={18} color="green" /> : <IconX size={18} color="gray" />}
             <Text size="xs">
@@ -120,7 +123,7 @@ export function AddModelButton({ variant, size }: Props) {
                 </Text>
                 <Text inherit c="dimmed">
                   {configuredAutoJudges.length > 0
-                    ? 'Model will be ranked against existing models on leaderboard'
+                    ? `Model${files.length > 0 ? 's' : ''} will be ranked against existing models on leaderboard`
                     : 'Configure an automated judge to rank against existing models'}
                 </Text>
               </Stack>

@@ -2,7 +2,7 @@ import moment from 'moment/moment';
 import { IconBooks, IconCalculator, IconGavel } from '@tabler/icons-react';
 import { Accordion, Badge, Code, Group, Progress, Stack, Text } from '@mantine/core';
 import { Task } from '../../hooks/useTasks.ts';
-import { taskIsDone, taskStatusToColor, taskStatusToLabel } from './utils.ts';
+import { taskIsDone, taskStatusToColor, taskStatusToLabel } from '../../lib/tasks.ts/utils.ts';
 
 type Props = {
   task: Task;

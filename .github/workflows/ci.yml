@@ -56,14 +56,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
       - name: Run integration tests
-        run: |
-          uv run pytest -vv \
-            --cov-report term \
-            --cov-report xml:coverage.xml \
-            --cov-report html \
-            --cov autoarena \
-            --cov-append \
-            tests/integration
+        run: uv run pytest -vv --cov-report term --cov-report html --cov autoarena --cov-append tests/integration
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}

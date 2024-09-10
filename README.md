@@ -31,8 +31,8 @@
 - The [LMSYS Chatbot Arena](https://lmarena.ai/) has replaced benchmarks for many people as the trusted true leaderboard
   for foundation model performance ([arXiv:2403.04132](https://arxiv.org/abs/2403.04132)). Why not apply this approach
   to your own foundation model selection, RAG system setup, or prompt engineering efforts?
-- Using a "jury" of multiple smaller models from different model families, like `gpt-4o-mini`, `command-r`, and
-  `claude-3-haiku`, generally yields better accuracy than a single frontier judge like `gpt-4o` — while being faster and
+- Using a "jury" of multiple smaller models from different model families like `gpt-4o-mini`, `command-r`, and
+  `claude-3-haiku` generally yields better accuracy than a single frontier judge like `gpt-4o` — while being faster and
   _much_ cheaper to run. AutoArena is built around this technique, called PoLL: **P**anel **o**f **LL**M evaluators
   ([arXiv:2404.18796](https://arxiv.org/abs/2404.18796)).
 - Automated side-by-side comparison of model outputs is one of the most prevalent evaluation practices

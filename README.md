@@ -38,12 +38,12 @@ python -m autoarena
 
 With the application running, getting started is simple:
 
-1. Create a project via the UI.
-1. Add responses from a model by selecting a CSV file with `prompt` and `response` columns.
-1. Configure an automated judge via the UI. Note that most judges require credentials, e.g. `X_API_KEY` in the
-   environment where you're running AutoArena.
-1. Add responses from a second model to kick off an automated judging task using the judges you configured in the
-   previous step to decide which of the models you've uploaded provided a better `response` to a given `prompt`.
+| Step | Description |
+| --- | --- |
+| 1️⃣ | Create a project via the UI. |
+| 2️⃣ | Add responses from a model by selecting a CSV file with `prompt` and `response` columns. |
+| 3️⃣ | Configure an automated judge via the UI. Note that most judges require credentials, e.g. `X_API_KEY` in the environment where you're running AutoArena. |
+| 4️⃣ | Add responses from a second model to kick off an automated judging task using the judges you configured in the previous step to decide which of the models you've uploaded provided a better `response` to a given `prompt`. |
 
 That's it! After these steps you're fully set up for automated evaluation on AutoArena.
 

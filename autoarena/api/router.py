@@ -50,7 +50,7 @@ def router() -> APIRouter:
         form = await request.form()
         df_by_model_name: dict[str, pd.DataFrame] = {}
         for key, value in form.items():
-            model_name_slug = "-model_name"
+            model_name_slug = "||model_name"
             if not key.endswith(model_name_slug):
                 continue
             filename = key[: -len(model_name_slug)]
@@ -78,7 +78,7 @@ def router() -> APIRouter:
     @r.post("/project/{project_slug}/model/{model_id}/judge")
     def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         model = ModelService.get_by_id(project_slug, model_id)
-        background_tasks.add_task(TaskService.auto_judge, project_slug, model)
+        background_tasks.add_task(TaskService.auto_judge, project_slug, [model])
 
     @r.delete("/project/{project_slug}/model/{model_id}")
     def delete_model(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:

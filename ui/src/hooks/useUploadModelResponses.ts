@@ -20,7 +20,7 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       const formData = new FormData();
       files.forEach((file, i) => {
         formData.append(file.name, file);
-        formData.append(`${file.name}-model_name`, modelNames[i]);
+        formData.append(`${file.name}||model_name`, modelNames[i]); // format here is enforced by backend
       });
       const response = await fetch(`${getProjectUrl(projectSlug)}/model`, { method: 'POST', body: formData });
       const result: Model[] = await response.json();

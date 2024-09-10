@@ -1,5 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { zip } from 'ramda';
 import { getProjectUrl } from '../lib/routes.ts';
 import { getModelsQueryKey, Model } from './useModels.ts';
 import { getTasksQueryKey } from './useTasks.ts';
@@ -17,10 +18,13 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
   return useMutation({
     mutationKey: getUploadModelResponsesQueryKey(projectSlug),
     mutationFn: async ([files, modelNames]: [File[], string[]]) => {
+      if (files.length !== modelNames.length) {
+        throw new Error(`Invalid request: ${files.length} files and ${modelNames.length} model names provided`);
+      }
       const formData = new FormData();
-      files.forEach((file, i) => {
+      zip(files, modelNames).forEach(([file, modelName]) => {
         formData.append(file.name, file);
-        formData.append(`${file.name}||model_name`, modelNames[i]); // format here is enforced by backend
+        formData.append(`${file.name}||model_name`, modelName); // format here is enforced by backend
       });
       const response = await fetch(`${getProjectUrl(projectSlug)}/model`, { method: 'POST', body: formData });
       const result: Model[] = await response.json();

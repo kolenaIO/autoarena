@@ -1,7 +1,7 @@
 CREATE SEQUENCE IF NOT EXISTS judge_id START 1;
 CREATE TABLE IF NOT EXISTS judge (
     id INTEGER PRIMARY KEY DEFAULT nextval('judge_id'),
-    judge_type TEXT NOT NULL, -- e.g. 'human', 'ollama', 'openai'; see api.JudgeType
+    judge_type TEXT NOT NULL, -- enum e.g. 'human', 'ollama', 'openai'; see api.JudgeType
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     name TEXT NOT NULL UNIQUE,
     model_name TEXT, -- null for 'human' type
@@ -57,8 +57,9 @@ CREATE TABLE IF NOT EXISTS head_to_head (
 CREATE SEQUENCE IF NOT EXISTS task_id START 1;
 CREATE TABLE IF NOT EXISTS task (
     id INTEGER PRIMARY KEY DEFAULT nextval('task_id'),
-    task_type TEXT NOT NULL, -- e.g. 'auto-judge', 'recompute-leaderboard'; see api.TaskType
+    task_type TEXT NOT NULL, -- enum e.g. 'auto-judge', 'recompute-leaderboard'; see api.TaskType
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     progress DOUBLE PRECISION NOT NULL DEFAULT 0, -- on [0,1]
-    status TEXT NOT NULL DEFAULT 'Started' -- freeform
+    status TEXT NOT NULL, -- enum e.g. 'started', 'in-progress'; see api.TaskStatus
+    logs TEXT NOT NULL DEFAULT '' -- freeform
 );

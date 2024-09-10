@@ -46,6 +46,13 @@ class ProjectService:
         logger.info(f"Removed file '{path}' containing project '{slug}'")
 
     @staticmethod
+    def migrate_all() -> None:
+        for project in ProjectService.get_all():
+            path = Path(project.filepath)
+            ProjectService._setup_database(path)
+            logger.info(f"Found project '{path.relative_to(Path.cwd())}'")
+
+    @staticmethod
     def _path_to_slug(path: Path) -> str:
         return path.stem
 
@@ -58,16 +65,16 @@ class ProjectService:
         schema_sql = SCHEMA_FILE.read_text()
         with get_database_connection(path) as conn:
             conn.sql(schema_sql)
-        ProjectService._close_pending_tasks()
+        slug = ProjectService._path_to_slug(path)
+        ProjectService._close_pending_tasks(slug)
 
     # TODO: restart pending tasks rather than simply terminating
     @staticmethod
-    def _close_pending_tasks() -> None:
+    def _close_pending_tasks(slug: str) -> None:
         from autoarena.service.task import TaskService
 
-        projects = ProjectService.get_all()
-        for project in projects:
-            tasks = TaskService.get_all(project.slug)
-            for task in tasks:
-                if task.progress < 1:
-                    TaskService.update(project.slug, task.id, status="Terminated", progress=1)
+        tasks = TaskService.get_all(slug)
+        for task in tasks:
+            if task.status not in {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}:
+                log = "Terminated"
+                TaskService.update(slug, task.id, log, status=api.TaskStatus.FAILED)

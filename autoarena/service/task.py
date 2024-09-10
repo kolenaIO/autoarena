@@ -104,7 +104,9 @@ class TaskService:
             # 3. get pairs eligible for judging
             df_h2h = HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=model_id))
             if len(df_h2h) == 0:
-                TaskService.update(project_slug, task_id, "No head-to-heads found, exiting", progress=1)
+                message = "No head-to-heads found, exiting"
+                logger.warning(message)
+                TaskService.update(project_slug, task_id, message, status=api.TaskStatus.COMPLETED, progress=1)
                 return
             message = f"Found {len(df_h2h)} head-to-heads versus {len(set(df_h2h.model_b_id))} model(s) to judge"
             TaskService.update(project_slug, task_id, message)

@@ -26,6 +26,14 @@ def model_ids_with_responses(project_slug: str) -> tuple[int, int]:
     return model_a_id, model_b_id
 
 
+@pytest.fixture
+def enabled_auto_judges(project_slug: str) -> tuple[int, int]:
+    # should be enabled by default
+    judge_a_id = JudgeService.create(project_slug, create_judge_request(api.JudgeType.OPENAI)).id
+    judge_b_id = JudgeService.create(project_slug, create_judge_request(api.JudgeType.COHERE)).id
+    return judge_a_id, judge_b_id
+
+
 def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
     return api.CreateJudgeRequest(
         judge_type=judge_type,
@@ -37,9 +45,11 @@ def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
 
 
 # test here rather than via API as synchronous autojudging is not exposed via the API
-def test__task__auto_judge(project_slug: str, model_ids_with_responses: tuple[int, int]) -> None:
-    JudgeService.create(project_slug, create_judge_request(api.JudgeType.OPENAI))  # should be enabled by default
-    JudgeService.create(project_slug, create_judge_request(api.JudgeType.COHERE))
+def test__task__auto_judge(
+    project_slug: str,
+    model_ids_with_responses: tuple[int, int],
+    enabled_auto_judges: tuple[int, int],
+) -> None:
     model_a_id, model_b_id = model_ids_with_responses
     TaskService.auto_judge(project_slug, model_a_id, "good-answers")
 
@@ -56,7 +66,25 @@ def test__task__auto_judge(project_slug: str, model_ids_with_responses: tuple[in
     assert len(tasks) == 1
     assert tasks[0].task_type is api.TaskType.AUTO_JUDGE
     assert tasks[0].progress == 1
-    assert len(tasks[0].status) > 0
+    assert tasks[0].status is api.TaskStatus.COMPLETED
+    assert len(tasks[0].logs) > 0
+
+
+def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_judges: tuple[int, int]) -> None:
+    df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
+    model_id = ModelService.upload_responses(project_slug, "good-answers", df_good_answer).id
+    TaskService.auto_judge(project_slug, model_id, "good-answers")
+
+    # assert that no judging has happened
+    assert all(m.n_votes == 0 for m in ModelService.get_all(project_slug))
+
+    # assert that the task was created and makred as completed
+    tasks = TaskService.get_all(project_slug)
+    assert len(tasks) == 1
+    assert tasks[0].task_type is api.TaskType.AUTO_JUDGE
+    assert tasks[0].progress == 1
+    assert tasks[0].status is api.TaskStatus.COMPLETED
+    assert len(tasks[0].logs) > 0
 
 
 def test__task__recompute_leaderboard(project_slug: str, model_ids_with_responses: tuple[int, int]) -> None:

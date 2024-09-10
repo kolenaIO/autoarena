@@ -1,8 +1,13 @@
 import { useMemo } from 'react';
 import { useModelHeadToHeadStats } from './useModelHeadToHeadStats.ts';
 
-export function useModelHeadToHeadStatsByJudge(modelId: number, judgeId: number | undefined) {
-  const { data: headToHeadStats, ...query } = useModelHeadToHeadStats(modelId);
+type Params = {
+  projectSlug: string;
+  modelId: number;
+  judgeId?: number;
+};
+export function useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId }: Params) {
+  const { data: headToHeadStats, ...query } = useModelHeadToHeadStats({ projectSlug, modelId });
 
   const filteredByJudge = useMemo(
     () =>

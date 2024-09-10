@@ -2,6 +2,7 @@ import { Code, Group, Loader, Text } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { useCanAccessJudge } from '../../hooks/useCanAccessJudge.ts';
 import { Judge } from '../../hooks/useJudges.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {
@@ -9,7 +10,8 @@ type Props = {
   judge?: Judge;
 };
 export function CanAccessJudgeStatusIndicator({ judgeType: propJudgeType, judge }: Props) {
-  const { data: canAccess, isLoading } = useCanAccessJudge({ judgeType: propJudgeType, judge });
+  const { projectSlug = '' } = useUrlState();
+  const { data: canAccess, isLoading } = useCanAccessJudge({ projectSlug, judgeType: propJudgeType, judge });
 
   const judgeType: JudgeType | undefined = propJudgeType ?? judge?.judge_type;
   if (judgeType == null) {

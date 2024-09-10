@@ -9,9 +9,9 @@ type Props = {
   judge: Judge;
 };
 export function DeleteJudgeButton({ judge }: Props) {
-  const { projectId = -1 } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: deleteJudge } = useDeleteJudge({ projectId });
+  const { mutate: deleteJudge } = useDeleteJudge({ projectSlug });
 
   function handleDelete() {
     deleteJudge(judge.id);
@@ -29,8 +29,8 @@ export function DeleteJudgeButton({ judge }: Props) {
             <Text size="sm">Confirm deletion of judge:</Text>
             <Code block>{judge.name}</Code>
             <Text size="sm">
-              This will remove all votes from this judge, and recompute leaderboard rankings accordingly. This action
-              cannot be undone.
+              This will remove all votes submitted by this judge and recompute leaderboard rankings accordingly. This
+              action cannot be undone.
             </Text>
           </Stack>
           <ConfirmOrCancelBar

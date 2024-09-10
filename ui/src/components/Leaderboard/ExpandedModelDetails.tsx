@@ -3,10 +3,10 @@ import moment from 'moment';
 import { IconDownload, IconGavel } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
-import { BASE_API_URL } from '../paths.ts';
+import { getProjectUrl } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useTriggerModelJudgement } from '../../hooks/useTriggerModelJudgement.ts';
+import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { EloHistoryPlot } from './EloHistoryPlot.tsx';
@@ -15,9 +15,13 @@ type Props = {
   model: RankedModel;
 };
 export function ExpandedModelDetails({ model }: Props) {
-  const { judgeId } = useUrlState();
-  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge(model.id, judgeId);
-  const { mutate: triggerModelJudgement } = useTriggerModelJudgement({ modelId: model.id });
+  const { projectSlug = '', judgeId } = useUrlState();
+  const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({
+    projectSlug,
+    modelId: model.id,
+    judgeId,
+  });
+  const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({
@@ -50,14 +54,14 @@ export function ExpandedModelDetails({ model }: Props) {
           </Group>
         </Stack>
         <Group gap="xs">
-          <Anchor href={`${BASE_API_URL}/model/${model.id}/download/results`} target="_blank">
+          <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/responses`} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Results CSV
+              Download Response CSV
             </Button>
           </Anchor>
-          <Anchor href={`${BASE_API_URL}/model/${model.id}/download/head-to-heads`} target="_blank">
+          <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/head-to-heads`} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Head-to-Heads CSV
+              Download Head-to-Head CSV
             </Button>
           </Anchor>
           <Button

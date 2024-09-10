@@ -1,32 +1,30 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 import { getModelEloHistoryQueryKey } from './useModelEloHistory.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 
-const DELETE_MODEL_ENDPOINT = `${BASE_API_URL}/model`;
-
-function getDeleteModelQueryKey() {
-  return [DELETE_MODEL_ENDPOINT, 'DELETE'];
+function getDeleteModelQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/model', 'DELETE'];
 }
 
 type Params = {
-  projectId: number;
+  projectSlug: string;
   options?: UseMutationOptions<void, Error, number>;
 };
-export function useDeleteModel({ projectId, options = {} }: Params) {
+export function useDeleteModel({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: getDeleteModelQueryKey(),
+    mutationKey: getDeleteModelQueryKey(projectSlug),
     mutationFn: async (modelId: number) => {
-      const url = `${DELETE_MODEL_ENDPOINT}/${modelId}`;
+      const url = `${getProjectUrl(projectSlug)}/model/${modelId}`;
       await fetch(url, { method: 'DELETE' });
     },
     onError: () => {
       notifications.show({
         title: 'Failed to delete model',
-        message: 'Unable to delete model and related results',
+        message: 'Unable to delete model and related responses',
         color: 'red',
       });
     },
@@ -38,9 +36,9 @@ export function useDeleteModel({ projectId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectId) });
-      queryClient.invalidateQueries({ queryKey: getModelEloHistoryQueryKey() }); // invalidate all
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelEloHistoryQueryKey(projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) });
     },
     ...options,
   });

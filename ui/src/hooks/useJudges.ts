@@ -1,11 +1,9 @@
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 import { JudgeType } from '../components/Judges/types.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
-const JUDGES_ENDPOINT = `${BASE_API_URL}/judges`;
-
-export function getJudgesQueryKey(projectId: number) {
-  return [JUDGES_ENDPOINT, projectId];
+export function getJudgesQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/judges'];
 }
 
 export type Judge = {
@@ -17,14 +15,14 @@ export type Judge = {
   system_prompt: string | null;
   description: string;
   enabled: boolean;
-  votes: number;
+  n_votes: number;
 };
 
-export function useJudges(projectId: number | undefined) {
+export function useJudges(projectSlug: string | undefined) {
   return useQueryWithErrorToast({
-    queryKey: getJudgesQueryKey(projectId ?? -1),
+    queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${JUDGES_ENDPOINT}/${projectId}`;
+      const url = `${getProjectUrl(projectSlug ?? '')}/judges`;
       const response = await fetch(url);
       if (!response.ok) {
         return;
@@ -32,7 +30,7 @@ export function useJudges(projectId: number | undefined) {
       const result: Judge[] = await response.json();
       return result;
     },
-    enabled: projectId != null,
+    enabled: projectSlug != null,
     errorMessage: 'Failed to fetch judges',
   });
 }

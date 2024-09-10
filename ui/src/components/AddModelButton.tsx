@@ -13,7 +13,7 @@ import {
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMemo, useState } from 'react';
-import { useUploadModelResults } from '../hooks/useUploadModelResults.ts';
+import { useUploadModelResponses } from '../hooks/useUploadModelResponses.ts';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useModels } from '../hooks/useModels.ts';
 import { useJudges } from '../hooks/useJudges.ts';
@@ -26,11 +26,11 @@ type Props = {
   size?: MantineSize;
 };
 export function AddModelButton({ variant, size }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { data: models } = useModels(projectId);
-  const { data: judges } = useJudges(projectId);
+  const { projectSlug = '' } = useUrlState();
+  const { data: models } = useModels(projectSlug);
+  const { data: judges } = useJudges(projectSlug);
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: uploadModelResults } = useUploadModelResults({ projectId });
+  const { mutate: uploadModelResponses } = useUploadModelResponses({ projectSlug });
 
   const [file, setFile] = useState<File | null>(null);
   const [name, setName] = useState('');
@@ -48,7 +48,7 @@ export function AddModelButton({ variant, size }: Props) {
 
   function handleSubmit() {
     if (file != null) {
-      uploadModelResults([file, name]);
+      uploadModelResponses([file, name]);
     }
     handleClose();
   }
@@ -62,13 +62,13 @@ export function AddModelButton({ variant, size }: Props) {
       <Modal opened={isOpen} centered onClose={handleClose} title="Add Model">
         <Stack>
           <FileInput
-            label="Model Results"
+            label="Model Responses File"
             description={
               <Text inherit>
                 A <Code>.csv</Code> file containing <Code>prompt</Code> and <Code>response</Code> columns
               </Text>
             }
-            placeholder="Select model results file..."
+            placeholder="Select file with model responses..."
             accept="text/csv"
             value={file}
             onChange={f => {

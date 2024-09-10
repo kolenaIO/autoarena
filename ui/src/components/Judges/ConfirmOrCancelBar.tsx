@@ -27,9 +27,7 @@ export function ConfirmOrCancelBar({
         Cancel
       </Button>
       {disabledTooltipLabel != null && isDisabled ? (
-        <Tooltip openDelay={200} label={disabledTooltipLabel}>
-          {ConfirmButtonComponent}
-        </Tooltip>
+        <Tooltip label={disabledTooltipLabel}>{ConfirmButtonComponent}</Tooltip>
       ) : (
         ConfirmButtonComponent
       )}

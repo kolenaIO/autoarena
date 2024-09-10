@@ -4,7 +4,7 @@ from autoarena.api import api
 from autoarena.judge.base import Judge
 from autoarena.judge.factory import verify_judge_type_environment, verify_judge_environment
 from autoarena.judge.utils import BASIC_SYSTEM_PROMPT
-from autoarena.store.database import get_database_connection
+from autoarena.service.project import ProjectService
 
 
 class JudgeService:
@@ -13,15 +13,8 @@ class JudgeService:
         return BASIC_SYSTEM_PROMPT
 
     @staticmethod
-    def get_project_id(judge_id: int) -> int:
-        with get_database_connection() as conn:
-            params = dict(judge_id=judge_id)
-            ((project_id,),) = conn.execute("SELECT project_id FROM judge WHERE id = $judge_id", params).fetchall()
-        return project_id
-
-    @staticmethod
-    def get_all(project_id: int) -> list[api.Judge]:
-        with get_database_connection() as conn:
+    def get_all(project_slug: str) -> list[api.Judge]:
+        with ProjectService.connect(project_slug) as conn:
             df_task = conn.execute(
                 """
                 SELECT
@@ -33,13 +26,11 @@ class JudgeService:
                     j.system_prompt,
                     j,description,
                     j.enabled,
-                    SUM(IF(b.id IS NOT NULL, 1, 0)) AS votes
+                    SUM(IF(h.id IS NOT NULL, 1, 0)) AS n_votes
                 FROM judge j
-                LEFT JOIN battle b ON b.judge_id = j.id
-                WHERE j.project_id = $project_id
+                LEFT JOIN head_to_head h ON h.judge_id = j.id
                 GROUP BY
                     j.id,
-                    j.project_id,
                     j.judge_type,
                     j.created,
                     j.name,
@@ -49,21 +40,19 @@ class JudgeService:
                     j.enabled
                 ORDER BY j.id
                 """,
-                dict(project_id=project_id),
             ).df()
         return [api.Judge(**r) for _, r in df_task.iterrows()]
 
     @staticmethod
-    def create(request: api.CreateJudgeRequest) -> api.Judge:
-        with get_database_connection() as conn:
+    def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
+        with ProjectService.connect(project_slug) as conn:
             ((judge_id, created, enabled),) = conn.execute(
                 """
-                INSERT INTO judge (judge_type, project_id, name, model_name, system_prompt, description, enabled)
-                VALUES ($judge_type, $project_id, $name, $model_name, $system_prompt, $description, TRUE)
+                INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
+                VALUES ($judge_type, $name, $model_name, $system_prompt, $description, TRUE)
                 RETURNING id, created, enabled
             """,
                 dict(
-                    project_id=request.project_id,
                     judge_type=request.judge_type.value,
                     name=request.name,
                     model_name=request.model_name,
@@ -80,20 +69,19 @@ class JudgeService:
             system_prompt=request.system_prompt,
             description=request.description,
             enabled=enabled,
-            votes=0,
+            n_votes=0,
         )
 
     @staticmethod
-    def create_idempotent(project_id: int, judge: Judge) -> api.Judge:
-        with get_database_connection() as conn:
+    def create_idempotent(project_slug: str, judge: Judge) -> api.Judge:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 """
-                INSERT INTO judge (judge_type, project_id, name, model_name, system_prompt, description, enabled)
-                VALUES ($judge_type, $project_id, $name, $model_name, $system_prompt, $description, TRUE)
-                ON CONFLICT (project_id, name) DO NOTHING
+                INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
+                VALUES ($judge_type, $name, $model_name, $system_prompt, $description, TRUE)
+                ON CONFLICT (name) DO NOTHING
             """,
                 dict(
-                    project_id=project_id,
                     judge_type=judge.judge_type.value,
                     name=judge.name,
                     model_name=judge.model_name,
@@ -102,21 +90,21 @@ class JudgeService:
                 ),
             )
         # TODO: this is a little lazy but ¯\_(ツ)_/¯
-        return [j for j in JudgeService.get_all(project_id) if j.name == judge.name][0]
+        return [j for j in JudgeService.get_all(project_slug) if j.name == judge.name][0]
 
     @staticmethod
-    def update(request: api.UpdateJudgeRequest) -> api.Judge:
-        with get_database_connection() as conn:
+    def update(project_slug: str, judge_id, request: api.UpdateJudgeRequest) -> api.Judge:
+        with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",
-                dict(judge_id=request.judge_id, enabled=request.enabled),
+                dict(judge_id=judge_id, enabled=request.enabled),
             )
-        return [j for j in JudgeService.get_all(request.project_id) if j.id == request.judge_id][0]
+        return [j for j in JudgeService.get_all(project_slug) if j.id == judge_id][0]
 
     @staticmethod
-    def delete(judge_id: int) -> None:
-        with get_database_connection() as conn:
-            conn.execute("DELETE FROM battle WHERE judge_id = $judge_id", dict(judge_id=judge_id))
+    def delete(project_slug: str, judge_id: int) -> None:
+        with ProjectService.connect(project_slug) as conn:
+            conn.execute("DELETE FROM head_to_head WHERE judge_id = $judge_id", dict(judge_id=judge_id))
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
 
     @staticmethod

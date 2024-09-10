@@ -10,8 +10,8 @@ import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
 import { CreatePythonExtensionJudgeModal } from './CreatePythonExtensionJudgeModal.tsx';
 
 export function Judges() {
-  const { projectId } = useUrlState();
-  const { data: judges } = useJudges(projectId);
+  const { projectSlug } = useUrlState();
+  const { data: judges } = useJudges(projectSlug);
 
   const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);

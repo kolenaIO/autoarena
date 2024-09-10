@@ -4,6 +4,9 @@ on:
   push:
     tags:
       - "*"
+env:
+  PYTHON_VERSION: "3.12"
+  NODE_VERSION: "20.11.1"
 
 jobs:
   release:
@@ -12,27 +15,23 @@ jobs:
       - name: Delete huge unnecessary tools folder
         run: rm -rf /opt/hostedtoolcache
       - uses: actions/checkout@v4
-      - name: Install poetry
-        run: pip install poetry
-      - name: Update dependencies
-        run: poetry update
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
+      - uses: astral-sh/setup-uv@v2
+      - name: Setup environment
+        run: uv venv --python ${{ env.PYTHON_VERSION }} && source .venv/bin/activate
       - name: Install dependencies
-        run: poetry install
+        run: uv pip install --all-extras -r pyproject.toml
       - name: Run pre-commit
-        run: poetry run pre-commit run -a
+        run: uvx pre-commit run -a
       - uses: actions/setup-node@v4
         with:
-          node-version: "20.11.1"
+          node-version: ${{ env.NODE_VERSION }}
           cache: yarn
           cache-dependency-path: "./ui/yarn.lock"
       - name: Install UI dependencies
         run: yarn --frozen-lockfile
         working-directory: ui
       - name: Update package version to PEP 440-compliant release tag
-        run: poetry version $(git describe --tags --abbrev=0)
+        run: sed -i "s/0.0.0/$(git describe --tags --abbrev=0)/g" pyproject.toml
       - name: Run build script to build UI and bundle into Python tarball
         run: ./scripts/build.sh
       - name: Push 'autoarena' dist to Test PyPI
@@ -46,9 +45,12 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
+      - name: Generate a changelog
+        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.tar.gz
+          body_path: CHANGELOG.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

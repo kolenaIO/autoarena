@@ -6,42 +6,42 @@ from fastapi.middleware.cors import CORSMiddleware
 from loguru import logger
 
 from autoarena.api.router import router
-from autoarena.args import get_command_line_args
-from autoarena.judge.custom import register_custom_judge_class
 from autoarena.log import initialize_logger
-from autoarena.store.seed import setup_database, seed_initial_battles
+from autoarena.service.project import ProjectService
+from autoarena.store.database import get_data_directory
 from autoarena.ui_router import ui_router
 
-args = get_command_line_args()
-initialize_logger()
+API_V1_STR = "/api/v1"
 
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    setup_database()
-    for custom_judge_import_path in args.extensions:
-        register_custom_judge_class(custom_judge_import_path)
-    if args.battles_parquet is not None:
-        seed_initial_battles(args.battles_parquet)
-    logger.info("AutoArena ready")
+    # for custom_judge_import_path in args.extensions:
+    #     register_custom_judge_class(custom_judge_import_path)
+    logger.info(f"Using data directory: '{get_data_directory()}'")
+    ProjectService.migrate_all()
+    logger.success("AutoArena ready")
     yield
 
 
-API_V1_STR = "/api/v1"
-app = FastAPI(
-    title="AutoArena",
-    lifespan=lifespan,
-    openapi_url=f"/{API_V1_STR}/openapi.json",
-    docs_url=f"/{API_V1_STR}/docs",
-)
+def main() -> FastAPI:
+    initialize_logger()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+    app = FastAPI(
+        title="AutoArena",
+        lifespan=lifespan,
+        openapi_url=f"/{API_V1_STR}/openapi.json",
+        docs_url=f"/{API_V1_STR}/docs",
+    )
 
-app.include_router(router(), prefix=API_V1_STR)
-app.include_router(ui_router())
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
+    app.include_router(router(), prefix=API_V1_STR)
+    app.include_router(ui_router())
+    return app

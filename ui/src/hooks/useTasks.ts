@@ -1,29 +1,28 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { BASE_API_URL } from '../components/paths.ts';
+import { getProjectUrl } from '../lib/routes.ts';
 
-const TASKS_ENDPOINT = `${BASE_API_URL}/tasks`;
-
-export function getTasksQueryKey(projectId: number) {
-  return [TASKS_ENDPOINT, projectId];
+export function getTasksQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/tasks'];
 }
 
 export type Task = {
   id: number;
-  task_type: 'auto-judge' | 'fine-tune' | 'recompute-confidence-intervals';
+  task_type: 'auto-judge' | 'recompute-leaderboard' | 'fine-tune';
   created: string;
   progress: number;
-  status: string;
+  status: 'started' | 'in-progress' | 'completed' | 'failed';
+  logs: string;
 };
 
 type Params = {
-  projectId: number | undefined;
+  projectSlug?: string;
   options?: Partial<UseQueryOptions<Task[]>>;
 };
-export function useTasks({ projectId, options = {} }: Params) {
+export function useTasks({ projectSlug, options = {} }: Params) {
   return useQuery({
-    queryKey: getTasksQueryKey(projectId ?? -1),
+    queryKey: getTasksQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${TASKS_ENDPOINT}/${projectId}`;
+      const url = `${getProjectUrl(projectSlug ?? '')}/tasks`;
       const response = await fetch(url);
       if (!response.ok) {
         return [];
@@ -31,7 +30,7 @@ export function useTasks({ projectId, options = {} }: Params) {
       const result: Task[] = await response.json();
       return result;
     },
-    enabled: projectId != null,
+    enabled: projectSlug != null,
     ...options,
   });
 }

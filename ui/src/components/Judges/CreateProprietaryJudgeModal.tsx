@@ -17,9 +17,9 @@ type Props = {
 };
 
 export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { data: judges } = useJudges(projectId);
-  const { mutate: createJudge } = useCreateJudge({ projectId });
+  const { projectSlug = '' } = useUrlState();
+  const { data: judges } = useJudges(projectSlug);
+  const { mutate: createJudge } = useCreateJudge({ projectSlug });
   const [name, setName] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
 
@@ -37,7 +37,6 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
 
   function handleSubmit() {
     createJudge({
-      project_id: projectId,
       judge_type: judgeType,
       name,
       model_name: name,

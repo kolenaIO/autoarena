@@ -1,12 +1,15 @@
 import { Anchor, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
+import { notifications } from '@mantine/notifications';
 import { useUrlState } from '../hooks/useUrlState.ts';
+import { useProject } from '../hooks/useProject.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
-import { TasksDrawer } from './TasksDrawer.tsx';
+import { TasksDrawer } from './TasksDrawer/TasksDrawer.tsx';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';
@@ -17,11 +20,27 @@ type Props = {
   tab: Tab;
 };
 export function Page({ tab }: Props) {
-  const { projectId } = useUrlState();
+  const { projectSlug } = useUrlState();
+  const { data: project, isLoading: isLoadingProject } = useProject(projectSlug);
   const navigate = useNavigate();
 
+  useEffect(() => {
+    // TODO: this is nice functionality to have but sometimes there is a race condition where it fires after creating
+    //  a project but before it loads. Disable for now
+    const enableRedirect = false;
+    if (enableRedirect && projectSlug != null && !isLoadingProject && project == null) {
+      notifications.show({
+        title: `Project '${projectSlug}' not found`,
+        message: <>The project '{projectSlug}' does not seem to exist in the expected file. Redirecting home.</>,
+        color: 'red',
+        key: 'project-not-found',
+      });
+      navigate('/');
+    }
+  }, [project, isLoadingProject]);
+
   function setTab(newTab: string | null) {
-    const baseUrl = `/project/${projectId}`;
+    const baseUrl = `/project/${projectSlug}`;
     switch (newTab) {
       case TAB_LEADERBOARD:
         navigate(baseUrl);
@@ -55,15 +74,15 @@ export function Page({ tab }: Props) {
         <Tabs.Tab
           ml="xl"
           value={TAB_LEADERBOARD}
-          disabled={projectId == null}
+          disabled={projectSlug == null}
           leftSection={<IconCrown {...iconProps} />}
         >
           {TAB_LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_COMPARISON} disabled={projectId == null} leftSection={<IconSwords {...iconProps} />}>
+        <Tabs.Tab value={TAB_COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
           {TAB_COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_JUDGES} disabled={projectId == null} leftSection={<IconGavel {...iconProps} />}>
+        <Tabs.Tab value={TAB_JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
           {TAB_JUDGES}
         </Tabs.Tab>
         <Group gap="lg" align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
@@ -73,7 +92,7 @@ export function Page({ tab }: Props) {
       </Tabs.List>
 
       <Tabs.Panel value={TAB_LEADERBOARD}>
-        {projectId != null ? (
+        {projectSlug != null ? (
           <Leaderboard />
         ) : (
           <Stack justify="center" align="center" h="calc(100vh - 56px)">

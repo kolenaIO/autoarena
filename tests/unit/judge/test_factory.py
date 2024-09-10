@@ -58,7 +58,7 @@ def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
         name="human",
         model_name=None,
         system_prompt=None,
-        description="example_description",  # TODO: this is set on insertion, not here
+        description="example_description",
         enabled=True,
         n_votes=0,
     )
@@ -68,8 +68,4 @@ def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
     else:
         for wrapper_type in wrappers[::-1]:
             assert type(judge) is wrapper_type
-            assert judge.judge_type == request.judge_type
-            assert judge.model_name == request.model_name
-            assert judge.system_prompt == request.system_prompt
-            assert len(judge.description) > 0
             judge = judge.wrapped

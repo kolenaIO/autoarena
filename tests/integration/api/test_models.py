@@ -29,6 +29,23 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     assert models[0]["n_votes"] == 0
 
 
+@pytest.mark.parametrize(
+    "df_bad",
+    [
+        pd.DataFrame.from_records([dict(bad="yes", missing="prompt and response")]),
+        pd.DataFrame.from_records([dict(bad="yes", missing="prompt", response="ok")]),
+        pd.DataFrame.from_records([dict(bad="yes", missing="response", prompt="what")]),
+    ],
+)
+def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame) -> None:
+    buf = StringIO()
+    df_bad.to_csv(buf, index=False)
+    buf.seek(0)
+    data = dict(new_model_name="test-model-bad")
+    files = dict(file=("example.csv", buf.read()))
+    assert project_client.post("/model", data=data, files=files).status_code == 400
+
+
 def test__models__get_responses(project_client: TestClient, model_id: int) -> None:
     assert project_client.get(f"/model/{model_id}/responses").json() == [
         api.ModelResponse(prompt="p1", response="r1").__dict__,
@@ -47,6 +64,10 @@ def test__models__download_responses_csv(project_client: TestClient, model_id: i
     response = project_client.get(f"/model/{model_id}/download/responses")
     df_response = pd.read_csv(StringIO(response.text))
     assert df_response.equals(DF_RESPONSE)
+
+
+def test__models__download_responses_csv__failed(project_client: TestClient) -> None:
+    assert project_client.get("/model/12345/download/responses").status_code == 404
 
 
 def test__models__trigger_auto_judge(project_client: TestClient, model_id: int) -> None:
@@ -114,6 +135,10 @@ def test__models__download_head_to_heads_csv(
     assert len(df_h2h) == n_model_a_votes
     assert all(df_h2h["judge"] == human_judge_name)
     assert all(df_h2h["winner"] == "A")
+
+
+def test__models__download_head_to_heads_csv__failed(project_client: TestClient) -> None:
+    assert project_client.get("/model/12345/download/head-to-heads").status_code == 404
 
 
 def test__models__get_head_to_head_stats(

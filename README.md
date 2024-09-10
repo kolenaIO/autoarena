@@ -1,26 +1,20 @@
+<div align="center">
+
 # AutoArena
 
-<a href="https://www.apache.org/licenses/LICENSE-2.0">
-  <img src="https://img.shields.io/pypi/l/autoarena?style=flat-square" />
-</a>
-<a href="https://github.com/kolenaIO/autoarena/actions">
-  <img src="https://img.shields.io/github/checks-status/kolenaIO/kolena/trunk?logo=circleci&logoColor=white&style=flat-square" />
-</a>
-<a href="https://pypi.python.org/pypi/autoarena">
-  <img src="https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square" />
-</a>
-<a href="https://pypi.org/project/autoarena" target="_blank">
-  <img src="https://img.shields.io/pypi/pyversions/autoarena.svg?style=flat-square" alt="Supported Python versions">
-</a>
-<a href="https://kolena-autoarena.slack.com/">
-  <img src="https://img.shields.io/badge/slack-autoarena-4f8eba?logo=slack&style=flat-square&color=4A154B" />
-</a>
+[![Apache-2.0 License](https://img.shields.io/pypi/l/autoarena?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
+[![CI](https://img.shields.io/github/checks-status/kolenaIO/autoarena/trunk?logo=circleci&logoColor=white&style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
+[![PyPI Version](https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square)](https://pypi.python.org/pypi/autoarena)
+[![Supported Python Versions](https://img.shields.io/pypi/pyversions/autoarena.svg?style=flat-square)](https://pypi.org/project/autoarena)
+[![Slack](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white&style=flat-square)](https://kolena-autoarena.slack.com)
+
+</div>
 
 AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation.
 
 Install from [PyPI](https://pypi.org/project/autoarena/) and run with:
 
-```
+```shell
 pip install autoarena
 python -m autoarena
 ```
@@ -64,6 +58,6 @@ To run AutoArena for development, you will need to run both the backend and fron
 
 To build a release tarball in the `./dist` directory:
 
-```
+```shell
 ./scripts/build.sh
 ```

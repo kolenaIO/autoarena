@@ -71,6 +71,9 @@ Repository = "https://github.com/kolenaIO/autoarena.git"
 [tool.ruff]
 line-length = 120
 
+[tool.mypy]
+disallow_untyped_defs = true
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"

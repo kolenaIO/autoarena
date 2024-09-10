@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from loguru import logger
 
 from autoarena.api import api
 from autoarena.error import NotFoundError, BadRequestError
@@ -87,7 +88,8 @@ class ModelService:
         required_columns = {"prompt", "response"}
         missing_columns = required_columns - set(df_response.columns)
         if len(missing_columns) > 0:
-            raise BadRequestError(f"missing required column(s): {missing_columns}")
+            raise BadRequestError(f"Missing required column(s): {missing_columns}")
+        logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
         with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(
                 "INSERT INTO model (name) VALUES ($model_name) RETURNING id",

@@ -16,6 +16,7 @@ from autoarena.service.elo import EloService
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
 from autoarena.service.project import ProjectService
+from autoarena.store.utils import id_slug
 
 
 class TaskService:
@@ -81,15 +82,16 @@ class TaskService:
             TaskService.update(project_slug, task_id, "Done", progress=1, status=api.TaskStatus.COMPLETED)
 
     @staticmethod
-    def auto_judge(project_slug: str, model_id: int, model_name: str) -> None:
+    def auto_judge(project_slug: str, models: list[api.Model]) -> None:
+        model_names = ", ".join([f"'{m.name}'" for m in models])
         # 1. get judge(s) configured for judging
         all_judges = JudgeService.get_all(project_slug)
         enabled_auto_judges = [j for j in all_judges if j.enabled and j.judge_type is not JudgeType.HUMAN]
         if len(enabled_auto_judges) == 0:
-            logger.warning(f"No automated judges found, can't run automated judgement for model '{model_name}'")
+            logger.warning(f"No automated judges found, can't run automated judgement for {model_names}")
             return  # do nothing if no judges are configured, do not create a task
         t_start = time.time()
-        message = f"Started automated judging task for model '{model_name}'"
+        message = f"Started automated judging task for {model_names}"
         task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE, message).id
         logger.info(message)
 
@@ -102,10 +104,15 @@ class TaskService:
             judges: list[Judge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
 
             # 3. get pairs eligible for judging
-            df_h2h = HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=model_id))
+            df_h2hs = [HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=m.id)) for m in models]
+            df_h2h = pd.concat(df_h2hs)
             if len(df_h2h) == 0:
-                TaskService.update(project_slug, task_id, "No head-to-heads found, exiting", progress=1)
+                message = "No head-to-heads found, exiting"
+                logger.warning(message)
+                TaskService.update(project_slug, task_id, message, status=api.TaskStatus.COMPLETED, progress=1)
                 return
+            df_h2h["response_id_slug"] = df_h2h.apply(lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1)
+            df_h2h = df_h2h.drop_duplicates(subset=["response_id_slug"], keep="first")
             message = f"Found {len(df_h2h)} head-to-heads versus {len(set(df_h2h.model_b_id))} model(s) to judge"
             TaskService.update(project_slug, task_id, message)
 

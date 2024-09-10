@@ -3,9 +3,15 @@ from pathlib import Path
 import pytest
 
 from autoarena.api import api
-from autoarena.error import MigrationError
+from autoarena.error import MigrationError, NotFoundError
 from autoarena.service.project import ProjectService
 from autoarena.store.database import get_available_migrations, MIGRATION_DIRECTORY
+
+
+def test__connect__failed() -> None:
+    with pytest.raises(NotFoundError):
+        with ProjectService.connect("does-not-exist"):
+            ...
 
 
 def test__migration__new() -> None:

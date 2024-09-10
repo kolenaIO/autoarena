@@ -71,6 +71,7 @@ jobs:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
       - uses: actions/upload-artifact@v4
+        if: matrix.python_version == '3.12'  # should be the same for all versions, only upload once
         with:
           name: test-coverage
           path: "./htmlcov"

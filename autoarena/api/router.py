@@ -1,3 +1,4 @@
+from collections import OrderedDict
 from io import BytesIO, StringIO
 from typing import Optional
 
@@ -46,24 +47,23 @@ def router() -> APIRouter:
         request: Request,
         background_tasks: BackgroundTasks,
     ) -> list[api.Model]:
-        # TODO: there shouldn't be this much complexity in the router
+        # ideally there wouldn't be this much complexity in the router, but this is a complex form to parse
         form = await request.form()
-        df_by_model_name: dict[str, pd.DataFrame] = {}
+        df_response_by_model_name: dict[str, pd.DataFrame] = OrderedDict()
         for key, value in form.items():
             model_name_slug = "||model_name"
             if not key.endswith(model_name_slug):
                 continue
-            filename = key[: -len(model_name_slug)]
-            file: UploadFile = form[filename]
+            file: UploadFile = form[key[: -len(model_name_slug)]]
             if file.content_type != "text/csv":
                 raise ValueError(f"unsupported file type: {file.content_type}")
-            df_response = pd.read_csv(BytesIO(await file.read()))
-            df_by_model_name[value] = df_response
-        if len(df_by_model_name) == 0:
+            df_response_by_model_name[value] = pd.read_csv(BytesIO(await file.read()))
+        if len(df_response_by_model_name) == 0:
             raise BadRequestError("No valid model responses in body")
-        new_models: list[api.Model] = []
-        for model_name, df_response in df_by_model_name.items():
-            new_models.append(ModelService.upload_responses(project_slug, model_name, df_response))
+        new_models = [
+            ModelService.upload_responses(project_slug, model_name, df_response)
+            for model_name, df_response in df_response_by_model_name.items()
+        ]
         background_tasks.add_task(TaskService.auto_judge, project_slug, new_models)
         return new_models
 

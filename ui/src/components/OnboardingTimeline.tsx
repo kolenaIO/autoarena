@@ -106,11 +106,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
               <TimelineItemTitle
                 title={hasProjects ? 'Select a project' : 'Create your first project'}
                 action={
-                  activeStage !== -1 ? undefined : projects?.length > 0 ? (
-                    <ProjectSelect />
-                  ) : (
-                    <CreateProjectButton size="xs" />
-                  )
+                  activeStage !== -1 ? undefined : hasProjects ? <ProjectSelect /> : <CreateProjectButton size="xs" />
                 }
               />
             }

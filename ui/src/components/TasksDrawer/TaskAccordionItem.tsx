@@ -2,7 +2,7 @@ import moment from 'moment/moment';
 import { IconBooks, IconCalculator, IconGavel } from '@tabler/icons-react';
 import { Accordion, Badge, Code, Group, Progress, Stack, Text } from '@mantine/core';
 import { Task } from '../../hooks/useTasks.ts';
-import { taskStatusToColor, taskStatusToLabel } from './utils.ts';
+import { taskIsDone, taskStatusToColor, taskStatusToLabel } from './utils.ts';
 
 type Props = {
   task: Task;
@@ -44,9 +44,13 @@ export function TaskAccordionItem({ task }: Props) {
       </Accordion.Control>
       <Accordion.Panel>
         <Stack>
-          <Progress value={task.progress * 100} striped={task.progress < 1} animated={task.progress < 1} />
+          <Progress
+            value={task.progress * 100}
+            striped={!taskIsDone(task.status)}
+            animated={!taskIsDone(task.status)}
+          />
           <Code block fs="xs">
-            {task.status}
+            {task.logs}
           </Code>
         </Stack>
       </Accordion.Panel>

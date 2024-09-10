@@ -52,7 +52,8 @@ class TaskService:
                 """
                 UPDATE task
                 SET progress = IFNULL($progress, progress),
-                    status = status || '\n' || $status
+                    status = $status,
+                    logs = logs || '\n' || $log
                 WHERE id = $id
                 """,
                 dict(id=task_id, log=f"{TaskService._time_slug()} {log}", progress=progress, status=status.value),
@@ -154,7 +155,7 @@ class TaskService:
             TaskService.update(project_slug, task_id, message, progress=1, status=api.TaskStatus.COMPLETED)
             logger.info(message)
         except Exception as e:
-            TaskService.update(project_slug, task_id, f"Failed ({e})", progress=1, status=api.TaskStatus.FAILED)
+            TaskService.update(project_slug, task_id, f"Failed ({e})", status=api.TaskStatus.FAILED)
             message = "See AutoArena service logs for more information"
             TaskService.update(project_slug, task_id, message, status=api.TaskStatus.FAILED)
             logger.error(f"Automated judgement failed: {e}")

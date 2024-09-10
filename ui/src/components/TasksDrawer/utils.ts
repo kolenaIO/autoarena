@@ -1,7 +1,7 @@
 import { Task } from '../../hooks/useTasks.ts';
 
 export function taskIsDone(taskStatus: Task['status']) {
-  return taskStatus === 'completed' || taskStatus === 'in-progress';
+  return taskStatus === 'completed' || taskStatus === 'failed';
 }
 
 export function taskStatusToLabel(taskStatus: Task['status']) {

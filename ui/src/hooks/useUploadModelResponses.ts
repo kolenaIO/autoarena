@@ -10,33 +10,40 @@ function getUploadModelResponsesQueryKey(projectSlug: string) {
 
 type Params = {
   projectSlug: string;
-  options?: UseMutationOptions<Model, Error, [File, string]>;
+  options?: UseMutationOptions<Model[], Error, [File[], string[]]>;
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationKey: getUploadModelResponsesQueryKey(projectSlug),
-    mutationFn: async ([file, modelName]) => {
+    mutationFn: async ([files, modelNames]: [File[], string[]]) => {
       const formData = new FormData();
-      formData.append('file', file);
-      formData.append('new_model_name', modelName);
+      files.forEach((file, i) => {
+        formData.append(file.name, file);
+        formData.append(`${file.name}-model_name`, modelNames[i]);
+      });
       const response = await fetch(`${getProjectUrl(projectSlug)}/model`, { method: 'POST', body: formData });
-      const result: Model = await response.json();
+      const result: Model[] = await response.json();
       return result;
     },
     onError: () => {
       notifications.show({
-        title: 'Failed to add model',
-        message: 'Unable to add model and responses',
+        title: 'Failed to add model responses',
+        message: 'Unable to add model responses',
         color: 'red',
       });
     },
-    onSuccess: model => {
-      notifications.show({
-        title: 'Added model',
-        message: `Created model '${model.name}' with ${model.n_responses.toLocaleString()} responses`,
-        color: 'green',
-      });
+    onSuccess: (models: Model[]) => {
+      const title =
+        models.length > 1
+          ? `Added responses from ${models.length.toLocaleString()} models`
+          : 'Added responses from model';
+      const nResponses = models.reduce((acc, { n_responses }) => acc + n_responses, 0);
+      const message =
+        models.length > 1
+          ? `Created models ${models.map(({ name }) => name).join(', ')} with ${nResponses.toLocaleString()} total responses`
+          : `Created model '${models[0]?.name}' with ${nResponses.toLocaleString()} responses`;
+      notifications.show({ title, message, color: 'green' });
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });

@@ -9,6 +9,8 @@ import {
   ButtonVariant,
   MantineSize,
   Group,
+  Transition,
+  Box,
 } from '@mantine/core';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
@@ -32,28 +34,35 @@ export function AddModelButton({ variant, size }: Props) {
   const [isOpen, { toggle, close }] = useDisclosure(false);
   const { mutate: uploadModelResponses } = useUploadModelResponses({ projectSlug });
 
-  const [file, setFile] = useState<File | null>(null);
-  const [name, setName] = useState('');
+  const [files, setFiles] = useState<File[]>([]);
+  const [names, setNames] = useState<string[]>([]);
 
   const existingModelNames = useMemo(() => new Set((models ?? []).map(({ name }) => name)), [models]);
-  const nameError = existingModelNames.has(name) ? `Model '${name}' already exists` : undefined;
+  const nameErrors = names.map(name => {
+    if (existingModelNames.has(name)) {
+      return `Model '${name}' already exists`;
+    }
+    if (names.filter(n => n === name).length > 1) {
+      return `Duplicate model name '${name}'`;
+    }
+  });
 
   const configuredAutoJudges = useMemo(() => (judges ?? []).filter(isEnabledAutoJudge), [judges]);
 
   function handleClose() {
-    setFile(null);
-    setName('');
+    setFiles([]);
+    setNames([]);
     close();
   }
 
   function handleSubmit() {
-    if (file != null) {
-      uploadModelResponses([file, name]);
+    if (files.length > 0) {
+      uploadModelResponses([files, names]);
     }
     handleClose();
   }
 
-  const isDisabled = file == null || name === '' || nameError != null;
+  const isDisabled = files.length === 0 || names === '' || nameErrors.filter(e => e != null).length > 0;
   return (
     <>
       <Button variant={variant} size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
@@ -61,31 +70,45 @@ export function AddModelButton({ variant, size }: Props) {
       </Button>
       <Modal opened={isOpen} centered onClose={handleClose} title="Add Model">
         <Stack>
-          <FileInput
+          <FileInput<true>
             label="Model Responses File"
             description={
               <Text inherit>
-                A <Code>.csv</Code> file containing <Code>prompt</Code> and <Code>response</Code> columns
+                One or more <Code>.csv</Code> files containing <Code>prompt</Code> and <Code>response</Code> columns
               </Text>
             }
             placeholder="Select file with model responses..."
             accept="text/csv"
-            value={file}
-            onChange={f => {
-              if (f != null && name == '') {
-                setName(f.name.slice(0, -4));
-              }
-              setFile(f);
+            value={files}
+            multiple
+            onChange={(f: File[]) => {
+              setFiles(f);
+              setNames(f.map(file => file.name.slice(0, -4)));
             }}
           />
-          <TextInput
-            label="Model Name"
-            placeholder="Enter model name..."
-            value={name}
-            onChange={event => setName(event.currentTarget.value)}
-            error={nameError}
-            flex={1}
-          />
+          {files.map((file, i) => (
+            <Transition mounted={names[i] != null} transition="slide-right" duration={400} timingFunction="ease">
+              {transitionStyle => (
+                <Box style={transitionStyle}>
+                  <TextInput
+                    key={i}
+                    label={`Model Name for '${file.name}'`}
+                    placeholder={`Enter name for '${file.name}'...`}
+                    value={names[i]}
+                    onChange={event =>
+                      setNames(prev => {
+                        // not sure why currentTarget is sometimes missing
+                        const newName = event.currentTarget?.value ?? event.target?.value ?? '';
+                        return [...prev.slice(0, i), newName, ...prev.slice(i + 1, prev.length)];
+                      })
+                    }
+                    error={nameErrors[i]}
+                    flex={1}
+                  />
+                </Box>
+              )}
+            </Transition>
+          ))}
           <Group gap="xs" wrap="nowrap">
             {configuredAutoJudges.length > 0 ? <IconCheck size={18} color="green" /> : <IconX size={18} color="gray" />}
             <Text size="xs">

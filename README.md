@@ -2,6 +2,8 @@
 
 # AutoArena
 
+**Create leaderboards ranking LLM outputs against one another using automated judge evaluation**
+
 [![Apache-2.0 License](https://img.shields.io/pypi/l/autoarena?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
 [![CI](https://img.shields.io/github/checks-status/kolenaIO/autoarena/trunk?logo=circleci&logoColor=white&style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square)](https://pypi.python.org/pypi/autoarena)
@@ -10,35 +12,53 @@
 
 </div>
 
-AutoArena helps you stack rank LLM outputs against one another using automated judge evaluation.
+- 🏆 Rank outputs from different LLMs, RAG systems, and prompts to find the best configuration of your system
+- ⚔️ Perform automated head-to-head evaluation using judge models from OpenAI, Anthropic, Cohere, and more
+- 🤖 Define and run your own custom judge models, connecting to internal services or implementing bespoke logic
+- 💻 Run application locally, getting full control over your environment and data
 
-Install from [PyPI](https://pypi.org/project/autoarena/) and run with:
+![AutoArena user interface](./assets/autoarena.jpg)
+
+## 🔥 Getting Started
+
+Install from [PyPI](https://pypi.org/project/autoarena/):
 
 ```shell
 pip install autoarena
+```
+
+Run as a module and visit [localhost:8899](http://localhost:8899/) in your browser:
+
+```shell
 python -m autoarena
 ```
 
-## Usage
+With the application running, getting started is simple:
 
-Getting started with AutoArena is simple:
-
-1. Run AutoArena via `python -m autoarena` and visit [localhost:8899](http://localhost:8899/) in your browser.
-2. Create a project via the UI.
-3. Add responses from a model by selecting a CSV file with `prompt` and `response` columns.
-4. Configure an automated judge via the UI. Note that most judges require credentials, e.g. `X_API_KEY` in the
+1. Create a project via the UI.
+1. Add responses from a model by selecting a CSV file with `prompt` and `response` columns.
+1. Configure an automated judge via the UI. Note that most judges require credentials, e.g. `X_API_KEY` in the
    environment where you're running AutoArena.
-5. Add responses from a second model to kick off an automated judging task using the judges you configured in the
+1. Add responses from a second model to kick off an automated judging task using the judges you configured in the
    previous step to decide which of the models you've uploaded provided a better `response` to a given `prompt`.
 
 That's it! After these steps you're fully set up for automated evaluation on AutoArena.
 
-### Data Storage
+### 📄 Formatting Your Data
+
+AutoArena requires two pieces of information to test a model: the input `prompt` and corresponding model `response`.
+
+- `prompt`: the inputs to your model. When uploading responses, any other models that have been run on the same prompts
+   are matched and evaluated using the automated judges you have configured.
+- `response`: the output from your model. Judges decide which of two models produced a better response, given the same
+   prompt.
+
+### 📂 Data Storage
 
 Data is stored in `./data/<project>.duckdb` files in the directory where you invoked AutoArena. See
 [`data/README.md`](./data/README.md) for more details on data storage in AutoArena.
 
-## Development
+## 🦾 Development
 
 AutoArena uses [uv](https://github.com/astral-sh/uv) to manage dependencies. To set up this repository for development,
 run:

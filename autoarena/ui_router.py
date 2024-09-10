@@ -17,18 +17,18 @@ def ui_router() -> APIRouter:
     r = APIRouter()
 
     @r.get("/robots.txt", response_class=PlainTextResponse)
-    async def robots_txt():
+    async def robots_txt() -> str:
         return ROBOTS_TXT
 
     @r.get("/assets/{file_path:path}")
-    async def assets(file_path):
+    async def assets(file_path: str) -> FileResponse:
         path = static_dir / "assets" / file_path
         if not path.is_file():
             raise NotFoundError("file not found")
         return FileResponse(path)
 
     @r.get("/{full_path:path}")
-    async def catch_all(full_path: str):
+    async def catch_all(full_path: str) -> HTMLResponse:
         with (static_dir / "index.html").open("r") as f:
             return HTMLResponse(f.read())
 

@@ -93,7 +93,7 @@ class JudgeService:
         return [j for j in JudgeService.get_all(project_slug) if j.name == judge.name][0]
 
     @staticmethod
-    def update(project_slug: str, judge_id, request: api.UpdateJudgeRequest) -> api.Judge:
+    def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
         with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",

@@ -18,7 +18,7 @@ TEST_QUESTIONS = [
 
 
 @pytest.fixture
-def model_responses(project_slug: str) -> tuple[int, int]:
+def model_ids_with_responses(project_slug: str) -> tuple[int, int]:
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
     model_a_id = ModelService.upload_responses(project_slug, "good-answers", df_good_answer).id
     df_bad_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(wrong="response"))
@@ -37,10 +37,10 @@ def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
 
 
 # test here rather than via API as synchronous autojudging is not exposed via the API
-def test__task__auto_judge(project_slug: str, model_responses) -> None:
+def test__task__auto_judge(project_slug: str, model_ids_with_responses: tuple[int, int]) -> None:
     JudgeService.create(project_slug, create_judge_request(api.JudgeType.OPENAI))  # should be enabled by default
     JudgeService.create(project_slug, create_judge_request(api.JudgeType.COHERE))
-    model_a_id, model_b_id = model_responses
+    model_a_id, model_b_id = model_ids_with_responses
     TaskService.auto_judge(project_slug, model_a_id, "good-answers")
 
     # assert that judging happened as expected
@@ -59,8 +59,8 @@ def test__task__auto_judge(project_slug: str, model_responses) -> None:
     assert len(tasks[0].status) > 0
 
 
-def test__task__recompute_leaderboard(project_slug: str, model_responses) -> None:
-    model_a_id, model_b_id = model_responses
+def test__task__recompute_leaderboard(project_slug: str, model_ids_with_responses: tuple[int, int]) -> None:
+    model_a_id, model_b_id = model_ids_with_responses
     h2hs = HeadToHeadService.get(project_slug, api.HeadToHeadsRequest(model_a_id=model_a_id, model_b_id=model_b_id))
     for h2h in h2hs:
         vote = api.HeadToHeadVoteRequest(response_a_id=h2h.response_a_id, response_b_id=h2h.response_b_id, winner="A")

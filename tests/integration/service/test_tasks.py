@@ -82,7 +82,8 @@ def test__task__auto_judge__many(
     model_b = ModelService.get_by_id(project_slug, model_b.id)
     model_c = ModelService.get_by_id(project_slug, model_c.id)
     n_judges = len(enabled_auto_judges)
-    assert model_a.elo > model_c.elo > model_b.elo
+    assert model_a.elo > model_b.elo
+    assert model_c.elo > model_b.elo  # don't assert A.elo vs C.elo as they are both good, scores can be either way
     assert model_a.n_votes == model_b.n_votes == n_judges * len(TEST_QUESTIONS) + n_judges * len(df_good_answer_subset)
     assert model_c.n_votes == n_judges * len(df_good_answer_subset) * 2  # compared to both A and B
 

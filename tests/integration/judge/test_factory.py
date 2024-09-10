@@ -7,11 +7,12 @@ from autoarena.judge.anthropic import AnthropicJudge
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
-from autoarena.judge.factory import judge_factory, verify_judge_type_environment, JUDGE_TYPE_TO_CLASS
+from autoarena.judge.factory import judge_factory, JUDGE_TYPE_TO_CLASS
 from autoarena.judge.gemini import GeminiJudge
 from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
+from autoarena.service.judge import JudgeService
 from tests.integration.judge.conftest import (
     unset_environment_variable,
     temporary_environment_variable,
@@ -71,32 +72,6 @@ def test__judge_factory__automated__no_key(judge_type: api.JudgeType, expected_t
 @pytest.mark.parametrize(
     "judge_type",
     [
-        # api.JudgeType.OLLAMA,  # ollama is set up in CI testing environment
-        api.JudgeType.OPENAI,
-        api.JudgeType.ANTHROPIC,
-        api.JudgeType.COHERE,
-        api.JudgeType.GEMINI,
-        api.JudgeType.TOGETHER,
-        # api.JudgeType.BEDROCK,  # credentials for bedrock access are set up in CI testing environment
-    ],
-)
-def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None:
-    judge_class = JUDGE_TYPE_TO_CLASS[judge_type]
-    if judge_class is None:
-        raise RuntimeError("implementation error")
-    api_key_name = judge_class.API_KEY_NAME if issubclass(judge_class, AutomatedJudge) else None
-    if api_key_name is not None:
-        with unset_environment_variable(api_key_name):
-            with pytest.raises(Exception):
-                verify_judge_type_environment(judge_type)
-    else:
-        with pytest.raises(Exception):
-            verify_judge_type_environment(judge_type)
-
-
-@pytest.mark.parametrize(
-    "judge_type",
-    [
         api.JudgeType.HUMAN,
         api.JudgeType.OLLAMA,
         api.JudgeType.OPENAI,
@@ -108,5 +83,29 @@ def test__verify_judge_type_environment__fail(judge_type: api.JudgeType) -> None
         api.JudgeType.CUSTOM,
     ],
 )
-def test__verify_judge_type_environment(judge_type: api.JudgeType) -> None:
-    verify_judge_type_environment(judge_type)
+def test__check_can_access(judge_type: api.JudgeType) -> None:
+    assert JudgeService.check_can_access(judge_type)
+
+
+@pytest.mark.parametrize(
+    "judge_type",
+    [
+        # api.JudgeType.OLLAMA,  # ollama is set up in CI testing environment
+        api.JudgeType.OPENAI,
+        api.JudgeType.ANTHROPIC,
+        api.JudgeType.COHERE,
+        api.JudgeType.GEMINI,
+        api.JudgeType.TOGETHER,
+        # api.JudgeType.BEDROCK,  # credentials for bedrock access are set up in CI testing environment
+    ],
+)
+def test__check_can_access__fail(judge_type: api.JudgeType) -> None:
+    judge_class = JUDGE_TYPE_TO_CLASS[judge_type]
+    if judge_class is None:
+        raise RuntimeError("implementation error")
+    api_key_name = judge_class.API_KEY_NAME if issubclass(judge_class, AutomatedJudge) else None
+    if api_key_name is not None:
+        with unset_environment_variable(api_key_name):
+            assert not JudgeService.check_can_access(judge_type)
+    else:
+        assert not JudgeService.check_can_access(judge_type)

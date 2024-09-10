@@ -2,6 +2,8 @@ from pathlib import Path
 
 from fastapi.testclient import TestClient
 
+from autoarena.ui_router import ROBOTS_TXT
+
 UI_DIST = Path(__file__).parent / ".." / ".." / "ui" / "dist"
 
 
@@ -27,3 +29,9 @@ def test__ui__assets(client: TestClient) -> None:
 def test__ui__assets__not_found(client: TestClient) -> None:
     response = client.get("/assets/does-not-exist.jpg")
     assert response.status_code == 404
+
+
+def test__ui__robots(client: TestClient) -> None:
+    response = client.get("/robots.txt")
+    assert response.status_code == 200
+    assert response.text == ROBOTS_TXT

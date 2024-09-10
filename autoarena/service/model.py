@@ -143,6 +143,8 @@ class ModelService:
             """,
                 dict(model_id=model_id),
             ).df()
+        if len(df_response) == 0:
+            raise NotFoundError(f"Model with ID '{model_id}' not found")  # model can't exist without any responses
         return df_response
 
     @staticmethod

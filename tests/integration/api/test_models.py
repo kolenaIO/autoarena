@@ -49,6 +49,11 @@ def test__models__download_responses_csv(project_client: TestClient, model_id: i
     assert df_response.equals(DF_RESPONSE)
 
 
+def test__models__download_responses_csv__failed(project_client: TestClient) -> None:
+    response = project_client.get("/model/12345/download/responses")
+    assert response.status_code == 404
+
+
 def test__models__trigger_auto_judge(project_client: TestClient, model_id: int) -> None:
     assert project_client.post(f"/model/{model_id}/judge").json() is None
     # TODO: actually check that task is kicked off? requires a configured auto-judge
@@ -114,6 +119,11 @@ def test__models__download_head_to_heads_csv(
     assert len(df_h2h) == n_model_a_votes
     assert all(df_h2h["judge"] == human_judge_name)
     assert all(df_h2h["winner"] == "A")
+
+
+def test__models__download_head_to_heads_csv__failed(project_client: TestClient) -> None:
+    response = project_client.get("/model/12345/download/head-to-heads")
+    assert response.status_code == 404
 
 
 def test__models__get_head_to_head_stats(

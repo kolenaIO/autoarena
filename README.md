@@ -22,6 +22,23 @@
 
 [![AutoArena user interface](https://raw.githubusercontent.com/kolenaIO/autoarena/trunk/assets/autoarena.jpg)](https://www.youtube.com/watch?v=GMuQPwo-JdU)
 
+## 🤔 Why Head-to-Head Evaluation?
+
+- LLMs are better at judging responses head-to-head than they are in isolation
+  ([arXiv:2408.08688](https://www.arxiv.org/abs/2408.08688v3)). This means that leaderboard rankings computed using Elo
+  scores from a bunch of automated side-by-side comparisons are usually more trustworthy than leaderboards using metrics
+  computed on each model's responses independently!
+- The [LMSYS Chatbot Arena](https://lmarena.ai/) has replaced benchmarks for many people as the trusted true leaderboard
+  for foundation model performance ([arXiv:2403.04132](https://arxiv.org/abs/2403.04132)). Why not apply this approach
+  to your own foundation model selection, RAG system setup, or prompt engineering efforts?
+- Using a "jury" of multiple smaller models from different model families, like `gpt-4o-mini`, `command-r`, and
+  `claude-3-haiku`, generally yields better accuracy than a single frontier judge like `gpt-4o` — while being faster and
+  _much_ cheaper to run. This technique is called PoLL: **P**anel **o**f **LL**M evaluators
+  ([arXiv:2404.18796](https://arxiv.org/abs/2404.18796)).
+- Automated side-by-side comparison of model outputs is one of the most prevalent evaluation practices
+  ([arXiv:2402.10524](https://arxiv.org/abs/2402.10524)) — AutoArena makes this process easier than ever to get up
+  and running.
+
 ## 🔥 Getting Started
 
 Install from [PyPI](https://pypi.org/project/autoarena/):

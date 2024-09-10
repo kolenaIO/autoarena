@@ -9,7 +9,7 @@ import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
-import { TasksDrawer } from './TasksDrawer.tsx';
+import { TasksDrawer } from './TasksDrawer/TasksDrawer.tsx';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';

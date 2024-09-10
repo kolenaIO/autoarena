@@ -69,5 +69,6 @@ class ProjectService:
         for project in projects:
             tasks = TaskService.get_all(project.slug)
             for task in tasks:
-                if task.progress < 1:
-                    TaskService.update(project.slug, task.id, status="Terminated", progress=1)
+                if task.status not in {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}:
+                    log = "Terminated"
+                    TaskService.update(project.slug, task.id, log, progress=1, status=api.TaskStatus.FAILED)

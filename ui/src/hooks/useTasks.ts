@@ -10,7 +10,8 @@ export type Task = {
   task_type: 'auto-judge' | 'recompute-leaderboard' | 'fine-tune';
   created: string;
   progress: number;
-  status: string;
+  status: 'started' | 'in-progress' | 'completed' | 'failed';
+  logs: string;
 };
 
 type Params = {

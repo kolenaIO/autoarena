@@ -86,13 +86,21 @@ class TaskType(str, Enum):
     FINE_TUNE = "fine-tune"
 
 
+class TaskStatus(str, Enum):
+    STARTED = "started"
+    IN_PROGRESS = "in-progress"
+    COMPLETED = "completed"
+    FAILED = "failed"
+
+
 @dataclass(frozen=True)
 class Task:
     id: int
     task_type: TaskType
     created: datetime
     progress: float  # on [0,1]
-    status: str
+    status: TaskStatus
+    logs: str
 
 
 class JudgeType(str, Enum):

@@ -4,7 +4,7 @@ import time
 from typing import Callable
 
 try:
-    from typing import ParamSpec, TypeVar
+    from typing import ParamSpec, TypeVar  # type: ignore
 except ImportError:  # added in 3.10
     from typing_extensions import ParamSpec, TypeVar  # type: ignore
 

@@ -1,7 +1,13 @@
 import functools
 import math
+import sys
 import time
 from typing import Callable
+
+if sys.version_info[:2] >= (3, 10):
+    from typing import ParamSpec, TypeVar
+else:
+    from typing_extensions import ParamSpec, TypeVar
 
 import numpy as np
 from loguru import logger
@@ -150,9 +156,12 @@ def rate_limit(
     def can_call() -> bool:
         return len(call_history) < n_calls - n_call_buffer
 
-    def decorator(f: Callable) -> Callable:
+    Params = ParamSpec("Params")
+    ReturnType = TypeVar("ReturnType")
+
+    def decorator(f: Callable[Params, ReturnType]) -> Callable[Params, ReturnType]:
         @functools.wraps(f)
-        def wrapper(*args, **kwargs):
+        def wrapper(*args: Params.args, **kwargs: Params.kwargs) -> ReturnType:
             nonlocal call_history
             expire_old_calls()
             if not can_call():

@@ -106,13 +106,13 @@ class TaskService:
             # 3. get pairs eligible for judging
             df_h2hs = [HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=m.id)) for m in models]
             df_h2h = pd.concat(df_h2hs)
-            df_h2h["response_id_slug"] = df_h2h.apply(lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1)
-            df_h2h = df_h2h.drop_duplicates(subset=["response_id_slug"], keep="first")
             if len(df_h2h) == 0:
                 message = "No head-to-heads found, exiting"
                 logger.warning(message)
                 TaskService.update(project_slug, task_id, message, status=api.TaskStatus.COMPLETED, progress=1)
                 return
+            df_h2h["response_id_slug"] = df_h2h.apply(lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1)
+            df_h2h = df_h2h.drop_duplicates(subset=["response_id_slug"], keep="first")
             message = f"Found {len(df_h2h)} head-to-heads versus {len(set(df_h2h.model_b_id))} model(s) to judge"
             TaskService.update(project_slug, task_id, message)
 

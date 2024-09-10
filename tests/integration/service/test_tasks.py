@@ -18,12 +18,12 @@ TEST_QUESTIONS = [
 
 
 @pytest.fixture
-def model_ids_with_responses(project_slug: str) -> tuple[int, int]:
+def models_with_responses(project_slug: str) -> tuple[api.Model, api.Model]:
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
-    model_a_id = ModelService.upload_responses(project_slug, "good-answers", df_good_answer).id
+    model_a = ModelService.upload_responses(project_slug, "good-answers", df_good_answer)
     df_bad_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(wrong="response"))
-    model_b_id = ModelService.upload_responses(project_slug, "bad-answers", df_bad_answer).id
-    return model_a_id, model_b_id
+    model_b = ModelService.upload_responses(project_slug, "bad-answers", df_bad_answer)
+    return model_a, model_b
 
 
 @pytest.fixture
@@ -47,19 +47,17 @@ def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
 # test here rather than via API as synchronous autojudging is not exposed via the API
 def test__task__auto_judge(
     project_slug: str,
-    model_ids_with_responses: tuple[int, int],
+    models_with_responses: tuple[api.Model, api.Model],
     enabled_auto_judges: tuple[int, int],
 ) -> None:
-    model_a_id, model_b_id = model_ids_with_responses
-    TaskService.auto_judge(project_slug, model_a_id, "good-answers")
+    model_a, model_b = models_with_responses
+    TaskService.auto_judge(project_slug, [model_a])
 
     # assert that judging happened as expected
-    models = ModelService.get_all(project_slug)
-    model_a = [m for m in models if m.id == model_a_id][0]
-    model_b = [m for m in models if m.id == model_b_id][0]
+    model_a = ModelService.get_by_id(project_slug, model_a.id)
+    model_b = ModelService.get_by_id(project_slug, model_b.id)
     assert model_a.elo > model_b.elo
-    assert model_a.n_votes == 2 * len(TEST_QUESTIONS)
-    assert model_b.n_votes == 2 * len(TEST_QUESTIONS)
+    assert model_a.n_votes == model_b.n_votes == len(enabled_auto_judges) * len(TEST_QUESTIONS)
 
     # assert that the task was created and updated
     tasks = TaskService.get_all(project_slug)
@@ -70,10 +68,29 @@ def test__task__auto_judge(
     assert len(tasks[0].logs) > 0
 
 
+def test__task__auto_judge__many(
+    project_slug: str,
+    models_with_responses: tuple[api.Model, api.Model],
+    enabled_auto_judges: tuple[int, int],
+) -> None:
+    model_a, model_b = models_with_responses
+    df_good_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response")).iloc[:3]
+    model_c = ModelService.upload_responses(project_slug, "good-answers-c", df_good_answer_subset)
+    TaskService.auto_judge(project_slug, [model_a, model_c])
+
+    model_a = ModelService.get_by_id(project_slug, model_a.id)
+    model_b = ModelService.get_by_id(project_slug, model_b.id)
+    model_c = ModelService.get_by_id(project_slug, model_c.id)
+    n_judges = len(enabled_auto_judges)
+    assert model_a.elo > model_c.elo > model_b.elo
+    assert model_a.n_votes == model_b.n_votes == n_judges * len(TEST_QUESTIONS) + n_judges * len(df_good_answer_subset)
+    assert model_c.n_votes == n_judges * len(df_good_answer_subset) * 2  # compared to both A and B
+
+
 def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_judges: tuple[int, int]) -> None:
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
-    model_id = ModelService.upload_responses(project_slug, "good-answers", df_good_answer).id
-    TaskService.auto_judge(project_slug, model_id, "good-answers")
+    model = ModelService.upload_responses(project_slug, "good-answers", df_good_answer)
+    TaskService.auto_judge(project_slug, [model])
 
     # assert that no judging has happened
     assert all(m.n_votes == 0 for m in ModelService.get_all(project_slug))
@@ -87,9 +104,9 @@ def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_jud
     assert len(tasks[0].logs) > 0
 
 
-def test__task__recompute_leaderboard(project_slug: str, model_ids_with_responses: tuple[int, int]) -> None:
-    model_a_id, model_b_id = model_ids_with_responses
-    h2hs = HeadToHeadService.get(project_slug, api.HeadToHeadsRequest(model_a_id=model_a_id, model_b_id=model_b_id))
+def test__task__recompute_leaderboard(project_slug: str, models_with_responses: tuple[api.Model, api.Model]) -> None:
+    model_a, model_b = models_with_responses
+    h2hs = HeadToHeadService.get(project_slug, api.HeadToHeadsRequest(model_a_id=model_a.id, model_b_id=model_b.id))
     for h2h in h2hs:
         vote = api.HeadToHeadVoteRequest(response_a_id=h2h.response_a_id, response_b_id=h2h.response_b_id, winner="A")
         HeadToHeadService.submit_vote(project_slug, vote)

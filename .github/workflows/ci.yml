@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: uv pip install --all-extras -r pyproject.toml
       - name: Run unit tests
-        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/unit
+        run: uv run pytest -vv --cov autoarena --cov-report term tests/unit
       - uses: actions/download-artifact@v4
         with:
           name: ui-build
@@ -56,13 +56,24 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
       - name: Run integration tests
-        run: uv run pytest -vv --cov-report term --cov-report xml:coverage.xml --cov autoarena --cov-append tests/integration
+        run: |
+          uv run pytest -vv \
+            --cov-report term \
+            --cov-report xml:coverage.xml \
+            --cov-report html \
+            --cov autoarena \
+            --cov-append \
+            tests/integration
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           TOGETHER_API_KEY: ${{ secrets.TOGETHER_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: test-coverage
+          path: "./htmlcov"
 
   ui-lint:
     runs-on: ubuntu-latest

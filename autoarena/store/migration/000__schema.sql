@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS task (
 CREATE SEQUENCE IF NOT EXISTS migration_id START 1;
 CREATE TABLE IF NOT EXISTS migration (
     id INTEGER PRIMARY KEY DEFAULT nextval('migration_id'),
-    migration_index INTEGER NOT NULL,
-    filename TEXT NOT NULL
+    migration_index INTEGER NOT NULL UNIQUE,
+    filename TEXT NOT NULL UNIQUE,
+    created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp
 );

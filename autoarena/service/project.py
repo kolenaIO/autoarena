@@ -5,9 +5,9 @@ import duckdb
 from loguru import logger
 
 from autoarena.api import api
-from autoarena.error import NotFoundError
+from autoarena.error import NotFoundError, MigrationError
 from autoarena.judge.human import HumanJudge
-from autoarena.store.database import get_database_connection, get_data_directory, MIGRATION_DIRECTORY
+from autoarena.store.database import get_database_connection, get_data_directory, get_available_migrations
 
 
 class ProjectService:
@@ -66,16 +66,31 @@ class ProjectService:
 
     @staticmethod
     def _migrate_to_latest(path: Path) -> None:
-        available_migrations = sorted(MIGRATION_DIRECTORY.glob("[0-9][0-9][0-9]__*.sql"))
-        with get_database_connection(path) as conn:
-            records = conn.execute("SELECT filename FROM migrations ORDER BY migration_index").fetchall()
-        applied_migrations = {f for (f,) in records}
+        available_migrations = get_available_migrations()
+        applied_migrations = {f for (_, f) in ProjectService._get_applied_migrations(path)}
         for migration in available_migrations:
             if migration.name in applied_migrations:
                 continue
+            try:
+                with get_database_connection(path) as conn:
+                    logger.info(f"Applying migration '{migration.name}' to '{path.name}'")
+                    conn.sql(migration.read_text())
+                    conn.execute(
+                        "INSERT INTO migration (migration_index, filename) VALUES ($index, $filename)",
+                        dict(index=int(migration.name.split("__")[0]), filename=migration.name),
+                    )
+            except Exception as e:
+                logger.error(f"Failed to apply migration '{migration.name}' to '{path.name}': {e}")
+                raise MigrationError(e)
+
+    @staticmethod
+    def _get_applied_migrations(path: Path) -> list[tuple[int, str]]:
+        try:
             with get_database_connection(path) as conn:
-                logger.info(f"Applying migration '{migration.name}' to '{path.name}'")
-                conn.sql(migration.read_text())
+                conn.execute("SELECT migration_index, filename FROM migration ORDER BY migration_index")
+                return conn.fetchall()
+        except duckdb.CatalogException:
+            return []  # database is new and does not have a migration table
 
     # TODO: restart pending tasks rather than simply terminating
     @staticmethod

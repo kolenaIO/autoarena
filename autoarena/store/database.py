@@ -26,3 +26,7 @@ def get_database_connection(path: Path) -> duckdb.DuckDBPyConnection:
         yield conn
     finally:
         conn.close()
+
+
+def get_available_migrations() -> list[Path]:
+    return sorted(MIGRATION_DIRECTORY.glob("[0-9][0-9][0-9]__*.sql"))

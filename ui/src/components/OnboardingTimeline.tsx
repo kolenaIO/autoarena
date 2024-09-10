@@ -104,7 +104,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconPlus {...iconProps} />}
             title={
               <TimelineItemTitle
-                title={hasProjects ? 'Choose project' : 'Create Project'}
+                title={hasProjects ? 'Select a project' : 'Create your first project'}
                 action={
                   activeStage !== -1 ? undefined : projects?.length > 0 ? (
                     <ProjectSelect />
@@ -123,7 +123,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
               ) : hasProjects ? (
                 'Select a project or create a new one'
               ) : (
-                'Create a new project'
+                'Create a new project file'
               )}
             </Text>
           </Timeline.Item>
@@ -132,7 +132,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconRobot {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Add first model"
+                title="Add first model responses"
                 timestamp={firstModel?.created}
                 action={activeStage === 0 ? <AddModelButton size="xs" /> : undefined}
               />
@@ -153,7 +153,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconGavel {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Configure automated judge"
+                title="Configure an automated judge"
                 timestamp={firstJudge?.created}
                 action={
                   activeStage === 1 ? (
@@ -178,7 +178,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconRobot {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Add second model"
+                title="Add responses from a second model"
                 timestamp={secondModel?.created}
                 action={activeStage === 2 ? <AddModelButton size="xs" /> : undefined}
               />

@@ -20,7 +20,7 @@
 - 🤖 Define and run your own custom judges, connecting to internal services or implementing bespoke logic
 - 💻 Run application locally, getting full control over your environment and data
 
-[![AutoArena user interface](./assets/autoarena.jpg)](https://www.youtube.com/watch?v=GMuQPwo-JdU)
+[![AutoArena user interface](https://raw.githubusercontent.com/kolenaIO/autoarena/trunk/assets/autoarena.jpg)](https://www.youtube.com/watch?v=GMuQPwo-JdU)
 
 ## 🔥 Getting Started
 

@@ -6,8 +6,6 @@ from starlette.responses import FileResponse, HTMLResponse
 
 from autoarena.error import NotFoundError
 
-ROBOTS_TXT = "User-agent: *\nDisallow: /"
-
 
 def ui_router() -> APIRouter:
     build_static_dir = Path(__file__).parent / "ui"
@@ -18,7 +16,8 @@ def ui_router() -> APIRouter:
 
     @r.get("/robots.txt", response_class=PlainTextResponse)
     async def robots_txt():
-        return ROBOTS_TXT
+        data = "User-agent: *\nDisallow: /"
+        return data
 
     @r.get("/assets/{file_path:path}")
     async def assets(file_path):

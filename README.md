@@ -5,7 +5,7 @@
 **Create leaderboards ranking LLM outputs against one another using automated judge evaluation**
 
 [![Apache-2.0 License](https://img.shields.io/pypi/l/autoarena?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
-[![CI](https://img.shields.io/github/checks-status/kolenaIO/autoarena/trunk?logo=circleci&logoColor=white&style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
+[![CI](https://img.shields.io/github/actions/workflow/status/kolenaIO/autoarena/ci.yml?style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
 [![PyPI Version](https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square)](https://pypi.python.org/pypi/autoarena)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/autoarena.svg?style=flat-square)](https://pypi.org/project/autoarena)
 [![Slack](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white&style=flat-square)](https://kolena-autoarena.slack.com)

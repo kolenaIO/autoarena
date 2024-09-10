@@ -7,7 +7,7 @@ from loguru import logger
 from autoarena.api import api
 from autoarena.error import NotFoundError
 from autoarena.judge.human import HumanJudge
-from autoarena.store.database import get_database_connection, SCHEMA_FILE, get_data_directory
+from autoarena.store.database import get_database_connection, get_data_directory, MIGRATION_DIRECTORY
 
 
 class ProjectService:
@@ -61,17 +61,28 @@ class ProjectService:
 
     @staticmethod
     def _setup_database(path: Path) -> None:
-        schema_sql = SCHEMA_FILE.read_text()
+        ProjectService._migrate_to_latest(path)
+        ProjectService._close_pending_tasks(path)
+
+    @staticmethod
+    def _migrate_to_latest(path: Path) -> None:
+        available_migrations = sorted(MIGRATION_DIRECTORY.glob("[0-9][0-9][0-9]__*.sql"))
         with get_database_connection(path) as conn:
-            conn.sql(schema_sql)
-        slug = ProjectService._path_to_slug(path)
-        ProjectService._close_pending_tasks(slug)
+            records = conn.execute("SELECT filename FROM migrations ORDER BY migration_index").fetchall()
+        applied_migrations = {f for (f,) in records}
+        for migration in available_migrations:
+            if migration.name in applied_migrations:
+                continue
+            with get_database_connection(path) as conn:
+                logger.info(f"Applying migration '{migration.name}' to '{path.name}'")
+                conn.sql(migration.read_text())
 
     # TODO: restart pending tasks rather than simply terminating
     @staticmethod
-    def _close_pending_tasks(slug: str) -> None:
+    def _close_pending_tasks(path: Path) -> None:
         from autoarena.service.task import TaskService
 
+        slug = ProjectService._path_to_slug(path)
         tasks = TaskService.get_all(slug)
         for task in tasks:
             if task.status not in {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}:

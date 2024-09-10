@@ -1,7 +1,12 @@
 import functools
 import math
 import time
-from typing import Callable, ParamSpec, TypeVar
+from typing import Callable
+
+try:
+    from typing import ParamSpec, TypeVar
+except ImportError:  # added in 3.10
+    from typing_extensions import ParamSpec, TypeVar  # type: ignore
 
 import numpy as np
 from loguru import logger

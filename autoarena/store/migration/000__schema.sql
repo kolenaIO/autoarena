@@ -63,3 +63,10 @@ CREATE TABLE IF NOT EXISTS task (
     status TEXT NOT NULL, -- enum e.g. 'started', 'in-progress'; see api.TaskStatus
     logs TEXT NOT NULL DEFAULT '' -- freeform
 );
+
+CREATE SEQUENCE IF NOT EXISTS migration_id START 1;
+CREATE TABLE IF NOT EXISTS migration (
+    id INTEGER PRIMARY KEY DEFAULT nextval('migration_id'),
+    migration_index INTEGER NOT NULL,
+    filename TEXT NOT NULL
+);

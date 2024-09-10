@@ -13,12 +13,11 @@ from autoarena.service.model import ModelService
 from autoarena.service.project import ProjectService
 
 
-def seed_head_to_heads(head_to_heads: str) -> None:
-    project_name = Path(head_to_heads).stem
-    df = pd.read_parquet(head_to_heads)
+def seed_head_to_heads(head_to_heads: Path) -> None:
+    df = pd.read_parquet(head_to_heads) if head_to_heads.suffix == ".parquet" else pd.read_csv(head_to_heads)
 
     # 1. seed project
-    project_slug = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name)).slug
+    project_slug = ProjectService.create_idempotent(api.CreateProjectRequest(name=head_to_heads.stem)).slug
 
     # 2. seed models
     models = set(df.model_a) & set(df.model_b)
@@ -49,7 +48,20 @@ def seed_head_to_heads(head_to_heads: str) -> None:
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("head_to_heads", help="Path to parquet file with head-to-heads and judgements")
+    ap = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description="""\
+Seed a new project from a CSV or Parquet file where each row represents a head-to-head matchup between two models.
+
+The following columns are required:
+
+- `model_a`: name of model A in this head-to-head
+- `model_b`: name of model B in this head-to-head
+- `prompt`: the prompt that both models were run on
+- `response_a`: the response from model A to the prompt
+- `response_b`: the response from model B to the prompt
+- `winner`: the winner of the head-to-head, either "A", "B", or "-" for ties""",
+    )
+    ap.add_argument("head_to_heads", type=Path, help="Path to .csv or .parquet file with head-to-heads and judgements")
     args = ap.parse_args()
     seed_head_to_heads(args.head_to_heads)

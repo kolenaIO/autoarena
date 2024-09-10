@@ -4,7 +4,7 @@ from pathlib import Path
 import duckdb
 
 DATABASE_FILE = Path.cwd() / "autoarena.duckdb"
-SCHEMA_FILE = Path(__file__).parent / "schema.sql"
+SCHEMA_FILE = Path(__file__).parent / "migration" / "000__schema.sql"
 
 _DATA_DIRECTORY = Path.cwd() / "data"
 

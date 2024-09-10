@@ -7,8 +7,7 @@ from loguru import logger
 from autoarena.api import api
 from autoarena.error import NotFoundError
 from autoarena.judge.human import HumanJudge
-from autoarena.store import database
-from autoarena.store.database import get_database_connection, SCHEMA_FILE
+from autoarena.store.database import get_database_connection, SCHEMA_FILE, get_data_directory
 
 
 class ProjectService:
@@ -23,7 +22,7 @@ class ProjectService:
 
     @staticmethod
     def get_all() -> list[api.Project]:
-        paths = sorted(list(database.get_data_directory().glob("*.duckdb")))
+        paths = sorted(list(get_data_directory().glob("*.duckdb")))
         return [api.Project(slug=ProjectService._path_to_slug(p), filename=p.name, filepath=str(p)) for p in paths]
 
     @staticmethod
@@ -31,7 +30,7 @@ class ProjectService:
         # TODO: should come up with a better way than this to have services point at one another, or remove the need
         from autoarena.service.judge import JudgeService
 
-        data_directory = database.get_data_directory()
+        data_directory = get_data_directory()
         data_directory.mkdir(parents=True, exist_ok=True)
         path = data_directory / f"{request.name}.duckdb"
         slug = ProjectService._path_to_slug(path)
@@ -58,7 +57,7 @@ class ProjectService:
 
     @staticmethod
     def _slug_to_path(slug: str) -> Path:
-        return database.get_data_directory() / f"{slug}.duckdb"
+        return get_data_directory() / f"{slug}.duckdb"
 
     @staticmethod
     def _setup_database(path: Path) -> None:

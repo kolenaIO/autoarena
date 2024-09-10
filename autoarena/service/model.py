@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 
 from autoarena.api import api
-from autoarena.error import NotFoundError
+from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autoarena.service.project import ProjectService
 
@@ -87,7 +87,7 @@ class ModelService:
         required_columns = {"prompt", "response"}
         missing_columns = required_columns - set(df_response.columns)
         if len(missing_columns) > 0:
-            raise ValueError(f"missing required column(s): {missing_columns}")
+            raise BadRequestError(f"missing required column(s): {missing_columns}")
         with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(
                 "INSERT INTO model (name) VALUES ($model_name) RETURNING id",

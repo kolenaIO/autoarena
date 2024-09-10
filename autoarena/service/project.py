@@ -48,7 +48,9 @@ class ProjectService:
     @staticmethod
     def migrate_all() -> None:
         for project in ProjectService.get_all():
-            ProjectService._setup_database(Path(project.filepath))
+            path = Path(project.filepath)
+            ProjectService._setup_database(path)
+            logger.info(f"Found project '{path.relative_to(Path.cwd())}'")
 
     @staticmethod
     def _path_to_slug(path: Path) -> str:

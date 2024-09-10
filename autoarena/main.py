@@ -16,7 +16,7 @@ API_V1_STR = "/api/v1"
 
 @asynccontextmanager
 async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    logger.info(f"Using data directory: {get_data_directory()}")
+    logger.info(f"Using data directory: '{get_data_directory()}'")
     ProjectService.migrate_all()
     logger.success("AutoArena ready")
     yield

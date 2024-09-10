@@ -68,6 +68,11 @@ jobs:
         with:
           name: test-coverage
           path: "./htmlcov"
+      - name: Upload results to Codecov
+        if: matrix.python_version == '3.12'
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   ui-lint:
     runs-on: ubuntu-latest

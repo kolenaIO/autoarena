@@ -40,7 +40,7 @@ jobs:
       - name: Install dependencies
         run: uv pip install --all-extras -r pyproject.toml
       - name: Run unit tests
-        run: uv run pytest -vv --cov autoarena --cov-report term tests/unit
+        run: uv run pytest -vv --cov autoarena --cov-report term --cov-report xml:coverage.xml tests/unit
       - uses: actions/download-artifact@v4
         with:
           name: ui-build
@@ -56,7 +56,14 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-2
       - name: Run integration tests
-        run: uv run pytest -vv --cov-report term --cov-report html --cov autoarena --cov-append tests/integration
+        run: |
+          uv run pytest -vv \
+            --cov-report term \
+            --cov-report html \
+            --cov-report xml:coverage.xml \
+            --cov autoarena \
+            --cov-append \
+            tests/integration
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           COHERE_API_KEY: ${{ secrets.COHERE_API_KEY }}

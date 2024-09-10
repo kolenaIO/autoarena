@@ -6,6 +6,9 @@ import { useCreateProject } from '../hooks/useCreateProject.ts';
 import { useProjects } from '../hooks/useProjects.ts';
 import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
+type Form = {
+  name: string;
+};
 type Props = {
   size?: MantineSize;
   small?: boolean;
@@ -15,24 +18,32 @@ export function CreateProjectButton({ size, small }: Props) {
   const { data: projects } = useProjects();
   const { mutate: createProject } = useCreateProject();
 
-  const existingProjects = new Set((projects ?? []).map(({ slug }) => slug));
-  const form = useForm<{ name: string }>({
+  const form = useForm<Form>({
     mode: 'uncontrolled',
     initialValues: { name: '' },
-    validate: { name: name => (existingProjects.has(name) ? `Project '${name}' already exists` : undefined) },
+    validate: { name: validateName },
     validateInputOnChange: true,
   });
 
+  function validateName(name: string) {
+    const existingProjects = new Set((projects ?? []).map(({ slug }) => slug));
+    return name === ''
+      ? 'Name cannot be empty'
+      : existingProjects.has(name)
+        ? `Project '${name}' already exists`
+        : undefined;
+  }
+
   function handleClose() {
+    form.reset();
     close();
   }
 
-  function handleConfirm(name: string) {
+  function handleSubmit({ name }: Form) {
     createProject({ name });
     handleClose();
   }
 
-  const isDisabled = form.getValues().name === '' || !form.isValid;
   return (
     <>
       {small ? (
@@ -45,7 +56,7 @@ export function CreateProjectButton({ size, small }: Props) {
         </Button>
       )}
       <Modal opened={isOpen} centered onClose={handleClose} title="Create Project">
-        <form onSubmit={form.onSubmit(({ name }) => handleConfirm(name))}>
+        <form onSubmit={form.onSubmit(handleSubmit)}>
           <Stack>
             <TextInput
               label="Project Name"
@@ -55,7 +66,7 @@ export function CreateProjectButton({ size, small }: Props) {
               key={form.key('name')}
               {...form.getInputProps('name')}
             />
-            <ConfirmOrCancelBar onCancel={handleClose} submitForm={!isDisabled} action="Create" />
+            <ConfirmOrCancelBar onCancel={handleClose} submitForm={form.isValid()} action="Create" />
           </Stack>
         </form>
       </Modal>

@@ -13,9 +13,9 @@ type Props = {
   onClose: () => void;
 };
 export function CreatePythonExtensionJudgeModal({ isOpen, onClose }: Props) {
-  const { projectId = -1 } = useUrlState();
-  const { data: judges } = useJudges(projectId);
-  const { mutate: createJudge } = useCreateJudge({ projectId });
+  const { projectSlug = '' } = useUrlState();
+  const { data: judges } = useJudges(projectSlug);
+  const { mutate: createJudge } = useCreateJudge({ projectSlug });
   const [name, setName] = useState('');
   const [systemPrompt, setSystemPrompt] = useState('');
 
@@ -35,7 +35,6 @@ export function CreatePythonExtensionJudgeModal({ isOpen, onClose }: Props) {
 
   function handleSubmit() {
     createJudge({
-      project_id: projectId,
       judge_type: 'python' as JudgeType,
       name,
       model_name: name,

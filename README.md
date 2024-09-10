@@ -10,9 +10,9 @@
   <img src="https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square" />
 </a>
 <a href="https://pypi.org/project/autoarena" target="_blank">
-  <img src="https://img.shields.io/pypi/pyversions/autoarena.svg" alt="Supported Python versions">
+  <img src="https://img.shields.io/pypi/pyversions/autoarena.svg?style=flat-square" alt="Supported Python versions">
 </a>
-<a href="">
+<a href="https://kolena-autoarena.slack.com/">
   <img src="https://img.shields.io/badge/slack-autoarena-4f8eba?logo=slack&style=flat-square&color=4A154B" />
 </a>
 

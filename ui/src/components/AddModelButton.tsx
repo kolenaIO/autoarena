@@ -10,6 +10,7 @@ import {
   MantineSize,
   Group,
   Transition,
+  CloseButton,
 } from '@mantine/core';
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
@@ -61,13 +62,21 @@ export function AddModelButton({ variant, size }: Props) {
     handleClose();
   }
 
-  const isDisabled = files.length === 0 || names === '' || nameErrors.filter(e => e != null).length > 0;
+  function handleRemove(i: number) {
+    return () => {
+      setFiles(prev => prev.filter((_, j) => i !== j));
+      setNames(prev => prev.filter((_, j) => i !== j));
+    };
+  }
+
+  const hasEmptyNames = names.some(name => name === '');
+  const isDisabled = files.length === 0 || hasEmptyNames || nameErrors.some(e => e != null);
   return (
     <>
       <Button variant={variant} size={size} leftSection={<IconPlus size={18} />} onClick={toggle}>
         Add Model
       </Button>
-      <Modal opened={isOpen} centered onClose={handleClose} title="Add Model">
+      <Modal opened={isOpen} centered onClose={handleClose} title="Add Model Responses">
         <Stack>
           <FileInput<true>
             label="Model Responses File"
@@ -89,25 +98,28 @@ export function AddModelButton({ variant, size }: Props) {
             {transitionStyle => (
               <Stack style={transitionStyle}>
                 {files.map((file, i) => (
-                  <TextInput
-                    key={i}
-                    label={
-                      <Text size="sm" fw={500}>
-                        Model Name for <Code>{file.name}</Code>
-                      </Text>
-                    }
-                    placeholder={`Enter name for '${file.name}'...`}
-                    value={names[i]}
-                    onChange={event =>
-                      setNames(prev => {
-                        // not sure why currentTarget is sometimes missing
-                        const newName = event.currentTarget?.value ?? event.target?.value ?? '';
-                        return [...prev.slice(0, i), newName, ...prev.slice(i + 1, prev.length)];
-                      })
-                    }
-                    error={nameErrors[i]}
-                    flex={1}
-                  />
+                  <Group gap="xs" align="flex-start">
+                    <TextInput
+                      key={i}
+                      label={
+                        <Text size="sm" fw={500}>
+                          Model Name for <Code>{file.name}</Code>
+                        </Text>
+                      }
+                      placeholder={`Enter name for '${file.name}'...`}
+                      value={names[i]}
+                      onChange={event =>
+                        setNames(prev => {
+                          // not sure why currentTarget is sometimes missing
+                          const newName = event.currentTarget?.value ?? event.target?.value ?? '';
+                          return [...prev.slice(0, i), newName, ...prev.slice(i + 1, prev.length)];
+                        })
+                      }
+                      error={nameErrors[i]}
+                      flex={1}
+                    />
+                    <CloseButton mt="xl" size="sm" onClick={handleRemove(i)} />
+                  </Group>
                 ))}
               </Stack>
             )}

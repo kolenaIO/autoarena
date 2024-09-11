@@ -2,7 +2,7 @@ import '@mantine/core/styles.layer.css';
 import 'mantine-datatable/styles.layer.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/charts/styles.css';
-import './App.module.css';
+import './global.css';
 import { createTheme, MantineProvider, Modal, Tooltip } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';

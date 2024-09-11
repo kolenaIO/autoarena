@@ -121,7 +121,7 @@ class TaskService:
                 api.HeadToHead(**r)
                 for _, r in df_h2h[["prompt", "response_a_id", "response_a", "response_b_id", "response_b"]].iterrows()
             ]
-            executor = ThreadedExecutor(4)
+            executor = ThreadedExecutor(8)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
             n_h2h = len(head_to_heads)
             n_total = n_h2h * len(judges)

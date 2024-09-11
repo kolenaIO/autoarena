@@ -3,7 +3,7 @@ import anthropic
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, DEFAULT_MAX_TOKENS
 
 
 class AnthropicJudge(AutomatedJudge):
@@ -38,6 +38,6 @@ class AnthropicJudge(AutomatedJudge):
             model=self.model_name,
             system=self.system_prompt,
             messages=[dict(role="user", content=get_user_prompt(h2h))],
-            max_tokens=10,  # should really just need 1
+            max_tokens=DEFAULT_MAX_TOKENS,  # should really just need 1
         )
         return response.content[0].text

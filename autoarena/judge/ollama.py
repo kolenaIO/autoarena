@@ -4,7 +4,7 @@ import ollama
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt
+from autoarena.judge.utils import get_user_prompt, DEFAULT_MAX_TOKENS
 
 
 class OllamaJudge(AutomatedJudge):
@@ -42,6 +42,6 @@ class OllamaJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
-            options=dict(temperature=0, seed=0),
+            options=dict(temperature=0, seed=0, num_predict=DEFAULT_MAX_TOKENS),
         )
         return response["message"]["content"]

@@ -3,7 +3,7 @@ from openai import OpenAI
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, DEFAULT_MAX_TOKENS
 
 
 class OpenAIJudge(AutomatedJudge):
@@ -34,5 +34,6 @@ class OpenAIJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
+            max_tokens=DEFAULT_MAX_TOKENS,
         )
         return response.choices[0].message.content

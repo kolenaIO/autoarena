@@ -5,8 +5,8 @@
 **Create leaderboards ranking LLM outputs against one another using automated judge evaluation**
 
 [![Apache-2.0 License](https://img.shields.io/pypi/l/autoarena?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
-[![CI](https://img.shields.io/github/actions/workflow/status/kolenaIO/autoarena/ci.yml?style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
-[![Test Coverage](https://img.shields.io/codecov/c/github/kolenaIO/autoarena?style=flat-square)](https://app.codecov.io/gh/kolenaIO/autoarena)
+[![CI](https://img.shields.io/github/actions/workflow/status/kolenaIO/autoarena/ci.yml?logo=github&style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
+[![Test Coverage](https://img.shields.io/codecov/c/github/kolenaIO/autoarena?logo=codecov&style=flat-square)](https://app.codecov.io/gh/kolenaIO/autoarena)
 [![PyPI Version](https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square)](https://pypi.python.org/pypi/autoarena)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/autoarena.svg?style=flat-square)](https://pypi.org/project/autoarena)
 [![Slack](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white&style=flat-square)](https://kolena-autoarena.slack.com)
@@ -20,7 +20,24 @@
 - 🤖 Define and run your own custom judges, connecting to internal services or implementing bespoke logic
 - 💻 Run application locally, getting full control over your environment and data
 
-[![AutoArena user interface](./assets/autoarena.jpg)](https://www.youtube.com/watch?v=GMuQPwo-JdU)
+[![AutoArena user interface](https://raw.githubusercontent.com/kolenaIO/autoarena/trunk/assets/autoarena.jpg)](https://www.youtube.com/watch?v=GMuQPwo-JdU)
+
+## 🤔 Why Head-to-Head Evaluation?
+
+- LLMs are better at judging responses head-to-head than they are in isolation
+  ([arXiv:2408.08688](https://www.arxiv.org/abs/2408.08688v3)) — leaderboard rankings computed using Elo scores from
+  many automated side-by-side comparisons should be more trustworthy than leaderboards using metrics computed on each
+  model's responses independently!
+- The [LMSYS Chatbot Arena](https://lmarena.ai/) has replaced benchmarks for many people as the trusted true leaderboard
+  for foundation model performance ([arXiv:2403.04132](https://arxiv.org/abs/2403.04132)). Why not apply this approach
+  to your own foundation model selection, RAG system setup, or prompt engineering efforts?
+- Using a "jury" of multiple smaller models from different model families like `gpt-4o-mini`, `command-r`, and
+  `claude-3-haiku` generally yields better accuracy than a single frontier judge like `gpt-4o` — while being faster and
+  _much_ cheaper to run. AutoArena is built around this technique, called PoLL: **P**anel **o**f **LL**M evaluators
+  ([arXiv:2404.18796](https://arxiv.org/abs/2404.18796)).
+- Automated side-by-side comparison of model outputs is one of the most prevalent evaluation practices
+  ([arXiv:2402.10524](https://arxiv.org/abs/2402.10524)) — AutoArena makes this process easier than ever to get up
+  and running.
 
 ## 🔥 Getting Started
 

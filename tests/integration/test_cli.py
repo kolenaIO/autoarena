@@ -1,7 +1,10 @@
 import tempfile
+from io import StringIO
 from pathlib import Path
 
 import pandas as pd
+import pytest
+from loguru import logger
 
 from autoarena.api import api
 from autoarena.main import main
@@ -39,3 +42,38 @@ def test__cli__seed(test_data_directory: Path) -> None:
         assert len(df_h2h_model) == len(df_h2h_input_model)
         assert all(df_h2h_model.history.apply(lambda h: len(h) == 1))
         assert all(df_h2h_model.history.apply(lambda h: h[0]["judge_name"] == "Human"))
+
+
+def test__cli__seed__missing_argument(test_data_directory: None) -> None:
+    with pytest.raises(SystemExit) as e:
+        main(["seed"])
+        assert "error: the following arguments are required: head_to_heads" in str(e)
+
+
+def test__cli__seed__missing_columns(test_data_directory: None) -> None:
+    h2h_records = [dict(model_b="b", prompt="example", response_b="response b", winner="-")]
+    df_h2h_input = pd.DataFrame.from_records(h2h_records)
+    with tempfile.NamedTemporaryFile(suffix=".csv") as f:
+        filename = f.name
+        df_h2h_input.to_csv(f, index=False)
+        with pytest.raises(ValueError) as e:
+            main(["seed", filename])
+            assert "Missing 2 required column(s)" in str(e)
+
+
+@pytest.mark.skip(reason="Server runs forever, need to figure out a way to stop it after we've verified that it starts")
+def test__cli__serve__no_argument(test_data_directory: None) -> None:
+    logs = StringIO()
+    logger.add(logs)
+    main([])
+
+
+@pytest.mark.skip
+def test__cli__serve(test_data_directory: None) -> None:
+    main(["serve"])
+
+
+@pytest.mark.skip
+@pytest.mark.parametrize("arg", ["-d", "--dev"])
+def test__cli__serve__dev(test_data_directory: None, arg: str) -> None:
+    main(["serve", arg])

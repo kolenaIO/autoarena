@@ -10,7 +10,7 @@ from autoarena.server import server, API_V1_STR
 from autoarena.store.database import set_data_directory
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="function")
 def test_data_directory() -> Iterator[Path]:
     data_directory = Path(__file__).parent / "data"
     set_data_directory(data_directory)

@@ -1,5 +1,5 @@
 import { DataTableColumn } from 'mantine-datatable';
-import { Code, Text, Tooltip } from '@mantine/core';
+import { Box, Code, Text, Tooltip } from '@mantine/core';
 import { v4 as uuidv4 } from 'uuid';
 import { Model } from '../../hooks/useModels.ts';
 import { EloWidget } from './EloWidget.tsx';
@@ -48,9 +48,11 @@ export const LEADERBOARD_COLUMNS: DataTableColumn<RankedModel>[] = [
     render: ({ elo, q025, q975 }) =>
       q025 != null &&
       q975 != null && (
-        <Code>
-          +{(q975 - elo).toFixed(0)} / -{(elo - q025).toFixed(0)}
-        </Code>
+        <Box miw={80}>
+          <Code>
+            +{(q975 - elo).toFixed(0)} / -{(elo - q025).toFixed(0)}
+          </Code>
+        </Box>
       ),
   },
   {

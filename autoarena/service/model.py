@@ -6,6 +6,7 @@ from autoarena.api import api
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autoarena.service.project import ProjectService
+from autoarena.store.utils import check_required_columns
 
 
 class ModelService:
@@ -85,10 +86,10 @@ class ModelService:
 
     @staticmethod
     def upload_responses(project_slug: str, model_name: str, df_response: pd.DataFrame) -> api.Model:
-        required_columns = {"prompt", "response"}
-        missing_columns = required_columns - set(df_response.columns)
-        if len(missing_columns) > 0:
-            raise BadRequestError(f"Missing required column(s): {missing_columns}")
+        try:
+            check_required_columns(df_response, ["prompt", "response"])
+        except ValueError as e:
+            raise BadRequestError(str(e))
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
         with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(

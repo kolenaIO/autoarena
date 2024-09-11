@@ -10,16 +10,18 @@ from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
 from autoarena.service.model import ModelService
 from autoarena.service.project import ProjectService
+from autoarena.store.utils import check_required_columns
 
 
 def seed_head_to_heads(head_to_heads: Path) -> None:
     df = pd.read_parquet(head_to_heads) if head_to_heads.suffix == ".parquet" else pd.read_csv(head_to_heads)
+    check_required_columns(df, ["model_a", "model_b", "prompt", "response_a", "response_b", "winner"])
 
     # 1. seed project
     project_slug = ProjectService.create_idempotent(api.CreateProjectRequest(name=head_to_heads.stem)).slug
 
     # 2. seed models
-    models = set(df.model_a) & set(df.model_b)
+    models = set(df.model_a) | set(df.model_b)
     model_ids: list[int] = []
     for model in models:
         cols = ["prompt", "response"]
@@ -39,6 +41,7 @@ def seed_head_to_heads(head_to_heads: Path) -> None:
     df = df.rename(columns=dict(response_id="response_b_id"))
     df = df.dropna(subset=["response_a_id", "response_b_id"])
     df[["response_a_id", "response_b_id"]] = df[["response_a_id", "response_b_id"]].astype(int)
+    # TODO: allow seeding with non-human judgements?
     df["judge_id"] = [j for j in JudgeService.get_all(project_slug) if j.name == HumanJudge().name][0].id
     HeadToHeadService.upload_head_to_heads(project_slug, df[["response_a_id", "response_b_id", "judge_id", "winner"]])
 

@@ -4,7 +4,7 @@ from pathlib import Path
 import duckdb
 
 DATABASE_FILE = Path.cwd() / "autoarena.duckdb"
-SCHEMA_FILE = Path(__file__).parent / "schema.sql"
+MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
 _DATA_DIRECTORY = Path.cwd() / "data"
 
@@ -26,3 +26,7 @@ def get_database_connection(path: Path) -> duckdb.DuckDBPyConnection:
         yield conn
     finally:
         conn.close()
+
+
+def get_available_migrations() -> list[Path]:
+    return sorted(MIGRATION_DIRECTORY.glob("[0-9][0-9][0-9]__*.sql"))

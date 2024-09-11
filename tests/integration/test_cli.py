@@ -1,10 +1,8 @@
 import tempfile
-from io import StringIO
 from pathlib import Path
 
 import pandas as pd
 import pytest
-from loguru import logger
 
 from autoarena.api import api
 from autoarena.main import main
@@ -69,19 +67,8 @@ def test__cli__seed__missing_columns(test_data_directory: None) -> None:
             assert "Missing 2 required column(s)" in str(e)
 
 
-@pytest.mark.skip(reason="Server runs forever, need to figure out a way to stop it after we've verified that it starts")
-def test__cli__serve__no_argument(test_data_directory: None) -> None:
-    logs = StringIO()
-    logger.add(logs)
-    main([])
-
-
-@pytest.mark.skip
-def test__cli__serve(test_data_directory: None) -> None:
-    main(["serve"])
-
-
-@pytest.mark.skip
-@pytest.mark.parametrize("arg", ["-d", "--dev"])
-def test__cli__serve__dev(test_data_directory: None, arg: str) -> None:
-    main(["serve", arg])
+# TODO
+@pytest.mark.skip(reason="Server runs forever -- figure out a way to kill after asserting that it started up correctly")
+@pytest.mark.parametrize("args", [[], ["serve"], ["serve", "-d"], ["serve", "--dev"]])
+def test__cli__serve(args: list[str], test_data_directory: None) -> None:
+    main(args)

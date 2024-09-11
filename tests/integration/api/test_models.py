@@ -30,18 +30,18 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "df_bad",
+    "df_bad,missing",
     [
-        pd.DataFrame.from_records([dict(bad="yes", missing="prompt and response")]),
-        pd.DataFrame.from_records([dict(bad="yes", missing="prompt", response="ok")]),
-        pd.DataFrame.from_records([dict(bad="yes", missing="response", prompt="what")]),
+        (pd.DataFrame.from_records([dict(bad="yes")]), {"prompt", "response"}),
+        (pd.DataFrame.from_records([dict(bad="yes", response="ok")]), {"prompt"}),
+        (pd.DataFrame.from_records([dict(bad="yes", prompt="what")]), {"response"}),
     ],
 )
-def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame) -> None:
+def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame, missing: set[str]) -> None:
     body = construct_upload_model_body(dict(bad=df_bad))
     response = project_client.post("/model", data=body.data, files=body.files)
     assert response.status_code == 400
-    assert "Missing required column(s)" in response.json()["detail"]
+    assert f"Missing {len(missing)} required column(s)" in response.json()["detail"]
 
 
 def test__models__upload__multiple(project_client: TestClient) -> None:

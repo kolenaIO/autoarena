@@ -1,7 +1,7 @@
 import { IconArrowLeft, IconArrowRight, IconCactus } from '@tabler/icons-react';
 import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
-import { useHotkeys } from '@mantine/hooks';
+import { useElementSize, useHotkeys } from '@mantine/hooks';
 import { pluralize } from '../../lib/string.ts';
 import { useModelResponses } from '../../hooks/useModelResponses.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
@@ -16,6 +16,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
   const { projectSlug } = useUrlState();
   const { data: modelResponses, isLoading } = useModelResponses({ projectSlug, modelId });
   const [responseIndex, setResponseIndex] = useState(0);
+  const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
 
   const response = useMemo(() => (modelResponses ?? [])?.[responseIndex], [modelResponses, responseIndex]);
   const nResponses = useMemo(() => (modelResponses ?? []).length, [modelResponses]);
@@ -37,7 +38,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
     <NonIdealState IconComponent={IconCactus} description="No responses from selected model" />
   ) : !isLoading ? (
     <>
-      <Stack pb={100}>
+      <Stack pb={height + 32}>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
             {pluralize(nResponses, 'response')} from selected model
@@ -51,7 +52,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
         </Paper>
       </Stack>
 
-      <ControlBar>
+      <ControlBar ref={controlBarRef}>
         <Stack align="center" gap="xs">
           <SimpleGrid cols={2} spacing="xs">
             <Button

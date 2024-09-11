@@ -8,7 +8,7 @@ import {
   IconCactus,
 } from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
@@ -32,6 +32,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const headToHead = useMemo(() => battles?.[headToHeadIndex], [battles, headToHeadIndex]);
   const nHeadToHeads: number = battles?.length ?? 0;
+  const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
 
   useEffect(() => {
     setHeadToHeadIndex(0);
@@ -94,7 +95,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     />
   ) : !isLoading ? (
     <>
-      <Stack pb={100} /* TODO: need more padding when there are more judge responses shown */>
+      <Stack pb={height + 32}>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
             {pluralize(nHeadToHeads, 'head-to-head')} between selected models
@@ -113,7 +114,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
         </SimpleGrid>
       </Stack>
 
-      <ControlBar>
+      <ControlBar ref={controlBarRef}>
         <Stack align="center" gap="xs">
           <Text fw="bold">Which response is better?</Text>
           <SimpleGrid cols={5} spacing="xs">

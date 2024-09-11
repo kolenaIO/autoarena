@@ -32,7 +32,7 @@ export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
           {apiKeyName != null ? (
             <>
               {' '}
-              using the <Code>{apiKeyName}</Code> in the environment running AutoArena
+              using <Code>{apiKeyName}</Code>
             </>
           ) : (
             ''

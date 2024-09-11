@@ -1,4 +1,3 @@
-import argparse
 from pathlib import Path
 
 import pandas as pd
@@ -47,23 +46,3 @@ def seed_head_to_heads(head_to_heads: Path) -> None:
 
     # 4. seed elo scores
     EloService.reseed_scores(project_slug)
-
-
-if __name__ == "__main__":
-    ap = argparse.ArgumentParser(
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        description="""\
-Seed a new project from a CSV or Parquet file where each row represents a head-to-head matchup between two models.
-
-The following columns are required:
-
-- `model_a`: name of model A in this head-to-head
-- `model_b`: name of model B in this head-to-head
-- `prompt`: the prompt that both models were run on
-- `response_a`: the response from model A to the prompt
-- `response_b`: the response from model B to the prompt
-- `winner`: the winner of the head-to-head, either "A", "B", or "-" for ties""",
-    )
-    ap.add_argument("head_to_heads", type=Path, help="Path to .csv or .parquet file with head-to-heads and judgements")
-    args = ap.parse_args()
-    seed_head_to_heads(args.head_to_heads)

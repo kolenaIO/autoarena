@@ -4,10 +4,11 @@ import pandas as pd
 from loguru import logger
 
 from autoarena.api import api
+from autoarena.error import BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.judge.human import HumanJudge
 from autoarena.service.project import ProjectService
-from autoarena.store.utils import id_slug
+from autoarena.store.utils import id_slug, check_required_columns
 
 
 class HeadToHeadService:
@@ -108,10 +109,10 @@ class HeadToHeadService:
 
     @staticmethod
     def upload_head_to_heads(project_slug: str, df_h2h: pd.DataFrame) -> None:  # TODO: return type?
-        required_columns = {"response_a_id", "response_b_id", "judge_id", "winner"}
-        missing_columns = required_columns - set(df_h2h.columns)
-        if len(missing_columns) > 0:
-            raise ValueError(f"missing required column(s): {missing_columns}")
+        try:
+            check_required_columns(df_h2h, ["response_a_id", "response_b_id", "judge_id", "winner"])
+        except ValueError as e:
+            raise BadRequestError(str(e))
         df_h2h_deduped = df_h2h.copy()
         df_h2h_deduped["response_id_slug"] = df_h2h_deduped.apply(
             lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1

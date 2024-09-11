@@ -6,7 +6,7 @@
 
 [![Apache-2.0 License](https://img.shields.io/pypi/l/autoarena?style=flat-square)](https://www.apache.org/licenses/LICENSE-2.0)
 [![CI](https://img.shields.io/github/actions/workflow/status/kolenaIO/autoarena/ci.yml?logo=github&style=flat-square)](https://github.com/kolenaIO/autoarena/actions)
-[![Test Coverage](https://img.shields.io/codecov/c/github/kolenaIO/autoarena?logo=codecov&style=flat-square)](https://app.codecov.io/gh/kolenaIO/autoarena)
+[![Test Coverage](https://img.shields.io/codecov/c/github/kolenaIO/autoarena?logo=codecov&style=flat-square&logoColor=white)](https://app.codecov.io/gh/kolenaIO/autoarena)
 [![PyPI Version](https://img.shields.io/pypi/v/autoarena?logo=python&logoColor=white&style=flat-square)](https://pypi.python.org/pypi/autoarena)
 [![Supported Python Versions](https://img.shields.io/pypi/pyversions/autoarena.svg?style=flat-square)](https://pypi.org/project/autoarena)
 [![Slack](https://img.shields.io/badge/Slack-4A154B?logo=slack&logoColor=white&style=flat-square)](https://kolena-autoarena.slack.com)
@@ -87,12 +87,12 @@ run:
 uv venv && source .venv/bin/activate
 uv pip install --all-extras -r pyproject.toml
 uv tool run pre-commit install
-uv run python3 -m autoarena --dev
+uv run python3 -m autoarena serve --dev
 ```
 
 To run AutoArena for development, you will need to run both the backend and frontend service:
 
-- Backend: `uv run python3 -m autoarena --dev` (the `--dev`/`-d` flag enables automatic service reloading when
+- Backend: `uv run python3 -m autoarena serve --dev` (the `--dev`/`-d` flag enables automatic service reloading when
     source files change)
 - Frontend: see [`ui/README.md`](./ui/README.md)
 

@@ -13,6 +13,7 @@ from autoarena.store.database import set_data_directory
 @pytest.fixture(scope="function")
 def test_data_directory() -> Iterator[Path]:
     data_directory = Path(__file__).parent / "data"
+    data_directory.mkdir(parents=True, exist_ok=True)
     set_data_directory(data_directory)
     try:
         yield data_directory

@@ -13,6 +13,14 @@ from autoarena.service.model import ModelService
 from autoarena.service.project import ProjectService
 
 
+@pytest.mark.parametrize("arg", ["-h", "--help"])
+def test__cli__help(arg: str, test_data_directory: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    with pytest.raises(SystemExit) as e:
+        main([arg])
+    assert e.value.code == 0
+    assert "usage: autoarena" in capsys.readouterr().out
+
+
 def test__cli__seed(test_data_directory: Path) -> None:
     h2h_records = [
         dict(model_a="a", model_b="b", prompt="example", response_a="response a", response_b="response b", winner="-"),

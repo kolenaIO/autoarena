@@ -1,4 +1,5 @@
 from loguru import logger
+import pandas as pd
 
 from autoarena.api import api
 from autoarena.judge.base import Judge
@@ -42,6 +43,27 @@ class JudgeService:
                 """,
             ).df()
         return [api.Judge(**r) for _, r in df_task.iterrows()]
+
+    @staticmethod
+    def get_df_vote(project_slug: str, judge_id: int) -> pd.DataFrame:
+        with ProjectService.connect(project_slug) as conn:
+            df_vote = conn.execute(
+                """
+                SELECT
+                    j.name as judge,
+                    ra.prompt as prompt,
+                    ra.response as responseA,
+                    rb.response as responseB,
+                    h2h.winner as winner
+                FROM judge j
+                JOIN head_to_head h2h ON j.id = h2h.judge_id
+                JOIN response ra ON ra.id = h2h.response_a_id
+                JOIN response rb ON rb.id = h2h.response_b_id
+                WHERE j.id = $judge_id
+                """,
+                dict(judge_id=judge_id),
+            ).df()
+        return df_vote
 
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:

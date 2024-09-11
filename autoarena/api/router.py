@@ -165,6 +165,17 @@ def router() -> APIRouter:
         except NotFoundError:
             pass
 
+    @r.get("/project/{project_slug}/judge/{judge_id}/download/votes")
+    async def download_judge_votes_csv(project_slug: str, judge_id: int) -> StreamingResponse:
+        columns = ["prompt", "responseA", "responseB", "winner"]
+        df_response = JudgeService.get_df_vote(project_slug, judge_id)
+        judge_name = df_response.iloc[0].judge
+        stream = StringIO()
+        df_response[columns].to_csv(stream, index=False)
+        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
+        response.headers["Content-Disposition"] = f'attachment; filename="{judge_name}.csv"'
+        return response
+
     @r.put("/project/{project_slug}/elo/reseed-scores")
     def reseed_scores(project_slug: str) -> None:
         EloService.reseed_scores(project_slug)

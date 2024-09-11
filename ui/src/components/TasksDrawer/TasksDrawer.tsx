@@ -10,6 +10,7 @@ import { pluralize } from '../../lib/string.ts';
 import { getModelsQueryKey } from '../../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
 import { taskIsDone } from '../../lib/tasks.ts/utils.ts';
+import { getProjectUrl } from '../../lib/routes.ts';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
@@ -28,9 +29,10 @@ export function TasksDrawer() {
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ status }) => !taskIsDone(status)), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ status }) => taskIsDone(status)), [tasksSorted]);
 
-  // reload models if any tasks are newly completed
+  // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: [getProjectUrl(projectSlug ?? ''), '/model'] });
   }, [tasksCompleted.length]);
 
   return (

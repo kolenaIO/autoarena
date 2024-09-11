@@ -9,7 +9,7 @@ from autoarena.api.api import JudgeType
 
 
 class AutomatedJudge(metaclass=ABCMeta):
-    API_KEY_NAME: Optional[str]  # if set, verify that this exists in environment on init
+    API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
 
     _model_name: str
     _system_prompt: str

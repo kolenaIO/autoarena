@@ -4,7 +4,7 @@ import numpy as np
 import pytest
 
 from autoarena.api import api
-from autoarena.judge.base import Judge
+from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import CleaningJudge, RetryingJudge, ABShufflingJudge, rate_limit
 from tests.unit.judge.conftest import DummyJudge
 
@@ -53,7 +53,7 @@ def test__retrying_judge() -> None:
                 raise RuntimeError
             return self._winners.pop(0)
 
-    judge: Judge = FailsOnceDummyJudge(["A"])
+    judge: AutomatedJudge = FailsOnceDummyJudge(["A"])
     with pytest.raises(RuntimeError):
         judge.judge(DUMMY_H2H)
 

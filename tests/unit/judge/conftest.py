@@ -1,11 +1,10 @@
-from typing import Optional
-
 from autoarena.api import api
 from autoarena.api.api import JudgeType
-from autoarena.judge.base import Judge
+from autoarena.judge.base import AutomatedJudge
 
 
-class DummyJudge(Judge):
+class DummyJudge(AutomatedJudge):
+    # TODO: signature?
     def __init__(self, winners: list[str], name: str = "DummyJudge"):
         self._winners = [*winners]
         self._name = name
@@ -19,12 +18,12 @@ class DummyJudge(Judge):
         return self._name
 
     @property
-    def model_name(self) -> Optional[str]:
-        return None
+    def model_name(self) -> str:
+        return "dummy"
 
     @property
-    def system_prompt(self) -> Optional[str]:
-        return None
+    def system_prompt(self) -> str:
+        return "could be anything really"
 
     @property
     def description(self) -> str:

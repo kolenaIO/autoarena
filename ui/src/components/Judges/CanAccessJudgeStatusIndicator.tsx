@@ -1,4 +1,4 @@
-import { Code, Group, Loader, Text } from '@mantine/core';
+import { Code, Group, Loader, Stack, Text } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { useCanAccessJudgeType } from '../../hooks/useCanAccessJudgeType.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
@@ -14,7 +14,7 @@ export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
   const apiKeyName = judgeTypeToApiKeyName(judgeType);
   const iconProps = { size: 20, style: { flexShrink: 0 } };
   return (
-    <Group gap="sm" wrap="nowrap">
+    <Group gap="sm" wrap="nowrap" align="flex-start">
       {isLoading ? (
         <Loader color="gray" {...iconProps} />
       ) : canAccess ? (
@@ -39,17 +39,19 @@ export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
           )}
         </Text>
       ) : (
-        <Text size="sm">
-          Unable to access {judgeTypeName} API.{' '}
+        <Stack gap={4}>
+          <Text size="sm">Unable to access {judgeTypeName} API.</Text>
           {apiKeyName != null ? (
-            <>
+            <Text size="xs" c="dimmed">
               Ensure that you have the <Code>{apiKeyName}</Code> variable set in the environment running AutoArena.
-            </>
+            </Text>
           ) : (
-            `Ensure that you have the relevant configuration for the ${judgeTypeName} \
-API in the environment running AutoArena.`
+            <Text size="xs" c="dimmed">
+              Ensure that you have the relevant configuration for the {judgeTypeName}
+              API in the environment running AutoArena.
+            </Text>
           )}
-        </Text>
+        </Stack>
       )}
     </Group>
   );

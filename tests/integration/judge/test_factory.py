@@ -1,17 +1,19 @@
+from datetime import datetime
 from typing import Type
 
 import pytest
 
 from autoarena.api import api
 from autoarena.judge.anthropic import AnthropicJudge
-from autoarena.judge.base import AutomatedJudge
+from autoarena.judge.base import AutomatedJudge, WrappingJudge
 from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
-from autoarena.judge.factory import judge_factory, JUDGE_TYPE_TO_CLASS
+from autoarena.judge.factory import judge_factory, AUTOMATED_JUDGE_TYPE_TO_CLASS
 from autoarena.judge.gemini import GeminiJudge
 from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
+from autoarena.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
 from autoarena.service.judge import JudgeService
 from tests.integration.judge.conftest import (
     unset_environment_variable,
@@ -31,7 +33,7 @@ from tests.integration.judge.conftest import (
         (api.JudgeType.TOGETHER, TogetherJudge),
     ],
 )
-def test__judge_factory__automated__with_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
+def test__judge_factory__with_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
     name = f"{expected_type.__name__}" if expected_type is not None else "missing type"
     model_name = TEST_JUDGE_MODEL_NAMES.get(judge_type, name)
     request = api_judge(judge_type, model_name)
@@ -59,7 +61,7 @@ def test__judge_factory__automated__with_key(judge_type: api.JudgeType, expected
         (api.JudgeType.BEDROCK, BedrockJudge),
     ],
 )
-def test__judge_factory__automated__no_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
+def test__judge_factory__no_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
     model_name = TEST_JUDGE_MODEL_NAMES[judge_type]
     request = api_judge(judge_type, model_name)
     judge = judge_factory(request)
@@ -67,6 +69,32 @@ def test__judge_factory__automated__no_key(judge_type: api.JudgeType, expected_t
     assert judge.judge_type is judge_type
     assert judge.model_name == model_name
     assert judge.description is not None
+
+
+@pytest.mark.parametrize("wrappers", [([]), ([ABShufflingJudge]), (ABShufflingJudge, CleaningJudge, RetryingJudge)])
+def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
+    request = api.Judge(
+        id=-1,
+        judge_type=api.JudgeType.OLLAMA,
+        created=datetime.utcnow(),
+        name="gemma2:9b",
+        model_name="gemma2:9b",
+        system_prompt="say 'A'",
+        description="example_description",  # TODO: this is set on insertion, not here
+        enabled=True,
+        n_votes=0,
+    )
+    judge = judge_factory(request, wrappers=wrappers)
+    if len(wrappers) == 0:
+        assert type(judge) is OllamaJudge
+    else:
+        for wrapper_type in wrappers[::-1]:
+            assert type(judge) is wrapper_type
+            assert judge.judge_type == request.judge_type
+            assert judge.model_name == request.model_name
+            assert judge.system_prompt == request.system_prompt
+            assert len(judge.description) > 0
+            judge = judge.wrapped
 
 
 @pytest.mark.parametrize(
@@ -100,7 +128,7 @@ def test__check_can_access(judge_type: api.JudgeType) -> None:
     ],
 )
 def test__check_can_access__fail(judge_type: api.JudgeType) -> None:
-    judge_class = JUDGE_TYPE_TO_CLASS[judge_type]
+    judge_class = AUTOMATED_JUDGE_TYPE_TO_CLASS[judge_type]
     if judge_class is None:
         raise RuntimeError("implementation error")
     api_key_name = judge_class.API_KEY_NAME if issubclass(judge_class, AutomatedJudge) else None

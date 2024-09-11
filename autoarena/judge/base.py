@@ -2,30 +2,46 @@ import os
 from abc import ABCMeta, abstractmethod
 from typing import Optional
 
+from loguru import logger
+
 from autoarena.api import api
 from autoarena.api.api import JudgeType
 
 
-class Judge(metaclass=ABCMeta):
+class AutomatedJudge(metaclass=ABCMeta):
+    API_KEY_NAME: Optional[str]  # if set, verify that this exists in environment on init
+
+    _model_name: str
+    _system_prompt: str
+
+    _n_calls: int
+    _input_tokens: int
+    _output_tokens: int
+
+    def __init__(self, model_name: str, system_prompt: str):
+        self._model_name = model_name
+        self._system_prompt = system_prompt
+        key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
+        if self.API_KEY_NAME is not None and key is None:
+            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
+            raise RuntimeError(message)
+
     @property
     @abstractmethod
     def judge_type(self) -> JudgeType:
         """Enum type for this judge, e.g. 'human' or 'ollama'"""
 
     @property
-    @abstractmethod
     def name(self) -> str:
-        """Human-readable name for this judge, e.g. 'GPT-4o mini'"""
+        return self._model_name
 
     @property
-    @abstractmethod
-    def model_name(self) -> Optional[str]:
-        """Machine-readable model name, e.g. 'gpt-4o-mini'. None for human judge"""
+    def model_name(self) -> str:
+        return self._model_name
 
     @property
-    @abstractmethod
-    def system_prompt(self) -> Optional[str]:
-        """System prompt for this judge, None for human judge"""
+    def system_prompt(self) -> str:
+        return self._system_prompt
 
     @property
     @abstractmethod
@@ -43,11 +59,18 @@ class Judge(metaclass=ABCMeta):
         interact with this judge. Throw an exception if not.
         """
 
+    def log_usage(self) -> None:
+        logger.info(
+            f"'{self.name}' used {self._input_tokens} input tokens and {self._output_tokens} output tokens "
+            f"over {self._n_calls} calls",
+        )
 
-class WrappingJudge(Judge, metaclass=ABCMeta):
-    wrapped: Judge
 
-    def __init__(self, judge: Judge):
+class WrappingJudge(AutomatedJudge, metaclass=ABCMeta):
+    wrapped: AutomatedJudge
+
+    def __init__(self, judge: AutomatedJudge):
+        super().__init__(judge.model_name, judge.system_prompt)
         self.wrapped = judge
 
     @property
@@ -59,40 +82,16 @@ class WrappingJudge(Judge, metaclass=ABCMeta):
         return self.wrapped.name
 
     @property
-    def model_name(self) -> Optional[str]:
+    def model_name(self) -> str:
         return self.wrapped.model_name
 
     @property
-    def system_prompt(self) -> Optional[str]:
+    def system_prompt(self) -> str:
         return self.wrapped.system_prompt
 
     @property
     def description(self) -> str:
         return self.wrapped.description
 
-
-class AutomatedJudge(Judge, metaclass=ABCMeta):
-    API_KEY_NAME: Optional[str]  # if set, verify that this exists in environment on init
-
-    _model_name: str
-    _system_prompt: str
-
-    def __init__(self, model_name: str, system_prompt: str):
-        self._model_name = model_name
-        self._system_prompt = system_prompt
-        key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
-        if self.API_KEY_NAME is not None and key is None:
-            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
-            raise RuntimeError(message)
-
-    @property
-    def name(self) -> str:
-        return self._model_name
-
-    @property
-    def model_name(self) -> Optional[str]:
-        return self._model_name
-
-    @property
-    def system_prompt(self) -> Optional[str]:
-        return self._system_prompt
+    def log_usage(self) -> None:
+        self.wrapped.log_usage()

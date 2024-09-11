@@ -6,7 +6,6 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.error import NotFoundError, MigrationError
-from autoarena.judge.human import HumanJudge
 from autoarena.store.database import get_database_connection, get_data_directory, get_available_migrations
 
 
@@ -35,7 +34,7 @@ class ProjectService:
         path = data_directory / f"{request.name}.duckdb"
         slug = ProjectService._path_to_slug(path)
         ProjectService._setup_database(path)
-        JudgeService.create_idempotent(slug, HumanJudge())
+        JudgeService.create_human_judge(slug)
         return api.Project(slug=slug, filename=path.name, filepath=str(path))
 
     @staticmethod

@@ -8,7 +8,7 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.api.api import JudgeType
-from autoarena.judge.base import Judge
+from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.executor import ThreadedExecutor
 from autoarena.judge.factory import judge_factory
 from autoarena.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
@@ -101,7 +101,7 @@ class TaskService:
             for j in enabled_auto_judges:
                 TaskService.update(project_slug, task_id, f"  * {j.name}")
             wrappers = [RetryingJudge, FixingJudge, ABShufflingJudge]
-            judges: list[Judge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
+            judges: list[AutomatedJudge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
 
             # 3. get pairs eligible for judging
             df_h2hs = [HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=m.id)) for m in models]

@@ -16,7 +16,7 @@ from tenacity import stop_after_attempt
 from tenacity import wait_random_exponential
 
 from autoarena.api import api
-from autoarena.judge.base import Judge, WrappingJudge
+from autoarena.judge.base import WrappingJudge, AutomatedJudge
 
 BASIC_SYSTEM_PROMPT = """\
 You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
@@ -104,7 +104,7 @@ class FixingJudge(WrappingJudge):
     CLASSES = [A_IS_BETTER, B_IS_BETTER, TIE]
     CLASS_TO_WINNER = {A_IS_BETTER: "A", B_IS_BETTER: "B", TIE: "-"}
 
-    def __init__(self, judge: Judge):
+    def __init__(self, judge: AutomatedJudge):
         from transformers import pipeline
 
         super().__init__(judge)

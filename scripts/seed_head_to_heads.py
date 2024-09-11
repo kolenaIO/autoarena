@@ -2,7 +2,6 @@ import argparse
 from pathlib import Path
 
 import pandas as pd
-from tqdm import tqdm
 
 from autoarena.api import api
 from autoarena.judge.human import HumanJudge
@@ -22,7 +21,7 @@ def seed_head_to_heads(head_to_heads: Path) -> None:
     # 2. seed models
     models = set(df.model_a) & set(df.model_b)
     model_ids: list[int] = []
-    for model in tqdm(models, total=len(models), desc="seed models"):
+    for model in models:
         cols = ["prompt", "response"]
         df_model_response_a = df[df.model_a == model].rename(columns=dict(response_a="response"))[cols]
         df_model_response_b = df[df.model_b == model].rename(columns=dict(response_b="response"))[cols]

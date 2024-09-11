@@ -1,7 +1,14 @@
 import { Box, Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
-import { IconArrowDown, IconArrowLeft, IconArrowRight, IconBalloon, IconCactus } from '@tabler/icons-react';
+import {
+  IconArrowDown,
+  IconArrowLeft,
+  IconArrowRight,
+  IconArrowUp,
+  IconBalloon,
+  IconCactus,
+} from '@tabler/icons-react';
 import { useEffect, useMemo, useState } from 'react';
-import { useDisclosure, useHotkeys } from '@mantine/hooks';
+import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
@@ -25,6 +32,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const headToHead = useMemo(() => battles?.[headToHeadIndex], [battles, headToHeadIndex]);
   const nHeadToHeads: number = battles?.length ?? 0;
+  const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
 
   useEffect(() => {
     setHeadToHeadIndex(0);
@@ -52,6 +60,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
 
   useHotkeys([
     ['ArrowLeft', submitVote('A')],
+    ['ArrowUp', submitVote('-')],
     ['ArrowDown', submitVote('-')],
     ['ArrowRight', submitVote('B')],
     ['p', navigatePrevious],
@@ -86,7 +95,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     />
   ) : !isLoading ? (
     <>
-      <Stack pb={100} /* TODO: need more padding when there are more judge responses shown */>
+      <Stack pb={height + 32}>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
             {pluralize(nHeadToHeads, 'head-to-head')} between selected models
@@ -105,7 +114,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
         </SimpleGrid>
       </Stack>
 
-      <ControlBar>
+      <ControlBar ref={controlBarRef}>
         <Stack align="center" gap="xs">
           <Text fw="bold">Which response is better?</Text>
           <SimpleGrid cols={5} spacing="xs">
@@ -115,17 +124,23 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
               color="gray"
               onClick={navigatePrevious}
               disabled={headToHeadIndex < 1}
+              h="100%"
             >
               Previous
             </Button>
-            <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')}>
-              Left
+            <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')} h="100%">
+              Left is Better
             </Button>
-            <Button leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('-')}>
-              Tie
-            </Button>
-            <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')}>
-              Right
+            <Stack gap={4}>
+              <Button size="compact-xs" leftSection={<IconArrowUp {...iconProps} />} onClick={submitVote('-')}>
+                Both are Good
+              </Button>
+              <Button size="compact-xs" leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('-')}>
+                Both are Bad
+              </Button>
+            </Stack>
+            <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')} h="100%">
+              Right is Better
             </Button>
             <Button
               rightSection={<Kbd>n</Kbd>}
@@ -133,6 +148,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
               color="gray"
               onClick={navigateNext}
               disabled={headToHeadIndex >= nHeadToHeads - 1}
+              h="100%"
             >
               Next
             </Button>

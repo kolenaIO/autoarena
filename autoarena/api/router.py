@@ -1,12 +1,14 @@
+from collections import OrderedDict
 from io import BytesIO, StringIO
-from typing import Annotated, Optional
+from typing import Optional
 
 import pandas as pd
-from fastapi import APIRouter, UploadFile, Form, BackgroundTasks
+from fastapi import APIRouter, UploadFile, BackgroundTasks
+from starlette.requests import Request
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
-from autoarena.error import NotFoundError
+from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
 from autoarena.service.head_to_head import HeadToHeadService
@@ -42,16 +44,28 @@ def router() -> APIRouter:
     @r.post("/project/{project_slug}/model")
     async def upload_model_responses(
         project_slug: str,
-        file: UploadFile,
-        new_model_name: Annotated[str, Form()],
+        request: Request,
         background_tasks: BackgroundTasks,
-    ) -> api.Model:
-        if file.content_type != "text/csv":
-            raise ValueError(f"unsupported file type: {file.content_type}")
-        df_response = pd.read_csv(BytesIO(await file.read()))
-        new_model = ModelService.upload_responses(project_slug, new_model_name, df_response)
-        background_tasks.add_task(TaskService.auto_judge, project_slug, new_model.id, new_model.name)
-        return new_model
+    ) -> list[api.Model]:
+        # ideally there wouldn't be this much complexity in the router, but this is a complex form to parse
+        form = await request.form()
+        df_response_by_model_name: dict[str, pd.DataFrame] = OrderedDict()
+        for key, value in form.items():
+            model_name_slug = "||model_name"
+            if not key.endswith(model_name_slug):
+                continue
+            file: UploadFile = form[key[: -len(model_name_slug)]]
+            if file.content_type != "text/csv":
+                raise ValueError(f"unsupported file type: {file.content_type}")
+            df_response_by_model_name[value] = pd.read_csv(BytesIO(await file.read()))
+        if len(df_response_by_model_name) == 0:
+            raise BadRequestError("No valid model responses in body")
+        new_models = [
+            ModelService.upload_responses(project_slug, model_name, df_response)
+            for model_name, df_response in df_response_by_model_name.items()
+        ]
+        background_tasks.add_task(TaskService.auto_judge, project_slug, new_models)
+        return new_models
 
     @r.get("/project/{project_slug}/model/{model_id}/responses")
     def get_model_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
@@ -63,8 +77,8 @@ def router() -> APIRouter:
 
     @r.post("/project/{project_slug}/model/{model_id}/judge")
     def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
-        model_name = ModelService.get_by_id(project_slug, model_id).name
-        background_tasks.add_task(TaskService.auto_judge, project_slug, model_id, model_name)
+        model = ModelService.get_by_id(project_slug, model_id)
+        background_tasks.add_task(TaskService.auto_judge, project_slug, [model])
 
     @r.delete("/project/{project_slug}/model/{model_id}")
     def delete_model(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:

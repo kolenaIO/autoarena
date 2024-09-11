@@ -5,7 +5,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from autoarena.api import api
-from tests.integration.api.conftest import DF_RESPONSE
+from tests.integration.api.conftest import DF_RESPONSE, DF_RESPONSE_B, construct_upload_model_body
 
 
 @pytest.fixture
@@ -38,12 +38,21 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     ],
 )
 def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame) -> None:
-    buf = StringIO()
-    df_bad.to_csv(buf, index=False)
-    buf.seek(0)
-    data = dict(new_model_name="test-model-bad")
-    files = dict(file=("example.csv", buf.read()))
-    assert project_client.post("/model", data=data, files=files).status_code == 400
+    body = construct_upload_model_body(dict(bad=df_bad))
+    response = project_client.post("/model", data=body.data, files=body.files)
+    assert response.status_code == 400
+    assert "Missing required column(s)" in response.json()["detail"]
+
+
+def test__models__upload__multiple(project_client: TestClient) -> None:
+    body = construct_upload_model_body(dict(a=DF_RESPONSE, b=DF_RESPONSE_B))
+    models = project_client.post("/model", data=body.data, files=body.files).json()
+    assert len(models) == 2
+    assert models[0]["name"] == "a"
+    assert models[1]["name"] == "b"
+    assert models[0]["n_responses"] == len(DF_RESPONSE)
+    assert models[1]["n_responses"] == len(DF_RESPONSE_B)
+    assert models[0]["n_votes"] == models[1]["n_votes"] == 0
 
 
 def test__models__get_responses(project_client: TestClient, model_id: int) -> None:

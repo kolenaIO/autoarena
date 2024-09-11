@@ -9,8 +9,8 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { pluralize } from '../../lib/string.ts';
 import { getModelsQueryKey } from '../../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
+import { taskIsDone } from '../../lib/tasks.ts/utils.ts';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
-import { taskIsDone } from './utils.ts';
 
 export function TasksDrawer() {
   const { projectSlug } = useUrlState();

@@ -7,7 +7,7 @@ from loguru import logger
 class InterceptHandler(logging.Handler):
     """Intercept standard library log messages and emit via Loguru"""
 
-    def emit(self, record: logging.LogRecord):
+    def emit(self, record: logging.LogRecord) -> None:
         """See https://loguru.readthedocs.io/en/stable/overview.html#entirely-compatible-with-standard-logging"""
         try:
             level = logger.level(record.levelname).name
@@ -20,7 +20,7 @@ class InterceptHandler(logging.Handler):
         logger.opt(depth=depth, exception=record.exc_info).log(level, record.getMessage())
 
 
-def initialize_logger():
+def initialize_logger() -> None:
     # replace uvicorn loggers with InterceptHandler
     intercept_handler = InterceptHandler()
     loggers = [logging.getLogger(name) for name in logging.root.manager.loggerDict if name.startswith("uvicorn.")]

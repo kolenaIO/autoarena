@@ -20,7 +20,6 @@ keywords = [
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -66,11 +65,14 @@ dev = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/kolenaIO/autoarena"
+Homepage = "https://www.kolena.com/autoarena"
 Repository = "https://github.com/kolenaIO/autoarena.git"
 
 [tool.ruff]
 line-length = 120
+
+[tool.mypy]
+disallow_untyped_defs = true
 
 [build-system]
 requires = ["hatchling"]

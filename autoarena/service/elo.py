@@ -1,12 +1,11 @@
 import time
 from collections import defaultdict
-from typing import Literal, Optional
+from typing import Literal
 
 import pandas as pd
 from pydantic.dataclasses import dataclass
 from loguru import logger
 
-from autoarena.api import api
 from autoarena.service.project import ProjectService
 
 
@@ -65,30 +64,6 @@ class EloService:
                     q975 = EXCLUDED.q975;
             """,
             )
-
-    @staticmethod
-    def get_history(
-        project_slug: str,
-        model_id: int,
-        judge_id: Optional[int],
-        config: EloConfig = DEFAULT_ELO_CONFIG,
-    ) -> list[api.EloHistoryItem]:
-        df_h2h = EloService.get_df_head_to_head(project_slug)
-        if judge_id is not None:
-            df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
-        rating: dict[int, float] = defaultdict(lambda: config.default_score)
-        history: list[api.EloHistoryItem] = []
-        for r in df_h2h.itertuples():
-            id_a, id_b = r.model_a_id, r.model_b_id
-            elo_a, elo_b = EloService.compute_elo_single(rating[id_a], rating[id_b], r.winner, config=config)
-            rating[id_a] = elo_a
-            rating[id_b] = elo_b
-            kw = dict(judge_id=r.judge_id, judge_name=r.judge_name)
-            if id_a == model_id:
-                history.append(api.EloHistoryItem(other_model_id=id_b, other_model_name=r.model_b, elo=elo_a, **kw))
-            if id_b == model_id:
-                history.append(api.EloHistoryItem(other_model_id=id_a, other_model_name=r.model_a, elo=elo_b, **kw))
-        return history
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
     @staticmethod

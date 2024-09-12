@@ -5,7 +5,6 @@ import { prop, sortBy } from 'ramda';
 import { IconCactus } from '@tabler/icons-react';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
-import { ModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { useJudge } from '../../hooks/useJudge.ts';
 
@@ -47,8 +46,7 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
         },
       };
     }, {});
-    const statsValues = Object.values(statsEnhanced);
-    return sortBy<ModelHeadToHeadStats>(prop('sortSlug'))(statsValues).reverse();
+    return sortBy<ChartRecord>(prop('sortSlug'))(Object.values(statsEnhanced)).reverse();
   }, [headToHeadStats, judgeId]);
 
   const isDisabled = plotStats.length == 0;

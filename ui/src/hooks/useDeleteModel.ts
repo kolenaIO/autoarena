@@ -2,7 +2,6 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { getProjectUrl } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
-import { getModelEloHistoryQueryKey } from './useModelEloHistory.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 
 function getDeleteModelQueryKey(projectSlug: string) {
@@ -37,8 +36,7 @@ export function useDeleteModel({ projectSlug, options = {} }: Params) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelEloHistoryQueryKey(projectSlug) }); // invalidate all
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
     },
     ...options,
   });

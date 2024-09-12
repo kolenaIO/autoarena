@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from io import BytesIO, StringIO
-from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, BackgroundTasks
@@ -70,10 +69,6 @@ def router() -> APIRouter:
     @r.get("/project/{project_slug}/model/{model_id}/responses")
     def get_model_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
         return ModelService.get_responses(project_slug, model_id)
-
-    @r.get("/project/{project_slug}/model/{model_id}/elo-history")
-    def get_elo_history(project_slug: str, model_id: int, judge_id: Optional[int] = None) -> list[api.EloHistoryItem]:
-        return EloService.get_history(project_slug, model_id, judge_id)
 
     @r.post("/project/{project_slug}/model/{model_id}/judge")
     def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:

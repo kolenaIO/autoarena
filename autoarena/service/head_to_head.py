@@ -6,7 +6,6 @@ from loguru import logger
 from autoarena.api import api
 from autoarena.error import BadRequestError
 from autoarena.service.elo import EloService
-from autoarena.judge.human import HumanJudge
 from autoarena.service.project import ProjectService
 from autoarena.store.utils import id_slug, check_required_columns
 
@@ -75,17 +74,16 @@ class HeadToHeadService:
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
         with ProjectService.connect(project_slug) as conn:
             # 1. insert head-to-head record
-            human_judge = HumanJudge()
             conn.execute(
                 """
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                 SELECT ID_SLUG($response_a_id, $response_b_id), $response_a_id, $response_b_id, j.id, $winner
                 FROM judge j
-                WHERE j.name = $judge_name
+                WHERE j.judge_type = $judge_type
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
                     winner = IF(response_a_id = $response_b_id, INVERT_WINNER(EXCLUDED.winner), EXCLUDED.winner)
             """,
-                dict(**dataclasses.asdict(request), judge_name=human_judge.name),
+                dict(**dataclasses.asdict(request), judge_type=api.JudgeType.HUMAN.value),
             )
 
             # 2. adjust elo scores

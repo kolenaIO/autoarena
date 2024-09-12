@@ -1,7 +1,5 @@
 from openai import OpenAI
 
-from autoarena.api import api
-from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, rate_limit
 
@@ -13,26 +11,22 @@ class OpenAIJudge(AutomatedJudge):
         super().__init__(model_name, system_prompt)
         self._client = OpenAI()
 
-    @property
-    def judge_type(self) -> JudgeType:
-        return JudgeType.OPENAI
-
-    @property
-    def description(self) -> str:
-        return f"OpenAI judge model '{self.name}'"
-
     @staticmethod
     def verify_environment() -> None:
         OpenAI().models.list()
 
     # OpenAI has different tiers and different rate limits for different models, choose a safeish value
     @rate_limit(n_calls=1_000, n_seconds=60)
-    def judge(self, h2h: api.HeadToHead) -> str:
+    def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response = self._client.chat.completions.create(
             model=self.model_name,
             messages=[
                 dict(role="system", content=self.system_prompt),
-                dict(role="user", content=get_user_prompt(h2h)),
+                dict(role="user", content=get_user_prompt(prompt, response_a, response_b)),
             ],
+            max_tokens=self.MAX_TOKENS,
         )
+        self.n_calls += 1
+        self.total_input_tokens += response.usage.prompt_tokens
+        self.total_output_tokens += response.usage.completion_tokens
         return response.choices[0].message.content

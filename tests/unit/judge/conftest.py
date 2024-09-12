@@ -1,34 +1,21 @@
-from typing import Optional
+from typing import TypeVar
 
-from autoarena.api import api
-from autoarena.api.api import JudgeType
-from autoarena.judge.base import Judge
+from autoarena.judge.base import AutomatedJudge
+
+T = TypeVar("T", bound="DummyJudge")
 
 
-class DummyJudge(Judge):
-    def __init__(self, winners: list[str], name: str = "DummyJudge"):
-        self._winners = [*winners]
-        self._name = name
+class DummyJudge(AutomatedJudge):
+    winners: list[str]
 
-    @property
-    def judge_type(self) -> JudgeType:
-        return JudgeType.CUSTOM
+    def __init__(self, model_name: str, system_prompt: str):
+        super().__init__(model_name, system_prompt)
 
-    @property
-    def name(self) -> str:
-        return self._name
+    def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+        return self.winners.pop(0)
 
-    @property
-    def model_name(self) -> Optional[str]:
-        return None
-
-    @property
-    def system_prompt(self) -> Optional[str]:
-        return None
-
-    @property
-    def description(self) -> str:
-        return "judge for testing"
-
-    def judge(self, h2h: api.HeadToHead) -> str:
-        return self._winners.pop(0)
+    @classmethod
+    def create(cls: type[T], winners: list[str]) -> T:
+        instance = cls("DummyJudge", "could be anything really")
+        instance.winners = [*winners]
+        return instance

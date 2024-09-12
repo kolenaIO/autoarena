@@ -3,7 +3,6 @@ from pathlib import Path
 import pandas as pd
 
 from autoarena.api import api
-from autoarena.judge.human import HumanJudge
 from autoarena.service.elo import EloService
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
@@ -41,7 +40,7 @@ def seed_head_to_heads(head_to_heads: Path) -> None:
     df = df.dropna(subset=["response_a_id", "response_b_id"])
     df[["response_a_id", "response_b_id"]] = df[["response_a_id", "response_b_id"]].astype(int)
     # TODO: allow seeding with non-human judgements?
-    df["judge_id"] = [j for j in JudgeService.get_all(project_slug) if j.name == HumanJudge().name][0].id
+    df["judge_id"] = [j for j in JudgeService.get_all(project_slug) if j.judge_type is api.JudgeType.HUMAN][0].id
     HeadToHeadService.upload_head_to_heads(project_slug, df[["response_a_id", "response_b_id", "judge_id", "winner"]])
 
     # 4. seed elo scores

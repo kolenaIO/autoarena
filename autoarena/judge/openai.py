@@ -39,8 +39,8 @@ class OpenAIJudge(AutomatedJudge):
         self._handle_rate_limit(dict(response_raw.headers))
         return response.choices[0].message.content
 
-    # TODO: this should handle backoff for request rate limit, but the API surfaces the per-day, not the per-minute
-    #  request rate limits and those aren't really actionable (hours until reset)
+    # NOTE: ideally this would handle backoff for request rate limit, but the API surfaces the per-day, not the
+    #  per-minute request rate limits and those aren't really actionable (hours until reset)
     @staticmethod
     def _handle_rate_limit(headers: dict[str, str]) -> None:
         try:

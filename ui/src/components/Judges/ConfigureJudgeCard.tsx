@@ -12,7 +12,7 @@ export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {
   const imageUrl = judgeTypeToCoverImageUrl(judgeType);
   return (
     <UnstyledButton onClick={onClick}>
-      <Card withBorder h="100%" className={styles.ConfigureJudgeCard} shadow="sm">
+      <Card withBorder h="100%" className={styles.ConfigureJudgeCard}>
         {imageUrl != null && (
           <Card.Section>
             <Image src={imageUrl} alt={judgeTypeToHumanReadableName(judgeType)} height={120} draggable={false} />

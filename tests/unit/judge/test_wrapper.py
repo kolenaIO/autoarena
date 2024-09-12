@@ -1,25 +1,22 @@
 import pytest
 
-from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 
 from autoarena.judge.wrapper import ab_shuffling_wrapper, cleaning_wrapper, retrying_wrapper
 from tests.unit.judge.conftest import DummyJudge
-from tests.unit.judge.test_utils import DUMMY_H2H
 
 
 def test__ab_shuffling_wrapper() -> None:
-    class TracksWhatItSawDummyJudge(AutomatedJudge):
+    class TracksWhatItSawAndVotesForAJudge(AutomatedJudge):
         seen: list[tuple[str, str]] = []
 
-        def judge(self, h2h: api.HeadToHead) -> str:
-            self.seen.append((h2h.response_a, h2h.response_b))
-            return "A" if h2h.response_a == "a" else "B" if h2h.response_b == "a" else "-"
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+            self.seen.append((response_a, response_b))
+            return "A" if response_a == "a" else "B" if response_b == "a" else "-"
 
-    judge = ab_shuffling_wrapper(TracksWhatItSawDummyJudge)("name", "system_prompt")
-    tie_h2h = api.HeadToHead(prompt="p", response_a="neither", response_b="neither", response_a_id=-2, response_b_id=-1)
-    assert judge.judge(tie_h2h) == "-"  # ties should not be shuffled
-    actual = [judge.judge(DUMMY_H2H) for _ in range(100)]
+    judge = ab_shuffling_wrapper(TracksWhatItSawAndVotesForAJudge)("name", "system_prompt")
+    assert judge.judge("ignored", "neither", "not me") == "-"  # ties should not be shuffled
+    actual = [judge.judge("ignored", "a", "b") for _ in range(100)]
     assert all([winner == "A" for winner in actual])  # expect all A winners, as it always voted for A, even if A was B
     assert any([a == "a" for a, b in judge.seen])  # expect that it saw response A and response B shuffled
     assert any([a == "b" for a, b in judge.seen])
@@ -45,7 +42,7 @@ def test__ab_shuffling_wrapper() -> None:
 )
 def test__cleaning_wrapper(raw: str, expected: str) -> None:
     test_judge = cleaning_wrapper(DummyJudge).create([raw])
-    assert test_judge.judge(DUMMY_H2H) == expected
+    assert test_judge.judge("ignored", "a", "b") == expected
 
 
 def test__retrying_wrapper() -> None:
@@ -54,7 +51,7 @@ def test__retrying_wrapper() -> None:
             super().__init__(model_name, system_prompt)
             self.n_runs = 0
 
-        def judge(self, h2h: api.HeadToHead) -> str:
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
             self.n_runs += 1
             if self.n_runs < 2:
                 raise RuntimeError
@@ -62,7 +59,7 @@ def test__retrying_wrapper() -> None:
 
     judge: AutomatedJudge = FailsOnceDummyJudge.create(["A"])
     with pytest.raises(RuntimeError):
-        judge.judge(DUMMY_H2H)
+        judge.judge("p", "a", "b")
 
     judge = retrying_wrapper(FailsOnceDummyJudge).create(["A"])
-    assert judge.judge(DUMMY_H2H) == "A"
+    assert judge.judge("p", "a", "b") == "A"

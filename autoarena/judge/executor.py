@@ -26,7 +26,7 @@ class BlockingExecutor(Executor):
     ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
         for judge in judges:
             for h2h in head_to_heads:
-                yield judge, h2h, judge.judge(h2h)
+                yield judge, h2h, judge.judge(h2h.prompt, h2h.response_a, h2h.response_b)
 
 
 class ThreadedExecutor(Executor):
@@ -42,7 +42,7 @@ class ThreadedExecutor(Executor):
 
         def run(h2h_with_judge: tuple[api.HeadToHead, AutomatedJudge]) -> tuple[AutomatedJudge, api.HeadToHead, str]:
             h, j = h2h_with_judge
-            return j, h, j.judge(h)
+            return j, h, j.judge(h.prompt, h.response_a, h.response_b)
 
         futures = [self.pool.submit(run, h2h_w_j) for h2h_w_j in h2h_with_judges]
         for future in concurrent.futures.as_completed(futures):

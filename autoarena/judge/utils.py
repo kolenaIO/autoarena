@@ -11,7 +11,6 @@ else:
 
 from loguru import logger
 
-from autoarena.api import api
 
 BASIC_SYSTEM_PROMPT = """\
 You are a human preference judge tasked with deciding which of the two assistant responses, A or B, better responds to the user's prompt.
@@ -41,8 +40,8 @@ JOINED_PROMPT_TEMPLATE = """\
 ACCEPTABLE_RESPONSES = {"A", "B", "-"}
 
 
-def get_user_prompt(h2h: api.HeadToHead) -> str:
-    return USER_PROMPT_TEMPLATE.format(prompt=h2h.prompt, response_a=h2h.response_a, response_b=h2h.response_b)
+def get_user_prompt(prompt: str, response_a: str, response_b: str) -> str:
+    return USER_PROMPT_TEMPLATE.format(prompt=prompt, response_a=response_a, response_b=response_b)
 
 
 def rate_limit(

@@ -4,7 +4,6 @@ import numpy as np
 from loguru import logger
 from tenacity import retry, wait_random_exponential, stop_after_attempt, RetryCallState
 
-from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import ACCEPTABLE_RESPONSES
 
@@ -17,24 +16,14 @@ def ab_shuffling_wrapper(judge_class: type[T]) -> type[T]:
     class ABShufflingJudge(judge_class):  # type: ignore
         """Randomly shuffles which is A and which is B before passing to another judge."""
 
-        def judge(self, h2h: api.HeadToHead) -> str:
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
             shuffled = np.random.randint(2) == 0
-            shuffled_h2h = self._shuffle_h2h(h2h) if shuffled else h2h
-            winner = super().judge(shuffled_h2h)
-            return self._shuffle_winner(winner) if shuffled else winner
+            ra, rb = (response_b, response_a) if shuffled else (response_a, response_b)
+            winner = super().judge(prompt, ra, rb)
+            return self._unshuffle_winner(winner) if shuffled else winner
 
         @staticmethod
-        def _shuffle_h2h(h2h: api.HeadToHead) -> api.HeadToHead:
-            return api.HeadToHead(
-                prompt=h2h.prompt,
-                response_a_id=h2h.response_b_id,
-                response_a=h2h.response_b,
-                response_b_id=h2h.response_a_id,
-                response_b=h2h.response_a,
-            )
-
-        @staticmethod
-        def _shuffle_winner(winner: str) -> str:
+        def _unshuffle_winner(winner: str) -> str:
             return "B" if winner == "A" else "A" if winner == "B" else "-"
 
     return ABShufflingJudge
@@ -48,8 +37,8 @@ def cleaning_wrapper(judge_class: type[T]) -> type[T]:
     class CleaningJudge(judge_class):  # type: ignore
         """Attempt to clean raw responses from other judges"""
 
-        def judge(self, h2h: api.HeadToHead) -> str:
-            winner_raw = super().judge(h2h)
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+            winner_raw = super().judge(prompt, response_a, response_b)
             winner = clean_judgement(winner_raw)
             if winner in ACCEPTABLE_RESPONSES:
                 return winner
@@ -78,8 +67,8 @@ def fixing_wrapper(judge_class: type[T]) -> type[T]:
             super().__init__(model_name, system_prompt)
             self.pipe = pipeline(model=self.CLASSIFIER_MODEL, device="cpu")
 
-        def judge(self, h2h: api.HeadToHead) -> str:
-            winner_raw = super().judge(h2h)
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+            winner_raw = super().judge(prompt, response_a, response_b)
             winner = clean_judgement(winner_raw)
             if winner not in ACCEPTABLE_RESPONSES:
                 classifications = self.pipe(winner_raw, candidate_labels=self.CLASSES)
@@ -92,12 +81,12 @@ def fixing_wrapper(judge_class: type[T]) -> type[T]:
 
 def retrying_wrapper(judge_class: type[T]) -> type[T]:
     class RetryingJudge(judge_class):  # type: ignore
-        def judge(self, h2h: api.HeadToHead) -> str:
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
             @retry(wait=wait_random_exponential(min=2, max=10), stop=stop_after_attempt(3), after=self._log_retry)
-            def judge_inner(h: api.HeadToHead) -> str:
-                return super(RetryingJudge, self).judge(h)
+            def judge_inner(p: str, ra: str, rb: str) -> str:
+                return super(RetryingJudge, self).judge(p, ra, rb)
 
-            return judge_inner(h2h)
+            return judge_inner(prompt, response_a, response_b)
 
         def _log_retry(self, retry_state: RetryCallState) -> None:
             message = f"Retrying '{self.name}' attempt {retry_state.attempt_number} (error: {retry_state.outcome})"

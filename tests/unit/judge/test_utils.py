@@ -2,10 +2,7 @@ import time
 
 import pytest
 
-from autoarena.api import api
 from autoarena.judge.utils import rate_limit
-
-DUMMY_H2H = api.HeadToHead(prompt="test prompt", response_a_id=-1, response_b_id=-2, response_a="a", response_b="b")
 
 
 def test__rate_limit() -> None:

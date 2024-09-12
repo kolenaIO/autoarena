@@ -2,8 +2,6 @@ import os
 
 import google.generativeai as genai
 
-from autoarena.api import api
-from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
 
@@ -16,14 +14,6 @@ class GeminiJudge(AutomatedJudge):
         genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
         self._model = genai.GenerativeModel(model_name)
 
-    @property
-    def judge_type(self) -> JudgeType:
-        return JudgeType.GEMINI
-
-    @property
-    def description(self) -> str:
-        return f"Google Gemini judge model '{self.name}'"
-
     @staticmethod
     def verify_environment() -> None:
         genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
@@ -31,10 +21,11 @@ class GeminiJudge(AutomatedJudge):
         list(genai.list_models(page_size=1))
 
     @rate_limit(n_calls=1_000, n_seconds=60)
-    def judge(self, h2h: api.HeadToHead) -> str:
-        prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=get_user_prompt(h2h))
+    def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+        user_prompt = get_user_prompt(prompt, response_a, response_b)
+        full_prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=user_prompt)
         response = self._model.generate_content(
-            prompt,
+            full_prompt,
             generation_config=dict(max_output_tokens=self.MAX_TOKENS, temperature=0.0),
             safety_settings={
                 genai.types.HarmCategory.HARM_CATEGORY_HATE_SPEECH: genai.types.HarmBlockThreshold.BLOCK_NONE,

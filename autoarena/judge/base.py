@@ -1,13 +1,11 @@
 import os
-from abc import abstractmethod
+from abc import abstractmethod, ABCMeta
 from typing import Optional
 
 from loguru import logger
 
-from autoarena.api import api
 
-
-class AutomatedJudge:
+class AutomatedJudge(metaclass=ABCMeta):
     API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
     MAX_TOKENS = 12  # should really just need one or two
 
@@ -26,7 +24,7 @@ class AutomatedJudge:
         self.total_output_tokens = 0
         key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
         if self.API_KEY_NAME is not None and key is None:
-            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
+            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self}'"
             raise RuntimeError(message)
 
     @property
@@ -42,7 +40,7 @@ class AutomatedJudge:
         return self._system_prompt
 
     @abstractmethod
-    def judge(self, h2h: api.HeadToHead) -> str:  # TODO: return more information than just winner?
+    def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         raise NotImplementedError
 
     @staticmethod

@@ -1,7 +1,6 @@
 from loguru import logger
 
 from autoarena.api import api
-from autoarena.judge.base import Judge
 from autoarena.judge.factory import verify_judge_type_environment
 from autoarena.judge.utils import BASIC_SYSTEM_PROMPT
 from autoarena.service.project import ProjectService
@@ -72,25 +71,24 @@ class JudgeService:
             n_votes=0,
         )
 
+    # TODO: is this necessary?
     @staticmethod
-    def create_idempotent(project_slug: str, judge: Judge) -> api.Judge:
+    def create_human_judge(project_slug: str) -> api.Judge:
         with ProjectService.connect(project_slug) as conn:
             conn.execute(
                 """
-                INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
-                VALUES ($judge_type, $name, $model_name, $system_prompt, $description, TRUE)
+                INSERT INTO judge (judge_type, name, description, enabled)
+                VALUES ($judge_type, $name, $description, TRUE)
                 ON CONFLICT (name) DO NOTHING
             """,
                 dict(
-                    judge_type=judge.judge_type.value,
-                    name=judge.name,
-                    model_name=judge.model_name,
-                    system_prompt=judge.system_prompt,
-                    description=judge.description,
+                    judge_type=api.JudgeType.HUMAN.value,
+                    name=api.JudgeType.HUMAN.value,
+                    description="Manual ratings submitted via the head-to-head tab",
                 ),
             )
         # TODO: this is a little lazy but ¯\_(ツ)_/¯
-        return [j for j in JudgeService.get_all(project_slug) if j.name == judge.name][0]
+        return [j for j in JudgeService.get_all(project_slug) if j.judge_type is api.JudgeType.HUMAN][0]
 
     @staticmethod
     def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:

@@ -5,28 +5,28 @@ from concurrent.futures import ThreadPoolExecutor
 from typing import Iterator
 
 from autoarena.api import api
-from autoarena.judge.base import Judge
+from autoarena.judge.base import AutomatedJudge
 
 
 class Executor(metaclass=ABCMeta):
     @abstractmethod
     def execute(
         self,
-        judges: list[Judge],
+        judges: list[AutomatedJudge],
         head_to_heads: list[api.HeadToHead],
-    ) -> Iterator[tuple[Judge, api.HeadToHead, str]]:
+    ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
         """Yield responses (winners) from judges as they are ready"""
 
 
 class BlockingExecutor(Executor):
     def execute(
         self,
-        judges: list[Judge],
+        judges: list[AutomatedJudge],
         head_to_heads: list[api.HeadToHead],
-    ) -> Iterator[tuple[Judge, api.HeadToHead, str]]:
+    ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
         for judge in judges:
             for h2h in head_to_heads:
-                yield judge, h2h, judge.judge(h2h)
+                yield judge, h2h, judge.judge(h2h.prompt, h2h.response_a, h2h.response_b)
 
 
 class ThreadedExecutor(Executor):
@@ -35,14 +35,14 @@ class ThreadedExecutor(Executor):
 
     def execute(
         self,
-        judges: list[Judge],
+        judges: list[AutomatedJudge],
         head_to_heads: list[api.HeadToHead],
-    ) -> Iterator[tuple[Judge, api.HeadToHead, str]]:
+    ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
         h2h_with_judges = list(itertools.product(head_to_heads, judges))
 
-        def run(h2h_with_judge: tuple[api.HeadToHead, Judge]) -> tuple[Judge, api.HeadToHead, str]:
+        def run(h2h_with_judge: tuple[api.HeadToHead, AutomatedJudge]) -> tuple[AutomatedJudge, api.HeadToHead, str]:
             h, j = h2h_with_judge
-            return j, h, j.judge(h)
+            return j, h, j.judge(h.prompt, h.response_a, h.response_b)
 
         futures = [self.pool.submit(run, h2h_w_j) for h2h_w_j in h2h_with_judges]
         for future in concurrent.futures.as_completed(futures):

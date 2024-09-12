@@ -8,10 +8,9 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.api.api import JudgeType
-from autoarena.judge.base import Judge
 from autoarena.judge.executor import ThreadedExecutor
 from autoarena.judge.factory import judge_factory
-from autoarena.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
+from autoarena.judge.wrapper import ab_shuffling_wrapper, fixing_wrapper, retrying_wrapper
 from autoarena.service.elo import EloService
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
@@ -100,8 +99,8 @@ class TaskService:
             TaskService.update(project_slug, task_id, f"Using {len(enabled_auto_judges)} judge(s):")
             for j in enabled_auto_judges:
                 TaskService.update(project_slug, task_id, f"  * {j.name}")
-            wrappers = [RetryingJudge, FixingJudge, ABShufflingJudge]
-            judges: list[Judge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
+            wrappers = [retrying_wrapper, fixing_wrapper, ab_shuffling_wrapper]
+            judges = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
 
             # 3. get pairs eligible for judging
             df_h2hs = [HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=m.id)) for m in models]
@@ -121,7 +120,7 @@ class TaskService:
                 api.HeadToHead(**r)
                 for _, r in df_h2h[["prompt", "response_a_id", "response_a", "response_b_id", "response_b"]].iterrows()
             ]
-            executor = ThreadedExecutor(8)
+            executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
             n_h2h = len(head_to_heads)
             n_total = n_h2h * len(judges)
@@ -140,6 +139,7 @@ class TaskService:
                         f"{time.time() - t_start_judging:0.1f} seconds"
                     )
                     TaskService.update(project_slug, task_id, message, progress=progress)
+                    judge.log_usage()
 
             # TODO: stream to database?
             # 5. upload judgements to database

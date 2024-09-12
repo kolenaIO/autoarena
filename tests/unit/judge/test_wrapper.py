@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from autoarena.api import api
@@ -10,20 +9,18 @@ from tests.unit.judge.test_utils import DUMMY_H2H
 
 
 def test__ab_shuffling_wrapper() -> None:
-    class TracksWhatItSawDummyJudge(DummyJudge):
+    class TracksWhatItSawDummyJudge(AutomatedJudge):
         seen: list[tuple[str, str]] = []
 
         def judge(self, h2h: api.HeadToHead) -> str:
             self.seen.append((h2h.response_a, h2h.response_b))
-            return self.winners.pop(0)
+            return "A" if h2h.response_a == "a" else "B" if h2h.response_b == "a" else "-"
 
-    expected = ["A"] * 100
-    judge = ab_shuffling_wrapper(TracksWhatItSawDummyJudge).create(expected)
-    actual = [judge.judge(DUMMY_H2H) for _ in range(len(expected))]
-    assert len(actual) == len(expected)
-    assert np.array_equal((np.array(actual) == "-"), (np.array(expected) == "-"))  # ties should not be shuffled
-    assert any([winner == "A" for winner in actual])  # expect both A and B winners, despite only returning A
-    assert any([winner == "B" for winner in actual])
+    judge = ab_shuffling_wrapper(TracksWhatItSawDummyJudge)("name", "system_prompt")
+    tie_h2h = api.HeadToHead(prompt="p", response_a="neither", response_b="neither", response_a_id=-2, response_b_id=-1)
+    assert judge.judge(tie_h2h) == "-"  # ties should not be shuffled
+    actual = [judge.judge(DUMMY_H2H) for _ in range(100)]
+    assert all([winner == "A" for winner in actual])  # expect all A winners, as it always voted for A, even if A was B
     assert any([a == "a" for a, b in judge.seen])  # expect that it saw response A and response B shuffled
     assert any([a == "b" for a, b in judge.seen])
     assert any([b == "a" for a, b in judge.seen])

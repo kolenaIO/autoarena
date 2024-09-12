@@ -69,7 +69,6 @@ class ModelService:
         df_h2h = EloService.get_df_head_to_head(project_slug)
         df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
         df_elo = EloService.compute_elo(df_h2h)
-        df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)  # TODO: is this too expensive?
         df_model = ModelService.get_all_df(project_slug)
         df_out = pd.merge(df_model, df_elo, left_on="name", right_on="model", how="left")
         df_out[["elo", "q025", "q975"]] = df_out[["elo_y", "q025_y", "q975_y"]]

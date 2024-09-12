@@ -99,39 +99,6 @@ def test__models__get_ranked_by_judge(
         assert model["q975"] is not None
 
 
-def test__models__get_elo_history(
-    project_client: TestClient,
-    model_id: int,
-    model_b_id: int,
-    n_model_a_votes: int,
-) -> None:
-    history = project_client.get(f"/model/{model_id}/elo-history").json()
-    judges = project_client.get("/judges").json()
-    assert len(history) == n_model_a_votes
-    assert all(h["other_model_id"] == model_b_id for h in history)
-    assert all(h["judge_id"] == judges[0]["id"] for h in history)
-    for i in range(1, len(history)):
-        assert history[i]["elo"] > history[i - 1]["elo"]  # score should be increasing as all votes are for this model
-
-
-def test__models__get_elo_history__with_judge(
-    project_client: TestClient,
-    model_id: int,
-    model_b_id: int,
-    n_model_a_votes: int,
-    judge_id: int,
-) -> None:
-    history = project_client.get(f"/model/{model_id}/elo-history").json()
-    judges = project_client.get("/judges").json()
-    params = dict(judge_id=str(judges[0]["id"]))
-    history_with_judge = project_client.get(f"/model/{model_id}/elo-history", params=params).json()
-    assert history == history_with_judge  # in this case, they're the same, since no other judges have voted
-
-    # no votes, no history
-    params = dict(judge_id=str(judge_id))
-    assert project_client.get(f"/model/{model_id}/elo-history", params=params).json() == []
-
-
 def test__models__download_head_to_heads_csv(
     project_client: TestClient,
     model_id: int,

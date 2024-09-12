@@ -24,7 +24,7 @@ class AutomatedJudge(metaclass=ABCMeta):
         self.total_output_tokens = 0
         key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
         if self.API_KEY_NAME is not None and key is None:
-            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self}'"
+            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
             raise RuntimeError(message)
 
     @property

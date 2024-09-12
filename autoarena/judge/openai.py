@@ -43,17 +43,20 @@ class OpenAIJudge(AutomatedJudge):
     #  request rate limits and those aren't really actionable (hours until reset)
     @staticmethod
     def _handle_rate_limit(headers: dict[str, str]) -> None:
-        request_limit = int(headers.get("x-ratelimit-remaining-requests", 1e6))
-        if request_limit < 50:
-            request_limit_reset = headers.get("x-ratelimit-reset-requests")
-            logger.warning(
-                f"Approaching OpenAI request rate limit: {request_limit} remaining, resets in {request_limit_reset}"
-            )
-        token_limit = int(headers.get("x-ratelimit-remaining-tokens", 1e6))
-        if token_limit < 5_000:
-            token_limit_reset = headers.get("x-ratelimit-reset-tokens")
-            logger.warning(
-                f"Approaching OpenAI token rate limit: {token_limit} remaining, backing off for {token_limit_reset}"
-            )
-            sleep_seconds = timeparse(token_limit_reset) or 1
-            time.sleep(sleep_seconds)
+        try:
+            request_limit = int(headers.get("x-ratelimit-remaining-requests", 1e6))
+            if request_limit < 50:
+                request_limit_reset = headers.get("x-ratelimit-reset-requests")
+                logger.warning(
+                    f"Approaching OpenAI request rate limit: {request_limit} remaining, resets in {request_limit_reset}"
+                )
+            token_limit = int(headers.get("x-ratelimit-remaining-tokens", 1e6))
+            if token_limit < 5_000:
+                token_limit_reset = headers.get("x-ratelimit-reset-tokens")
+                logger.warning(
+                    f"Approaching OpenAI token rate limit: {token_limit} remaining, backing off for {token_limit_reset}"
+                )
+                sleep_seconds = timeparse(token_limit_reset) or 0
+                time.sleep(sleep_seconds)
+        except Exception:  # don't let this crash the program as it's not clear that these headers are stable
+            pass

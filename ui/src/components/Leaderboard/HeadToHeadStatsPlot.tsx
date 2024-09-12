@@ -52,6 +52,11 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
     return sortBy<ChartRecord>(prop('sortSlug'))(Object.values(statsEnhanced)).reverse();
   }, [headToHeadStats, judgeId]);
 
+  const chartMaxCount = useMemo(
+    () => plotStats.reduce((acc, { nWins, nLosses, nTies }) => Math.max(acc, nWins + nLosses + nTies), 0),
+    [plotStats]
+  );
+
   function handleBarClick({ opponentId }: ChartRecord) {
     navigate(`/project/${projectSlug}/compare?modelA=${modelId}&modelB=${opponentId}`);
   }
@@ -83,7 +88,8 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
           type={isPercentage ? 'percent' : 'stacked'}
           cursorFill={isDisabled ? 'transparent' : undefined}
           tooltipAnimationDuration={200}
-          barProps={{ onClick: handleBarClick }}
+          barProps={{ onClick: handleBarClick, style: { cursor: 'pointer' } }}
+          yAxisProps={isPercentage ? {} : { domain: [0, chartMaxCount] }}
           series={[
             { name: 'nWins', label: '# Wins', color: 'green.3' },
             { name: 'nTies', label: '# Ties', color: 'gray.3' },

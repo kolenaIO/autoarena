@@ -30,16 +30,19 @@ class OpenAIJudge(AutomatedJudge):
                 dict(role="user", content=get_user_prompt(prompt, response_a, response_b)),
             ],
             max_tokens=self.MAX_TOKENS,
+            timeout=httpx.Timeout(30),  # time out in 30 seconds
         )
         response = response_raw.parse()
         self.n_calls += 1
         self.total_input_tokens += response.usage.prompt_tokens
         self.total_output_tokens += response.usage.completion_tokens
-        self._handle_rate_limit(response_raw.headers)
+        self._handle_rate_limit(dict(response_raw.headers))
         return response.choices[0].message.content
 
+    # TODO: this should handle backoff for request rate limit, but the API surfaces the per-day, not the per-minute
+    #  request rate limits and those aren't really actionable (hours until reset)
     @staticmethod
-    def _handle_rate_limit(headers: httpx.Headers) -> None:
+    def _handle_rate_limit(headers: dict[str, str]) -> None:
         request_limit = int(headers.get("x-ratelimit-remaining-requests", 1e6))
         if request_limit < 50:
             request_limit_reset = headers.get("x-ratelimit-reset-requests")
@@ -52,4 +55,5 @@ class OpenAIJudge(AutomatedJudge):
             logger.warning(
                 f"Approaching OpenAI token rate limit: {token_limit} remaining, backing off for {token_limit_reset}"
             )
-            time.sleep(timeparse(token_limit_reset))
+            sleep_seconds = timeparse(token_limit_reset) or 1
+            time.sleep(sleep_seconds)

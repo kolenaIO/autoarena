@@ -48,8 +48,7 @@ class EloService:
     @staticmethod
     def reseed_scores(project_slug: str) -> None:
         df_h2h = EloService.get_df_head_to_head(project_slug)
-        df_elo = EloService.compute_elo(df_h2h)
-        df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)
+        df_elo = EloService.compute_elo(df_h2h)  # noqa: F841
         with ProjectService.connect(project_slug) as conn:
             conn.execute(  # reset all scores before updating new ones
                 "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL",
@@ -107,7 +106,30 @@ class EloService:
         return elo_a, elo_b
 
     @staticmethod
-    def compute_elo(df_h2h: pd.DataFrame, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
+    def compute_elo(df_h2h: pd.DataFrame, *, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
+        df_elo = EloService._compute_elo_once(df_h2h, config=config)
+        df_elo = EloService._compute_confidence_intervals(df_elo, df_h2h, config=config)
+        return df_elo
+
+    @staticmethod
+    def _compute_confidence_intervals(
+        df_elo: pd.DataFrame,
+        df_h2h: pd.DataFrame,
+        *,
+        config: EloConfig = DEFAULT_ELO_CONFIG,
+    ) -> pd.DataFrame:
+        df_bootstrap = EloService._get_bootstrap_result(df_h2h, num_rounds=200, config=config)
+        # set Elo score to the median of the bootstrap result -- the order of the head-to-heads doesn't matter for bulk
+        #  judging so the "true" score is in the middle of the differently ordered rollouts
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.5).rename("elo_median"), left_on="model", right_index=True)
+        df_elo["elo"] = df_elo["elo_median"]
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
+        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
+        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
+        return df_elo[["model", "elo", "q025", "q975", "ci95"]]
+
+    @staticmethod
+    def _compute_elo_once(df_h2h: pd.DataFrame, *, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
         rating: dict[str, float] = defaultdict(lambda: config.default_score)
         for _, model_a, model_b, winner in df_h2h[["model_a", "model_b", "winner"]].itertuples():
             elo_a, elo_b = EloService.compute_elo_single(rating[model_a], rating[model_b], winner, config=config)
@@ -117,24 +139,19 @@ class EloService:
         return df_elo.sort_values(by="elo", ascending=False)
 
     @staticmethod
-    def compute_confidence_intervals(df_elo: pd.DataFrame, df_h2h: pd.DataFrame) -> pd.DataFrame:
-        df_bootstrap = EloService._get_bootstrap_result(df_h2h, num_rounds=200)
-        df_elo = df_elo.merge(df_bootstrap.quantile(0.025).rename("q025"), left_on="model", right_index=True)
-        df_elo = df_elo.merge(df_bootstrap.quantile(0.975).rename("q975"), left_on="model", right_index=True)
-        # TODO: should we be doing this? fudge to ensure that elo isn't outside of CI
-        df_elo["elo"] = df_elo.apply(lambda r: max(r.q025, min(r.elo, r.q975)), axis=1)
-        df_elo["ci95"] = df_elo["q975"] - df_elo["q025"]
-        return df_elo
-
-    @staticmethod
-    def _get_bootstrap_result(df_h2h: pd.DataFrame, num_rounds: int = 1_000) -> pd.DataFrame:
+    def _get_bootstrap_result(
+        df_h2h: pd.DataFrame,
+        *,
+        num_rounds: int = 1_000,
+        config: EloConfig = DEFAULT_ELO_CONFIG,
+    ) -> pd.DataFrame:
         rows = []
         t_start = time.time()
         logger.info(f"Bootstrapping confidence intervals with {num_rounds} rounds...")
         for _ in range(num_rounds):
-            # TODO: are we sure we want replacement? this means dupes
-            df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
-            rows.append(EloService.compute_elo(df_h2h_tmp))
+            # note that we are NOT sampling with replacement, each h2h shows up exactly once
+            df_h2h_tmp = df_h2h.sample(frac=1.0)
+            rows.append(EloService._compute_elo_once(df_h2h_tmp, config=config))
         logger.info(f"Bootstrapped confidence intervals in {time.time() - t_start:0.1f} seconds")
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])
         return df[df.median().sort_values(ascending=False).index]

@@ -149,8 +149,7 @@ class EloService:
         t_start = time.time()
         logger.info(f"Bootstrapping confidence intervals with {num_rounds} rounds...")
         for _ in range(num_rounds):
-            # note that we are NOT sampling with replacement, each h2h shows up exactly once
-            df_h2h_tmp = df_h2h.sample(frac=1.0)
+            df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
             rows.append(EloService._compute_elo_once(df_h2h_tmp, config=config))
         logger.info(f"Bootstrapped confidence intervals in {time.time() - t_start:0.1f} seconds")
         df = pd.DataFrame([{r.model: r.elo for r in df_row.itertuples()} for df_row in rows])

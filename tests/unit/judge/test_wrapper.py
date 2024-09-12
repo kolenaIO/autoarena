@@ -18,7 +18,7 @@ def test__ab_shuffling_wrapper() -> None:
             return self.winners.pop(0)
 
     expected = ["A"] * 100
-    judge = ab_shuffling_wrapper(TracksWhatItSawDummyJudge).create([*expected])
+    judge = ab_shuffling_wrapper(TracksWhatItSawDummyJudge).create(expected)
     actual = [judge.judge(DUMMY_H2H) for _ in range(len(expected))]
     assert len(actual) == len(expected)
     assert np.array_equal((np.array(actual) == "-"), (np.array(expected) == "-"))  # ties should not be shuffled

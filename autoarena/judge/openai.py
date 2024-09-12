@@ -1,5 +1,8 @@
+import time
+
 from loguru import logger
 from openai import OpenAI
+from pytimeparse.timeparse import timeparse
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, rate_limit
@@ -27,12 +30,19 @@ class OpenAIJudge(AutomatedJudge):
             ],
             max_tokens=self.MAX_TOKENS,
         )
-        call_limit = int(response_raw.headers.get("x-ratelimit-remaining-requests", 1e6))
-        if call_limit < 50:
-            logger.warning(f"Approaching OpenAI request rate limit: {call_limit} remaining")
+        request_limit = int(response_raw.headers.get("x-ratelimit-remaining-requests", 1e6))
+        if request_limit < 50:
+            request_limit_reset = response_raw.headers.get("x-ratelimit-reset-requests")
+            logger.warning(
+                f"Approaching OpenAI request rate limit: {request_limit} remaining, resets in {request_limit_reset}"
+            )
         token_limit = int(response_raw.headers.get("x-ratelimit-remaining-tokens", 1e6))
-        if token_limit < 1000:
-            logger.warning(f"Approaching OpenAI token rate limit: {token_limit} remaining")
+        if token_limit < 5_000:
+            token_limit_reset = response_raw.headers.get("x-ratelimit-reset-tokens")
+            logger.warning(
+                f"Approaching OpenAI token rate limit: {token_limit} remaining, backing off for {token_limit_reset}"
+            )
+            time.sleep(timeparse(token_limit_reset))
         response = response_raw.parse()
         self.n_calls += 1
         self.total_input_tokens += response.usage.prompt_tokens

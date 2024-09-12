@@ -54,6 +54,7 @@ dependencies = [
     "transformers>=4,<5",
     "torch>=2,<3",
     "together>=1,<2",
+    "pytimeparse>=1.1.8",
 ]
 
 [project.optional-dependencies]

@@ -51,7 +51,7 @@ def test__task__auto_judge(
     enabled_auto_judges: tuple[int, int],
 ) -> None:
     model_a, model_b = models_with_responses
-    TaskService.auto_judge(project_slug, [model_a])
+    TaskService.auto_judge_models(project_slug, [model_a])
 
     # assert that judging happened as expected
     model_a = ModelService.get_by_id(project_slug, model_a.id)
@@ -76,7 +76,7 @@ def test__task__auto_judge__many(
     model_a, model_b = models_with_responses
     df_good_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response")).iloc[:3]
     model_c = ModelService.upload_responses(project_slug, "good-answers-c", df_good_answer_subset)
-    TaskService.auto_judge(project_slug, [model_a, model_c])
+    TaskService.auto_judge_models(project_slug, [model_a, model_c])
 
     model_a = ModelService.get_by_id(project_slug, model_a.id)
     model_b = ModelService.get_by_id(project_slug, model_b.id)
@@ -91,7 +91,7 @@ def test__task__auto_judge__many(
 def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_judges: tuple[int, int]) -> None:
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
     model = ModelService.upload_responses(project_slug, "good-answers", df_good_answer)
-    TaskService.auto_judge(project_slug, [model])
+    TaskService.auto_judge_models(project_slug, [model])
 
     # assert that no judging has happened
     assert all(m.n_votes == 0 for m in ModelService.get_all(project_slug))

@@ -11,6 +11,7 @@ import { getModelsQueryKey } from '../../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
 import { taskIsDone } from '../../lib/tasks.ts/utils.ts';
 import { getProjectUrl } from '../../lib/routes.ts';
+import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
@@ -32,6 +33,7 @@ export function TasksDrawer() {
   // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug ?? '') });
     queryClient.invalidateQueries({ queryKey: [getProjectUrl(projectSlug ?? ''), '/model'] });
   }, [tasksCompleted.length]);
 

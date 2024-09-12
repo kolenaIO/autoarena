@@ -14,6 +14,7 @@ from autoarena.judge.wrapper import ab_shuffling_wrapper, fixing_wrapper, retryi
 from autoarena.service.elo import EloService
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
+from autoarena.service.model import ModelService
 from autoarena.service.project import ProjectService
 from autoarena.store.utils import id_slug
 
@@ -80,8 +81,30 @@ class TaskService:
         finally:
             TaskService.update(project_slug, task_id, "Done", progress=1, status=api.TaskStatus.COMPLETED)
 
+    # TODO: name
     @staticmethod
-    def auto_judge(project_slug: str, models: list[api.Model]) -> None:
+    def auto_judge_judges(
+        project_slug: str,
+        judges: list[api.Judge],
+        *,
+        fraction: float = 1.0,
+        skip_existing: bool = False,
+    ) -> None:
+        judge_names = ", ".join([f"'{judge.name}'" for judge in judges])
+        message = f"Started automated judging task for {judge_names}"
+        models = ModelService.get_all(project_slug)
+        task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE, message).id
+        TaskService._auto_judge_inner(
+            project_slug,
+            task_id,
+            models,
+            judges,
+            fraction=fraction,
+            skip_existing=skip_existing,
+        )
+
+    @staticmethod
+    def auto_judge_models(project_slug: str, models: list[api.Model]) -> None:
         model_names = ", ".join([f"'{m.name}'" for m in models])
         # 1. get judge(s) configured for judging
         all_judges = JudgeService.get_all(project_slug)
@@ -89,20 +112,31 @@ class TaskService:
         if len(enabled_auto_judges) == 0:
             logger.warning(f"No automated judges found, can't run automated judgement for {model_names}")
             return  # do nothing if no judges are configured, do not create a task
-        t_start = time.time()
         message = f"Started automated judging task for {model_names}"
         task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE, message).id
         logger.info(message)
+        TaskService._auto_judge_inner(project_slug, task_id, models, enabled_auto_judges)
 
+    @staticmethod
+    def _auto_judge_inner(
+        project_slug: str,
+        task_id: int,
+        models: list[api.Model],
+        judges: list[api.Judge],
+        *,
+        fraction: float = 1.0,
+        skip_existing: bool = False,
+    ) -> None:
+        t_start = time.time()
         try:
-            # 2. instantiate judge(s)
-            TaskService.update(project_slug, task_id, f"Using {len(enabled_auto_judges)} judge(s):")
-            for j in enabled_auto_judges:
+            # 1. instantiate judge(s)
+            TaskService.update(project_slug, task_id, f"Using {len(judges)} judge(s):")
+            for j in judges:
                 TaskService.update(project_slug, task_id, f"  * {j.name}")
             wrappers = [retrying_wrapper, fixing_wrapper, ab_shuffling_wrapper]
-            judges = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
+            automated_judges = [judge_factory(j, wrappers=wrappers) for j in judges]
 
-            # 3. get pairs eligible for judging
+            # 2. get pairs eligible for judging
             df_h2hs = [HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=m.id)) for m in models]
             df_h2h = pd.concat(df_h2hs)
             if len(df_h2h) == 0:
@@ -112,10 +146,21 @@ class TaskService:
                 return
             df_h2h["response_id_slug"] = df_h2h.apply(lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1)
             df_h2h = df_h2h.drop_duplicates(subset=["response_id_slug"], keep="first")
-            message = f"Found {len(df_h2h)} head-to-heads versus {len(set(df_h2h.model_b_id))} model(s) to judge"
+
+            n_models = len(set(df_h2h.model_a_id) | set(df_h2h.model_b_id))
+            message = f"Found {len(df_h2h)} head-to-heads between {n_models} model(s) to judge"
             TaskService.update(project_slug, task_id, message)
 
-            # 4. stream judgement requests
+            if fraction < 1:
+                n_total = len(df_h2h)
+                df_h2h = df_h2h.sample(frac=fraction)
+                message = f"Using subset of {len(df_h2h)} out of {n_total} head-to-heads ({int(100 * fraction)}%)"
+                TaskService.update(project_slug, task_id, message)
+
+            if skip_existing:
+                ...  # TODO: this is going to be tricky... each model has its own different set that it has run
+
+            # 3. stream judgement requests
             head_to_heads = [
                 api.HeadToHead(**r)
                 for _, r in df_h2h[["prompt", "response_a_id", "response_a", "response_b_id", "response_b"]].iterrows()
@@ -123,9 +168,9 @@ class TaskService:
             executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
             n_h2h = len(head_to_heads)
-            n_total = n_h2h * len(judges)
+            n_total = n_h2h * len(automated_judges)
             t_start_judging = time.time()
-            for judge, h2h, winner in executor.execute(judges, head_to_heads):
+            for judge, h2h, winner in executor.execute(automated_judges, head_to_heads):
                 responses[judge.name].append((h2h.response_a_id, h2h.response_b_id, winner))
                 n_this_judge = len(responses[judge.name])
                 n_responses = sum(len(r) for r in responses.values())
@@ -142,8 +187,8 @@ class TaskService:
                     judge.log_usage()
 
             # TODO: stream to database?
-            # 5. upload judgements to database
-            judge_id_by_name = {j.name: j.id for j in enabled_auto_judges}
+            # 4. upload judgements to database
+            judge_id_by_name = {j.name: j.id for j in judges}
             dfs_h2h_judged = []
             for judge_name, judge_responses in responses.items():
                 df_h2h_judged = df_h2h.copy()
@@ -151,6 +196,7 @@ class TaskService:
                 df_judgement = pd.DataFrame(judge_responses, columns=["response_a_id", "response_b_id", "winner"])
                 df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["response_a_id", "response_b_id"], how="left")
                 dfs_h2h_judged.append(df_h2h_judged)
+            # TODO: can remove this now that the median is always used
             # randomize order of ratings to avoid biased elos when multiple judges are present
             df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
             HeadToHeadService.upload_head_to_heads(project_slug, df_h2h_judged_all)

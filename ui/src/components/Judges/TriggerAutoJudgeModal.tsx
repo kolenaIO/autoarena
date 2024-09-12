@@ -1,16 +1,17 @@
-import { Checkbox, Divider, Group, Input, Modal, MultiSelect, Slider, Stack, Text } from '@mantine/core';
+import { Checkbox, Group, Input, Modal, MultiSelect, Paper, Slider, Stack, Text } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useMemo } from 'react';
 import { IconEqual, IconMinus, IconX } from '@tabler/icons-react';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useHeadToHeadCount } from '../../hooks/useHeadToHeadCount.ts';
+import { useTriggerAutoJudge } from '../../hooks/useTriggerAutoJudge.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 type Form = {
   judgeIds: string[];
   percent: number; // on [1,100]
-  rerun: boolean;
+  skip: boolean;
 };
 
 type Props = {
@@ -19,29 +20,35 @@ type Props = {
   onClose: () => void;
 };
 export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
-  const { projectSlug } = useUrlState();
+  const { projectSlug = '' } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
+  const { mutate: triggerAutoJudge } = useTriggerAutoJudge({ projectSlug });
 
   const form = useForm<Form>({
     mode: 'uncontrolled',
-    initialValues: { judgeIds: judgeId != null ? [String(judgeId)] : [], percent: 100, rerun: false },
+    initialValues: { judgeIds: judgeId != null ? [String(judgeId)] : [], percent: 100, skip: true },
     validateInputOnChange: true,
-    validate: { judgeIds: js => (js.length < 1 ? 'Must select at least one judge' : undefined) },
+    validateInputOnBlur: true,
+    validate: { judgeIds: js => (js.length < 1 ? 'Select at least one judge' : undefined) },
   });
 
-  const formValues = form.getValues();
   const { data: headToHeadCount } = useHeadToHeadCount(projectSlug);
 
   const autoJudges = useMemo(
     () =>
       (judges ?? [])
-        .filter(({ judge_type, enabled }) => judge_type !== 'human' && enabled)
-        .map(({ id, name }) => ({ label: name, value: String(id) })),
+        .filter(({ judge_type }) => judge_type !== 'human')
+        .map(({ id, name, enabled }) => ({ label: name, value: String(id), disabled: !enabled })),
     [judges]
   );
 
   function handleSubmit(form: Form) {
-    console.log(form);
+    triggerAutoJudge({
+      judge_ids: form.judgeIds.map(judgeId => Number(judgeId)),
+      skip_existing: form.skip,
+      fraction: form.percent / 100,
+    });
+    handleClose();
   }
 
   function handleClose() {
@@ -49,22 +56,23 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
     onClose();
   }
 
+  // TODO: judgeIds doesn't seem to update always
+  const formValues = form.getValues();
   const existingVotes = (judges ?? [])
     .filter(({ id }) => formValues.judgeIds.includes(String(id)))
     .reduce((acc, { n_votes }) => acc + n_votes, 0);
   const nToJudgeFloat =
     (formValues.percent / 100) *
-    ((headToHeadCount ?? 0) * formValues.judgeIds.length - (formValues.rerun ? 0 : existingVotes));
-  const nToJudge = Math.floor(nToJudgeFloat);
+    ((headToHeadCount ?? 0) * formValues.judgeIds.length - (formValues.skip ? existingVotes : 0));
+  const nToJudge = Math.ceil(nToJudgeFloat);
   const showParens = formValues.judgeIds.length > 1 || !formValues.rerun;
   return (
-    <Modal opened={isOpen} onClose={handleClose} centered title="Run Automated Judgement" size={540}>
+    <Modal opened={isOpen} onClose={handleClose} centered withCloseButton title="Run Automated Judgement" size={540}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="lg">
           <Stack gap="xs">
             <MultiSelect
-              label="Judges to run"
-              description="Select a specific judge or judges to run"
+              label="Select judge or judges to run"
               placeholder={formValues.judgeIds.length < 1 ? 'Select a judge to run' : undefined}
               data={autoJudges}
               flex={1}
@@ -72,16 +80,12 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
               {...form.getInputProps('judgeIds')}
             />
             <Checkbox
-              label="Rerun head-to-heads that already have votes"
-              key={form.key('rerun')}
-              {...form.getInputProps('rerun', { type: 'checkbox' })}
+              label="Skip head-to-heads that already have votes"
+              key={form.key('skip')}
+              {...form.getInputProps('skip', { type: 'checkbox' })}
             />
           </Stack>
-          <Input.Wrapper
-            label="Proportion of head-to-heads"
-            description="What proportion of head-to-heads should be judged?"
-            mb="md"
-          >
+          <Input.Wrapper label="Percentage of head-to-heads" mb="md">
             <Slider
               min={1}
               marks={[
@@ -94,33 +98,34 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
               {...form.getInputProps('percent')}
             />
           </Input.Wrapper>
-          <Divider />
           <Stack gap="xs">
-            <Text size="sm" fw={500}>
+            <Text size="sm" c="dimmed">
               Approximate number of head-to-heads:
             </Text>
             {headToHeadCount != null && (
-              <Group gap="xs" justify="center" flex={1}>
-                <FormulaItem value={formValues.percent} label="percent" suffix="%" />
-                <IconX size={18} />
-                {showParens && <Text size="xl">(</Text>}
-                <FormulaItem value={headToHeadCount} label="head-to-head" pluralize />
-                {formValues.judgeIds.length > 1 && (
-                  <>
-                    <IconX size={18} />
-                    <FormulaItem value={formValues.judgeIds.length} label="judge" pluralize />
-                  </>
-                )}
-                {!formValues.rerun && (
-                  <>
-                    <IconMinus size={18} />
-                    <FormulaItem value={existingVotes} label="existing vote" pluralize />
-                  </>
-                )}
-                {showParens && <Text size="xl">)</Text>}
-                <IconEqual size={18} />
-                <FormulaItem value={nToJudge} label="to run" />
-              </Group>
+              <Paper p="md" bg="gray.1" radius="md">
+                <Group gap="xs" justify="center" flex={1}>
+                  <FormulaItem value={formValues.percent} label="percent" suffix="%" />
+                  <IconX size={18} />
+                  {showParens && <Text size="xl">(</Text>}
+                  <FormulaItem value={headToHeadCount} label="head-to-head" pluralize />
+                  {formValues.judgeIds.length > 1 && (
+                    <>
+                      <IconX size={18} />
+                      <FormulaItem value={formValues.judgeIds.length} label="judge" pluralize />
+                    </>
+                  )}
+                  {formValues.skip && (
+                    <>
+                      <IconMinus size={18} />
+                      <FormulaItem value={existingVotes} label="existing vote" pluralize />
+                    </>
+                  )}
+                  {showParens && <Text size="xl">)</Text>}
+                  <IconEqual size={18} />
+                  <FormulaItem value={nToJudge} label="to run" />
+                </Group>
+              </Paper>
             )}
           </Stack>
           <ConfirmOrCancelBar onCancel={handleClose} submitForm={form.isValid() && nToJudge > 0} action="Run" />

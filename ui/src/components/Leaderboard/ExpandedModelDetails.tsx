@@ -9,7 +9,7 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
-import { EloHistoryPlot } from './EloHistoryPlot.tsx';
+import { HeadToHeadStatsPlot } from './HeadToHeadStatsPlot.tsx';
 
 type Props = {
   model: RankedModel;
@@ -76,7 +76,7 @@ export function ExpandedModelDetails({ model }: Props) {
           <DeleteModelButton model={model} />
         </Group>
       </Group>
-      <EloHistoryPlot modelId={model.id} />
+      <HeadToHeadStatsPlot modelId={model.id} />
       <HeadToHeadStatsTable modelId={model.id} />
     </Stack>
   );

@@ -1,5 +1,9 @@
+from typing import TypeVar
+
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
+
+T = TypeVar("T", bound="DummyJudge")
 
 
 class DummyJudge(AutomatedJudge):
@@ -13,7 +17,7 @@ class DummyJudge(AutomatedJudge):
         return self.winners.pop(0)
 
     @classmethod
-    def create(cls, winners: list[str], name: str = "DummyJudge") -> "DummyJudge":
+    def create(cls: type[T], winners: list[str], name: str = "DummyJudge") -> T:
         instance = cls("DummyJudge", "could be anything really")
         instance.winners = winners
         instance._name = name

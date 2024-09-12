@@ -78,17 +78,14 @@ def test__judge_factory__wrappers(wrappers: list[JudgeWrapper]) -> None:
         name="gemma2:9b",
         model_name="gemma2:9b",
         system_prompt="say 'A'",
-        description="example_description",  # TODO: this is set on insertion, not here
+        description="not important",
         enabled=True,
         n_votes=0,
     )
     judge = judge_factory(request, wrappers=wrappers)
-    if len(wrappers) == 0:
-        assert type(judge) is OllamaJudge
-    else:
-        for wrapper_function, mro_class in zip(wrappers[::-1], type(judge).mro()):
-            assert mro_class.__qualname__.startswith(wrapper_function.__name__)
-        assert type(judge).mro()[len(wrappers)] is OllamaJudge
+    for wrapper_function, mro_class in zip(wrappers[::-1], type(judge).mro()):
+        assert mro_class.__qualname__.startswith(wrapper_function.__name__)
+    assert type(judge).mro()[len(wrappers)] is OllamaJudge
 
 
 @pytest.mark.parametrize(

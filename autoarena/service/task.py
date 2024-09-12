@@ -139,6 +139,7 @@ class TaskService:
                         f"{time.time() - t_start_judging:0.1f} seconds"
                     )
                     TaskService.update(project_slug, task_id, message, progress=progress)
+                    judge.log_usage()
 
             # TODO: stream to database?
             # 5. upload judgements to database

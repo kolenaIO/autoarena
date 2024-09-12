@@ -1,5 +1,6 @@
 import time
 
+import httpx
 from loguru import logger
 from openai import OpenAI
 from pytimeparse.timeparse import timeparse
@@ -30,21 +31,25 @@ class OpenAIJudge(AutomatedJudge):
             ],
             max_tokens=self.MAX_TOKENS,
         )
-        request_limit = int(response_raw.headers.get("x-ratelimit-remaining-requests", 1e6))
-        if request_limit < 50:
-            request_limit_reset = response_raw.headers.get("x-ratelimit-reset-requests")
-            logger.warning(
-                f"Approaching OpenAI request rate limit: {request_limit} remaining, resets in {request_limit_reset}"
-            )
-        token_limit = int(response_raw.headers.get("x-ratelimit-remaining-tokens", 1e6))
-        if token_limit < 5_000:
-            token_limit_reset = response_raw.headers.get("x-ratelimit-reset-tokens")
-            logger.warning(
-                f"Approaching OpenAI token rate limit: {token_limit} remaining, backing off for {token_limit_reset}"
-            )
-            time.sleep(timeparse(token_limit_reset))
         response = response_raw.parse()
         self.n_calls += 1
         self.total_input_tokens += response.usage.prompt_tokens
         self.total_output_tokens += response.usage.completion_tokens
+        self._handle_rate_limit(response_raw.headers)
         return response.choices[0].message.content
+
+    @staticmethod
+    def _handle_rate_limit(headers: httpx.Headers) -> None:
+        request_limit = int(headers.get("x-ratelimit-remaining-requests", 1e6))
+        if request_limit < 50:
+            request_limit_reset = headers.get("x-ratelimit-reset-requests")
+            logger.warning(
+                f"Approaching OpenAI request rate limit: {request_limit} remaining, resets in {request_limit_reset}"
+            )
+        token_limit = int(headers.get("x-ratelimit-remaining-tokens", 1e6))
+        if token_limit < 5_000:
+            token_limit_reset = headers.get("x-ratelimit-reset-tokens")
+            logger.warning(
+                f"Approaching OpenAI token rate limit: {token_limit} remaining, backing off for {token_limit_reset}"
+            )
+            time.sleep(timeparse(token_limit_reset))

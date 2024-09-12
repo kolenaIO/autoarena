@@ -3,6 +3,7 @@ import { Box, Checkbox, Group, LoadingOverlay, Paper, Stack, Title, Text } from 
 import { useMemo, useState } from 'react';
 import { prop, sortBy } from 'ramda';
 import { IconCactus } from '@tabler/icons-react';
+import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
@@ -10,6 +11,7 @@ import { useJudge } from '../../hooks/useJudge.ts';
 
 type ChartRecord = {
   opponentName: string;
+  opponentId: number;
   nWins: number;
   nLosses: number;
   nTies: number;
@@ -21,6 +23,7 @@ type Props = {
 };
 export function HeadToHeadStatsPlot({ modelId }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
+  const navigate = useNavigate();
   const { data: judge } = useJudge(projectSlug, judgeId);
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId });
   const [isPercentage, setIsPercentage] = useState(true);
@@ -38,6 +41,7 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
         ...acc,
         [s.other_model_name]: {
           opponentName: s.other_model_name,
+          opponentId: s.other_model_id,
           nWins: existing.nWins + s.count_wins,
           nLosses: existing.nLosses + s.count_losses,
           nTies: existing.nTies + s.count_ties,
@@ -47,6 +51,10 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
     }, {});
     return sortBy<ChartRecord>(prop('sortSlug'))(Object.values(statsEnhanced)).reverse();
   }, [headToHeadStats, judgeId]);
+
+  function handleBarClick({ opponentId }: ChartRecord) {
+    navigate(`/project/${projectSlug}/compare?modelA=${modelId}&modelB=${opponentId}`);
+  }
 
   const isDisabled = plotStats.length == 0;
   return (
@@ -74,6 +82,8 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
           dataKey="opponentName"
           type={isPercentage ? 'percent' : 'stacked'}
           cursorFill={isDisabled ? 'transparent' : undefined}
+          tooltipAnimationDuration={200}
+          barProps={{ onClick: handleBarClick }}
           series={[
             { name: 'nWins', label: '# Wins', color: 'green.3' },
             { name: 'nTies', label: '# Ties', color: 'gray.3' },

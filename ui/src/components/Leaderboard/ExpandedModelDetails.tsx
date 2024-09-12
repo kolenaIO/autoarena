@@ -77,7 +77,6 @@ export function ExpandedModelDetails({ model }: Props) {
         </Group>
       </Group>
       <HeadToHeadStatsPlot modelId={model.id} />
-      {/* <EloHistoryPlot modelId={model.id} /> */}
       <HeadToHeadStatsTable modelId={model.id} />
     </Stack>
   );

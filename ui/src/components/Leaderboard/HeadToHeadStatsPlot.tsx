@@ -26,8 +26,7 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
   const [isPercentage, setIsPercentage] = useState(true);
 
   const plotStats = useMemo(() => {
-    const stats = headToHeadStats ?? [];
-    const statsFiltered = stats.filter(({ judge_id }) => judgeId == null || judge_id === judgeId);
+    const statsFiltered = (headToHeadStats ?? []).filter(({ judge_id }) => judgeId == null || judge_id === judgeId);
     const statsEnhanced = statsFiltered.reduce<{ [opponentName: string]: ChartRecord }>((acc, s) => {
       const existing = acc[s.other_model_name] ?? { nWins: 0, nLosses: 0, nTies: 0 };
       const countJudge = s.count_wins + s.count_ties + s.count_losses;
@@ -80,17 +79,6 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
             { name: 'nTies', label: '# Ties', color: 'gray.3' },
             { name: 'nLosses', label: '# Losses', color: 'red.3' },
           ]}
-          /*
-          dataKey="position"
-          series={[{ name: 'elo', color: 'kolena.4' }]}
-          valueFormatter={value => value.toFixed(1)}
-          curveType="bump"
-          xAxisLabel="# Head-to-Heads"
-          xAxisProps={{ minTickGap: 20 }}
-          yAxisLabel="Elo Score"
-          yAxisProps={{ domain: [minElo, maxElo] }}
-          tooltipProps={{ content: ({ payload }) => <EloHistoryPlotTooltip payload={payload} /> }}
-           */
         />
         <LoadingOverlay visible={isLoading} overlayProps={{ radius: 'md', blur: 4 }} />
         <Box hidden={isLoading || !isDisabled} style={{ position: 'absolute', top: '25%' }}>

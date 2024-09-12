@@ -8,7 +8,7 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.api.api import JudgeType
-from autoarena.judge.executor import ThreadedExecutor
+from autoarena.judge.executor import ThreadedExecutor, JudgeExecutor
 from autoarena.judge.factory import judge_factory
 from autoarena.judge.wrapper import ab_shuffling_wrapper, fixing_wrapper, retrying_wrapper
 from autoarena.service.elo import EloService
@@ -94,14 +94,10 @@ class TaskService:
         message = f"Started automated judging task for {judge_names}"
         models = ModelService.get_all(project_slug)
         task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE, message).id
-        TaskService._auto_judge_inner(
-            project_slug,
-            task_id,
-            models,
-            judges,
-            fraction=fraction,
-            skip_existing=skip_existing,
-        )
+        with ThreadedExecutor(8) as executor:
+            TaskService._auto_judge_inner(
+                project_slug, task_id, models, judges, executor, fraction=fraction, skip_existing=skip_existing
+            )
 
     @staticmethod
     def auto_judge_models(project_slug: str, models: list[api.Model]) -> None:
@@ -115,7 +111,8 @@ class TaskService:
         message = f"Started automated judging task for {model_names}"
         task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE, message).id
         logger.info(message)
-        TaskService._auto_judge_inner(project_slug, task_id, models, enabled_auto_judges)
+        with ThreadedExecutor(8) as executor:
+            TaskService._auto_judge_inner(project_slug, task_id, models, enabled_auto_judges, executor)
 
     @staticmethod
     def _auto_judge_inner(
@@ -123,6 +120,7 @@ class TaskService:
         task_id: int,
         models: list[api.Model],
         judges: list[api.Judge],
+        executor: JudgeExecutor,
         *,
         fraction: float = 1.0,
         skip_existing: bool = False,
@@ -165,7 +163,6 @@ class TaskService:
                 api.HeadToHead(**r)
                 for _, r in df_h2h[["prompt", "response_a_id", "response_a", "response_b_id", "response_b"]].iterrows()
             ]
-            executor = ThreadedExecutor(4)
             responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
             n_h2h = len(head_to_heads)
             n_total = n_h2h * len(automated_judges)
@@ -196,10 +193,7 @@ class TaskService:
                 df_judgement = pd.DataFrame(judge_responses, columns=["response_a_id", "response_b_id", "winner"])
                 df_h2h_judged = pd.merge(df_h2h_judged, df_judgement, on=["response_a_id", "response_b_id"], how="left")
                 dfs_h2h_judged.append(df_h2h_judged)
-            # TODO: can remove this now that the median is always used
-            # randomize order of ratings to avoid biased elos when multiple judges are present
-            df_h2h_judged_all = pd.concat(dfs_h2h_judged).sample(frac=1.0)  # noqa: F841
-            HeadToHeadService.upload_head_to_heads(project_slug, df_h2h_judged_all)
+            HeadToHeadService.upload_head_to_heads(project_slug, pd.concat(dfs_h2h_judged))
 
             # 6. recompute elo scores and confidence intervals
             TaskService.update(project_slug, task_id, "Recomputing leaderboard rankings", progress=0.96)

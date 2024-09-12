@@ -2,13 +2,26 @@ import concurrent
 import itertools
 from abc import ABCMeta, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
-from typing import Iterator
+from types import TracebackType
+from typing import Iterator, TypeVar, Optional
 
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 
+T = TypeVar("T", bound="JudgeExecutor")
 
-class Executor(metaclass=ABCMeta):
+
+class JudgeExecutor(metaclass=ABCMeta):
+    def __enter__(self: T) -> T:
+        return self
+
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None: ...
+
     @abstractmethod
     def execute(
         self,
@@ -18,7 +31,7 @@ class Executor(metaclass=ABCMeta):
         """Yield responses (winners) from judges as they are ready"""
 
 
-class BlockingExecutor(Executor):
+class BlockingExecutor(JudgeExecutor):
     def execute(
         self,
         judges: list[AutomatedJudge],
@@ -29,9 +42,17 @@ class BlockingExecutor(Executor):
                 yield judge, h2h, judge.judge(h2h.prompt, h2h.response_a, h2h.response_b)
 
 
-class ThreadedExecutor(Executor):
+class ThreadedExecutor(JudgeExecutor):
     def __init__(self, max_workers: int) -> None:
         self.pool = ThreadPoolExecutor(max_workers=max_workers)
+
+    def __exit__(
+        self,
+        exc_type: Optional[type[BaseException]],
+        exc_val: Optional[BaseException],
+        exc_tb: Optional[TracebackType],
+    ) -> None:
+        self.pool.shutdown(wait=False, cancel_futures=True)
 
     def execute(
         self,

@@ -2,7 +2,7 @@ from typing import Callable, TypeVar
 
 import numpy as np
 from loguru import logger
-from tenacity import retry, wait_random_exponential, stop_after_attempt, RetryCallState
+from tenacity import retry, stop_after_attempt, RetryCallState, wait_exponential
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import ACCEPTABLE_RESPONSES
@@ -82,7 +82,8 @@ def fixing_wrapper(judge_class: type[T]) -> type[T]:
 def retrying_wrapper(judge_class: type[T]) -> type[T]:
     class RetryingJudge(judge_class):  # type: ignore
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:
-            @retry(wait=wait_random_exponential(min=2, max=10), stop=stop_after_attempt(3), after=self._log_retry)
+            # wait 0, 1, 2, 4, 8, 16, 32 seconds
+            @retry(wait=wait_exponential(min=0, max=32), stop=stop_after_attempt(7), after=self._log_retry)
             def judge_inner(p: str, ra: str, rb: str) -> str:
                 return super(RetryingJudge, self).judge(p, ra, rb)
 

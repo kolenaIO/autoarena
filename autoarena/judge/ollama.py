@@ -42,6 +42,9 @@ class OllamaJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
-            options=dict(temperature=0, seed=0),
+            options=dict(temperature=0, seed=0, num_predict=self.MAX_TOKENS),
         )
+        self.n_calls += 1
+        self.total_input_tokens += response["prompt_eval_count"]
+        self.total_output_tokens += response["eval_count"]
         return response["message"]["content"]

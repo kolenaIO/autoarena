@@ -8,10 +8,9 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.api.api import JudgeType
-from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.executor import ThreadedExecutor
 from autoarena.judge.factory import judge_factory
-from autoarena.judge.utils import ABShufflingJudge, FixingJudge, RetryingJudge
+from autoarena.judge.wrapper import ab_shuffling_wrapper, fixing_wrapper, retrying_wrapper
 from autoarena.service.elo import EloService
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
@@ -100,8 +99,8 @@ class TaskService:
             TaskService.update(project_slug, task_id, f"Using {len(enabled_auto_judges)} judge(s):")
             for j in enabled_auto_judges:
                 TaskService.update(project_slug, task_id, f"  * {j.name}")
-            wrappers = [RetryingJudge, FixingJudge, ABShufflingJudge]
-            judges: list[AutomatedJudge] = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
+            wrappers = [retrying_wrapper, fixing_wrapper, ab_shuffling_wrapper]
+            judges = [judge_factory(j, wrappers=wrappers) for j in enabled_auto_judges]
 
             # 3. get pairs eligible for judging
             df_h2hs = [HeadToHeadService.get_df(project_slug, api.HeadToHeadsRequest(model_a_id=m.id)) for m in models]

@@ -34,5 +34,9 @@ class OpenAIJudge(AutomatedJudge):
                 dict(role="system", content=self.system_prompt),
                 dict(role="user", content=get_user_prompt(h2h)),
             ],
+            max_tokens=self.MAX_TOKENS,
         )
+        self.n_calls += 1
+        self.total_input_tokens += response.usage.prompt_tokens
+        self.total_output_tokens += response.usage.completion_tokens
         return response.choices[0].message.content

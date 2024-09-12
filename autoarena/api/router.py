@@ -119,6 +119,10 @@ def router() -> APIRouter:
     def get_head_to_heads(project_slug: str, request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
         return HeadToHeadService.get(project_slug, request)
 
+    @r.get("/project/{project_slug}/head-to-head/count")
+    def get_head_to_head_count(project_slug: str) -> int:
+        return HeadToHeadService.get_count(project_slug)
+
     @r.post("/project/{project_slug}/head-to-head/vote")
     def submit_head_to_head_vote(
         project_slug: str,

@@ -47,7 +47,7 @@ def test__cli__seed(test_data_directory: Path) -> None:
         df_h2h_input_model = df_h2h_input[(df_h2h_input.model_a == model.name) | (df_h2h_input.model_b == model.name)]
         assert len(df_h2h_model) == len(df_h2h_input_model)
         assert all(df_h2h_model.history.apply(lambda h: len(h) == 1))
-        assert all(df_h2h_model.history.apply(lambda h: h[0]["judge_name"] == "Human"))
+        assert all(df_h2h_model.history.apply(lambda h: h[0]["judge_name"] == "human"))
 
 
 def test__cli__seed__missing_argument(test_data_directory: None) -> None:

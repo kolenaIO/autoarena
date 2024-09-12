@@ -1,7 +1,6 @@
 import pytest
 
-from autoarena.judge.utils import FixingJudge
-from tests.unit.judge.test_utils import DUMMY_H2H
+from autoarena.judge.wrapper import fixing_wrapper
 from tests.unit.judge.conftest import DummyJudge
 
 
@@ -18,5 +17,6 @@ from tests.unit.judge.conftest import DummyJudge
     ],
 )
 def test__fixing_judge(raw: str, expected: str) -> None:
-    test_judge = DummyJudge([raw])
-    assert FixingJudge(test_judge).judge(DUMMY_H2H) == expected
+    test_judge = fixing_wrapper(DummyJudge)("dummy", "description")
+    test_judge.winners = [raw]
+    assert test_judge.judge("p", "a", "b") == expected

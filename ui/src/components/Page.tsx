@@ -95,7 +95,7 @@ export function Page({ tab }: Props) {
         {projectSlug != null ? (
           <Leaderboard />
         ) : (
-          <Stack justify="center" align="center" h="calc(100vh - 56px)">
+          <Stack justify="center" align="center" h="calc(100vh - 58px)">
             <OnboardingTimeline dismissable={false} />
           </Stack>
         )}

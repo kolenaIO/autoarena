@@ -84,7 +84,7 @@ class JudgeService:
                 dict(
                     judge_type=api.JudgeType.HUMAN.value,
                     name=api.JudgeType.HUMAN.value,
-                    description="Manual ratings submitted via the head-to-head tab",
+                    description="Manual ratings submitted via the 'Head-to-Head' tab",
                 ),
             )
         # TODO: this is a little lazy but ¯\_(ツ)_/¯

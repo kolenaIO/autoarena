@@ -4,7 +4,7 @@ import { RankedModel } from '../types.ts';
 
 export function ModelNameRenderer({ name, n_votes, rank }: RankedModel) {
   return (
-    <Group align="center">
+    <Group align="center" wrap="nowrap">
       {n_votes > 0 ? (
         <Text size="md">{name}</Text>
       ) : (
@@ -16,7 +16,7 @@ export function ModelNameRenderer({ name, n_votes, rank }: RankedModel) {
       )}
       {rank === 1 && n_votes > 0 && (
         <Tooltip label="Champion">
-          <IconCrown size={18} color="var(--mantine-color-yellow-6)" />
+          <IconCrown size={18} color="var(--mantine-color-yellow-6)" style={{ flexShrink: 0 }} />
         </Tooltip>
       )}
     </Group>

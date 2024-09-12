@@ -33,11 +33,15 @@ export function JudgeAccordionItem({ judge }: Props) {
         <Group justify="space-between" pl="xs" pr="lg">
           <Stack gap={0}>
             <Text c={!isEnabled ? 'gray.6' : undefined}>
-              {name}{' '}
-              {judge_type !== 'human' && (
-                <Text span c="dimmed">
-                  ({judgeTypeToHumanReadableName(judge_type)})
-                </Text>
+              {judge_type !== 'human' ? (
+                <>
+                  {name}{' '}
+                  <Text span c="dimmed">
+                    ({judgeTypeToHumanReadableName(judge_type)})
+                  </Text>
+                </>
+              ) : (
+                'Human'
               )}
             </Text>
             <Text c="dimmed" size="xs">
@@ -55,30 +59,41 @@ export function JudgeAccordionItem({ judge }: Props) {
       </Accordion.Control>
       <Accordion.Panel>
         <Stack pl="xl" gap="xs">
-          <CanAccessJudgeStatusIndicator judgeType={judge_type} />
           {judge_type !== 'human' ? (
-            <Group justify="space-between">
-              <Checkbox label="Enable as automated judge" checked={isEnabled} onChange={() => handleToggleEnabled()} />
-              <Group>
-                <Text c="dimmed" size="xs" fs="italic">
-                  {pluralize(judge.n_votes, 'judgement')} submitted
-                </Text>
-                <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
-                  {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
-                </Button>
-                <DeleteJudgeButton judge={judge} />
+            <>
+              <CanAccessJudgeStatusIndicator judgeType={judge_type} />
+              <Group justify="space-between">
+                <Checkbox
+                  label="Enable as automated judge"
+                  checked={isEnabled}
+                  onChange={() => handleToggleEnabled()}
+                />
+                <Group>
+                  <Text c="dimmed" size="xs" fs="italic">
+                    {pluralize(judge.n_votes, 'vote')} submitted
+                  </Text>
+                  <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
+                    {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
+                  </Button>
+                  <DeleteJudgeButton judge={judge} />
+                </Group>
               </Group>
-            </Group>
+            </>
           ) : (
-            <Text>
-              Visit the{' '}
-              <Link to={`/project/${projectSlug}/compare`}>
-                <Text span c="kolena.8">
-                  Head-to-Head
-                </Text>
-              </Link>{' '}
-              tab to provide ratings on head-to-head matchups between models.
-            </Text>
+            <Group justify="space-between">
+              <Text size="sm">
+                Visit the{' '}
+                <Link to={`/project/${projectSlug}/compare`}>
+                  <Text span c="kolena.8">
+                    Head-to-Head
+                  </Text>
+                </Link>{' '}
+                tab to provide ratings on head-to-head matchups between models.
+              </Text>
+              <Text c="dimmed" size="xs" fs="italic">
+                {pluralize(judge.n_votes, 'vote')} submitted
+              </Text>
+            </Group>
           )}
           <Collapse in={showSystemPrompt} fz="sm">
             <MarkdownContent>{`**System Prompt:** ${judge.system_prompt}`}</MarkdownContent>

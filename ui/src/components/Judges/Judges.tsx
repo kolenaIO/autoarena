@@ -118,7 +118,7 @@ export function Judges() {
               <Anchor inherit href="https://docs.together.ai/docs/chat-models">
                 Together AI documentation
               </Anchor>
-              .
+              , e.g. <Code>google/gemma-2-9b-it</Code>.
             </Text>
           }
         />

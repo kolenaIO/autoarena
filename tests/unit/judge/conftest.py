@@ -1,33 +1,20 @@
 from autoarena.api import api
-from autoarena.api.api import JudgeType
 from autoarena.judge.base import AutomatedJudge
 
 
 class DummyJudge(AutomatedJudge):
-    # TODO: signature?
-    def __init__(self, winners: list[str], name: str = "DummyJudge"):
-        self._winners = [*winners]
-        self._name = name
+    winners: list[str]
 
-    @property
-    def judge_type(self) -> JudgeType:
-        return JudgeType.CUSTOM
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def model_name(self) -> str:
-        return "dummy"
-
-    @property
-    def system_prompt(self) -> str:
-        return "could be anything really"
-
-    @property
-    def description(self) -> str:
-        return "judge for testing"
+    def __init__(self, model_name: str, system_prompt: str):
+        super().__init__(model_name, system_prompt)
+        self._name = "DummyJudge"
 
     def judge(self, h2h: api.HeadToHead) -> str:
-        return self._winners.pop(0)
+        return self.winners.pop(0)
+
+    @classmethod
+    def create(cls, winners: list[str], name: str = "DummyJudge") -> "DummyJudge":
+        instance = cls("DummyJudge", "could be anything really")
+        instance.winners = winners
+        instance._name = name
+        return instance

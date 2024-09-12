@@ -1,4 +1,4 @@
-from typing import Callable
+from typing import Callable, TypeVar
 
 import numpy as np
 from loguru import logger
@@ -8,8 +8,11 @@ from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import ACCEPTABLE_RESPONSES
 
+JudgeWrapper = Callable[[type[AutomatedJudge]], type[AutomatedJudge]]
+T = TypeVar("T", bound=AutomatedJudge)
 
-def ab_shuffling_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
+
+def ab_shuffling_wrapper(judge_class: type[T]) -> type[T]:
     # not sure why mypy still complains about this after https://github.com/python/mypy/pull/14135
     class ABShufflingJudge(judge_class):  # type: ignore
         """Randomly shuffles which is A and which is B before passing to another judge."""
@@ -41,7 +44,7 @@ def clean_judgement(winner: str) -> str:
     return winner.strip(" \t\n'\"*.")  # strip common formatting issues
 
 
-def cleaning_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
+def cleaning_wrapper(judge_class: type[T]) -> type[T]:
     class CleaningJudge(judge_class):  # type: ignore
         """Attempt to clean raw responses from other judges"""
 
@@ -58,7 +61,7 @@ def cleaning_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
     return CleaningJudge
 
 
-def fixing_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
+def fixing_wrapper(judge_class: type[T]) -> type[T]:
     class FixingJudge(judge_class):  # type: ignore
         """If the response does not fit nicely into the expected "A", "B", "-" format, classify it"""
 
@@ -87,7 +90,7 @@ def fixing_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
     return FixingJudge
 
 
-def retrying_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
+def retrying_wrapper(judge_class: type[T]) -> type[T]:
     class RetryingJudge(judge_class):  # type: ignore
         def judge(self, h2h: api.HeadToHead) -> str:
             @retry(wait=wait_random_exponential(min=2, max=10), stop=stop_after_attempt(3), after=self._log_retry)
@@ -101,6 +104,3 @@ def retrying_wrapper(judge_class: type[AutomatedJudge]) -> type[AutomatedJudge]:
             logger.warning(message)
 
     return RetryingJudge
-
-
-JudgeWrapper = Callable[[type[AutomatedJudge]], type[AutomatedJudge]]

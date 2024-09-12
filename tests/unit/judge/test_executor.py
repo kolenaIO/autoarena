@@ -18,8 +18,8 @@ DUMMY_H2HS = [
 
 
 def test__blocking_executor() -> None:
-    judge1 = DummyJudge(DUMMY_WINNERS)
-    judge2 = DummyJudge(["-"] * len(DUMMY_WINNERS))
+    judge1 = DummyJudge.create(DUMMY_WINNERS)
+    judge2 = DummyJudge.create(["-"] * len(DUMMY_WINNERS))
     executor = BlockingExecutor()
     out = list(executor.execute([judge1, judge2], DUMMY_H2HS))
     expected1 = [(judge1, h2h, w) for h2h, w in zip(DUMMY_H2HS, DUMMY_WINNERS)]
@@ -28,8 +28,8 @@ def test__blocking_executor() -> None:
 
 
 def test__threaded_executor() -> None:
-    judge1 = DummyJudge(DUMMY_WINNERS, name="DummyJudge1")
-    judge2 = DummyJudge(["-"] * len(DUMMY_WINNERS), name="DummyJudge2")
+    judge1 = DummyJudge.create(DUMMY_WINNERS, name="DummyJudge1")
+    judge2 = DummyJudge.create(["-"] * len(DUMMY_WINNERS), name="DummyJudge2")
     executor = ThreadedExecutor(4)
     winner_by_judge_name: dict[str, list[tuple[int, int, str]]] = defaultdict(list)
     for judge, h2h, winner in executor.execute([judge1, judge2], DUMMY_H2HS):

@@ -5,7 +5,7 @@ import pytest
 
 from autoarena.api import api
 from autoarena.judge.anthropic import AnthropicJudge
-from autoarena.judge.base import AutomatedJudge, WrappingJudge
+from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
 from autoarena.judge.factory import judge_factory, AUTOMATED_JUDGE_TYPE_TO_CLASS
@@ -13,7 +13,7 @@ from autoarena.judge.gemini import GeminiJudge
 from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
-from autoarena.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
+from autoarena.judge.wrapper import retrying_wrapper, cleaning_wrapper, ab_shuffling_wrapper, JudgeWrapper
 from autoarena.service.judge import JudgeService
 from tests.integration.judge.conftest import (
     unset_environment_variable,
@@ -49,9 +49,7 @@ def test__judge_factory__with_key(judge_type: api.JudgeType, expected_type: Type
     with temporary_environment_variable(required_api_key, "dummy-api-key"):
         judge = judge_factory(request)
     assert type(judge) is expected_type
-    assert judge.judge_type is judge_type
     assert judge.model_name == model_name
-    assert judge.description is not None
 
 
 @pytest.mark.parametrize(
@@ -66,13 +64,13 @@ def test__judge_factory__no_key(judge_type: api.JudgeType, expected_type: Type[A
     request = api_judge(judge_type, model_name)
     judge = judge_factory(request)
     assert type(judge) is expected_type
-    assert judge.judge_type is judge_type
     assert judge.model_name == model_name
-    assert judge.description is not None
 
 
-@pytest.mark.parametrize("wrappers", [([]), ([ABShufflingJudge]), (ABShufflingJudge, CleaningJudge, RetryingJudge)])
-def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
+@pytest.mark.parametrize(
+    "wrappers", [([]), ([ab_shuffling_wrapper]), (ab_shuffling_wrapper, cleaning_wrapper, retrying_wrapper)]
+)
+def test__judge_factory__wrappers(wrappers: list[JudgeWrapper]) -> None:
     request = api.Judge(
         id=-1,
         judge_type=api.JudgeType.OLLAMA,
@@ -88,13 +86,9 @@ def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
     if len(wrappers) == 0:
         assert type(judge) is OllamaJudge
     else:
-        for wrapper_type in wrappers[::-1]:
-            assert type(judge) is wrapper_type
-            assert judge.judge_type == request.judge_type
-            assert judge.model_name == request.model_name
-            assert judge.system_prompt == request.system_prompt
-            assert len(judge.description) > 0
-            judge = judge.wrapped
+        for wrapper_function, mro_class in zip(wrappers[::-1], type(judge).mro()):
+            assert mro_class.__qualname__.startswith(wrapper_function.__name__)
+        assert type(judge).mro()[len(wrappers)] is OllamaJudge
 
 
 @pytest.mark.parametrize(

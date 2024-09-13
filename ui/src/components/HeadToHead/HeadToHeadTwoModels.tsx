@@ -180,7 +180,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
               <Text fw="bold">Which response is better?</Text>
               <SimpleGrid cols={5} spacing="xs">
                 <Button
-                  leftSection={<Kbd>p</Kbd>}
+                  leftSection={<Kbd>b</Kbd>}
                   variant="subtle"
                   color="gray"
                   onClick={navigateBack}

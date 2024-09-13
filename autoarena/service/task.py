@@ -152,7 +152,7 @@ class TaskService:
                     if not skip_existing or judge.name not in {h["judge_name"] for h in r.history}
                 ]
                 if skip_existing:
-                    n_skipping = len(head_to_heads) - len(df_h2h)
+                    n_skipping = len(df_h2h) - len(head_to_heads)
                     message = (
                         f"Skipping {n_skipping} for '{judge.name}' with existing votes, {len(head_to_heads)} to run"
                     )

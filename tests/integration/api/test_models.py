@@ -44,6 +44,22 @@ def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFram
     assert f"Missing {len(missing)} required column(s)" in response.json()["detail"]
 
 
+@pytest.mark.parametrize(
+    "df,n_dropped",
+    [
+        (pd.DataFrame([("p", "r"), ("p2", "")], columns=["prompt", "response"]), 1),
+        (pd.DataFrame([("p", "r"), ("", "r")], columns=["prompt", "response"]), 1),
+        (pd.DataFrame([("p", ""), ("p2", "")], columns=["prompt", "response"]), 2),
+        (pd.DataFrame([("", "r"), ("p2", "")], columns=["prompt", "response"]), 2),
+    ],
+)
+def test__models__upload__missing_values(project_client: TestClient, df: pd.DataFrame, n_dropped: int) -> None:
+    body = construct_upload_model_body(dict(example=df))
+    models = project_client.post("/model", data=body.data, files=body.files).json()
+    assert len(models) == 1
+    assert models[0]["n_responses"] == len(df) - n_dropped
+
+
 def test__models__upload__multiple(project_client: TestClient) -> None:
     body = construct_upload_model_body(dict(a=DF_RESPONSE, b=DF_RESPONSE_B))
     models = project_client.post("/model", data=body.data, files=body.files).json()

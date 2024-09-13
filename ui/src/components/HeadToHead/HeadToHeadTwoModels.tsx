@@ -1,4 +1,4 @@
-import { Box, Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, Checkbox, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import {
   IconArrowDown,
   IconArrowLeft,
@@ -25,19 +25,30 @@ type Props = {
 export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const { projectSlug = '' } = useUrlState();
   const navigate = useNavigate();
-  const [showJudgingHistory, { toggle: toggleShowJudgingHistory }] = useDisclosure(false);
-  // TODO: loading state?
-  const { data: battles, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
+  const [showVoteHistory, { toggle: toggleShowVoteHistory }] = useDisclosure(false);
+  const { data: allHeadToHeads, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
   const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
-  const headToHead = useMemo(() => battles?.[headToHeadIndex], [battles, headToHeadIndex]);
-  const nHeadToHeads: number = battles?.length ?? 0;
   const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
+  const [showOnlyJudged, setShowOnlyJudged] = useState(false);
+
+  const headToHeads = useMemo(
+    () =>
+      !showOnlyJudged ? (allHeadToHeads ?? []) : (allHeadToHeads ?? []).filter(({ history }) => history.length > 0),
+    [allHeadToHeads, showOnlyJudged]
+  );
+  const headToHead = useMemo(() => headToHeads[headToHeadIndex], [headToHeads, headToHeadIndex]);
+  const nHeadToHeadsTotal = (allHeadToHeads ?? []).length;
+  const nHeadToHeads = headToHeads.length;
 
   useEffect(() => {
     setHeadToHeadIndex(0);
   }, [modelAId, modelBId]);
 
+  function toggleShowOnlyJudged() {
+    setHeadToHeadIndex(0);
+    setShowOnlyJudged(prev => !prev);
+  }
   function navigatePrevious() {
     setHeadToHeadIndex(prev => Math.max(0, prev - 1));
   }
@@ -65,10 +76,10 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     ['ArrowRight', submitVote('B')],
     ['p', navigatePrevious],
     ['n', navigateNext],
-    ['j', toggleShowJudgingHistory],
+    ['h', toggleShowVoteHistory],
   ]);
 
-  const hasJudgingHistory = (headToHead?.history?.length ?? 0) > 0;
+  const hasVoteHistory = (headToHead?.history?.length ?? 0) > 0;
   const { votesA, votesTie, votesB } = useMemo(() => {
     return (headToHead?.history ?? []).reduce<{ votesA: string[]; votesTie: string[]; votesB: string[] }>(
       ({ votesA, votesTie, votesB }, { winner, judge_name }) => ({
@@ -78,7 +89,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
       }),
       { votesA: [], votesTie: [], votesB: [] }
     );
-  }, [showJudgingHistory, headToHead]);
+  }, [showVoteHistory, headToHead]);
 
   const iconProps = { size: 18 };
   return !isLoading && nHeadToHeads === 0 ? (
@@ -96,9 +107,20 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   ) : !isLoading ? (
     <>
       <Stack pb={height + 32}>
-        <Group justify="flex-end">
+        <Group justify="space-between">
+          <Checkbox
+            checked={showOnlyJudged}
+            onChange={toggleShowOnlyJudged}
+            label={
+              <Text inherit c="dimmed">
+                Only show head-to-heads with votes
+              </Text>
+            }
+          />
           <Text c="dimmed" size="sm" fs="italic">
-            {pluralize(nHeadToHeads, 'head-to-head')} between selected models
+            {showOnlyJudged
+              ? `${pluralize(nHeadToHeads, 'head-to-head')} with votes between selected models (${nHeadToHeadsTotal.toLocaleString()} total)`
+              : `${pluralize(nHeadToHeads, 'head-to-head')} between selected models`}
           </Text>
         </Group>
         <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>
@@ -152,7 +174,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
             >
               Next
             </Button>
-            {showJudgingHistory && (
+            {showVoteHistory && (
               <>
                 <div />
                 {[votesA, votesTie, votesB].map((votes, i) => (
@@ -175,11 +197,11 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
             variant="subtle"
             color="gray"
             size="xs"
-            onClick={toggleShowJudgingHistory}
-            disabled={!hasJudgingHistory}
-            rightSection={<Kbd size="xs">j</Kbd>}
+            onClick={toggleShowVoteHistory}
+            disabled={!hasVoteHistory}
+            rightSection={<Kbd size="xs">h</Kbd>}
           >
-            {!hasJudgingHistory ? 'No' : showJudgingHistory ? 'Hide' : 'Show'} Judging History
+            {!hasVoteHistory ? 'No' : showVoteHistory ? 'Hide' : 'Show'} Vote History
           </Button>
         </Box>
       </ControlBar>

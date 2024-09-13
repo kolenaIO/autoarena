@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import {
   IconArrowDown,
   IconArrowLeft,
@@ -18,6 +18,8 @@ import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { ControlBar } from './ControlBar.tsx';
 
+type ShowMode = 'All' | 'With Votes' | 'Without Votes';
+
 type Props = {
   modelAId: number;
   modelBId: number;
@@ -30,13 +32,18 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
-  const [showOnlyJudged, setShowOnlyJudged] = useState(false);
+  const [showMode, setShowMode] = useState<ShowMode>('All');
 
-  const headToHeads = useMemo(
-    () =>
-      !showOnlyJudged ? (allHeadToHeads ?? []) : (allHeadToHeads ?? []).filter(({ history }) => history.length > 0),
-    [allHeadToHeads, showOnlyJudged]
-  );
+  const headToHeads = useMemo(() => {
+    switch (showMode) {
+      case 'All':
+        return allHeadToHeads ?? [];
+      case 'With Votes':
+        return (allHeadToHeads ?? []).filter(({ history }) => history.length > 0);
+      case 'Without Votes':
+        return (allHeadToHeads ?? []).filter(({ history }) => history.length === 0);
+    }
+  }, [allHeadToHeads, showMode]);
   const headToHead = useMemo(() => headToHeads[headToHeadIndex], [headToHeads, headToHeadIndex]);
   const nHeadToHeadsTotal = (allHeadToHeads ?? []).length;
   const nHeadToHeads = headToHeads.length;
@@ -45,10 +52,6 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     setHeadToHeadIndex(0);
   }, [modelAId, modelBId]);
 
-  function toggleShowOnlyJudged() {
-    setHeadToHeadIndex(0);
-    setShowOnlyJudged(prev => !prev);
-  }
   function navigatePrevious() {
     setHeadToHeadIndex(prev => Math.max(0, prev - 1));
   }
@@ -95,19 +98,38 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   return (
     <Stack pb={height + 32}>
       <Group justify="space-between">
-        <Checkbox
-          checked={showOnlyJudged}
-          onChange={toggleShowOnlyJudged}
-          label={
-            <Text inherit c="dimmed">
-              Only show head-to-heads with votes
-            </Text>
-          }
-        />
+        <Paper withBorder>
+          <Button.Group>
+            <Button
+              size="xs"
+              color="gray"
+              variant={showMode === 'All' ? 'light' : 'subtle'}
+              onClick={() => setShowMode('All')}
+            >
+              Show All
+            </Button>
+            <Button
+              size="xs"
+              color="gray"
+              variant={showMode === 'With Votes' ? 'light' : 'subtle'}
+              onClick={() => setShowMode('With Votes')}
+            >
+              Show With Votes
+            </Button>
+            <Button
+              size="xs"
+              color="gray"
+              variant={showMode === 'Without Votes' ? 'light' : 'subtle'}
+              onClick={() => setShowMode('Without Votes')}
+            >
+              Show Without Votes
+            </Button>
+          </Button.Group>
+        </Paper>
         <Text c="dimmed" size="sm" fs="italic">
-          {showOnlyJudged
-            ? `${pluralize(nHeadToHeads, 'head-to-head')} with votes between selected models (${nHeadToHeadsTotal.toLocaleString()} total)`
-            : `${pluralize(nHeadToHeads, 'head-to-head')} between selected models`}
+          {showMode === 'All'
+            ? `${pluralize(nHeadToHeads, 'head-to-head')} between selected models`
+            : `${pluralize(nHeadToHeads, 'head-to-head')} ${showMode.toLowerCase()} between selected models (${nHeadToHeadsTotal.toLocaleString()} total)`}
         </Text>
       </Group>
 
@@ -116,8 +138,10 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
           IconComponent={IconCactus}
           description={
             <Stack align="center" gap="xs">
-              <Text inherit>No head-to-heads {showOnlyJudged && 'with votes '}between selected models</Text>
-              {showOnlyJudged && <Text>({pluralize(nHeadToHeadsTotal, 'total head-to-head')})</Text>}
+              <Text inherit>
+                No head-to-heads {showMode !== 'All' && `${showMode.toLowerCase()} `}between selected models
+              </Text>
+              {showMode !== 'All' && <Text>({pluralize(nHeadToHeadsTotal, 'total head-to-head')})</Text>}
             </Stack>
           }
         />

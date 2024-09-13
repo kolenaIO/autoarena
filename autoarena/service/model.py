@@ -89,6 +89,10 @@ class ModelService:
             check_required_columns(df_response, ["prompt", "response"])
         except ValueError as e:
             raise BadRequestError(str(e))
+        n_input = len(df_response)
+        df_response = df_response.copy().dropna(subset=["prompt", "response"])
+        if len(df_response) != n_input:
+            logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
         with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(

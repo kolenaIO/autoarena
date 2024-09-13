@@ -23,7 +23,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
   const response = useMemo(() => (modelResponses ?? [])?.[responseIndex], [modelResponses, responseIndex]);
   const nResponses = useMemo(() => (modelResponses ?? []).length, [modelResponses]);
 
-  function navigatePrevious() {
+  function navigateBack() {
     setResponseIndex(prev => Math.max(0, prev - 1));
   }
   function navigateNext() {
@@ -31,7 +31,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
   }
 
   useHotkeys([
-    ['ArrowLeft', navigatePrevious],
+    ['ArrowLeft', navigateBack],
     ['ArrowRight', navigateNext],
   ]);
 
@@ -58,12 +58,8 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
       <ControlBar ref={controlBarRef}>
         <Stack align="center" gap="xs">
           <SimpleGrid cols={2} spacing="xs">
-            <Button
-              leftSection={<IconArrowLeft {...iconProps} />}
-              onClick={navigatePrevious}
-              disabled={responseIndex < 1}
-            >
-              Previous
+            <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={navigateBack} disabled={responseIndex < 1}>
+              Back
             </Button>
             <Button
               rightSection={<IconArrowRight {...iconProps} />}

@@ -50,6 +50,11 @@ class AutomatedJudge(metaclass=ABCMeta):
         interact with this judge. Throw an exception if not.
         """
 
+    def update_usage(self, input_tokens: int, output_tokens: int) -> None:
+        self.n_calls += 1
+        self.total_input_tokens += input_tokens
+        self.total_output_tokens += output_tokens
+
     def log_usage(self) -> None:
         logger.info(
             f"'{self.name}' used {self.total_input_tokens} input tokens and {self.total_output_tokens} output tokens "

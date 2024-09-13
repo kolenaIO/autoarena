@@ -2,11 +2,12 @@ import pandas as pd
 import pytest
 
 from autoarena.api import api
+from autoarena.judge.base import AutomatedJudge
+from autoarena.judge.custom import register_custom_judge_class
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
 from autoarena.service.model import ModelService
 from autoarena.service.task import TaskService
-from tests.integration.judge.conftest import TEST_JUDGE_MODEL_NAMES
 
 TEST_QUESTIONS = [
     dict(prompt="What is 2+2?", wrong="100 million", right="4"),
@@ -27,19 +28,30 @@ def models_with_responses(project_slug: str) -> tuple[api.Model, api.Model]:
 
 
 @pytest.fixture
-def enabled_auto_judges(project_slug: str) -> tuple[int, int]:
+def enabled_auto_judges(project_slug: str) -> list[int]:
+    class VotesForTheGoodOneJudge(AutomatedJudge):
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+            good_answers = set(q["right"] for q in TEST_QUESTIONS)
+            a_good = response_a in good_answers
+            b_good = response_b in good_answers
+            return "A" if a_good and not b_good else "B" if b_good else "-"
+
+    register_custom_judge_class("GoodJudge1", VotesForTheGoodOneJudge)
+    register_custom_judge_class("GoodJudge2", VotesForTheGoodOneJudge)
+    register_custom_judge_class("GoodJudge3", VotesForTheGoodOneJudge)
     # should be enabled by default
-    judge_a_id = JudgeService.create(project_slug, create_judge_request(api.JudgeType.OPENAI)).id
-    judge_b_id = JudgeService.create(project_slug, create_judge_request(api.JudgeType.COHERE)).id
-    return judge_a_id, judge_b_id
+    judge_a_id = JudgeService.create(project_slug, create_custom_judge_request("GoodJudge1")).id
+    judge_b_id = JudgeService.create(project_slug, create_custom_judge_request("GoodJudge2")).id
+    judge_c_id = JudgeService.create(project_slug, create_custom_judge_request("GoodJudge3")).id
+    return [judge_a_id, judge_b_id, judge_c_id]
 
 
-def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
+def create_custom_judge_request(name: str) -> api.CreateJudgeRequest:
     return api.CreateJudgeRequest(
-        judge_type=judge_type,
-        name=TEST_JUDGE_MODEL_NAMES[judge_type],
-        model_name=TEST_JUDGE_MODEL_NAMES[judge_type],
-        system_prompt=JudgeService.get_default_system_prompt(),
+        judge_type=api.JudgeType.CUSTOM,
+        name=name,
+        model_name=name,
+        system_prompt="doesn't matter",
         description="Just for testing",
     )
 
@@ -48,7 +60,7 @@ def create_judge_request(judge_type: api.JudgeType) -> api.CreateJudgeRequest:
 def test__task__auto_judge_by_models(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    enabled_auto_judges: tuple[int, int],
+    enabled_auto_judges: list[int],
 ) -> None:
     model_a, model_b = models_with_responses
     TaskService.auto_judge_by_models(project_slug, [model_a])
@@ -71,24 +83,25 @@ def test__task__auto_judge_by_models(
 def test__task__auto_judge_by_models__many(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    enabled_auto_judges: tuple[int, int],
+    enabled_auto_judges: list[int],
 ) -> None:
     model_a, model_b = models_with_responses
-    df_good_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response")).iloc[:3]
-    model_c = ModelService.upload_responses(project_slug, "good-answers-c", df_good_answer_subset)
+    df_good_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response")).iloc[:2]
+    df_bad_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(wrong="response")).iloc[3:]
+    df_c = pd.concat([df_good_answer_subset, df_bad_answer_subset])
+    model_c = ModelService.upload_responses(project_slug, "good-answers-c", df_c)
     TaskService.auto_judge_by_models(project_slug, [model_a, model_c])
 
     model_a = ModelService.get_by_id(project_slug, model_a.id)
     model_b = ModelService.get_by_id(project_slug, model_b.id)
     model_c = ModelService.get_by_id(project_slug, model_c.id)
     n_judges = len(enabled_auto_judges)
-    assert model_a.elo > model_b.elo
-    assert model_c.elo > model_b.elo  # don't assert A.elo vs C.elo as they are both good, scores can be either way
-    assert model_a.n_votes == model_b.n_votes == n_judges * len(TEST_QUESTIONS) + n_judges * len(df_good_answer_subset)
-    assert model_c.n_votes == n_judges * len(df_good_answer_subset) * 2  # compared to both A and B
+    assert model_a.elo > model_c.elo > model_b.elo
+    assert model_a.n_votes == model_b.n_votes == n_judges * len(TEST_QUESTIONS) + n_judges * len(df_c)
+    assert model_c.n_votes == n_judges * len(df_c) * 2  # compared to both A and B
 
 
-def test__task__auto_judge_by_models__no_head_to_heads(project_slug: str, enabled_auto_judges: tuple[int, int]) -> None:
+def test__task__auto_judge_by_models__no_head_to_heads(project_slug: str, enabled_auto_judges: list[int]) -> None:
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
     model = ModelService.upload_responses(project_slug, "good-answers", df_good_answer)
     TaskService.auto_judge_by_models(project_slug, [model])
@@ -108,7 +121,7 @@ def test__task__auto_judge_by_models__no_head_to_heads(project_slug: str, enable
 def test__task__auto_judge_by_judges(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    enabled_auto_judges: tuple[int, int],
+    enabled_auto_judges: list[int],
 ) -> None:
     judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
 

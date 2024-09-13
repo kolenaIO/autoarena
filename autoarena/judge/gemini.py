@@ -35,7 +35,5 @@ class GeminiJudge(AutomatedJudge):
                 genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
             },
         )
-        self.n_calls += 1
-        self.total_input_tokens += response.usage_metadata.prompt_token_count
-        self.total_output_tokens += response.usage_metadata.candidates_token_count
+        self.update_usage(response.usage_metadata.prompt_token_count, response.usage_metadata.candidates_token_count)
         return response.text

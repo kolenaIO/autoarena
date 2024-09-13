@@ -23,7 +23,5 @@ class CohereJudge(AutomatedJudge):
             message=get_user_prompt(prompt, response_a, response_b),
             max_tokens=self.MAX_TOKENS,
         )
-        self.n_calls += 1
-        self.total_input_tokens += int(response.meta.billed_units.input_tokens)
-        self.total_output_tokens += int(response.meta.billed_units.output_tokens)
+        self.update_usage(int(response.meta.billed_units.input_tokens), int(response.meta.billed_units.output_tokens))
         return response.text

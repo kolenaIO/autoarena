@@ -44,6 +44,7 @@ dependencies = [
     "python-multipart",
     "loguru<1",
     "tenacity>=9,<10",
+    "pytimeparse>=1,<2",
     # TODO: these client libraries should be arranged into extras that are installed as needed
     "openai>=1,<2",
     "ollama<1",
@@ -53,7 +54,6 @@ dependencies = [
     "transformers>=4,<5",
     "torch>=2,<3",
     "together>=1,<2",
-    "pytimeparse>=1.1.8",
 ]
 
 [project.optional-dependencies]

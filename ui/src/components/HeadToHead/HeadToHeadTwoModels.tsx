@@ -16,6 +16,7 @@ import { useSubmitHeadToHeadVote } from '../../hooks/useSubmitHeadToHeadVote.ts'
 import { pluralize } from '../../lib/string.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
+import { useModel } from '../../hooks/useModel.ts';
 import { ControlBar } from './ControlBar.tsx';
 
 type ShowMode = 'All' | 'With Votes' | 'Without Votes';
@@ -29,6 +30,8 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const navigate = useNavigate();
   const [showVoteHistory, { toggle: toggleShowVoteHistory }] = useDisclosure(false);
   const { data: allHeadToHeads, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
+  const { data: modelA } = useModel(projectSlug, modelAId);
+  const { data: modelB } = useModel(projectSlug, modelBId);
   const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
@@ -94,6 +97,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     );
   }, [showVoteHistory, headToHead]);
 
+  const modelNames = modelA != null && modelB != null ? `'${modelA.name}' and '${modelB.name}'` : 'selected models';
   const iconProps = { size: 18 };
   return (
     <Stack pb={height + 32}>
@@ -128,8 +132,8 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
         </Paper>
         <Text c="dimmed" size="sm" fs="italic">
           {showMode === 'All'
-            ? `${pluralize(nHeadToHeads, 'head-to-head')} between selected models`
-            : `${pluralize(nHeadToHeads, 'head-to-head')} ${showMode.toLowerCase()} between selected models (${nHeadToHeadsTotal.toLocaleString()} total)`}
+            ? `${pluralize(nHeadToHeads, 'head-to-head')} between ${modelNames}`
+            : `${pluralize(nHeadToHeads, 'head-to-head')} ${showMode.toLowerCase()} between ${modelNames} (${nHeadToHeadsTotal.toLocaleString()} total)`}
         </Text>
       </Group>
 
@@ -139,7 +143,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
           description={
             <Stack align="center" gap="xs">
               <Text inherit>
-                No head-to-heads {showMode !== 'All' && `${showMode.toLowerCase()} `}between selected models
+                No head-to-heads {showMode !== 'All' && `${showMode.toLowerCase()} `}between {modelNames}
               </Text>
               {showMode !== 'All' && <Text>({pluralize(nHeadToHeadsTotal, 'total head-to-head')})</Text>}
             </Stack>
@@ -150,7 +154,9 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
           IconComponent={IconBalloon}
           description={
             <Stack>
-              <Text>Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between selected models</Text>
+              <Text>
+                Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between {modelNames}
+              </Text>
               <Button onClick={() => navigate(`/project/${projectSlug}`)}>View Leaderboard</Button>
             </Stack>
           }

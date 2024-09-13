@@ -7,6 +7,7 @@ import { useModelResponses } from '../../hooks/useModelResponses.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useModel } from '../../hooks/useModel.ts';
 import { ControlBar } from './ControlBar.tsx';
 
 type Props = {
@@ -14,6 +15,7 @@ type Props = {
 };
 export function HeadToHeadSingleModel({ modelId }: Props) {
   const { projectSlug } = useUrlState();
+  const { data: model } = useModel(projectSlug, modelId);
   const { data: modelResponses, isLoading } = useModelResponses({ projectSlug, modelId });
   const [responseIndex, setResponseIndex] = useState(0);
   const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
@@ -33,15 +35,16 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
     ['ArrowRight', navigateNext],
   ]);
 
+  const modelName = model != null ? `'${model.name}'` : 'selected model';
   const iconProps = { size: 18 };
   return !isLoading && nResponses === 0 ? (
-    <NonIdealState IconComponent={IconCactus} description="No responses from selected model" />
+    <NonIdealState IconComponent={IconCactus} description={`No responses from ${modelName}`} />
   ) : !isLoading ? (
     <>
       <Stack pb={height + 32}>
         <Group justify="flex-end">
           <Text c="dimmed" size="sm" fs="italic">
-            {pluralize(nResponses, 'response')} from selected model
+            {pluralize(nResponses, 'response')} from {modelName}
           </Text>
         </Group>
         <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>

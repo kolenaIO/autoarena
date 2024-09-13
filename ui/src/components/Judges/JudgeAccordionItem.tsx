@@ -12,7 +12,6 @@ import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 import { TriggerAutoJudgeModal } from './TriggerAutoJudgeModal.tsx';
-import disableAutomock = jest.disableAutomock;
 
 type Props = {
   judge: Judge;

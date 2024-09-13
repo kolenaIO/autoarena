@@ -18,7 +18,7 @@ import { rankBy } from './utils.ts';
 import { LeaderboardJudgeSelect } from './LeaderboardJudgeSelect.tsx';
 
 export function Leaderboard() {
-  const { projectSlug, judgeId, setJudgeId } = useUrlState();
+  const { projectSlug, judgeId } = useUrlState();
   const [selectedRecords, setSelectedRecords] = useState<RankedModel[]>([]);
   const [filterValue, setFilterValue] = useState('');
   const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);

@@ -11,7 +11,7 @@ import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 type Form = {
   judgeIds: string[];
   percent: number; // on [1,100]
-  skip: boolean;
+  skipExisting: boolean;
 };
 
 type Props = {
@@ -26,7 +26,7 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
 
   const form = useForm<Form>({
     mode: 'uncontrolled',
-    initialValues: { judgeIds: judgeId != null ? [String(judgeId)] : [], percent: 100, skip: true },
+    initialValues: { judgeIds: judgeId != null ? [String(judgeId)] : [], percent: 100, skipExisting: true },
     validateInputOnChange: true,
     validateInputOnBlur: true,
     validate: { judgeIds: js => (js.length < 1 ? 'Select at least one judge' : undefined) },
@@ -45,7 +45,7 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
   function handleSubmit(form: Form) {
     triggerAutoJudge({
       judge_ids: form.judgeIds.map(judgeId => Number(judgeId)),
-      skip_existing: form.skip,
+      skip_existing: form.skipExisting,
       fraction: form.percent / 100,
     });
     handleClose();
@@ -63,9 +63,9 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
     .reduce((acc, { n_votes }) => acc + n_votes, 0);
   const nToJudgeFloat =
     (formValues.percent / 100) *
-    ((headToHeadCount ?? 0) * formValues.judgeIds.length - (formValues.skip ? existingVotes : 0));
+    ((headToHeadCount ?? 0) * formValues.judgeIds.length - (formValues.skipExisting ? existingVotes : 0));
   const nToJudge = Math.ceil(nToJudgeFloat);
-  const showParens = formValues.judgeIds.length > 1 || !formValues.rerun;
+  const showParens = formValues.judgeIds.length > 1 || !formValues.skipExisting;
   return (
     <Modal opened={isOpen} onClose={handleClose} centered withCloseButton title="Run Automated Judgement" size={540}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -81,8 +81,8 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
             />
             <Checkbox
               label="Skip head-to-heads that already have votes"
-              key={form.key('skip')}
-              {...form.getInputProps('skip', { type: 'checkbox' })}
+              key={form.key('skipExisting')}
+              {...form.getInputProps('skipExisting', { type: 'checkbox' })}
             />
           </Stack>
           <Input.Wrapper label="Percentage of head-to-heads" mb="md">
@@ -115,7 +115,7 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
                       <FormulaItem value={formValues.judgeIds.length} label="judge" pluralize />
                     </>
                   )}
-                  {formValues.skip && (
+                  {formValues.skipExisting && (
                     <>
                       <IconMinus size={18} />
                       <FormulaItem value={existingVotes} label="existing vote" pluralize />

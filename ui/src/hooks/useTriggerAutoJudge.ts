@@ -39,7 +39,7 @@ export function useTriggerAutoJudge({ projectSlug, options = {} }: Params) {
     },
     onError: () => {
       notifications.show({
-        title: 'Failed to start automated judgement task',
+        message: 'Failed to start automated judgement task',
         color: 'red',
       });
     },

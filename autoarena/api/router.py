@@ -63,17 +63,18 @@ def router() -> APIRouter:
             ModelService.upload_responses(project_slug, model_name, df_response)
             for model_name, df_response in df_response_by_model_name.items()
         ]
-        background_tasks.add_task(TaskService.auto_judge_models, project_slug, new_models)
+        background_tasks.add_task(TaskService.auto_judge_by_models, project_slug, new_models)
         return new_models
 
     @r.get("/project/{project_slug}/model/{model_id}/responses")
     def get_model_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
         return ModelService.get_responses(project_slug, model_id)
 
+    # TODO: potentially remove this -- it's not intuitive to have this trigger exist at the per-model level
     @r.post("/project/{project_slug}/model/{model_id}/judge")
     def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         model = ModelService.get_by_id(project_slug, model_id)
-        background_tasks.add_task(TaskService.auto_judge_models, project_slug, [model])
+        background_tasks.add_task(TaskService.auto_judge_by_models, project_slug, [model])
 
     @r.delete("/project/{project_slug}/model/{model_id}")
     def delete_model(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
@@ -144,7 +145,7 @@ def router() -> APIRouter:
     ) -> None:
         judges = [j for j in JudgeService.get_all(project_slug) if j.id in set(request.judge_ids)]
         kwargs = dict(fraction=request.fraction, skip_existing=request.skip_existing)
-        background_tasks.add_task(TaskService.auto_judge_judges, project_slug, judges, **kwargs)
+        background_tasks.add_task(TaskService.auto_judge_by_judges, project_slug, judges, **kwargs)
 
     @r.get("/project/{project_slug}/judges")
     def get_judges(project_slug: str) -> list[api.Judge]:

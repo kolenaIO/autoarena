@@ -67,7 +67,7 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
   const nToJudge = Math.ceil(nToJudgeFloat);
   const showParens = formValues.judgeIds.length > 1 || !formValues.skipExisting;
   return (
-    <Modal opened={isOpen} onClose={handleClose} centered withCloseButton title="Run Automated Judgement" size={540}>
+    <Modal opened={isOpen} onClose={handleClose} centered withCloseButton title="Run Automated Judgement" size={560}>
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Stack gap="lg">
           <Stack gap="xs">
@@ -78,9 +78,11 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
               flex={1}
               key={form.key('judgeIds')}
               {...form.getInputProps('judgeIds')}
+              // manually set onChange as form does not update consistently with the default from form.getInputProps
+              onChange={values => form.setFieldValue('judgeIds', values)}
             />
             <Checkbox
-              label="Skip head-to-heads that already have votes"
+              label="Skip head-to-heads with existing votes"
               key={form.key('skipExisting')}
               {...form.getInputProps('skipExisting', { type: 'checkbox' })}
             />

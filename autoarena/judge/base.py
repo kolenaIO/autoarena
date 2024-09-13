@@ -12,14 +12,14 @@ class AutomatedJudge(metaclass=ABCMeta):
     _model_name: str
     _system_prompt: str
 
-    n_calls: int
+    n_requests: int
     total_input_tokens: int
     total_output_tokens: int
 
     def __init__(self, model_name: str, system_prompt: str):
         self._model_name = model_name
         self._system_prompt = system_prompt
-        self.n_calls = 0
+        self.n_requests = 0
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
@@ -51,12 +51,12 @@ class AutomatedJudge(metaclass=ABCMeta):
         """
 
     def update_usage(self, input_tokens: int, output_tokens: int) -> None:
-        self.n_calls += 1
+        self.n_requests += 1
         self.total_input_tokens += input_tokens
         self.total_output_tokens += output_tokens
 
     def log_usage(self) -> None:
         logger.info(
             f"'{self.name}' used {self.total_input_tokens} input tokens and {self.total_output_tokens} output tokens "
-            f"over {self.n_calls} calls",
+            f"over {self.n_requests} requests",
         )

@@ -1,5 +1,7 @@
 from collections import defaultdict
 
+import numpy as np
+
 from autoarena.api import api
 from autoarena.judge.executor import BlockingExecutor, ThreadedExecutor
 from tests.unit.judge.conftest import DummyJudge
@@ -31,10 +33,9 @@ def test__threaded_executor() -> None:
     judge1 = DummyJudge.create(DUMMY_WINNERS)
     judge2 = DummyJudge.create(["-"] * len(DUMMY_WINNERS))
     winner_by_judge: dict[int, list[tuple[int, int, str]]] = defaultdict(list)
-    with ThreadedExecutor(2) as executor:
+    with ThreadedExecutor(8) as executor:
         for judge, h2h, winner in executor.execute([(judge1, DUMMY_H2HS), (judge2, DUMMY_H2HS)]):
-            existing = winner_by_judge[id(judge)]
-            tup = (h2h.response_a_id, h2h.response_b_id, winner)
-            winner_by_judge[id(judge)] = [*existing, tup]
-    assert [w for _, _, w in winner_by_judge[id(judge1)]] == DUMMY_WINNERS
+            winner_by_judge[id(judge)].append((h2h.response_a_id, h2h.response_b_id, winner))
+    winner_arr = np.array([w for _, _, w in winner_by_judge[id(judge1)]])
+    assert sum(winner_arr == "A") == sum(winner_arr == "B") == sum(winner_arr == "-")  # may have been seen in any order
     assert [w for _, _, w in winner_by_judge[id(judge2)]] == ["-"] * len(DUMMY_WINNERS)

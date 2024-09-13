@@ -1,5 +1,5 @@
 import concurrent
-import itertools
+import random
 from abc import ABCMeta, abstractmethod
 from concurrent.futures import ThreadPoolExecutor
 from types import TracebackType
@@ -8,10 +8,10 @@ from typing import Iterator, TypeVar, Optional
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 
-T = TypeVar("T", bound="Executor")
+T = TypeVar("T", bound="JudgeExecutor")
 
 
-class Executor(metaclass=ABCMeta):
+class JudgeExecutor(metaclass=ABCMeta):
     def __enter__(self: T) -> T:
         return self
 
@@ -24,25 +24,21 @@ class Executor(metaclass=ABCMeta):
 
     @abstractmethod
     def execute(
-        self,
-        judges: list[AutomatedJudge],
-        head_to_heads: list[api.HeadToHead],
+        self, judges_with_head_to_heads: list[tuple[AutomatedJudge, list[api.HeadToHead]]]
     ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
         """Yield responses (winners) from judges as they are ready"""
 
 
-class BlockingExecutor(Executor):
+class BlockingExecutor(JudgeExecutor):
     def execute(
-        self,
-        judges: list[AutomatedJudge],
-        head_to_heads: list[api.HeadToHead],
+        self, judges_with_head_to_heads: list[tuple[AutomatedJudge, list[api.HeadToHead]]]
     ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
-        for judge in judges:
+        for judge, head_to_heads in judges_with_head_to_heads:
             for h2h in head_to_heads:
                 yield judge, h2h, judge.judge(h2h.prompt, h2h.response_a, h2h.response_b)
 
 
-class ThreadedExecutor(Executor):
+class ThreadedExecutor(JudgeExecutor):
     def __init__(self, max_workers: int) -> None:
         self.pool = ThreadPoolExecutor(max_workers=max_workers)
 
@@ -55,11 +51,10 @@ class ThreadedExecutor(Executor):
         self.pool.shutdown(wait=False, cancel_futures=True)
 
     def execute(
-        self,
-        judges: list[AutomatedJudge],
-        head_to_heads: list[api.HeadToHead],
+        self, judges_with_head_to_heads: list[tuple[AutomatedJudge, list[api.HeadToHead]]]
     ) -> Iterator[tuple[AutomatedJudge, api.HeadToHead, str]]:
-        h2h_with_judges = list(itertools.product(head_to_heads, judges))
+        h2h_with_judges = [(h2h, judge) for judge, h2hs in judges_with_head_to_heads for h2h in h2hs]
+        random.shuffle(h2h_with_judges)  # ensure that we are running all judges concurrently to best load balance
 
         def run(h2h_with_judge: tuple[api.HeadToHead, AutomatedJudge]) -> tuple[AutomatedJudge, api.HeadToHead, str]:
             h, j = h2h_with_judge

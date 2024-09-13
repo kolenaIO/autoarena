@@ -71,6 +71,18 @@ class HeadToHeadService:
         ]
 
     @staticmethod
+    def get_count(project_slug: str) -> int:
+        with ProjectService.connect(project_slug) as conn:
+            ((n_h2h,),) = conn.execute(
+                """
+                SELECT COUNT(DISTINCT id_slug(ra.id, rb.id))
+                FROM response ra
+                JOIN response rb ON ra.prompt = rb.prompt AND ra.model_id != rb.model_id
+                """,
+            ).fetchall()
+        return n_h2h
+
+    @staticmethod
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
         with ProjectService.connect(project_slug) as conn:
             # 1. insert head-to-head record

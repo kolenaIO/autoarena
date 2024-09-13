@@ -15,7 +15,7 @@ import { ExpandedModelDetails } from './ExpandedModelDetails.tsx';
 import { ExploreSelectedModels } from './ExploreSelectedModels.tsx';
 import { LeaderboardSettings } from './LeaderboardSettings.tsx';
 import { rankBy } from './utils.ts';
-import { JudgeSelect } from './JudgeSelect.tsx';
+import { LeaderboardJudgeSelect } from './LeaderboardJudgeSelect.tsx';
 
 export function Leaderboard() {
   const { projectSlug, judgeId } = useUrlState();
@@ -66,7 +66,7 @@ export function Leaderboard() {
           flex={1}
           disabled={isLoadingModels}
         />
-        <JudgeSelect />
+        <LeaderboardJudgeSelect />
         <LeaderboardSettings />
         <AddModelButton variant="light" />
       </Group>

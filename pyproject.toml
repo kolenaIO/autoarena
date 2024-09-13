@@ -41,7 +41,6 @@ dependencies = [
     "uvicorn<1",
     "duckdb",
     "pyarrow",
-    "tqdm>=4,<5",
     "python-multipart",
     "loguru<1",
     "tenacity>=9,<10",

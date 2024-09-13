@@ -51,3 +51,16 @@ def test__head_to_head__submit_vote(project_client: TestClient, model_id: int, m
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="B")]
     assert h2h[1]["history"] == []
+
+
+def test__head_to_head__count__2_models(project_client: TestClient, model_id: int, model_b_id: int) -> None:
+    assert project_client.get("/head-to-head/count").json() == 2
+
+
+def test__head_to_head__count__3_models(
+    project_client: TestClient,
+    model_id: int,
+    model_b_id: int,
+    model_c_id: int,
+) -> None:
+    assert project_client.get("/head-to-head/count").json() == 5

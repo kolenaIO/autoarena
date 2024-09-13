@@ -103,6 +103,13 @@ class Task:
     logs: str
 
 
+@dataclass(frozen=True)
+class TriggerAutoJudgeRequest:
+    judge_ids: list[int]
+    fraction: float  # on [0,1]
+    skip_existing: bool
+
+
 class JudgeType(str, Enum):
     HUMAN = "human"
     OLLAMA = "ollama"

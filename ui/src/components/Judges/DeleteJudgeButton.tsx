@@ -1,5 +1,6 @@
-import { Button, Code, Modal, Stack, Text } from '@mantine/core';
+import { ActionIcon, Code, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { IconTrashX } from '@tabler/icons-react';
 import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { Judge } from '../../hooks/useJudges.ts';
@@ -20,9 +21,9 @@ export function DeleteJudgeButton({ judge }: Props) {
 
   return (
     <>
-      <Button color="red" variant="light" onClick={toggle}>
-        Delete
-      </Button>
+      <ActionIcon variant="light" color="red" size="md" onClick={toggle}>
+        <IconTrashX size={20} />
+      </ActionIcon>
       <Modal opened={isOpen} centered onClose={close} title="Confirm Judge Deletion">
         <Stack>
           <Stack gap="sm">

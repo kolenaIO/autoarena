@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Accordion, Button, Checkbox, Collapse, Group, Pill, Stack, Text } from '@mantine/core';
+import { Accordion, Button, Checkbox, Collapse, Group, Pill, Stack, Text, Tooltip } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
+import { IconGavel } from '@tabler/icons-react';
 import { Judge } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
@@ -10,6 +11,7 @@ import { pluralize } from '../../lib/string.ts';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
+import { TriggerAutoJudgeModal } from './TriggerAutoJudgeModal.tsx';
 
 type Props = {
   judge: Judge;
@@ -20,6 +22,8 @@ export function JudgeAccordionItem({ judge }: Props) {
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
+  const [showAutoJudgeModal, { toggle: toggleShowAutoJudgeModal, close: closeShowAutoJudgeModal }] =
+    useDisclosure(false);
 
   function handleToggleEnabled() {
     updateJudge({ enabled: !enabled });
@@ -72,10 +76,27 @@ export function JudgeAccordionItem({ judge }: Props) {
                   <Text c="dimmed" size="xs" fs="italic">
                     {pluralize(judge.n_votes, 'vote')} submitted
                   </Text>
-                  <Button variant="light" color="gray" onClick={toggleShowSystemPrompt}>
+                  <Button variant="light" color="gray" size="xs" onClick={toggleShowSystemPrompt}>
                     {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
                   </Button>
+                  <Tooltip label="Judge must be enabled" disabled={judge.enabled}>
+                    <Button
+                      variant="light"
+                      color="orange"
+                      size="xs"
+                      leftSection={<IconGavel size={20} />}
+                      onClick={toggleShowAutoJudgeModal}
+                      disabled={!judge.enabled}
+                    >
+                      Run Automated Judgement
+                    </Button>
+                  </Tooltip>
                   <DeleteJudgeButton judge={judge} />
+                  <TriggerAutoJudgeModal
+                    judgeId={judge.id}
+                    isOpen={showAutoJudgeModal}
+                    onClose={closeShowAutoJudgeModal}
+                  />
                 </Group>
               </Group>
             </>

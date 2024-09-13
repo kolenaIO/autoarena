@@ -50,7 +50,7 @@ def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFram
         (pd.DataFrame([("p", "r"), ("p2", "")], columns=["prompt", "response"]), 1),
         (pd.DataFrame([("p", "r"), ("", "r")], columns=["prompt", "response"]), 1),
         (pd.DataFrame([("p", ""), ("p2", "")], columns=["prompt", "response"]), 2),
-        (pd.DataFrame([("p", ""), ("p2", "")], columns=["prompt", "response"]), 2),
+        (pd.DataFrame([("", "r"), ("p2", "")], columns=["prompt", "response"]), 2),
     ],
 )
 def test__models__upload__missing_values(project_client: TestClient, df: pd.DataFrame, n_dropped: int) -> None:

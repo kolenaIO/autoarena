@@ -1,10 +1,12 @@
 import shutil
 import uuid
+from io import StringIO
 from pathlib import Path
 from typing import Iterator
 
 import pytest
 from fastapi.testclient import TestClient
+from loguru import logger
 
 from autoarena.server import server, API_V1_STR
 from autoarena.store.database import set_data_directory
@@ -19,6 +21,13 @@ def test_data_directory() -> Iterator[Path]:
         yield data_directory
     finally:
         shutil.rmtree(data_directory, ignore_errors=True)
+
+
+@pytest.fixture(scope="function")
+def log_stream() -> Iterator[StringIO]:
+    logs = StringIO()
+    logger.add(logs)
+    yield logs
 
 
 @pytest.fixture(scope="function")

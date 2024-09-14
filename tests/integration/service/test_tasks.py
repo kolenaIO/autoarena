@@ -1,3 +1,6 @@
+from io import StringIO
+from typing import Optional
+
 import pandas as pd
 import pytest
 
@@ -57,13 +60,13 @@ def create_custom_judge_request(name: str) -> api.CreateJudgeRequest:
 
 
 # test here rather than via API as synchronous autojudging is not exposed via the API
-def test__task__auto_judge_by_models(
+def test__task__auto_judge__models(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
     enabled_auto_judges: list[int],
 ) -> None:
     model_a, model_b = models_with_responses
-    TaskService.auto_judge_by_models(project_slug, [model_a])
+    TaskService.auto_judge(project_slug, models=[model_a])
 
     # assert that judging happened as expected
     model_a = ModelService.get_by_id(project_slug, model_a.id)
@@ -80,7 +83,7 @@ def test__task__auto_judge_by_models(
     assert len(tasks[0].logs) > 0
 
 
-def test__task__auto_judge_by_models__many(
+def test__task__auto_judge__many(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
     enabled_auto_judges: list[int],
@@ -90,7 +93,7 @@ def test__task__auto_judge_by_models__many(
     df_bad_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(wrong="response")).iloc[3:]
     df_c = pd.concat([df_good_answer_subset, df_bad_answer_subset])
     model_c = ModelService.upload_responses(project_slug, "good-answers-c", df_c)
-    TaskService.auto_judge_by_models(project_slug, [model_a, model_c])
+    TaskService.auto_judge(project_slug, models=[model_a, model_c])
 
     model_a = ModelService.get_by_id(project_slug, model_a.id)
     model_b = ModelService.get_by_id(project_slug, model_b.id)
@@ -101,10 +104,10 @@ def test__task__auto_judge_by_models__many(
     assert model_c.n_votes == n_judges * len(df_c) * 2  # compared to both A and B
 
 
-def test__task__auto_judge_by_models__no_head_to_heads(project_slug: str, enabled_auto_judges: list[int]) -> None:
+def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_judges: list[int]) -> None:
     df_good_answer = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response"))
     model = ModelService.upload_responses(project_slug, "good-answers", df_good_answer)
-    TaskService.auto_judge_by_models(project_slug, [model])
+    TaskService.auto_judge(project_slug, models=[model])
 
     # assert that no judging has happened
     assert all(m.n_votes == 0 for m in ModelService.get_all(project_slug))
@@ -118,7 +121,28 @@ def test__task__auto_judge_by_models__no_head_to_heads(project_slug: str, enable
     assert len(tasks[0].logs) > 0
 
 
-def test__task__auto_judge_by_judges(
+def test__task__auto_judge__no_enabled_judges(
+    project_slug: str,
+    models_with_responses: tuple[api.Model, api.Model],
+    log_stream: StringIO,
+) -> None:
+    TaskService.auto_judge(project_slug, models=list(models_with_responses))
+    log_stream.seek(0)
+    logs = log_stream.read()
+    assert "No enabled judges found" in logs
+
+
+@pytest.mark.parametrize("models,judges", [(None, None), ([], None), (None, []), ([], [])])
+def test__task__auto_judge__required_arguments(
+    project_slug: str,
+    models: Optional[list],
+    judges: Optional[list],
+) -> None:
+    with pytest.raises(ValueError):
+        TaskService.auto_judge(project_slug, models=models, judges=judges)
+
+
+def test__task__auto_judge__judges(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
     enabled_auto_judges: list[int],
@@ -126,19 +150,15 @@ def test__task__auto_judge_by_judges(
     judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
 
     # check that fraction is applied correctly
-    TaskService.auto_judge_by_judges(project_slug, judges, fraction=0.6)
+    TaskService.auto_judge(project_slug, judges=judges, fraction=0.6)
     judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
     assert all(j.n_votes == int(0.6 * len(TEST_QUESTIONS)) for j in judges)
 
     # check that skip_existing is applied correctly
-    TaskService.auto_judge_by_judges(project_slug, judges, skip_existing=True)
-    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
-    assert all(j.n_votes == len(TEST_QUESTIONS) for j in judges)
-
-    # check that skip_existing is idempotent
-    TaskService.auto_judge_by_judges(project_slug, judges, skip_existing=True)
-    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
-    assert all(j.n_votes == len(TEST_QUESTIONS) for j in judges)
+    for _ in range(2):  # loop to check idempotence
+        TaskService.auto_judge(project_slug, judges=judges, skip_existing=True)
+        judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
+        assert all(j.n_votes == len(TEST_QUESTIONS) for j in judges)
 
 
 def test__task__recompute_leaderboard(project_slug: str, models_with_responses: tuple[api.Model, api.Model]) -> None:

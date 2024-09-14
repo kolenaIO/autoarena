@@ -59,7 +59,7 @@ export function TasksDrawer() {
           closeCompletedTasks();
         }}
         position="right"
-        size="lg"
+        size="xl"
         transitionProps={{ duration: 200 }}
         title={
           <Text fs="italic" c="dimmed" size="sm">

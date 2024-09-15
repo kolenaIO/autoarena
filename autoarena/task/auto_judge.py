@@ -1,11 +1,12 @@
 import dataclasses
 import time
 from collections import defaultdict
-from typing import Optional
+from typing import Optional, Callable
 
 import pandas as pd
 from loguru import logger
 from pydantic.dataclasses import dataclass
+from tenacity import retry, stop_after_attempt, RetryCallState, wait_random_exponential
 
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
@@ -144,14 +145,15 @@ class AutoJudgeTask:
         df_h2h = self._retrieve_head_to_heads()
         judges_with_h2hs = self._instantiate_judges_with_head_to_heads(df_h2h)
         judge_id_by_name = {j.name: j.id for j in self.judges}
-        out_columns = ["response_a_id", "response_b_id", "winner"]
+        out_columns = ["response_a_id", "response_b_id", "judge_id", "winner"]
 
-        responses: dict[str, list[tuple[int, int, str]]] = defaultdict(lambda: [])
+        responses: dict[str, list[tuple[int, int, int, str]]] = defaultdict(lambda: [])
         n_h2h_by_judge_name = {judge.name: len(h2hs) for judge, h2hs in judges_with_h2hs}
         n_total = sum(len(h2hs) for _, h2hs in judges_with_h2hs)
         t_start_judging = time.time()
         for auto_judge, h2h, winner in executor.execute(judges_with_h2hs):
-            responses[auto_judge.name].append((h2h.response_a_id, h2h.response_b_id, winner))
+            judge_id = judge_id_by_name[auto_judge.name]
+            responses[auto_judge.name].append((h2h.response_a_id, h2h.response_b_id, judge_id, winner))
             n_this_judge = len(responses[auto_judge.name])
             n_responses = sum(len(r) for r in responses.values())
             progress = 0.95 * (n_responses / n_total)
@@ -159,8 +161,7 @@ class AutoJudgeTask:
                 message = f"Judged {n_this_judge} of {n_h2h_by_judge_name[auto_judge.name]} with '{auto_judge.name}'"
                 self.log(message, progress=progress)
                 df_h2h_chunk = pd.DataFrame(responses[auto_judge.name][-self.update_every :], columns=out_columns)
-                df_h2h_chunk["judge_id"] = judge_id_by_name[auto_judge.name]
-                HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_chunk)
+                self._try_write(lambda: HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_chunk))
             if n_this_judge == n_h2h_by_judge_name[auto_judge.name]:
                 message = (
                     f"Judge '{auto_judge.name}' finished judging {n_h2h_by_judge_name[auto_judge.name]} head-to-heads "
@@ -169,10 +170,28 @@ class AutoJudgeTask:
                 self.log(message, progress=progress)
                 self.log(auto_judge.get_usage_summary())
                 df_h2h_all = pd.DataFrame(responses[auto_judge.name], columns=out_columns)
-                df_h2h_all["judge_id"] = judge_id_by_name[auto_judge.name]
-                HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_all)
+                self._try_write(lambda: HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_all))
 
         self.log("Recomputing leaderboard rankings", progress=0.975)
-        EloService.reseed_scores(self.project_slug, config=self.elo_config)
+        self._try_write(lambda: EloService.reseed_scores(self.project_slug, config=self.elo_config))
         message = f"Completed automated judging in {time.time() - self.t_start:0.1f} seconds"
         self.log(message, progress=1, status=api.TaskStatus.COMPLETED, level="SUCCESS")
+
+    @staticmethod
+    def _try_write(write_thunk: Callable[[], None]) -> None:
+        """
+        We're running into a limitation of DuckDB here -- concurrent writes are not well-supported. Give a best effort
+        by retrying write attempts, an [officially endorsed strategy](https://duckdb.org/docs/connect/concurrency.html).
+
+        This situation could be improved but requires answering tough questions about what kind of operations we want to
+        optimize the persistence layer for, and what kind of operations we're OK with it struggling with.
+        """
+
+        def _log_retry(retry_state: RetryCallState) -> None:
+            logger.warning(f"Retrying write attempt {retry_state.attempt_number} (error: {retry_state.outcome})")
+
+        @retry(wait=wait_random_exponential(max=5), stop=stop_after_attempt(5), after=_log_retry)
+        def _try_write_inner(thunk: Callable[[], None]) -> None:
+            thunk()
+
+        return _try_write_inner(write_thunk)

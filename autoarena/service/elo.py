@@ -50,20 +50,14 @@ class EloService:
         df_h2h = EloService.get_df_head_to_head(project_slug)
         df_elo = EloService.compute_elo(df_h2h, config=config)  # noqa: F841
         with ProjectService.connect(project_slug) as conn:
-            conn.execute(  # reset all scores before updating new ones
-                "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL",
-                dict(default_elo=EloConfig.default_score),
-            )
             conn.execute(
                 """
-                INSERT INTO model (name, elo, q025, q975)
-                SELECT model, elo, q025, q975
-                FROM df_elo
-                ON CONFLICT (name) DO UPDATE SET
-                    elo = EXCLUDED.elo,
-                    q025 = EXCLUDED.q025,
-                    q975 = EXCLUDED.q975;
-            """,
+                UPDATE model
+                SET elo = df_elo.elo, q025 = df_elo.q025, q975 = df_elo.q975
+                FROM model m2
+                LEFT JOIN df_elo ON df_elo.model = m2.name -- left join to set null values for any models without votes
+                WHERE model.id = m2.id;
+                """,
             )
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py

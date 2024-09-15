@@ -1,3 +1,4 @@
+from concurrent.futures import ThreadPoolExecutor
 from typing import Callable
 
 import pandas as pd
@@ -216,3 +217,37 @@ def test__auto_judge_task__saves_progress(
     assert all([j.n_votes == len(TEST_QUESTIONS) for j in judges if j in enabled_auto_judge_ids])  # saved
     crashing_judge = [j for j in judges if j.id == crashing_judge.id][0]
     assert crashing_judge.n_votes == 2  # crashed on 4, saved first 2
+
+
+@pytest.mark.parametrize("n_tasks", [2, 4, 8])
+def test__auto_judge_task__saves_progress__concurrent(
+    project_slug: str,
+    models_with_responses: tuple[api.Model, api.Model],
+    enabled_auto_judges: list[api.Judge],
+    log_stream: Callable[[], str],
+    n_tasks: int,
+) -> None:
+    tasks = []
+    for _ in range(n_tasks):
+        task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE).id
+        auto_judge_task = AutoJudgeTask(
+            project_slug=project_slug,
+            task_id=task_id,
+            models=list(models_with_responses),
+            judges=enabled_auto_judges,
+            judge_wrappers=[],
+            update_every=1,
+        )
+        tasks.append(auto_judge_task)
+
+    with ThreadPoolExecutor(max_workers=n_tasks) as executor:
+        futures = [executor.submit(auto_judge_task.run, BlockingExecutor()) for auto_judge_task in tasks]
+
+    assert all(f.result() is None for f in futures)
+    assert log_stream().count("SUCCESS") == n_tasks
+    task_ids = {t.task_id for t in tasks}
+    assert all(t.status is api.TaskStatus.COMPLETED for t in TaskService.get_all(project_slug) if t.id in task_ids)
+    enabled_auto_judge_ids = {j.id for j in enabled_auto_judges}
+    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judge_ids]
+    assert len(judges) == len(enabled_auto_judges)
+    assert all([j.n_votes == len(TEST_QUESTIONS) for j in judges])

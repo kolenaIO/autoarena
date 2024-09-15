@@ -50,7 +50,6 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
   }
 
   function handleSubmit({ name, modelName, systemPrompt }: Form) {
-    console.log(name, modelName, systemPrompt);
     createJudge({
       judge_type: judgeType,
       name,

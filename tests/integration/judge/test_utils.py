@@ -17,6 +17,6 @@ from tests.unit.judge.conftest import DummyJudge
     ],
 )
 def test__fixing_judge(raw: str, expected: str) -> None:
-    test_judge = fixing_wrapper(DummyJudge)("dummy", "description")
+    test_judge = fixing_wrapper(DummyJudge)("dummy", "dummy", "description")
     test_judge.winners = [raw]
     assert test_judge.judge("p", "a", "b") == expected

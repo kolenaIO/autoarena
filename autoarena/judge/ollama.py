@@ -8,8 +8,8 @@ from autoarena.judge.utils import get_user_prompt
 class OllamaJudge(AutomatedJudge):
     API_KEY_NAME = None  # does not require an API key
 
-    def __init__(self, model_name: str, system_prompt: str) -> None:
-        super().__init__(model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+        super().__init__(name, model_name, system_prompt)
         self._client = ollama
         try:
             self._client.show(model_name)  # ensure this model exists and is pulled

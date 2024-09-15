@@ -9,8 +9,8 @@ from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_
 class GeminiJudge(AutomatedJudge):
     API_KEY_NAME = "GOOGLE_API_KEY"
 
-    def __init__(self, model_name: str, system_prompt: str) -> None:
-        super().__init__(model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+        super().__init__(name, model_name, system_prompt)
         genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
         self._model = genai.GenerativeModel(model_name)
 

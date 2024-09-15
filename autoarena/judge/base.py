@@ -9,6 +9,7 @@ class AutomatedJudge(metaclass=ABCMeta):
     API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
     MAX_TOKENS = 12  # should really just need one or two
 
+    _name: str
     _model_name: str
     _system_prompt: str
 
@@ -16,7 +17,8 @@ class AutomatedJudge(metaclass=ABCMeta):
     total_input_tokens: int
     total_output_tokens: int
 
-    def __init__(self, model_name: str, system_prompt: str):
+    def __init__(self, name: str, model_name: str, system_prompt: str):
+        self._name = name
         self._model_name = model_name
         self._system_prompt = system_prompt
         self.n_calls = 0
@@ -29,7 +31,7 @@ class AutomatedJudge(metaclass=ABCMeta):
 
     @property
     def name(self) -> str:
-        return self._model_name
+        return self._name
 
     @property
     def model_name(self) -> str:

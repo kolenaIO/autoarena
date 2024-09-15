@@ -1,4 +1,4 @@
-import { ReactNode, useMemo } from 'react';
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Modal, Select, Stack, Text, TextInput, Transition } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useUrlState } from '../../hooks/useUrlState.ts';
@@ -22,10 +22,11 @@ type Props = {
   onClose: () => void;
   extraCopy?: ReactNode;
 };
-export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
+export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
   const { projectSlug = '' } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
   const { mutate: createJudge } = useCreateJudge({ projectSlug });
+  const [showNameInput, setShowNameInput] = useState(false);
 
   const existingJudgeNames = useMemo(() => new Set((judges ?? []).map(({ name }) => name)), [judges]);
 
@@ -43,6 +44,13 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
     },
     validateInputOnChange: true,
   });
+  const { modelName, systemPrompt } = form.getValues();
+
+  useEffect(() => {
+    if (modelName !== '') {
+      setShowNameInput(true);
+    }
+  }, [modelName]);
 
   function handleClose() {
     onClose();
@@ -60,7 +68,6 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
     handleClose();
   }
 
-  const { modelName, systemPrompt } = form.getValues();
   return (
     <Modal
       opened={isOpen}
@@ -91,12 +98,7 @@ export function CreateProprietaryJudgeModal({ judgeType, modelOptions, isOpen, o
               {...form.getInputProps('modelName')}
             />
           )}
-          <Transition
-            mounted={modelName !== ''} // TODO: not the best condition
-            transition="slide-right"
-            duration={200}
-            timingFunction="ease"
-          >
+          <Transition mounted={isOpen && showNameInput} transition="slide-right" duration={200} timingFunction="ease">
             {transitionStyle => (
               <TextInput
                 style={transitionStyle}

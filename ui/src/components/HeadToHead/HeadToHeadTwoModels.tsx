@@ -55,7 +55,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     setHeadToHeadIndex(0);
   }, [modelAId, modelBId]);
 
-  function navigatePrevious() {
+  function navigateBack() {
     setHeadToHeadIndex(prev => Math.max(0, prev - 1));
   }
   function navigateNext() {
@@ -80,7 +80,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     ['ArrowUp', submitVote('-')],
     ['ArrowDown', submitVote('-')],
     ['ArrowRight', submitVote('B')],
-    ['p', navigatePrevious],
+    ['b', navigateBack],
     ['n', navigateNext],
     ['h', toggleShowVoteHistory],
   ]);
@@ -180,14 +180,14 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
               <Text fw="bold">Which response is better?</Text>
               <SimpleGrid cols={5} spacing="xs">
                 <Button
-                  leftSection={<Kbd>p</Kbd>}
+                  leftSection={<Kbd>b</Kbd>}
                   variant="subtle"
                   color="gray"
-                  onClick={navigatePrevious}
+                  onClick={navigateBack}
                   disabled={headToHeadIndex < 1}
                   h="100%"
                 >
-                  Previous
+                  Back
                 </Button>
                 <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')} h="100%">
                   Left is Better

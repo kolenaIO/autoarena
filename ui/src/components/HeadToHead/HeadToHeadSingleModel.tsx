@@ -1,5 +1,5 @@
 import { IconArrowLeft, IconArrowRight, IconCactus } from '@tabler/icons-react';
-import { Button, Group, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import { useElementSize, useHotkeys } from '@mantine/hooks';
 import { pluralize } from '../../lib/string.ts';
@@ -23,7 +23,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
   const response = useMemo(() => (modelResponses ?? [])?.[responseIndex], [modelResponses, responseIndex]);
   const nResponses = useMemo(() => (modelResponses ?? []).length, [modelResponses]);
 
-  function navigatePrevious() {
+  function navigateBack() {
     setResponseIndex(prev => Math.max(0, prev - 1));
   }
   function navigateNext() {
@@ -31,8 +31,10 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
   }
 
   useHotkeys([
-    ['ArrowLeft', navigatePrevious],
+    ['ArrowLeft', navigateBack],
     ['ArrowRight', navigateNext],
+    ['b', navigateBack],
+    ['n', navigateNext],
   ]);
 
   const modelName = model != null ? `'${model.name}'` : 'selected model';
@@ -58,20 +60,26 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
       <ControlBar ref={controlBarRef}>
         <Stack align="center" gap="xs">
           <SimpleGrid cols={2} spacing="xs">
-            <Button
-              leftSection={<IconArrowLeft {...iconProps} />}
-              onClick={navigatePrevious}
-              disabled={responseIndex < 1}
-            >
-              Previous
-            </Button>
-            <Button
-              rightSection={<IconArrowRight {...iconProps} />}
-              onClick={navigateNext}
-              disabled={responseIndex >= nResponses - 1}
-            >
-              Next
-            </Button>
+            <Group justify="space-between">
+              <Kbd>b</Kbd>
+              <Button
+                leftSection={<IconArrowLeft {...iconProps} />}
+                onClick={navigateBack}
+                disabled={responseIndex < 1}
+              >
+                Back
+              </Button>
+            </Group>
+            <Group justify="space-between">
+              <Button
+                rightSection={<IconArrowRight {...iconProps} />}
+                onClick={navigateNext}
+                disabled={responseIndex >= nResponses - 1}
+              >
+                Next
+              </Button>
+              <Kbd>n</Kbd>
+            </Group>
           </SimpleGrid>
         </Stack>
       </ControlBar>

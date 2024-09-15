@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from pydantic.dataclasses import dataclass
 
@@ -53,7 +53,7 @@ class HeadToHeadsRequest:
     model_b_id: Optional[int] = None  # when empty, get all pairings
 
 
-WinnerType = Literal["A", "B", "-"]
+WinnerType = Union[Literal["A", "B", "-"], str]  # should be one of the literal values, but could be anything
 
 
 @dataclass(frozen=True)

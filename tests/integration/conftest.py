@@ -2,7 +2,7 @@ import shutil
 import uuid
 from io import StringIO
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Callable
 
 import pytest
 from fastapi.testclient import TestClient
@@ -24,10 +24,15 @@ def test_data_directory() -> Iterator[Path]:
 
 
 @pytest.fixture(scope="function")
-def log_stream() -> Iterator[StringIO]:
+def log_stream() -> Iterator[Callable[[], str]]:
     logs = StringIO()
     logger.add(logs)
-    yield logs
+
+    def get() -> str:
+        logs.seek(0)
+        return logs.read()
+
+    yield get
 
 
 @pytest.fixture(scope="function")

@@ -1,6 +1,7 @@
 import os
 
 import google.generativeai as genai
+from loguru import logger
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
@@ -36,4 +37,8 @@ class GeminiJudge(AutomatedJudge):
             },
         )
         self.update_usage(response.usage_metadata.prompt_token_count, response.usage_metadata.candidates_token_count)
+        if response.prompt_feedback.block_reason != 0:
+            message = f"Prompt blocked by '{self.name}' safety filters: {response.prompt_feedback}. Recording as '-'"
+            logger.warning(message)
+            return "-"
         return response.text

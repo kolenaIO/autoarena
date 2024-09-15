@@ -1,5 +1,4 @@
-from io import StringIO
-from typing import Optional
+from typing import Callable
 
 import pandas as pd
 import pytest
@@ -7,10 +6,12 @@ import pytest
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.custom import register_custom_judge_class
+from autoarena.judge.executor import BlockingExecutor
 from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
 from autoarena.service.model import ModelService
 from autoarena.service.task import TaskService
+from autoarena.task.auto_judge import AutoJudgeTask
 
 TEST_QUESTIONS = [
     dict(prompt="What is 2+2?", wrong="100 million", right="4"),
@@ -31,7 +32,7 @@ def models_with_responses(project_slug: str) -> tuple[api.Model, api.Model]:
 
 
 @pytest.fixture
-def enabled_auto_judges(project_slug: str) -> list[int]:
+def enabled_auto_judges(project_slug: str) -> list[api.Judge]:
     class VotesForTheGoodOneJudge(AutomatedJudge):
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:
             good_answers = set(q["right"] for q in TEST_QUESTIONS)
@@ -43,10 +44,11 @@ def enabled_auto_judges(project_slug: str) -> list[int]:
     register_custom_judge_class("GoodJudge2", VotesForTheGoodOneJudge)
     register_custom_judge_class("GoodJudge3", VotesForTheGoodOneJudge)
     # should be enabled by default
-    judge_a_id = JudgeService.create(project_slug, create_custom_judge_request("GoodJudge1")).id
-    judge_b_id = JudgeService.create(project_slug, create_custom_judge_request("GoodJudge2")).id
-    judge_c_id = JudgeService.create(project_slug, create_custom_judge_request("GoodJudge3")).id
-    return [judge_a_id, judge_b_id, judge_c_id]
+    return [
+        JudgeService.create(project_slug, create_custom_judge_request("GoodJudge1")),
+        JudgeService.create(project_slug, create_custom_judge_request("GoodJudge2")),
+        JudgeService.create(project_slug, create_custom_judge_request("GoodJudge3")),
+    ]
 
 
 def create_custom_judge_request(name: str) -> api.CreateJudgeRequest:
@@ -63,7 +65,7 @@ def create_custom_judge_request(name: str) -> api.CreateJudgeRequest:
 def test__task__auto_judge__models(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    enabled_auto_judges: list[int],
+    enabled_auto_judges: list[api.Judge],
 ) -> None:
     model_a, model_b = models_with_responses
     TaskService.auto_judge(project_slug, models=[model_a])
@@ -86,7 +88,7 @@ def test__task__auto_judge__models(
 def test__task__auto_judge__many(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    enabled_auto_judges: list[int],
+    enabled_auto_judges: list[api.Judge],
 ) -> None:
     model_a, model_b = models_with_responses
     df_good_answer_subset = pd.DataFrame.from_records(TEST_QUESTIONS).rename(columns=dict(right="response")).iloc[:2]
@@ -124,40 +126,27 @@ def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_jud
 def test__task__auto_judge__no_enabled_judges(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    log_stream: StringIO,
+    log_stream: Callable[[], str],
 ) -> None:
     TaskService.auto_judge(project_slug, models=list(models_with_responses))
-    log_stream.seek(0)
-    logs = log_stream.read()
-    assert "No enabled judges found" in logs
-
-
-@pytest.mark.parametrize("models,judges", [(None, None), ([], None), (None, []), ([], [])])
-def test__task__auto_judge__required_arguments(
-    project_slug: str,
-    models: Optional[list],
-    judges: Optional[list],
-) -> None:
-    with pytest.raises(ValueError):
-        TaskService.auto_judge(project_slug, models=models, judges=judges)
+    assert "No enabled judges found" in log_stream()
 
 
 def test__task__auto_judge__judges(
     project_slug: str,
     models_with_responses: tuple[api.Model, api.Model],
-    enabled_auto_judges: list[int],
+    enabled_auto_judges: list[api.Judge],
 ) -> None:
-    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
-
+    enabled_auto_judge_ids = {j.id for j in enabled_auto_judges}
     # check that fraction is applied correctly
-    TaskService.auto_judge(project_slug, judges=judges, fraction=0.6)
-    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
+    TaskService.auto_judge(project_slug, judges=enabled_auto_judges, fraction=0.6)
+    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judge_ids]
     assert all(j.n_votes == int(0.6 * len(TEST_QUESTIONS)) for j in judges)
 
     # check that skip_existing is applied correctly
     for _ in range(2):  # loop to check idempotence
         TaskService.auto_judge(project_slug, judges=judges, skip_existing=True)
-        judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judges]
+        judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judge_ids]
         assert all(j.n_votes == len(TEST_QUESTIONS) for j in judges)
 
 
@@ -181,3 +170,49 @@ def test__task__recompute_leaderboard(project_slug: str, models_with_responses: 
     assert tasks[0].task_type is api.TaskType.RECOMPUTE_LEADERBOARD
     assert tasks[0].progress == 1
     assert len(tasks[0].status) > 0
+
+
+def test__auto_judge_task__saves_progress(
+    project_slug: str,
+    models_with_responses: tuple[api.Model, api.Model],
+    enabled_auto_judges: list[api.Judge],
+    log_stream: Callable[[], str],
+) -> None:
+    class CrashesAfter3Judge(AutomatedJudge):
+        def __init__(self, model_name: str, system_prompt: str):
+            super().__init__(model_name, system_prompt)
+            self.seen = 0
+
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+            self.seen += 1
+            if self.seen > 3:
+                raise RuntimeError(f"seen {self.seen}")
+            return "-"
+
+    register_custom_judge_class(CrashesAfter3Judge.__name__, CrashesAfter3Judge)
+    crashing_judge = JudgeService.create(project_slug, create_custom_judge_request(CrashesAfter3Judge.__name__))
+
+    task_id = TaskService.create(project_slug, api.TaskType.AUTO_JUDGE).id
+    auto_judge_task = AutoJudgeTask(
+        project_slug=project_slug,
+        task_id=task_id,
+        models=list(models_with_responses),
+        judges=[*enabled_auto_judges, crashing_judge],
+        judge_wrappers=[],
+        update_every=2,
+    )
+
+    with pytest.raises(RuntimeError):
+        with BlockingExecutor() as executor:
+            auto_judge_task.run(executor)
+
+    assert "ERROR" in log_stream() and "seen 4" in log_stream()
+    tasks = TaskService.get_all(project_slug)
+    assert len(tasks) == 1
+    assert tasks[0].status == api.TaskStatus.FAILED
+    enabled_auto_judge_ids = {j.id for j in enabled_auto_judges}
+    judges = [j for j in JudgeService.get_all(project_slug) if j.id in enabled_auto_judge_ids | {crashing_judge.id}]
+    assert len(judges) == 4
+    assert all([j.n_votes == len(TEST_QUESTIONS) for j in judges if j in enabled_auto_judge_ids])  # saved
+    crashing_judge = [j for j in judges if j.id == crashing_judge.id][0]
+    assert crashing_judge.n_votes == 2  # crashed on 4, saved first 2

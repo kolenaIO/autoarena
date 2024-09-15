@@ -45,6 +45,7 @@ export function TaskAccordionItem({ task }: Props) {
       <Accordion.Panel>
         <Stack>
           <Progress
+            color={`${taskStatusToColor(task.status)}.2`}
             value={task.progress * 100}
             striped={!taskIsDone(task.status)}
             animated={!taskIsDone(task.status)}

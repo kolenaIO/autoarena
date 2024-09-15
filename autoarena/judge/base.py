@@ -7,7 +7,7 @@ from loguru import logger
 
 class AutomatedJudge(metaclass=ABCMeta):
     API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
-    MAX_TOKENS = 12  # should really just need one or two
+    MAX_TOKENS: int = 12  # should really just need one or two
 
     _name: str
     _model_name: str

@@ -61,10 +61,10 @@ def fixing_wrapper(judge_class: type[T]) -> type[T]:
         CLASSES = [A_IS_BETTER, B_IS_BETTER, TIE]
         CLASS_TO_WINNER = {A_IS_BETTER: "A", B_IS_BETTER: "B", TIE: "-"}
 
-        def __init__(self, model_name: str, system_prompt: str):
+        def __init__(self, name: str, model_name: str, system_prompt: str):
             from transformers import pipeline
 
-            super().__init__(model_name, system_prompt)
+            super().__init__(name, model_name, system_prompt)
             self.pipe = pipeline(model=self.CLASSIFIER_MODEL, device="cpu")
 
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:

@@ -1,5 +1,5 @@
-import { Anchor, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
-import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
+import { Group, Stack, Tabs } from '@mantine/core';
+import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
@@ -11,6 +11,7 @@ import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
 import { TasksDrawer } from './TasksDrawer/TasksDrawer.tsx';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
+import { MainMenu } from './MainMenu.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';
 export const TAB_COMPARISON = 'Head-to-Head';
@@ -59,17 +60,7 @@ export function Page({ tab }: Props) {
     <Tabs value={tab} onChange={setTab} keepMounted={false}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <Group align="center" p="xs" pl="lg" pr="xl" h={58}>
-          <Anchor underline="never" href="/">
-            <Group gap={4}>
-              <IconStack2Filled color="var(--mantine-color-kolena-6)" />
-              <Text fw="bold" c="black">
-                AutoArena
-              </Text>
-              <Tooltip label="Beta Release" fz="xs">
-                <IconBeta size={14} color="var(--mantine-color-ice-8)" />
-              </Tooltip>
-            </Group>
-          </Anchor>
+          <MainMenu />
         </Group>
         <Tabs.Tab
           ml="xl"

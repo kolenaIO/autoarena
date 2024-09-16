@@ -26,7 +26,7 @@ def test__tasks__has_active(project_client: TestClient) -> None:
     assert responses[0] == dict(has_active=False)
 
 
-def test__tasks__stream(project_client: TestClient, model_ids: list[int]) -> None:
+def test__tasks__get_stream(project_client: TestClient, model_ids: list[int]) -> None:
     assert project_client.delete(f"/model/{model_ids[0]}").json() is None  # kicks off a leaderboard recompute
     tasks = project_client.get("/tasks").json()
     assert len(tasks) == 1

@@ -31,28 +31,6 @@ class TaskService:
             raise NotFoundError(f"Task with id '{task_id}' not found")
 
     @staticmethod
-    async def get_has_active_stream(
-        project_slug: str,
-        timeout: Optional[float] = None,
-    ) -> AsyncIterator[api.HasActiveTasks]:
-        def get_has_active() -> api.HasActiveTasks:
-            with ProjectService.connect(project_slug) as conn:
-                records = conn.execute(
-                    "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN ($started, $in_progress))",
-                    dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
-                ).fetchall()
-                return api.HasActiveTasks(has_active=len(records) > 0)
-
-        t0 = time.time()
-        prev: Optional[api.HasActiveTasks] = None
-        while timeout is None or time.time() - t0 < timeout:
-            cur = get_has_active()
-            if prev != cur:
-                yield cur
-            prev = cur
-            await asyncio.sleep(1)
-
-    @staticmethod
     async def get_stream(project_slug: str, task_id: int) -> AsyncIterator[api.Task]:
         prev: Optional[api.Task] = None
         while True:
@@ -63,6 +41,29 @@ class TaskService:
                 break
             prev = cur
             await asyncio.sleep(0.2)
+
+    @staticmethod
+    def has_active(project_slug: str) -> api.HasActiveTasks:
+        with ProjectService.connect(project_slug) as conn:
+            records = conn.execute(
+                "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN ($started, $in_progress))",
+                dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
+            ).fetchall()
+            return api.HasActiveTasks(has_active=len(records) > 0)
+
+    @staticmethod
+    async def has_active_stream(
+        project_slug: str,
+        timeout: Optional[float] = None,
+    ) -> AsyncIterator[api.HasActiveTasks]:
+        t0 = time.time()
+        prev: Optional[api.HasActiveTasks] = None
+        while timeout is None or time.time() - t0 < timeout:
+            cur = TaskService.has_active(project_slug)
+            if prev != cur:
+                yield cur
+            prev = cur
+            await asyncio.sleep(1)
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:

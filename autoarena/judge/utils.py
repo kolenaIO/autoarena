@@ -92,22 +92,3 @@ def rate_limit(
         return wrapper
 
     return decorator
-
-
-def warn_if_slow(*, slow_threshold_seconds: float = 10) -> Callable:
-    Params = ParamSpec("Params")
-    ReturnType = TypeVar("ReturnType")
-
-    def decorator(f: Callable[Params, ReturnType]) -> Callable[Params, ReturnType]:
-        @functools.wraps(f)
-        def wrapper(*args: Params.args, **kwargs: Params.kwargs) -> ReturnType:
-            t0 = time.time()
-            out = f(*args, **kwargs)
-            t1 = time.time()
-            if t1 - t0 >= slow_threshold_seconds:
-                logger.warning(f"Slow response from {f.__qualname__}: {t1 - t0:0.3f} seconds")
-            return out
-
-        return wrapper
-
-    return decorator

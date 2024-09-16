@@ -3,7 +3,7 @@ import os
 import google.generativeai as genai
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
+from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit, warn_if_slow
 
 
 class GeminiJudge(AutomatedJudge):
@@ -21,6 +21,7 @@ class GeminiJudge(AutomatedJudge):
         list(genai.list_models(page_size=1))
 
     @rate_limit(n_calls=1_000, n_seconds=60)
+    @warn_if_slow(slow_threshold_seconds=5)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         user_prompt = get_user_prompt(prompt, response_a, response_b)
         full_prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=user_prompt)

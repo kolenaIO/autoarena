@@ -1,7 +1,7 @@
 import boto3
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import rate_limit, get_user_prompt
+from autoarena.judge.utils import rate_limit, get_user_prompt, warn_if_slow
 
 
 class BedrockJudge(AutomatedJudge):
@@ -16,6 +16,7 @@ class BedrockJudge(AutomatedJudge):
         boto3.client(service_name="sts").get_caller_identity()
 
     @rate_limit(n_calls=200, n_seconds=1, n_call_buffer=25)
+    @warn_if_slow(slow_threshold_seconds=5)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response = self._client.converse(
             modelId=self.model_name,

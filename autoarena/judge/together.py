@@ -1,7 +1,7 @@
 import together
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import rate_limit, get_user_prompt
+from autoarena.judge.utils import rate_limit, get_user_prompt, warn_if_slow
 
 
 class TogetherJudge(AutomatedJudge):
@@ -16,6 +16,7 @@ class TogetherJudge(AutomatedJudge):
         together.Client().models.list()
 
     @rate_limit(n_calls=10, n_seconds=1, n_call_buffer=2)
+    @warn_if_slow(slow_threshold_seconds=5)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response = self._client.chat.completions.create(
             model=self.model_name,

@@ -1,7 +1,7 @@
 import cohere
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, warn_if_slow
 
 
 class CohereJudge(AutomatedJudge):
@@ -16,6 +16,7 @@ class CohereJudge(AutomatedJudge):
         cohere.Client().models.list()
 
     @rate_limit(n_calls=1_000, n_seconds=60)
+    @warn_if_slow(slow_threshold_seconds=5)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response = self._client.chat(
             model=self.model_name,

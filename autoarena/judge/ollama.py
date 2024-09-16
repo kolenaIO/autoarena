@@ -2,7 +2,7 @@ import httpx
 import ollama
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt
+from autoarena.judge.utils import get_user_prompt, warn_if_slow
 
 
 class OllamaJudge(AutomatedJudge):
@@ -25,6 +25,7 @@ class OllamaJudge(AutomatedJudge):
         except httpx.ConnectError:
             raise RuntimeError("Unable to connect to Ollama, ensure it is running on the same host running AutoArena")
 
+    @warn_if_slow(slow_threshold_seconds=5)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response = self._client.chat(
             model=self.model_name,

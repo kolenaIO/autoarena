@@ -1,7 +1,7 @@
 import anthropic
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, warn_if_slow
 
 
 class AnthropicJudge(AutomatedJudge):
@@ -23,6 +23,7 @@ class AnthropicJudge(AutomatedJudge):
 
     # anthropic has different tiers with 1000/2000/4000, opting to be conservative by default
     @rate_limit(n_calls=1_000, n_seconds=60)
+    @warn_if_slow(slow_threshold_seconds=5)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response = self._client.messages.create(
             model=self.model_name,

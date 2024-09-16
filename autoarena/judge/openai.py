@@ -6,7 +6,7 @@ from openai import OpenAI
 from pytimeparse.timeparse import timeparse
 
 from autoarena.judge.base import AutomatedJudge
-from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.judge.utils import get_user_prompt, rate_limit, warn_if_slow
 
 
 class OpenAIJudge(AutomatedJudge):
@@ -22,6 +22,7 @@ class OpenAIJudge(AutomatedJudge):
 
     # OpenAI has different tiers and different rate limits for different models, choose a safeish value
     @rate_limit(n_calls=1_000, n_seconds=60)
+    @warn_if_slow(slow_threshold_seconds=5)  # TODO: this will complain when handle_rate_limit self-throttles
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         response_raw = self._client.chat.completions.with_raw_response.create(
             model=self.model_name,

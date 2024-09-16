@@ -29,6 +29,20 @@ class TaskService:
             raise NotFoundError(f"Task with id '{task_id}' not found")
 
     @staticmethod
+    def get_has_active_stream(project_slug: str) -> Iterator[api.HasActiveTasks]:
+        def get_has_active() -> api.HasActiveTasks:
+            with ProjectService.connect(project_slug) as conn:
+                records = conn.execute(
+                    "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN ($started, $in_progress))",
+                    dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
+                ).fetchall()
+                return api.HasActiveTasks(has_active=len(records) > 0)
+
+        while True:
+            yield get_has_active()
+            time.sleep(1)  # TODO: better way to do this?
+
+    @staticmethod
     def get_stream(project_slug: str, task_id: int) -> Iterator[api.Task]:
         task = TaskService.get(project_slug, task_id)
         while task.status != api.TaskStatus.COMPLETED and task.status != api.TaskStatus.FAILED:

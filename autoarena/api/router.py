@@ -135,8 +135,13 @@ def router() -> APIRouter:
         return TaskService.get_all(project_slug)
 
     @r.get("/project/{project_slug}/task/{task_id}/stream")
-    def get_task_stream(project_slug: str, task_id: int) -> StreamingResponse:  # Iterator[api.Task]
+    async def get_task_stream(project_slug: str, task_id: int) -> StreamingResponse:  # Iterator[api.Task]
         sse_stream = as_sse_stream(TaskService.get_stream(project_slug, task_id))
+        return StreamingResponse(sse_stream, media_type="text/event-stream")
+
+    @r.get("/project/{project_slug}/tasks/has-active")
+    async def get_has_active_tasks_stream(project_slug: str) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
+        sse_stream = as_sse_stream(TaskService.get_has_active_stream(project_slug))
         return StreamingResponse(sse_stream, media_type="text/event-stream")
 
     @r.delete("/project/{project_slug}/tasks/completed")

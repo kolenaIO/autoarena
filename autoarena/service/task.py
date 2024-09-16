@@ -1,6 +1,7 @@
-import time
+import asyncio
 from datetime import datetime
-from typing import Optional, Iterator
+from typing import Optional, AsyncIterator
+
 
 from autoarena.api import api
 from autoarena.error import NotFoundError
@@ -29,7 +30,7 @@ class TaskService:
             raise NotFoundError(f"Task with id '{task_id}' not found")
 
     @staticmethod
-    def get_has_active_stream(project_slug: str) -> Iterator[api.HasActiveTasks]:
+    async def get_has_active_stream(project_slug: str) -> AsyncIterator[api.HasActiveTasks]:
         def get_has_active() -> api.HasActiveTasks:
             with ProjectService.connect(project_slug) as conn:
                 records = conn.execute(
@@ -40,15 +41,15 @@ class TaskService:
 
         while True:
             yield get_has_active()
-            time.sleep(1)  # TODO: better way to do this?
+            await asyncio.sleep(1)
 
     @staticmethod
-    def get_stream(project_slug: str, task_id: int) -> Iterator[api.Task]:
+    async def get_stream(project_slug: str, task_id: int) -> AsyncIterator[api.Task]:
         task = TaskService.get(project_slug, task_id)
         while task.status != api.TaskStatus.COMPLETED and task.status != api.TaskStatus.FAILED:
             task = TaskService.get(project_slug, task_id)
             yield task
-            time.sleep(0.2)  # TODO: better way to do this?
+            await asyncio.sleep(0.2)
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:

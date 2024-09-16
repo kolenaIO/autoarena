@@ -7,7 +7,7 @@ from starlette.requests import Request
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
-from autoarena.api.utils import as_sse_stream
+from autoarena.api.utils import SSEStreamingResponse
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
@@ -136,13 +136,11 @@ def router() -> APIRouter:
 
     @r.get("/project/{project_slug}/task/{task_id}/stream")
     async def get_task_stream(project_slug: str, task_id: int) -> StreamingResponse:  # Iterator[api.Task]
-        sse_stream = as_sse_stream(TaskService.get_stream(project_slug, task_id))
-        return StreamingResponse(sse_stream, media_type="text/event-stream")
+        return SSEStreamingResponse(TaskService.get_stream(project_slug, task_id))
 
     @r.get("/project/{project_slug}/tasks/has-active")
     async def get_has_active_tasks_stream(project_slug: str) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
-        sse_stream = as_sse_stream(TaskService.get_has_active_stream(project_slug))
-        return StreamingResponse(sse_stream, media_type="text/event-stream")
+        return SSEStreamingResponse(TaskService.get_has_active_stream(project_slug))
 
     @r.delete("/project/{project_slug}/tasks/completed")
     def delete_completed(project_slug: str) -> None:

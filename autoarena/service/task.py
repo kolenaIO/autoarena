@@ -1,7 +1,9 @@
+import time
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Iterator
 
 from autoarena.api import api
+from autoarena.error import NotFoundError
 from autoarena.judge.executor import ThreadedExecutor
 from autoarena.service.elo import EloService
 from autoarena.service.project import ProjectService
@@ -13,6 +15,26 @@ class TaskService:
         with ProjectService.connect(project_slug) as conn:
             df_task = conn.execute("SELECT id, task_type, created, progress, status, logs FROM task").df()
         return [api.Task(**r) for _, r in df_task.iterrows()]
+
+    @staticmethod
+    def get(project_slug: str, task_id: int) -> api.Task:
+        try:
+            with ProjectService.connect(project_slug) as conn:
+                df_task = conn.execute(
+                    "SELECT id, task_type, created, progress, status, logs FROM task WHERE id = $task_id",
+                    dict(task_id=task_id),
+                ).df()
+                return [api.Task(**r) for _, r in df_task.iterrows()][0]
+        except IndexError:
+            raise NotFoundError(f"Task with id '{task_id}' not found")
+
+    @staticmethod
+    def get_stream(project_slug: str, task_id: int) -> Iterator[api.Task]:
+        task = TaskService.get(project_slug, task_id)
+        while task.status != api.TaskStatus.COMPLETED and task.status != api.TaskStatus.FAILED:
+            task = TaskService.get(project_slug, task_id)
+            yield task
+            time.sleep(1)  # TODO: better way to do this?
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:

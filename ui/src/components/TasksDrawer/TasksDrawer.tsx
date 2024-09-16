@@ -20,7 +20,7 @@ export function TasksDrawer() {
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
-  const { data: hasActiveTasks } = useHasActiveTasksStream(projectSlug);
+  const { data: hasActiveTasks = false } = useHasActiveTasksStream(projectSlug);
   const { data: tasks } = useTasks({ projectSlug });
   const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug });
 

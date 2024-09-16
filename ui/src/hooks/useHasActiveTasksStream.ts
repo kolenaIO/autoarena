@@ -1,28 +1,29 @@
-import { useEffect, useState } from 'react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getProjectUrl } from '../lib/routes.ts';
 
-export function useHasActiveTasksStream(projectSlug?: string) {
-  const [hasActiveTasks, setHasActiveTasks] = useState(false);
-  const controller = new AbortController();
+function getHasActiveTasksQueryKey(projectSlug: string) {
+  return [getProjectUrl(projectSlug), '/tasks', '/has-active'];
+}
 
-  useEffect(() => {
-    if (projectSlug == null) {
-      return;
-    }
-    const fetchData = async () => {
-      await fetchEventSource(`${getProjectUrl(projectSlug)}/tasks/has-active`, {
+export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<boolean, Error> {
+  const queryClient = useQueryClient();
+  const queryKey = getHasActiveTasksQueryKey(projectSlug ?? '');
+
+  return useQuery({
+    queryKey,
+    queryFn: async ({ signal }) => {
+      await fetchEventSource(`${getProjectUrl(projectSlug ?? '')}/tasks/has-active`, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
-        signal: controller.signal,
+        signal,
         onmessage: event => {
           const parsedData: { has_active: boolean } = JSON.parse(event.data);
-          setHasActiveTasks(parsedData.has_active);
+          queryClient.setQueryData(queryKey, parsedData.has_active);
         },
       });
-    };
-    fetchData();
-  }, [projectSlug]);
-
-  return { data: hasActiveTasks, controller };
+      return false; // shouldn't get here
+    },
+    enabled: projectSlug != null,
+  });
 }

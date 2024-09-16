@@ -86,7 +86,7 @@ export function Judges() {
           extraCopy={
             <Text inherit>
               Note that a custom API URL can be used by setting{' '}
-              <Code inherit>
+              <Code>
                 <Anchor inherit href={ExternalUrls.OPENAI_BASE_URL_README} target="_blank">
                   OPENAI_BASE_URL
                 </Anchor>

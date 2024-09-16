@@ -9,7 +9,7 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { pluralize } from '../../lib/string.ts';
 import { getModelsQueryKey } from '../../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
-import { taskIsDone } from '../../lib/tasks.ts/utils.ts';
+import { taskIsDone } from '../../lib/tasks.ts';
 import { getProjectUrl } from '../../lib/routes.ts';
 import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
 import { useHasActiveTasksStream } from '../../hooks/useHasActiveTasksStream.ts';

@@ -1,4 +1,4 @@
-import { Task } from '../../hooks/useTasks.ts';
+import { Task } from '../hooks/useTasks.ts';
 
 export function taskIsDone(taskStatus: Task['status']) {
   return taskStatus === 'completed' || taskStatus === 'failed';

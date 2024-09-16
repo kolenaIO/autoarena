@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { getProjectUrl } from '../lib/routes.ts';
-import { taskStatusToColor } from '../lib/tasks.ts/utils.ts';
+import { taskStatusToColor } from '../lib/tasks.ts';
 
 function getTriggerModelJudgementQueryKey(projectSlug: string, modelId: number | undefined) {
   return [getProjectUrl(projectSlug), '/model', modelId, '/judge'];

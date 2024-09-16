@@ -54,6 +54,7 @@ export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, ext
 
   function handleClose() {
     onClose();
+    setShowNameInput(false);
     form.reset();
   }
 

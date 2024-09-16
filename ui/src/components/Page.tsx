@@ -55,7 +55,7 @@ export function Page({ tab }: Props) {
     }
   }
 
-  const iconProps = { width: 20, height: 20, color: 'var(--mantine-color-kolena-8)' };
+  const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
     <Tabs value={tab} onChange={setTab} keepMounted={false}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>

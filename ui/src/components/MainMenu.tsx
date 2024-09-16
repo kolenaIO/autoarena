@@ -8,7 +8,7 @@ export function MainMenu() {
     <Menu>
       <Menu.Target>
         <Group gap={4}>
-          <IconStack2Filled color="var(--mantine-color-kolena-6)" />
+          <IconStack2Filled {...iconProps} />
           <Text fw="bold" c="black">
             AutoArena
           </Text>

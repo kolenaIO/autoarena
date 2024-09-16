@@ -180,8 +180,8 @@ def test__auto_judge_task__saves_progress(
     log_stream: Callable[[], str],
 ) -> None:
     class CrashesAfter3Judge(AutomatedJudge):
-        def __init__(self, model_name: str, system_prompt: str):
-            super().__init__(model_name, system_prompt)
+        def __init__(self, name: str, model_name: str, system_prompt: str):
+            super().__init__(name, model_name, system_prompt)
             self.seen = 0
 
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:

@@ -11,7 +11,6 @@ export function useHasActiveTasksStream(projectSlug?: string) {
       return;
     }
     const fetchData = async () => {
-      // TODO: add proper abort controller
       await fetchEventSource(`${getProjectUrl(projectSlug)}/tasks/has-active`, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
@@ -25,5 +24,5 @@ export function useHasActiveTasksStream(projectSlug?: string) {
     fetchData();
   }, [projectSlug]);
 
-  return hasActiveTasks;
+  return { data: hasActiveTasks, controller };
 }

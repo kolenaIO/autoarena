@@ -1,30 +1,33 @@
-import { useEffect, useState } from 'react';
 import { fetchEventSource } from '@microsoft/fetch-event-source';
+import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { getProjectUrl } from '../lib/routes.ts';
 import { Task } from './useTasks.ts';
 
-export function useTaskStream(projectSlug: string, task: Task, enabled: boolean) {
-  const [taskFromStream, setTaskFromStream] = useState<Task>(task);
-  const controller = new AbortController();
+function getTaskStreamQueryKey(projectSlug: string, task: Task) {
+  return [getProjectUrl(projectSlug), '/task', task.id, '/stream'];
+}
 
-  useEffect(() => {
-    if (!enabled) {
-      return;
-    }
-    const fetchData = async () => {
-      // TODO: add proper abort controller
+export function useTaskStream(projectSlug: string, task: Task, enabled: boolean): UseQueryResult<Task, Error> {
+  const queryClient = useQueryClient();
+  const queryKey = getTaskStreamQueryKey(projectSlug, task);
+
+  return useQuery({
+    queryKey,
+    queryFn: async ({ signal }) => {
+      let latest = task;
       await fetchEventSource(`${getProjectUrl(projectSlug)}/task/${task.id}/stream`, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
-        signal: controller.signal,
+        signal,
         onmessage: event => {
           const parsedData: Task = JSON.parse(event.data);
-          setTaskFromStream(parsedData);
+          latest = parsedData;
+          queryClient.setQueryData(queryKey, parsedData);
         },
       });
-    };
-    fetchData();
-  }, [task.id, enabled]);
-
-  return taskFromStream;
+      return latest;
+    },
+    initialData: task,
+    enabled,
+  });
 }

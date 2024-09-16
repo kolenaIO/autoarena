@@ -43,18 +43,25 @@ class TaskService:
                 return api.HasActiveTasks(has_active=len(records) > 0)
 
         i = 0
+        prev: Optional[api.HasActiveTasks] = None
         while stop_after is None or i < stop_after:
-            yield get_has_active()
+            cur = get_has_active()
+            if prev != cur:
+                yield cur
+            prev = cur
             await asyncio.sleep(1)
             i += 1
 
     @staticmethod
     async def get_stream(project_slug: str, task_id: int) -> AsyncIterator[api.Task]:
+        prev: Optional[api.Task] = None
         while True:
-            task = TaskService.get(project_slug, task_id)
-            yield task
-            if task.status in {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}:
+            cur = TaskService.get(project_slug, task_id)
+            if prev != cur:
+                yield cur
+            if cur.status in {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}:
                 break
+            prev = cur
             await asyncio.sleep(0.2)
 
     @staticmethod

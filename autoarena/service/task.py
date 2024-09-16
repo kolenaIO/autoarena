@@ -45,9 +45,8 @@ class TaskService:
 
     @staticmethod
     async def get_stream(project_slug: str, task_id: int) -> AsyncIterator[api.Task]:
-        task = TaskService.get(project_slug, task_id)
-        while task.status != api.TaskStatus.COMPLETED and task.status != api.TaskStatus.FAILED:
-            task = TaskService.get(project_slug, task_id)
+        done_statuses = {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}
+        while (task := TaskService.get(project_slug, task_id)).status not in done_statuses:
             yield task
             await asyncio.sleep(0.2)
 

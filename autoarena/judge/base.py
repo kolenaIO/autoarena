@@ -62,7 +62,7 @@ class AutomatedJudge(metaclass=ABCMeta):
         self.total_output_tokens += output_tokens
         self.response_seconds.append(response_seconds)
         if response_seconds >= self.SLOW_THRESHOLD_SECONDS:
-            logger.warning(f"Slow response from {self.name}: {response_seconds:0.3f} seconds")
+            logger.warning(f"Slow response from '{self.name}': {response_seconds:0.3f} seconds")
 
     def get_usage_summary(self) -> list[str]:
         return [

@@ -14,6 +14,7 @@ TEST_JUDGE_MODEL_NAMES: dict[api.JudgeType, str] = {
     api.JudgeType.GEMINI: "gemini-1.5-flash",
     api.JudgeType.TOGETHER: "meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
     api.JudgeType.BEDROCK: "meta.llama3-1-8b-instruct-v1:0",
+    api.JudgeType.HUGGINGFACE: "meta-llama/Meta-Llama-3-8B-Instruct",
 }
 
 

@@ -54,6 +54,7 @@ dependencies = [
     "transformers>=4,<5",
     "torch>=2,<3",
     "together>=1,<2",
+    "huggingface_hub",
 ]
 
 [project.optional-dependencies]

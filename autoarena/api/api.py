@@ -124,6 +124,7 @@ class JudgeType(str, Enum):
     GEMINI = "gemini"
     TOGETHER = "together"
     BEDROCK = "bedrock"
+    HUGGINGFACE = "huggingface"
     CUSTOM = "custom"  # TODO: not sure how to handle calling this yet -- will it just be another Ollama model?
 
 

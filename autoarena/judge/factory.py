@@ -7,6 +7,7 @@ from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
 from autoarena.judge.custom import get_custom_judge_class
 from autoarena.judge.gemini import GeminiJudge
+from autoarena.judge.huggingface import HuggingfaceJudge
 from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
@@ -20,6 +21,7 @@ AUTOMATED_JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[AutomatedJudge]] = {
     api.JudgeType.GEMINI: GeminiJudge,
     api.JudgeType.TOGETHER: TogetherJudge,
     api.JudgeType.BEDROCK: BedrockJudge,
+    api.JudgeType.HUGGINGFACE: HuggingfaceJudge,
 }
 
 

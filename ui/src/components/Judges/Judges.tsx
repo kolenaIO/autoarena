@@ -20,6 +20,7 @@ export function Judges() {
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
   const [isTogetherOpen, { toggle: toggleTogether, close: closeTogether }] = useDisclosure(false);
   const [isBedrockOpen, { toggle: toggleBedrock, close: closeBedrock }] = useDisclosure(false);
+  const [isGroqOpen, { toggle: toggleGroq, close: closeGroq }] = useDisclosure(false);
 
   return (
     <Center p="lg">
@@ -74,6 +75,11 @@ export function Judges() {
             judgeType="bedrock"
             description="Configure a model running on AWS Bedrock as a judge"
             onClick={toggleBedrock}
+          />
+          <ConfigureJudgeCard
+            judgeType="groq"
+            description="Configure a model running on Groq as a judge"
+            onClick={toggleGroq}
           />
         </SimpleGrid>
 
@@ -197,6 +203,20 @@ export function Judges() {
               </Text>
             </>
           }
+        />
+        <CreateJudgeModal
+          isOpen={isGroqOpen}
+          onClose={closeGroq}
+          judgeType="groq"
+          modelOptions={[
+            'gemma2-9b-it',
+            'gemma-7b-it',
+            'llama-3.1-70b-versatile',
+            'llama-3.1-8b-instant',
+            'llama3-70b-8192',
+            'llama3-8b-8192',
+            'mixtral-8x7b-32768',
+          ]}
         />
       </Stack>
     </Center>

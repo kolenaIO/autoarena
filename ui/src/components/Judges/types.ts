@@ -1,4 +1,5 @@
 import {
+  IconBolt,
   IconBrandAws,
   IconBrandCoinbase,
   IconBrandGoogle,
@@ -27,10 +28,11 @@ export type JudgeType =
   | 'cohere'
   | 'together'
   | 'bedrock'
+  | 'groq'
   | 'custom';
 
 export function judgeTypeIconComponent(judgeType: JudgeType) {
-  // TODO: get SVGs for real Ollama, Anthropic, Cohere, and Together logos
+  // TODO: get SVGs for real Ollama, Anthropic, Cohere, Groq, and Together logos
   switch (judgeType) {
     case 'human':
       return IconUsers;
@@ -48,6 +50,8 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
       return IconLetterT;
     case 'bedrock':
       return IconBrandAws;
+    case 'groq':
+      return IconBolt;
     case 'custom':
     default:
       return IconRobot;
@@ -70,6 +74,8 @@ export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
       return togetherUrl;
     case 'bedrock':
       return bedrockUrl;
+    case 'groq':
+      return bedrockUrl; // TODO
     case 'custom':
       return customUrl;
     case 'human':
@@ -96,6 +102,8 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
       return 'Together AI';
     case 'bedrock':
       return 'AWS Bedrock';
+    case 'groq':
+      return 'Groq';
     case 'custom':
       return 'Custom Fine-Tune';
     default:
@@ -115,5 +123,7 @@ export function judgeTypeToApiKeyName(judgeType: JudgeType) {
       return 'COHERE_API_KEY';
     case 'together':
       return 'TOGETHER_API_KEY';
+    case 'groq':
+      return 'GROQ_API_KEY';
   }
 }

@@ -1,5 +1,6 @@
 import time
 
+from autoarena.judge.openai import OpenAIJudge
 from groq import Groq
 
 from autoarena.judge.base import AutomatedJudge
@@ -17,8 +18,8 @@ class GroqJudge(AutomatedJudge):
     def verify_environment() -> None:
         Groq().models.list()
 
-    # OpenAI has different tiers and different rate limits for different models, choose a safeish value
-    @rate_limit(n_calls=1_000, n_seconds=60)
+    # Groq has yet to open their paid tier, these are the severely rate limited free tier limits
+    @rate_limit(n_calls=30, n_seconds=60, n_call_buffer=10)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         t0 = time.time()
         response_raw = self._client.chat.completions.with_raw_response.create(
@@ -32,4 +33,6 @@ class GroqJudge(AutomatedJudge):
         )
         response = response_raw.parse()
         self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens, time.time() - t0)
+        # TODO: extract this to somewhere shared
+        OpenAIJudge._handle_rate_limit(dict(response_raw.headers))
         return response.choices[0].message.content

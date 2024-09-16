@@ -13,6 +13,7 @@ type H2hStatsRecord = ModelHeadToHeadStats & {
   count_total: number;
   win_percentage: number;
   loss_percentage: number;
+  sort_slug: string;
 };
 
 const HEAD_TO_HEAD_COLUMNS: DataTableColumn<H2hStatsRecord>[] = [
@@ -51,7 +52,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId });
 
   const [sortStatus, setSortStatus] = useState<DataTableSortStatus<H2hStatsRecord>>({
-    columnAccessor: 'count_total',
+    columnAccessor: 'sort_slug',
     direction: 'desc',
   });
 
@@ -59,17 +60,20 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
     const stats = headToHeadStats ?? [];
     const statsHydrated = stats.map<H2hStatsRecord>(s => {
       const countTotal = s.count_wins + s.count_losses + s.count_ties;
+      const winPercentage = (s.count_wins / countTotal) * 100;
+      const tiePercentage = (s.count_ties / countTotal) * 100;
       return {
         ...s,
         count_total: countTotal,
-        win_percentage: (s.count_wins / countTotal) * 100,
+        win_percentage: winPercentage,
         loss_percentage: (s.count_losses / countTotal) * 100,
         unique_id: `${s.judge_id}-${s.other_model_id}`,
+        sort_slug: `${winPercentage.toFixed(5)}-${tiePercentage.toFixed(5)}-${s.other_model_name}`,
       };
     });
     const sortProp = sortStatus.columnAccessor as keyof H2hStatsRecord;
     const statsSorted = sortBy<H2hStatsRecord>(prop(sortProp))(statsHydrated);
-    return sortStatus.direction === 'desc' ? reverse(statsSorted) : statsSorted;
+    return sortStatus.direction === 'desc' ? reverse<H2hStatsRecord>(statsSorted) : statsSorted;
   }, [headToHeadStats, sortStatus, judgeId]);
   const { pageNumber, setPageNumber, pageSize, pageRecords } = usePagination({
     records: statsRecords,

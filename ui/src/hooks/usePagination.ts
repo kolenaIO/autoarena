@@ -8,7 +8,7 @@ type Params<T> = {
 export function usePagination<T>({ records, withHotkeys = false }: Params<T>) {
   const [pageNumber, setPageNumber] = useState(1);
   const [pageSize, setPageSizeState] = useState(10);
-  const [pageRecords, setPageRecordsState] = useState(records.slice(0, pageSize));
+  const [pageRecords, setPageRecordsState] = useState<T[]>(records.slice(0, pageSize));
 
   function setPageRecords() {
     const startIndex = (pageNumber - 1) * pageSize;

@@ -7,8 +7,8 @@ from autoarena.judge.utils import get_user_prompt, rate_limit
 class CohereJudge(AutomatedJudge):
     API_KEY_NAME = "COHERE_API_KEY"  # TODO: also support "CO_API_KEY"?
 
-    def __init__(self, model_name: str, system_prompt: str) -> None:
-        super().__init__(model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+        super().__init__(name, model_name, system_prompt)
         self._client = cohere.Client()
 
     @staticmethod

@@ -12,8 +12,8 @@ from autoarena.judge.utils import get_user_prompt, rate_limit
 class OpenAIJudge(AutomatedJudge):
     API_KEY_NAME = "OPENAI_API_KEY"
 
-    def __init__(self, model_name: str, system_prompt: str) -> None:
-        super().__init__(model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+        super().__init__(name, model_name, system_prompt)
         self._client = OpenAI()
 
     @staticmethod

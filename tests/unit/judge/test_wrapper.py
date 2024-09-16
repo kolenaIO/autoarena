@@ -14,7 +14,7 @@ def test__ab_shuffling_wrapper() -> None:
             self.seen.append((response_a, response_b))
             return "A" if response_a == "a" else "B" if response_b == "a" else "-"
 
-    judge = ab_shuffling_wrapper(TracksWhatItSawAndVotesForAJudge)("name", "system_prompt")
+    judge = ab_shuffling_wrapper(TracksWhatItSawAndVotesForAJudge)("name", "model_name", "system_prompt")
     assert judge.judge("ignored", "neither", "not me") == "-"  # ties should not be shuffled
     actual = [judge.judge("ignored", "a", "b") for _ in range(100)]
     assert all([winner == "A" for winner in actual])  # expect all A winners, as it always voted for A, even if A was B
@@ -47,8 +47,8 @@ def test__cleaning_wrapper(raw: str, expected: str) -> None:
 
 def test__retrying_wrapper() -> None:
     class FailsOnceDummyJudge(DummyJudge):
-        def __init__(self, model_name: str, system_prompt: str):
-            super().__init__(model_name, system_prompt)
+        def __init__(self, name: str, model_name: str, system_prompt: str):
+            super().__init__(name, model_name, system_prompt)
             self.n_runs = 0
 
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:

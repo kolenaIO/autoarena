@@ -3,8 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
-import { CreateOllamaJudgeModal } from './CreateOllamaJudgeModal.tsx';
-import { CreateProprietaryJudgeModal } from './CreateProprietaryJudgeModal.tsx';
+import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
 import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
 
@@ -78,13 +77,13 @@ export function Judges() {
         </SimpleGrid>
 
         <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
-        <CreateProprietaryJudgeModal
+        <CreateJudgeModal
           isOpen={isOpenAIOpen}
           onClose={closeOpenAI}
           judgeType="openai"
           modelOptions={['gpt-4o', 'gpt-4o-mini']}
         />
-        <CreateProprietaryJudgeModal
+        <CreateJudgeModal
           isOpen={isAnthropicOpen}
           onClose={closeAnthropic}
           judgeType="anthropic"
@@ -95,20 +94,47 @@ export function Judges() {
             'claude-3-haiku-20240307',
           ]}
         />
-        <CreateOllamaJudgeModal isOpen={isOllamaOpen} onClose={closeOllama} />
-        <CreateProprietaryJudgeModal
+        <CreateJudgeModal
+          isOpen={isOllamaOpen}
+          onClose={closeOllama}
+          judgeType="ollama"
+          extraCopy={
+            <Stack gap={0}>
+              <Text size="sm">
+                Enter a model name to use as a judge that runs locally via Ollama. You can specify any model that can be
+                downloaded from <Anchor href="https://ollama.com/library">Ollama</Anchor>. Some examples include:
+              </Text>
+              <ul>
+                <li>
+                  <Code>llama3.1:8b</Code>
+                </li>
+                <li>
+                  <Code>gemma2:9b</Code>
+                </li>
+                <li>
+                  <Code>mistral-nemo:12b</Code>
+                </li>
+              </ul>
+              <Text size="sm">
+                Note that this model must be pulled via <Code>ollama pull</Code> and the Ollama service must be running
+                on the host running AutoArena.
+              </Text>
+            </Stack>
+          }
+        />
+        <CreateJudgeModal
           isOpen={isCohereOpen}
           onClose={closeCohere}
           judgeType="cohere"
           modelOptions={['command-r-plus', 'command-r']}
         />
-        <CreateProprietaryJudgeModal
+        <CreateJudgeModal
           isOpen={isGeminiOpen}
           onClose={closeGemini}
           judgeType="gemini"
           modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
         />
-        <CreateProprietaryJudgeModal
+        <CreateJudgeModal
           isOpen={isTogetherOpen}
           onClose={closeTogether}
           judgeType="together"
@@ -122,7 +148,7 @@ export function Judges() {
             </Text>
           }
         />
-        <CreateProprietaryJudgeModal
+        <CreateJudgeModal
           isOpen={isBedrockOpen}
           onClose={closeBedrock}
           judgeType="bedrock"

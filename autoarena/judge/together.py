@@ -7,8 +7,8 @@ from autoarena.judge.utils import rate_limit, get_user_prompt
 class TogetherJudge(AutomatedJudge):
     API_KEY_NAME = "TOGETHER_API_KEY"
 
-    def __init__(self, model_name: str, system_prompt: str) -> None:
-        super().__init__(model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+        super().__init__(name, model_name, system_prompt)
         self._client = together.Client()
 
     @staticmethod

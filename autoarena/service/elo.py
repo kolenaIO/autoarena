@@ -53,11 +53,12 @@ class EloService:
             conn.execute(
                 """
                 UPDATE model
-                SET elo = df_elo.elo, q025 = df_elo.q025, q975 = df_elo.q975
+                SET elo = IFNULL(df_elo.elo, $default_elo), q025 = df_elo.q025, q975 = df_elo.q975
                 FROM model m2
                 LEFT JOIN df_elo ON df_elo.model = m2.name -- left join to set null values for any models without votes
                 WHERE model.id = m2.id;
                 """,
+                dict(default_elo=config.default_score),
             )
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py

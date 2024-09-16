@@ -168,7 +168,8 @@ class AutoJudgeTask:
                     f"in {time.time() - t_start_judging:0.1f} seconds"
                 )
                 self.log(message, progress=progress)
-                self.log(auto_judge.get_usage_summary())
+                for usage_summary_line in auto_judge.get_usage_summary():
+                    self.log(usage_summary_line)
                 df_h2h_all = pd.DataFrame(responses[auto_judge.name], columns=out_columns)
                 self._try_write(lambda: HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_all))
 

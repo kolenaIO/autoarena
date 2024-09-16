@@ -1,3 +1,5 @@
+import time
+
 import together
 
 from autoarena.judge.base import AutomatedJudge
@@ -17,6 +19,7 @@ class TogetherJudge(AutomatedJudge):
 
     @rate_limit(n_calls=10, n_seconds=1, n_call_buffer=2)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+        t0 = time.time()
         response = self._client.chat.completions.create(
             model=self.model_name,
             messages=[
@@ -25,5 +28,5 @@ class TogetherJudge(AutomatedJudge):
             ],
             max_tokens=self.MAX_TOKENS,
         )
-        self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
+        self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens, time.time() - t0)
         return response.choices[0].message.content

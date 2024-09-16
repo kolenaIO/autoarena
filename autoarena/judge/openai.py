@@ -23,6 +23,7 @@ class OpenAIJudge(AutomatedJudge):
     # OpenAI has different tiers and different rate limits for different models, choose a safeish value
     @rate_limit(n_calls=1_000, n_seconds=60)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+        t0 = time.time()
         response_raw = self._client.chat.completions.with_raw_response.create(
             model=self.model_name,
             messages=[
@@ -33,7 +34,7 @@ class OpenAIJudge(AutomatedJudge):
             timeout=httpx.Timeout(30),  # time out in 30 seconds
         )
         response = response_raw.parse()
-        self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
+        self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens, time.time() - t0)
         self._handle_rate_limit(dict(response_raw.headers))
         return response.choices[0].message.content
 

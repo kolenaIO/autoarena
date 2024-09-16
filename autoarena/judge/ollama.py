@@ -1,3 +1,5 @@
+import time
+
 import httpx
 import ollama
 
@@ -26,6 +28,7 @@ class OllamaJudge(AutomatedJudge):
             raise RuntimeError("Unable to connect to Ollama, ensure it is running on the same host running AutoArena")
 
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+        t0 = time.time()
         response = self._client.chat(
             model=self.model_name,
             messages=[
@@ -34,5 +37,5 @@ class OllamaJudge(AutomatedJudge):
             ],
             options=dict(temperature=0, seed=0, num_predict=self.MAX_TOKENS),
         )
-        self.update_usage(response["prompt_eval_count"], response["eval_count"])
+        self.update_usage(response["prompt_eval_count"], response["eval_count"], time.time() - t0)
         return response["message"]["content"]

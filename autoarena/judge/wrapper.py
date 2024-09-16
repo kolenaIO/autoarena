@@ -73,7 +73,7 @@ def fixing_wrapper(judge_class: type[T]) -> type[T]:
             if winner not in ACCEPTABLE_RESPONSES:
                 classifications = self.pipe(winner_raw, candidate_labels=self.CLASSES)
                 winner = self.CLASS_TO_WINNER[classifications["labels"][0]]
-                logger.warning(f"Fixed bad response: '{winner_raw}' as '{winner}'")
+                logger.warning(f"Fixed bad response from '{self.name}': '{winner_raw}' as '{winner}'")
             return winner
 
     return FixingJudge

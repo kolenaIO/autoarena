@@ -58,5 +58,10 @@ def model_c_id(project_client: TestClient) -> int:
 
 
 @pytest.fixture
+def model_ids(model_id: int, model_b_id: int, model_c_id: int) -> list[int]:
+    return [model_id, model_b_id, model_c_id]
+
+
+@pytest.fixture
 def judge_id(project_client: TestClient) -> int:
     return project_client.post("/judge", json=CREATE_JUDGE_REQUEST).json()["id"]

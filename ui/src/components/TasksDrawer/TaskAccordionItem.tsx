@@ -45,12 +45,22 @@ export function TaskAccordionItem({ task }: Props) {
       <Accordion.Panel>
         <Stack>
           <Progress
+            color={`${taskStatusToColor(task.status)}.2`}
             value={task.progress * 100}
             striped={!taskIsDone(task.status)}
             animated={!taskIsDone(task.status)}
           />
           <Code block fs="xs">
-            {task.logs}
+            {task.logs.split('\n').map((line, i) => (
+              <Text inherit key={i}>
+                <Text span inherit c="dimmed">
+                  {line.slice(0, 21)}
+                </Text>
+                <Text span inherit>
+                  {line.slice(21, line.length)}
+                </Text>
+              </Text>
+            ))}
           </Code>
         </Stack>
       </Accordion.Panel>

@@ -31,7 +31,5 @@ class AnthropicJudge(AutomatedJudge):
             messages=[dict(role="user", content=get_user_prompt(prompt, response_a, response_b))],
             max_tokens=self.MAX_TOKENS,
         )
-        self.n_calls += 1
-        self.total_input_tokens += response.usage.input_tokens
-        self.total_output_tokens += response.usage.output_tokens
+        self.update_usage(response.usage.input_tokens, response.usage.output_tokens)
         return response.content[0].text

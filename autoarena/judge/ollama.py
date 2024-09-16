@@ -35,7 +35,5 @@ class OllamaJudge(AutomatedJudge):
             ],
             options=dict(temperature=0, seed=0, num_predict=self.MAX_TOKENS),
         )
-        self.n_calls += 1
-        self.total_input_tokens += response["prompt_eval_count"]
-        self.total_output_tokens += response["eval_count"]
+        self.update_usage(response["prompt_eval_count"], response["eval_count"])
         return response["message"]["content"]

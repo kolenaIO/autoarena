@@ -52,8 +52,8 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
   }
 
   function handleClose() {
-    form.reset();
     onClose();
+    form.reset();
   }
 
   // TODO: judgeIds doesn't seem to update always

@@ -26,7 +26,5 @@ class TogetherJudge(AutomatedJudge):
             ],
             max_tokens=self.MAX_TOKENS,
         )
-        self.n_calls += 1
-        self.total_input_tokens += response.usage.prompt_tokens
-        self.total_output_tokens += response.usage.completion_tokens
+        self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
         return response.choices[0].message.content

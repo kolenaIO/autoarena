@@ -57,10 +57,5 @@ def test__head_to_head__count__2_models(project_client: TestClient, model_id: in
     assert project_client.get("/head-to-head/count").json() == 2
 
 
-def test__head_to_head__count__3_models(
-    project_client: TestClient,
-    model_id: int,
-    model_b_id: int,
-    model_c_id: int,
-) -> None:
+def test__head_to_head__count__3_models(project_client: TestClient, model_ids: list[int]) -> None:
     assert project_client.get("/head-to-head/count").json() == 5

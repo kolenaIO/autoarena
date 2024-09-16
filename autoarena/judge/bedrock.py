@@ -24,7 +24,5 @@ class BedrockJudge(AutomatedJudge):
             messages=[dict(role="user", content=[dict(text=get_user_prompt(prompt, response_a, response_b))])],
             inferenceConfig=dict(maxTokens=self.MAX_TOKENS),
         )
-        self.n_calls += 1
-        self.total_input_tokens += response["usage"]["inputTokens"]
-        self.total_output_tokens += response["usage"]["outputTokens"]
+        self.update_usage(response["usage"]["inputTokens"], response["usage"]["outputTokens"])
         return response["output"]["message"]["content"][0]["text"]

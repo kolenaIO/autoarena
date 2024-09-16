@@ -2,8 +2,6 @@ import os
 from abc import abstractmethod, ABCMeta
 from typing import Optional
 
-from loguru import logger
-
 
 class AutomatedJudge(metaclass=ABCMeta):
     API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
@@ -13,7 +11,7 @@ class AutomatedJudge(metaclass=ABCMeta):
     _model_name: str
     _system_prompt: str
 
-    n_calls: int
+    n_requests: int
     total_input_tokens: int
     total_output_tokens: int
 
@@ -21,7 +19,7 @@ class AutomatedJudge(metaclass=ABCMeta):
         self._name = name
         self._model_name = model_name
         self._system_prompt = system_prompt
-        self.n_calls = 0
+        self.n_requests = 0
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
@@ -52,8 +50,13 @@ class AutomatedJudge(metaclass=ABCMeta):
         interact with this judge. Throw an exception if not.
         """
 
-    def log_usage(self) -> None:
-        logger.info(
+    def update_usage(self, input_tokens: int, output_tokens: int) -> None:
+        self.n_requests += 1
+        self.total_input_tokens += input_tokens
+        self.total_output_tokens += output_tokens
+
+    def get_usage_summary(self) -> str:
+        return (
             f"'{self.name}' used {self.total_input_tokens} input tokens and {self.total_output_tokens} output tokens "
-            f"over {self.n_calls} calls",
+            f"over {self.n_requests} requests"
         )

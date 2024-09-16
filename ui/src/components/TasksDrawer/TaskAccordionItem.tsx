@@ -3,11 +3,17 @@ import { IconBooks, IconCalculator, IconGavel } from '@tabler/icons-react';
 import { Accordion, Badge, Code, Group, Progress, Stack, Text } from '@mantine/core';
 import { Task } from '../../hooks/useTasks.ts';
 import { taskIsDone, taskStatusToColor, taskStatusToLabel } from '../../lib/tasks.ts/utils.ts';
+import { useTaskStream } from '../../hooks/useTaskStream.ts';
+import { useUrlState } from '../../hooks/useUrlState.ts';
 
 type Props = {
   task: Task;
 };
-export function TaskAccordionItem({ task }: Props) {
+export function TaskAccordionItem({ task: inputTask }: Props) {
+  const { projectSlug = '' } = useUrlState();
+  const enabled = !taskIsDone(inputTask.status);
+  const task = useTaskStream(projectSlug, inputTask, enabled);
+
   const slug = `${task.task_type}-${moment(task.created).format('YYYYMMDD-hhmmss-SSS')}`;
   const IconComponent =
     task.task_type === 'recompute-leaderboard'
@@ -27,6 +33,7 @@ export function TaskAccordionItem({ task }: Props) {
       : task.task_type === 'auto-judge'
         ? 'var(--mantine-color-orange-6)'
         : 'var(--mantine-color-green-6)';
+
   return (
     <Accordion.Item value={slug}>
       <Accordion.Control icon={<IconComponent size={24} color={iconColor} />}>

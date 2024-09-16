@@ -21,7 +21,8 @@ export function TasksDrawer() {
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
   const { data: tasks } = useTasks({
     projectSlug: projectSlug,
-    options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
+    // options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
+    // options: { refetchInterval: 10_000 },
   });
   const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug: projectSlug });
 

@@ -34,7 +34,7 @@ class TaskService:
         while task.status != api.TaskStatus.COMPLETED and task.status != api.TaskStatus.FAILED:
             task = TaskService.get(project_slug, task_id)
             yield task
-            time.sleep(1)  # TODO: better way to do this?
+            time.sleep(0.2)  # TODO: better way to do this?
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:

@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from io import BytesIO, StringIO
+from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, BackgroundTasks
@@ -7,6 +8,7 @@ from starlette.requests import Request
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
+from autoarena.api.utils import SSEStreamingResponse
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
@@ -132,6 +134,17 @@ def router() -> APIRouter:
     @r.get("/project/{project_slug}/tasks")
     def get_tasks(project_slug: str) -> list[api.Task]:
         return TaskService.get_all(project_slug)
+
+    @r.get("/project/{project_slug}/task/{task_id}/stream")
+    async def get_task_stream(project_slug: str, task_id: int) -> StreamingResponse:  # Iterator[api.Task]
+        return SSEStreamingResponse(TaskService.get_stream(project_slug, task_id))
+
+    @r.get("/project/{project_slug}/tasks/has-active")
+    async def get_has_active_tasks_stream(
+        project_slug: str,
+        timeout: Optional[float] = None,
+    ) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
+        return SSEStreamingResponse(TaskService.has_active_stream(project_slug, timeout=timeout))
 
     @r.delete("/project/{project_slug}/tasks/completed")
     def delete_completed(project_slug: str) -> None:

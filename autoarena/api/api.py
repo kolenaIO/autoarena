@@ -104,6 +104,11 @@ class Task:
 
 
 @dataclass(frozen=True)
+class HasActiveTasks:
+    has_active: bool
+
+
+@dataclass(frozen=True)
 class TriggerAutoJudgeRequest:
     judge_ids: list[int]
     fraction: float  # on [0,1]

@@ -40,5 +40,11 @@ def main(args: list[str]) -> None:
     if parsed_args.command == "seed":
         seed_head_to_heads(parsed_args.head_to_heads)
     if parsed_args.command == "serve":
-        dev = getattr(parsed_args, "dev", False)
-        uvicorn.run("autoarena.server:server", host="localhost", port=8899, reload=dev, factory=True)
+        uvicorn.run(
+            "autoarena.server:server",
+            host="localhost",
+            port=8899,
+            reload=getattr(parsed_args, "dev", False),
+            factory=True,
+            timeout_graceful_shutdown=1,  # wait 1 second for tasks to complete before forcefully exiting
+        )

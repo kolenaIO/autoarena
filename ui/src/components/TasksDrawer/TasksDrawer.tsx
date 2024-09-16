@@ -4,7 +4,7 @@ import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTasks } from '../../hooks/useTasks.ts';
+import { getTasksQueryKey, useTasks } from '../../hooks/useTasks.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { pluralize } from '../../lib/string.ts';
 import { getModelsQueryKey } from '../../hooks/useModels.ts';
@@ -12,6 +12,7 @@ import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
 import { taskIsDone } from '../../lib/tasks.ts/utils.ts';
 import { getProjectUrl } from '../../lib/routes.ts';
 import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
+import { useHasActiveTasksStream } from '../../hooks/useHasActiveTasksStream.ts';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
@@ -19,16 +20,17 @@ export function TasksDrawer() {
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
-  const { data: tasks } = useTasks({
-    projectSlug: projectSlug,
-    options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
-  });
-  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug: projectSlug });
+  const { data: hasActiveTasks = false } = useHasActiveTasksStream(projectSlug);
+  const { data: tasks } = useTasks({ projectSlug });
+  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug });
 
-  // TODO: any task you're watching in the drawer disappears into the collapsed completed section when it finishes
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ status }) => !taskIsDone(status)), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ status }) => taskIsDone(status)), [tasksSorted]);
+
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
+  }, [isDrawerOpen]);
 
   // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
@@ -43,7 +45,7 @@ export function TasksDrawer() {
         variant="light"
         onClick={toggleDrawer}
         leftSection={
-          tasksInProgress.length > 0 ? (
+          hasActiveTasks ? (
             <Loader size={18} type="bars" />
           ) : (
             <IconCpu width={20} height={20} color="var(--mantine-color-kolena-8)" />
@@ -64,8 +66,8 @@ export function TasksDrawer() {
         title={
           <Text fs="italic" c="dimmed" size="sm">
             {tasksInProgress.length > 0
-              ? `Showing ${pluralize(tasksInProgress.length, 'in-progress task')}`
-              : 'No in-progress tasks'}
+              ? `Showing ${pluralize(tasksInProgress.length, 'active task')}`
+              : 'No active tasks'}
           </Text>
         }
       >

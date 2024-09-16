@@ -83,6 +83,17 @@ export function Judges() {
           onClose={closeOpenAI}
           judgeType="openai"
           modelOptions={['gpt-4o', 'gpt-4o-mini']}
+          extraCopy={
+            <Text inherit>
+              Note that a custom API URL can be used by setting{' '}
+              <Code>
+                <Anchor inherit href={ExternalUrls.OPENAI_BASE_URL_README} target="_blank">
+                  OPENAI_BASE_URL
+                </Anchor>
+              </Code>{' '}
+              in the environment running AutoArena.
+            </Text>
+          }
         />
         <CreateJudgeModal
           isOpen={isAnthropicOpen}

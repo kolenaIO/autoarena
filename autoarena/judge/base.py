@@ -57,6 +57,7 @@ class AutomatedJudge(metaclass=ABCMeta):
         """
 
     def update_usage(self, input_tokens: int, output_tokens: int, response_seconds: float) -> None:
+        """Optionally call in `AutomatedJudge.judge` implementations to record usage metrics."""
         self.n_requests += 1
         self.total_input_tokens += input_tokens
         self.total_output_tokens += output_tokens
@@ -65,6 +66,8 @@ class AutomatedJudge(metaclass=ABCMeta):
             logger.warning(f"Slow response from '{self.name}': {response_seconds:0.3f} seconds")
 
     def get_usage_summary(self) -> list[str]:
+        if self.n_requests == 0 or len(self.response_seconds) == 0:
+            return [f"'{self.name}' has not recorded any usage"]
         return [
             f"'{self.name}' used {self.total_input_tokens} input tokens and {self.total_output_tokens} output tokens "
             f"over {self.n_requests} requests",

@@ -1,5 +1,5 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source';
-import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
+import { useQuery, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { getProjectUrl } from '../lib/routes.ts';
 import { Task } from './useTasks.ts';
 
@@ -7,7 +7,12 @@ function getTaskStreamQueryKey(projectSlug: string, task: Task) {
   return [getProjectUrl(projectSlug), '/task', task.id, '/stream'];
 }
 
-export function useTaskStream(projectSlug: string, task: Task, enabled: boolean): UseQueryResult<Task, Error> {
+type Params = {
+  projectSlug: string;
+  task: Task;
+  options?: Partial<UseQueryOptions<Task, Error>>;
+};
+export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQueryResult<Task, Error> {
   const queryClient = useQueryClient();
   const queryKey = getTaskStreamQueryKey(projectSlug, task);
 
@@ -28,6 +33,6 @@ export function useTaskStream(projectSlug: string, task: Task, enabled: boolean)
       return latest;
     },
     initialData: task,
-    enabled,
+    ...options,
   });
 }

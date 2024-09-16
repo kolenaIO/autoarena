@@ -11,8 +11,11 @@ type Props = {
 };
 export function TaskAccordionItem({ task: inputTask }: Props) {
   const { projectSlug = '' } = useUrlState();
-  const enabled = !taskIsDone(inputTask.status);
-  const { data: task = inputTask } = useTaskStream(projectSlug, inputTask, enabled);
+  const { data: task = inputTask } = useTaskStream({
+    projectSlug,
+    task: inputTask,
+    options: { enabled: !taskIsDone(inputTask.status) },
+  });
 
   const slug = `${task.task_type}-${moment(task.created).format('YYYYMMDD-hhmmss-SSS')}`;
   const IconComponent =

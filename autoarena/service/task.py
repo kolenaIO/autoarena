@@ -1,4 +1,5 @@
 import asyncio
+import time
 from datetime import datetime
 from typing import Optional, AsyncIterator
 
@@ -32,7 +33,7 @@ class TaskService:
     @staticmethod
     async def get_has_active_stream(
         project_slug: str,
-        stop_after: Optional[int] = None,
+        timeout: Optional[float] = None,
     ) -> AsyncIterator[api.HasActiveTasks]:
         def get_has_active() -> api.HasActiveTasks:
             with ProjectService.connect(project_slug) as conn:
@@ -42,15 +43,14 @@ class TaskService:
                 ).fetchall()
                 return api.HasActiveTasks(has_active=len(records) > 0)
 
-        i = 0
+        t0 = time.time()
         prev: Optional[api.HasActiveTasks] = None
-        while stop_after is None or i < stop_after:
+        while timeout is None or time.time() - t0 < timeout:
             cur = get_has_active()
             if prev != cur:
                 yield cur
             prev = cur
             await asyncio.sleep(1)
-            i += 1
 
     @staticmethod
     async def get_stream(project_slug: str, task_id: int) -> AsyncIterator[api.Task]:

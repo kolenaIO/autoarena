@@ -19,12 +19,11 @@ def test__tasks__get(project_client: TestClient) -> None:
 
 
 def test__tasks__has_active(project_client: TestClient) -> None:
-    requested_event_count = 2
-    response = project_client.get("/tasks/has-active", params=dict(maximum=requested_event_count))
+    response = project_client.get("/tasks/has-active", params=dict(timeout=1.5))
     assert response.status_code == 200
     responses = parse_sse_stream(response.read())
-    assert len(responses) == requested_event_count
-    assert all(r == dict(has_active=False) for r in responses)
+    assert len(responses) == 1  # should only yield one message as the answer does not change in the timeout period
+    assert responses[0] == dict(has_active=False)
 
 
 def test__tasks__stream(project_client: TestClient, model_ids: list[int]) -> None:

@@ -142,9 +142,9 @@ def router() -> APIRouter:
     @r.get("/project/{project_slug}/tasks/has-active")
     async def get_has_active_tasks_stream(
         project_slug: str,
-        maximum: Optional[int] = None,
+        timeout: Optional[float] = None,
     ) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
-        return SSEStreamingResponse(TaskService.get_has_active_stream(project_slug, stop_after=maximum))
+        return SSEStreamingResponse(TaskService.get_has_active_stream(project_slug, timeout=timeout))
 
     @r.delete("/project/{project_slug}/tasks/completed")
     def delete_completed(project_slug: str) -> None:

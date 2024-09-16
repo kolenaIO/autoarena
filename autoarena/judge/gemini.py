@@ -1,4 +1,5 @@
 import os
+import time
 
 import google.generativeai as genai
 from loguru import logger
@@ -25,6 +26,7 @@ class GeminiJudge(AutomatedJudge):
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         user_prompt = get_user_prompt(prompt, response_a, response_b)
         full_prompt = JOINED_PROMPT_TEMPLATE.format(system_prompt=self.system_prompt, user_prompt=user_prompt)
+        t0 = time.time()
         response = self._model.generate_content(
             full_prompt,
             generation_config=dict(max_output_tokens=self.MAX_TOKENS, temperature=0.0),
@@ -36,7 +38,11 @@ class GeminiJudge(AutomatedJudge):
                 genai.types.HarmCategory.HARM_CATEGORY_HARASSMENT: genai.types.HarmBlockThreshold.BLOCK_NONE,
             },
         )
-        self.update_usage(response.usage_metadata.prompt_token_count, response.usage_metadata.candidates_token_count)
+        self.update_usage(
+            response.usage_metadata.prompt_token_count,
+            response.usage_metadata.candidates_token_count,
+            time.time() - t0,
+        )
         if response.prompt_feedback.block_reason != 0:
             message = f"Prompt blocked by '{self.name}' safety filters: {response.prompt_feedback}. Recording as '-'"
             logger.warning(message)

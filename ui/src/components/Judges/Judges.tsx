@@ -2,6 +2,7 @@ import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Cod
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
+import { ExternalUrls } from '../../lib/routes.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -102,7 +103,11 @@ export function Judges() {
             <Stack gap={0}>
               <Text size="sm">
                 Enter a model name to use as a judge that runs locally via Ollama. You can specify any model that can be
-                downloaded from <Anchor href="https://ollama.com/library">Ollama</Anchor>. Some examples include:
+                downloaded from{' '}
+                <Anchor href={ExternalUrls.OLLAMA_MODELS} target="_blank">
+                  Ollama
+                </Anchor>
+                . Some examples include:
               </Text>
               <ul>
                 <li>
@@ -141,7 +146,7 @@ export function Judges() {
           extraCopy={
             <Text inherit>
               Choose any inference model listed in the{' '}
-              <Anchor inherit href="https://docs.together.ai/docs/chat-models">
+              <Anchor inherit href={ExternalUrls.TOGETHER_MODELS} target="_blank">
                 Together AI documentation
               </Anchor>
               , e.g. <Code>google/gemma-2-9b-it</Code>.
@@ -173,10 +178,7 @@ export function Judges() {
               <Text inherit>
                 Models are called using the{' '}
                 <Code>
-                  <Anchor
-                    inherit
-                    href="https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html"
-                  >
+                  <Anchor inherit href={ExternalUrls.BEDROCK_MODELS} target="_blank">
                     Converse
                   </Anchor>
                 </Code>{' '}

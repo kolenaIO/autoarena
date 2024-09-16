@@ -1,6 +1,7 @@
 from typing import Optional, Sequence
 
 from autoarena.api import api
+from autoarena.judge.groq import GroqJudge
 from autoarena.judge.anthropic import AnthropicJudge
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.bedrock import BedrockJudge
@@ -20,6 +21,7 @@ AUTOMATED_JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[AutomatedJudge]] = {
     api.JudgeType.GEMINI: GeminiJudge,
     api.JudgeType.TOGETHER: TogetherJudge,
     api.JudgeType.BEDROCK: BedrockJudge,
+    api.JudgeType.GROQ: GroqJudge,
 }
 
 

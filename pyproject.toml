@@ -51,6 +51,7 @@ dependencies = [
     "anthropic<1",
     "cohere>=5,<6",
     "google-generativeai<1",
+    "groq<1",
     "transformers>=4,<5",
     "torch>=2,<3",
     "together>=1,<2",

@@ -18,6 +18,7 @@ from tests.integration.judge.conftest import api_judge, TEST_JUDGE_MODEL_NAMES
         api.JudgeType.GEMINI,
         api.JudgeType.TOGETHER,
         api.JudgeType.BEDROCK,
+        api.JudgeType.GROQ,
     ],
 )
 def test__judge__automated(judge_type: api.JudgeType) -> None:

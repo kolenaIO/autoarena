@@ -10,6 +10,7 @@ from autoarena.judge.bedrock import BedrockJudge
 from autoarena.judge.cohere import CohereJudge
 from autoarena.judge.factory import judge_factory, AUTOMATED_JUDGE_TYPE_TO_CLASS
 from autoarena.judge.gemini import GeminiJudge
+from autoarena.judge.groq import GroqJudge
 from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
@@ -31,6 +32,7 @@ from tests.integration.judge.conftest import (
         (api.JudgeType.COHERE, CohereJudge),
         (api.JudgeType.GEMINI, GeminiJudge),
         (api.JudgeType.TOGETHER, TogetherJudge),
+        (api.JudgeType.GROQ, GroqJudge),
     ],
 )
 def test__judge_factory__with_key(judge_type: api.JudgeType, expected_type: Type[AutomatedJudge]) -> None:
@@ -99,6 +101,7 @@ def test__judge_factory__wrappers(wrappers: list[JudgeWrapper]) -> None:
         api.JudgeType.GEMINI,
         api.JudgeType.TOGETHER,
         api.JudgeType.BEDROCK,
+        api.JudgeType.GROQ,
         api.JudgeType.CUSTOM,
     ],
 )
@@ -115,6 +118,7 @@ def test__check_can_access(judge_type: api.JudgeType) -> None:
         api.JudgeType.COHERE,
         api.JudgeType.GEMINI,
         api.JudgeType.TOGETHER,
+        api.JudgeType.GROQ,
         # api.JudgeType.BEDROCK,  # credentials for bedrock access are set up in CI testing environment
     ],
 )

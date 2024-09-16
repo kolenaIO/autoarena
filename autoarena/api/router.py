@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from io import BytesIO, StringIO
+from typing import Optional
 
 import pandas as pd
 from fastapi import APIRouter, UploadFile, BackgroundTasks
@@ -139,8 +140,11 @@ def router() -> APIRouter:
         return SSEStreamingResponse(TaskService.get_stream(project_slug, task_id))
 
     @r.get("/project/{project_slug}/tasks/has-active")
-    async def get_has_active_tasks_stream(project_slug: str) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
-        return SSEStreamingResponse(TaskService.get_has_active_stream(project_slug))
+    async def get_has_active_tasks_stream(
+        project_slug: str,
+        maximum: Optional[int] = None,
+    ) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
+        return SSEStreamingResponse(TaskService.get_has_active_stream(project_slug, stop_after=maximum))
 
     @r.delete("/project/{project_slug}/tasks/completed")
     def delete_completed(project_slug: str) -> None:

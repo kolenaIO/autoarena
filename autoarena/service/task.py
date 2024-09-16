@@ -30,7 +30,10 @@ class TaskService:
             raise NotFoundError(f"Task with id '{task_id}' not found")
 
     @staticmethod
-    async def get_has_active_stream(project_slug: str) -> AsyncIterator[api.HasActiveTasks]:
+    async def get_has_active_stream(
+        project_slug: str,
+        stop_after: Optional[int] = None,
+    ) -> AsyncIterator[api.HasActiveTasks]:
         def get_has_active() -> api.HasActiveTasks:
             with ProjectService.connect(project_slug) as conn:
                 records = conn.execute(
@@ -39,9 +42,11 @@ class TaskService:
                 ).fetchall()
                 return api.HasActiveTasks(has_active=len(records) > 0)
 
-        while True:
+        i = 0
+        while stop_after is None or i < stop_after:
             yield get_has_active()
             await asyncio.sleep(1)
+            i += 1
 
     @staticmethod
     async def get_stream(project_slug: str, task_id: int) -> AsyncIterator[api.Task]:

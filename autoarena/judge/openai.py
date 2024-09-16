@@ -33,9 +33,7 @@ class OpenAIJudge(AutomatedJudge):
             timeout=httpx.Timeout(30),  # time out in 30 seconds
         )
         response = response_raw.parse()
-        self.n_calls += 1
-        self.total_input_tokens += response.usage.prompt_tokens
-        self.total_output_tokens += response.usage.completion_tokens
+        self.update_usage(response.usage.prompt_tokens, response.usage.completion_tokens)
         self._handle_rate_limit(dict(response_raw.headers))
         return response.choices[0].message.content
 

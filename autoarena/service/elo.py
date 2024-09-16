@@ -1,11 +1,11 @@
 import time
 from collections import defaultdict
-from typing import Literal
 
 import pandas as pd
 from pydantic.dataclasses import dataclass
 from loguru import logger
 
+from autoarena.api import api
 from autoarena.service.project import ProjectService
 
 
@@ -15,6 +15,7 @@ class EloConfig:
     k: int = 4
     scale: int = 400
     base: int = 10
+    n_bootstrap_rounds: int = 200
 
 
 DEFAULT_ELO_CONFIG = EloConfig()
@@ -45,24 +46,18 @@ class EloService:
             ).df()
 
     @staticmethod
-    def reseed_scores(project_slug: str) -> None:
+    def reseed_scores(project_slug: str, config: EloConfig = DEFAULT_ELO_CONFIG) -> None:
         df_h2h = EloService.get_df_head_to_head(project_slug)
-        df_elo = EloService.compute_elo(df_h2h)  # noqa: F841
+        df_elo = EloService.compute_elo(df_h2h, config=config)  # noqa: F841
         with ProjectService.connect(project_slug) as conn:
-            conn.execute(  # reset all scores before updating new ones
-                "UPDATE model SET elo = $default_elo, q025 = NULL, q975 = NULL",
-                dict(default_elo=EloConfig.default_score),
-            )
             conn.execute(
                 """
-                INSERT INTO model (name, elo, q025, q975)
-                SELECT model, elo, q025, q975
-                FROM df_elo
-                ON CONFLICT (name) DO UPDATE SET
-                    elo = EXCLUDED.elo,
-                    q025 = EXCLUDED.q025,
-                    q975 = EXCLUDED.q975;
-            """,
+                UPDATE model
+                SET elo = df_elo.elo, q025 = df_elo.q025, q975 = df_elo.q975
+                FROM model m2
+                LEFT JOIN df_elo ON df_elo.model = m2.name -- left join to set null values for any models without votes
+                WHERE model.id = m2.id;
+                """,
             )
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
@@ -70,7 +65,7 @@ class EloService:
     def compute_elo_single(
         elo_a: float,
         elo_b: float,
-        winner: Literal["A", "B", "-"],
+        winner: api.WinnerType,
         config: EloConfig = DEFAULT_ELO_CONFIG,
     ) -> tuple[float, float]:
         expected_a = 1 / (1 + config.base ** ((elo_b - elo_a) / config.scale))
@@ -83,17 +78,7 @@ class EloService:
     @staticmethod
     def compute_elo(df_h2h: pd.DataFrame, *, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
         df_elo = EloService._compute_elo_once(df_h2h, config=config)
-        df_elo = EloService._compute_confidence_intervals(df_elo, df_h2h, config=config)
-        return df_elo
-
-    @staticmethod
-    def _compute_confidence_intervals(
-        df_elo: pd.DataFrame,
-        df_h2h: pd.DataFrame,
-        *,
-        config: EloConfig = DEFAULT_ELO_CONFIG,
-    ) -> pd.DataFrame:
-        df_bootstrap = EloService._get_bootstrap_result(df_h2h, num_rounds=200, config=config)
+        df_bootstrap = EloService._get_bootstrap_result(df_h2h, config=config)
         # set Elo score to the median of the bootstrap result -- the order of the head-to-heads doesn't matter for bulk
         #  judging so the "true" score is in the middle of the differently ordered rollouts
         df_elo = df_elo.merge(df_bootstrap.quantile(0.5).rename("elo_median"), left_on="model", right_index=True)
@@ -114,16 +99,11 @@ class EloService:
         return df_elo.sort_values(by="elo", ascending=False)
 
     @staticmethod
-    def _get_bootstrap_result(
-        df_h2h: pd.DataFrame,
-        *,
-        num_rounds: int = 1_000,
-        config: EloConfig = DEFAULT_ELO_CONFIG,
-    ) -> pd.DataFrame:
+    def _get_bootstrap_result(df_h2h: pd.DataFrame, *, config: EloConfig = DEFAULT_ELO_CONFIG) -> pd.DataFrame:
         rows = []
         t_start = time.time()
-        logger.info(f"Bootstrapping confidence intervals with {num_rounds} rounds...")
-        for _ in range(num_rounds):
+        logger.info(f"Bootstrapping confidence intervals with {config.n_bootstrap_rounds} rounds...")
+        for _ in range(config.n_bootstrap_rounds):
             df_h2h_tmp = df_h2h.sample(frac=1.0, replace=True)
             rows.append(EloService._compute_elo_once(df_h2h_tmp, config=config))
         logger.info(f"Bootstrapped confidence intervals in {time.time() - t_start:0.1f} seconds")

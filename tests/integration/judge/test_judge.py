@@ -22,6 +22,6 @@ def test__judge__automated(judge_type: api.JudgeType) -> None:
     model_name = TEST_JUDGE_MODEL_NAMES[judge_type]
     judge_instance = judge_factory(api_judge(judge_type, model_name), wrappers=[retrying_wrapper, cleaning_wrapper])
     assert judge_instance.judge("What is 2+2?", "4", "100 million") == "A"
-    assert judge_instance.n_calls == 1
+    assert judge_instance.n_requests == 1
     assert judge_instance.total_input_tokens > 0
     assert judge_instance.total_output_tokens > 0

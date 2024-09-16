@@ -6,6 +6,7 @@ import {
   IconDevices2,
   IconLetterA,
   IconLetterT,
+  IconMoodSmileBeam,
   IconRobot,
   IconUsers,
 } from '@tabler/icons-react';
@@ -27,10 +28,11 @@ export type JudgeType =
   | 'cohere'
   | 'together'
   | 'bedrock'
+  | 'huggingface'
   | 'custom';
 
 export function judgeTypeIconComponent(judgeType: JudgeType) {
-  // TODO: get SVGs for real Ollama, Anthropic, Cohere, and Together logos
+  // TODO: get SVGs for real Ollama, Anthropic, Cohere, HuggingFace, and Together logos
   switch (judgeType) {
     case 'human':
       return IconUsers;
@@ -48,6 +50,8 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
       return IconLetterT;
     case 'bedrock':
       return IconBrandAws;
+    case 'huggingface':
+      return IconMoodSmileBeam;
     case 'custom':
     default:
       return IconRobot;
@@ -70,6 +74,8 @@ export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
       return togetherUrl;
     case 'bedrock':
       return bedrockUrl;
+    case 'huggingface':
+      return customUrl;
     case 'custom':
       return customUrl;
     case 'human':
@@ -96,6 +102,8 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
       return 'Together AI';
     case 'bedrock':
       return 'AWS Bedrock';
+    case 'huggingface':
+      return 'HuggingFace Inference Endpoint';
     case 'custom':
       return 'Custom Fine-Tune';
     default:

@@ -20,6 +20,7 @@ export function Judges() {
   const [isCohereOpen, { toggle: toggleCohere, close: closeCohere }] = useDisclosure(false);
   const [isTogetherOpen, { toggle: toggleTogether, close: closeTogether }] = useDisclosure(false);
   const [isBedrockOpen, { toggle: toggleBedrock, close: closeBedrock }] = useDisclosure(false);
+  const [isHuggingFaceOpen, { toggle: toggleHuggingFace, close: closeHuggingFace }] = useDisclosure(false);
 
   return (
     <Center p="lg">
@@ -74,6 +75,11 @@ export function Judges() {
             judgeType="bedrock"
             description="Configure a model running on AWS Bedrock as a judge"
             onClick={toggleBedrock}
+          />
+          <ConfigureJudgeCard
+            judgeType="huggingface"
+            description="Configure a model running on a HuggingFace Inference Endpoint as a judge"
+            onClick={toggleHuggingFace}
           />
         </SimpleGrid>
 
@@ -198,6 +204,7 @@ export function Judges() {
             </>
           }
         />
+        <CreateJudgeModal isOpen={isHuggingFaceOpen} onClose={closeHuggingFace} judgeType="huggingface" />
       </Stack>
     </Center>
   );

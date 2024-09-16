@@ -7,10 +7,13 @@ from huggingface_hub import InferenceClient
 from autoarena.judge.utils import get_user_prompt
 
 
-class HuggingfaceJudge(AutomatedJudge):
+class HuggingFaceJudge(AutomatedJudge):
     def __init__(self, name: str, model_name: str, system_prompt: str):
         super().__init__(name, model_name, system_prompt)
         self._client = InferenceClient(model_name)
+
+    @staticmethod
+    def verify_environment() -> None: ...  # TODO
 
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         t0 = time.time()

@@ -40,15 +40,19 @@ export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
         </Text>
       ) : (
         <Stack gap={4}>
-          <Text size="sm">Unable to access {judgeTypeName} API.</Text>
+          <Text size="sm">Unable to access {judgeTypeName} API</Text>
           {apiKeyName != null ? (
             <Text size="xs" c="dimmed">
               Ensure that you have the <Code>{apiKeyName}</Code> variable set in the environment running AutoArena.
             </Text>
+          ) : judgeType === 'unrecognized' ? (
+            <Text size="xs" c="dimmed">
+              This judge has an unrecognized type. Ensure that you are running the latest version of AutoArena.
+            </Text>
           ) : (
             <Text size="xs" c="dimmed">
-              Ensure that you have the relevant configuration for the {judgeTypeName}
-              API in the environment running AutoArena.
+              Ensure that you have the relevant configuration for the {judgeTypeName} API in the environment running
+              AutoArena.
             </Text>
           )}
         </Stack>

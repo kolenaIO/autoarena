@@ -41,6 +41,8 @@ def judge_factory(judge: api.Judge, wrappers: Optional[Sequence[JudgeWrapper]] =
 
 
 def verify_judge_type_environment(judge_type: api.JudgeType) -> None:
+    if judge_type is api.JudgeType.UNRECOGNIZED:
+        raise ValueError("Unable to run unrecognized judge type")
     judge_class = AUTOMATED_JUDGE_TYPE_TO_CLASS.get(judge_type, None)
     if judge_class is not None:
         judge_class.verify_environment()

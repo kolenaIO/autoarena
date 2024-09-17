@@ -14,9 +14,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v2
       - name: Setup environment
         run: uv venv --python ${{ env.PYTHON_VERSION }} && source .venv/bin/activate

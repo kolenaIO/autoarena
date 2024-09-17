@@ -1,9 +1,19 @@
 import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
-import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
+import {
+  IconBeta,
+  IconBrandGithub,
+  IconBrandSlack,
+  IconBug,
+  IconHome,
+  IconLogout,
+  IconStack2Filled,
+} from '@tabler/icons-react';
 import { ExternalUrls } from '../lib/routes.ts';
+import { useAppMode } from '../hooks/useAppMode.ts';
 
 export function MainMenu() {
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
+  const appMode = useAppMode();
   return (
     <Menu>
       <Menu.Target>
@@ -31,6 +41,14 @@ export function MainMenu() {
         <Anchor href={ExternalUrls.AUTOARENA_SLACK_COMMUNITY} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandSlack {...iconProps} />}>Slack Community</Menu.Item>
         </Anchor>
+        {appMode === 'cloud' && (
+          <>
+            <Menu.Divider />
+            <Anchor underline="never">
+              <Menu.Item leftSection={<IconLogout {...iconProps} />}>Log out</Menu.Item>
+            </Anchor>
+          </>
+        )}
       </Menu.Dropdown>
     </Menu>
   );

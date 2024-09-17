@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:cloud": "vite --mode cloud",
     "build": "tsc --build && vite build",
+    "build:cloud": "tsc --build && vite build --mode cloud",
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",

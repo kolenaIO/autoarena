@@ -154,7 +154,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
                 timestamp={firstJudge?.created}
                 action={
                   activeStage === 1 ? (
-                    <Anchor href={ROUTES.judges(projectSlug)}>
+                    <Anchor href={ROUTES.judges(projectSlug ?? '')}>
                       <Button leftSection={<IconGavel size={18} />} size="xs">
                         Configure Judge
                       </Button>

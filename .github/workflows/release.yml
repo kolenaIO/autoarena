@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - "*"
+    branches:
+      - gh/changelog-artifact
 env:
   PYTHON_VERSION: "3.12"
   NODE_VERSION: "20.11.1"
@@ -34,6 +36,13 @@ jobs:
         run: sed -i "s/0.0.0/$(git describe --tags --abbrev=0)/g" pyproject.toml
       - name: Run build script to build UI and bundle into Python tarball
         run: ./scripts/build.sh
+      - name: Generate a changelog
+        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: "./CHANGELOG.txt"
+      - run: exit 1
       - name: Push 'autoarena' dist to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -45,8 +54,6 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
-      - name: Generate a changelog
-        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
@@ -54,7 +61,3 @@ jobs:
           body_path: CHANGELOG.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - uses: actions/upload-artifact@v4
-        with:
-          name: changelog
-          path: "./CHANGELOG.txt"

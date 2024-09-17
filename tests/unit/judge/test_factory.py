@@ -43,3 +43,19 @@ def test__judge_factory__custom(custom_judge_context: None) -> None:
 def test__judge_factory__custom__failed(custom_judge_context: None) -> None:
     with pytest.raises(ValueError):
         judge_factory(CUSTOM_REQUEST)
+
+
+def test__judge_factory__unknown__failed() -> None:
+    judge = api.Judge(
+        id=0,
+        judge_type=api.JudgeType.UNKNOWN,
+        created=datetime.utcnow(),
+        name="something unknown",
+        model_name="anything",
+        system_prompt="anything",
+        description="maybe from a newer version of AutoArena",
+        enabled=True,
+        n_votes=0,
+    )
+    with pytest.raises(ValueError):
+        judge_factory(judge)

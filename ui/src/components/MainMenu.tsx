@@ -44,7 +44,7 @@ export function MainMenu() {
         {isCloudMode && (
           <>
             <Menu.Divider />
-            <Anchor underline="never">
+            <Anchor href={ExternalUrls.AUTOARENA_CLOUD_LOGOUT} underline="never">
               <Menu.Item leftSection={<IconLogout {...iconProps} />}>Log out</Menu.Item>
             </Anchor>
           </>

@@ -5,7 +5,7 @@ from abc import ABCMeta, abstractmethod
 class KeyManager(metaclass=ABCMeta):
     @abstractmethod
     def get(self, key: str) -> str:
-        """Retrieve the value for the provided key from the environment."""
+        """Retrieve the value for the provided key."""
 
 
 class OsEnvironKeyManager(KeyManager):

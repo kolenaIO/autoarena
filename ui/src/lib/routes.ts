@@ -19,11 +19,11 @@ export function getProjectApiUrl(projectSlug: string) {
 
 function getBasePath() {
   const { isLocalMode } = getAppMode();
-  return isLocalMode ? '/' : `/${getTenantName()}`;
+  return isLocalMode ? '' : `/${getTenantName()}`;
 }
 
 export const ROUTES = {
-  home: () => getBasePath(),
+  home: () => `${getBasePath()}/`,
   leaderboard: (projectSlug: string) => `${getBasePath()}/project/${projectSlug}`,
   compare: (projectSlug: string) => `${getBasePath()}/project/${projectSlug}/compare`,
   judges: (projectSlug: string) => `${getBasePath()}/project/${projectSlug}/judges`,

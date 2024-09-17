@@ -1,8 +1,13 @@
 // TODO: collect various API URLs in this file
-export const BASE_API_URL = 'http://localhost:8899/api/v1';
+import { getAppMode } from '../hooks/useAppMode.ts';
+
+export function getBaseUrl() {
+  const { isCloudMode } = getAppMode();
+  return isCloudMode ? `${window.location.origin}/api/v1/tenny` : 'http://localhost:8899/api/v1';
+}
 
 export function getProjectUrl(projectSlug: string) {
-  return `${BASE_API_URL}/project/${projectSlug}`;
+  return `${getBaseUrl()}/project/${projectSlug}`;
 }
 
 export enum ExternalUrls {

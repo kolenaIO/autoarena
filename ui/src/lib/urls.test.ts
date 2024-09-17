@@ -1,7 +1,8 @@
 /*
  * @jest-environment node // required to get fetch working properly
  */
-import { ExternalUrls } from './routes';
+
+import { ExternalUrls } from './urls';
 
 describe('external link integrity', () => {
   const externalLinks: string[] = Object.values(ExternalUrls);

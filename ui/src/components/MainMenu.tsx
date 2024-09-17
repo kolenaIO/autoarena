@@ -8,8 +8,8 @@ import {
   IconLogout,
   IconStack2Filled,
 } from '@tabler/icons-react';
-import { ExternalUrls } from '../lib/routes.ts';
 import { useAppMode } from '../hooks/useAppMode.ts';
+import { ExternalUrls } from '../lib/urls.ts';
 
 export function MainMenu() {
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };

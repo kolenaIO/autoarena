@@ -2,8 +2,8 @@ import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Cod
 import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
-import { ExternalUrls } from '../../lib/routes.ts';
 import { useAppMode } from '../../hooks/useAppMode.ts';
+import { ExternalUrls } from '../../lib/urls.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';

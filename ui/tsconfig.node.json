@@ -7,8 +7,7 @@
     "moduleResolution": "bundler",
     "allowSyntheticDefaultImports": true,
     "strict": true,
-    "noEmit": true,
-    "esModuleInterop": true
+    "noEmit": true
   },
   "include": ["vite.config.ts"]
 }

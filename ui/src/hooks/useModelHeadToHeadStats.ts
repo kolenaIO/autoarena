@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 
 export function getModelHeadToHeadStatsEndpoint(projectSlug: string, modelId: number) {
-  return `${getProjectUrl(projectSlug)}/model/${modelId}/head-to-head/stats`;
+  return `${getProjectApiUrl(projectSlug)}/model/${modelId}/head-to-head/stats`;
 }
 
 export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {
-  return [getProjectUrl(projectSlug), '/model', modelId, '/head-to-head/stats'];
+  return [getProjectApiUrl(projectSlug), '/model', modelId, '/head-to-head/stats'];
 }
 
 export type ModelHeadToHeadStats = {

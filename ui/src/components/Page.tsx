@@ -5,6 +5,7 @@ import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useProject } from '../hooks/useProject.ts';
+import { ROUTES } from '../lib/routes.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
@@ -36,21 +37,20 @@ export function Page({ tab }: Props) {
         color: 'red',
         key: 'project-not-found',
       });
-      navigate('/');
+      navigate(ROUTES.home());
     }
   }, [project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
-    const baseUrl = `/project/${projectSlug}`;
     switch (newTab) {
       case TAB_LEADERBOARD:
-        navigate(baseUrl);
+        navigate(ROUTES.leaderboard(projectSlug ?? ''));
         break;
       case TAB_COMPARISON:
-        navigate(`${baseUrl}/compare`);
+        navigate(ROUTES.compare(projectSlug ?? ''));
         break;
       case TAB_JUDGES:
-        navigate(`${baseUrl}/judges`);
+        navigate(ROUTES.judges(projectSlug ?? ''));
         break;
     }
   }

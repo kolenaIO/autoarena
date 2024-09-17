@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
 import { JudgeType } from '../components/Judges/types.ts';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 
 function getCanAccessJudgeTypeQueryKey(projectSlug: string, judgeType?: JudgeType) {
-  return [getProjectUrl(projectSlug), '/judge', judgeType, 'can-access'];
+  return [getProjectApiUrl(projectSlug), '/judge', judgeType, 'can-access'];
 }
 
 type Params = {
@@ -14,7 +14,7 @@ export function useCanAccessJudgeType({ projectSlug, judgeType }: Params) {
   return useQuery({
     queryKey: getCanAccessJudgeTypeQueryKey(projectSlug, judgeType),
     queryFn: async () => {
-      const url = `${getProjectUrl(projectSlug)}/judge/${judgeType}/can-access`;
+      const url = `${getProjectApiUrl(projectSlug)}/judge/${judgeType}/can-access`;
       const response = await fetch(url);
       if (!response.ok) {
         return;

@@ -3,16 +3,28 @@ import { getAppMode } from '../hooks/useAppMode';
 
 const LOCAL_BASE_API_URL = 'http://localhost:8899/api/v1';
 
-export function getBaseUrl() {
-  const { isLocalMode } = getAppMode();
-  if (isLocalMode) {
-    return LOCAL_BASE_API_URL;
-  }
+function getTenantName() {
   const pathParts = new URL(window.location.href).pathname.split('/').filter(Boolean);
-  const tenant = pathParts.length > 0 ? pathParts[0] : '';
-  return `${window.location.origin}/api/v1/${tenant}`;
+  return pathParts.length > 0 ? pathParts[0] : undefined;
 }
 
-export function getProjectUrl(projectSlug: string) {
-  return `${getBaseUrl()}/project/${projectSlug}`;
+export function getBaseApiUrl() {
+  const { isLocalMode } = getAppMode();
+  return isLocalMode ? LOCAL_BASE_API_URL : `${window.location.origin}/api/v1/${getTenantName()}`;
 }
+
+export function getProjectApiUrl(projectSlug: string) {
+  return `${getBaseApiUrl()}/project/${projectSlug}`;
+}
+
+function getBasePath() {
+  const { isLocalMode } = getAppMode();
+  return isLocalMode ? '/' : `/${getTenantName()}`;
+}
+
+export const ROUTES = {
+  home: () => getBasePath(),
+  leaderboard: (projectSlug: string) => `${getBasePath()}/project/${projectSlug}`,
+  compare: (projectSlug: string) => `${getBasePath()}/project/${projectSlug}/compare`,
+  judges: (projectSlug: string) => `${getBasePath()}/project/${projectSlug}/judges`,
+};

@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 
 export function getModelResponsesQueryKey(projectSlug: string, modelId: number) {
-  return [getProjectUrl(projectSlug), '/model', modelId, '/responses'];
+  return [getProjectApiUrl(projectSlug), '/model', modelId, '/responses'];
 }
 
 export type ModelResponse = {
@@ -18,7 +18,7 @@ export function useModelResponses({ projectSlug, modelId }: Params) {
   return useQuery({
     queryKey: getModelResponsesQueryKey(projectSlug ?? '', modelId ?? -1),
     queryFn: async () => {
-      const url = `${getProjectUrl(projectSlug ?? '')}/model/${modelId}/responses`;
+      const url = `${getProjectApiUrl(projectSlug ?? '')}/model/${modelId}/responses`;
       const response = await fetch(url);
       if (!response.ok) {
         return;

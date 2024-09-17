@@ -1,7 +1,7 @@
-import { getBaseUrl } from '../lib/routes.ts';
+import { getBaseApiUrl } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
-const PROJECTS_ENDPOINT = `${getBaseUrl()}/projects`;
+const PROJECTS_ENDPOINT = `${getBaseApiUrl()}/projects`;
 export const PROJECTS_QUERY_KEY = [PROJECTS_ENDPOINT];
 
 export type Project = {

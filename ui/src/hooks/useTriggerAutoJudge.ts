@@ -1,10 +1,10 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { taskStatusToColor } from '../lib/tasks.ts';
 
 function getTriggerAutoJudgeQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judge'];
+  return [getProjectApiUrl(projectSlug), '/judge'];
 }
 
 type TriggerAutoJudgeRequest = {
@@ -21,7 +21,7 @@ export function useTriggerAutoJudge({ projectSlug, options = {} }: Params) {
   return useMutation({
     mutationKey: getTriggerAutoJudgeQueryKey(projectSlug),
     mutationFn: async (request: TriggerAutoJudgeRequest) => {
-      const response = await fetch(`${getProjectUrl(projectSlug)}/task/auto-judge`, {
+      const response = await fetch(`${getProjectApiUrl(projectSlug)}/task/auto-judge`, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

@@ -24,6 +24,7 @@
     ]
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.2.4",
     "@mantine/charts": "^7.12.2",
     "@mantine/core": "^7.11.2",
     "@mantine/form": "^7.12.0",

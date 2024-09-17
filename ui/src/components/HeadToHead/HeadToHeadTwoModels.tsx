@@ -17,6 +17,7 @@ import { pluralize } from '../../lib/string.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { useModel } from '../../hooks/useModel.ts';
+import { ROUTES } from '../../lib/routes.ts';
 import { ControlBar } from './ControlBar.tsx';
 
 type ShowMode = 'All' | 'With Votes' | 'Without Votes';
@@ -157,7 +158,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
               <Text>
                 Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between {modelNames}
               </Text>
-              <Button onClick={() => navigate(`/project/${projectSlug}`)}>View Leaderboard</Button>
+              <Button onClick={() => navigate(ROUTES.leaderboard(projectSlug))}>View Leaderboard</Button>
             </Stack>
           }
         />

@@ -1,9 +1,9 @@
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { JudgeType } from '../components/Judges/types.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 export function getJudgesQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judges'];
+  return [getProjectApiUrl(projectSlug), '/judges'];
 }
 
 export type Judge = {
@@ -22,7 +22,7 @@ export function useJudges(projectSlug: string | undefined) {
   return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${getProjectUrl(projectSlug ?? '')}/judges`;
+      const url = `${getProjectApiUrl(projectSlug ?? '')}/judges`;
       const response = await fetch(url);
       if (!response.ok) {
         return;

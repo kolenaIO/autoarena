@@ -1,16 +1,16 @@
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { Model } from './useModels.ts';
 
 export function getJudgesRankedByModel(projectSlug: string | undefined, judgeId: number | undefined) {
-  return [getProjectUrl(projectSlug ?? ''), '/models', '/by-judge', judgeId];
+  return [getProjectApiUrl(projectSlug ?? ''), '/models', '/by-judge', judgeId];
 }
 
 export function useModelsRankedByJudge(projectSlug: string | undefined, judgeId: number | undefined) {
   return useQueryWithErrorToast({
     queryKey: getJudgesRankedByModel(projectSlug, judgeId),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/models/by-judge/${judgeId}`);
+      const response = await fetch(`${getProjectApiUrl(projectSlug ?? '')}/models/by-judge/${judgeId}`);
       if (!response.ok) {
         return;
       }

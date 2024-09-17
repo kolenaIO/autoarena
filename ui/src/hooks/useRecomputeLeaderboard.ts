@@ -1,10 +1,10 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 
 function getDeleteJudgeQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/elo/reseed-scores'];
+  return [getProjectApiUrl(projectSlug), '/elo/reseed-scores'];
 }
 
 type Params = {
@@ -16,7 +16,7 @@ export function useRecomputeLeaderboard({ projectSlug, options = {} }: Params) {
   return useMutation({
     mutationKey: getDeleteJudgeQueryKey(projectSlug),
     mutationFn: async () => {
-      const url = `${getProjectUrl(projectSlug)}/elo/reseed-scores`;
+      const url = `${getProjectApiUrl(projectSlug)}/elo/reseed-scores`;
       await fetch(url, { method: 'PUT' });
     },
     onSuccess: () => {

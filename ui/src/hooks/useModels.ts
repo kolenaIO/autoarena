@@ -1,8 +1,8 @@
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 export function getModelsQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/models'];
+  return [getProjectApiUrl(projectSlug), '/models'];
 }
 
 export type Model = {
@@ -20,7 +20,7 @@ export function useModels(projectSlug: string | undefined) {
   return useQueryWithErrorToast({
     queryKey: getModelsQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/models`);
+      const response = await fetch(`${getProjectApiUrl(projectSlug ?? '')}/models`);
       if (!response.ok) {
         return;
       }

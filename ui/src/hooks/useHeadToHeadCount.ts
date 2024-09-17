@@ -1,15 +1,15 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 
 function getHeadToHeadCountQueryKey(projectSlug?: string) {
-  return [getProjectUrl(projectSlug ?? ''), '/head-to-head', '/count'];
+  return [getProjectApiUrl(projectSlug ?? ''), '/head-to-head', '/count'];
 }
 
 export function useHeadToHeadCount(projectSlug?: string) {
   return useQuery({
     queryKey: getHeadToHeadCountQueryKey(projectSlug),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/head-to-head/count`);
+      const response = await fetch(`${getProjectApiUrl(projectSlug ?? '')}/head-to-head/count`);
       if (!response.ok) {
         return;
       }

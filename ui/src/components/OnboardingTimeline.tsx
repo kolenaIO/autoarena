@@ -10,6 +10,7 @@ import { Model, useModels } from '../hooks/useModels.ts';
 import { useOnboardingGuideDismissed } from '../hooks/useOnboardingGuideDismissed.ts';
 import { useProject } from '../hooks/useProject.ts';
 import { useProjects } from '../hooks/useProjects.ts';
+import { ROUTES } from '../lib/routes.ts';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
@@ -153,7 +154,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
                 timestamp={firstJudge?.created}
                 action={
                   activeStage === 1 ? (
-                    <Anchor href={`/project/${projectSlug}/judges`}>
+                    <Anchor href={ROUTES.judges(projectSlug)}>
                       <Button leftSection={<IconGavel size={18} />} size="xs">
                         Configure Judge
                       </Button>

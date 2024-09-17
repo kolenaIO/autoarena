@@ -1,9 +1,9 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 
 function getSubmitHeadToHeadVoteQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/head-to-head/vote', 'POST'];
+  return [getProjectApiUrl(projectSlug), '/head-to-head/vote', 'POST'];
 }
 
 type HeadToHeadVoteRequest = {
@@ -21,7 +21,7 @@ export function useSubmitHeadToHeadVote({ projectSlug, options }: Params) {
   return useMutation({
     mutationKey: getSubmitHeadToHeadVoteQueryKey(projectSlug),
     mutationFn: async (request: HeadToHeadVoteRequest) => {
-      const response = await fetch(`${getProjectUrl(projectSlug)}/head-to-head/vote`, {
+      const response = await fetch(`${getProjectApiUrl(projectSlug)}/head-to-head/vote`, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

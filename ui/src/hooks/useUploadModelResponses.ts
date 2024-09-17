@@ -1,12 +1,12 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
-import { getProjectUrl } from '../lib/routes.ts';
+import { getProjectApiUrl } from '../lib/routes.ts';
 import { getModelsQueryKey, Model } from './useModels.ts';
 import { getTasksQueryKey } from './useTasks.ts';
 
 function getUploadModelResponsesQueryKey(projectSlug: string) {
-  return [`${getProjectUrl(projectSlug)}`, '/model', 'POST'];
+  return [`${getProjectApiUrl(projectSlug)}`, '/model', 'POST'];
 }
 
 type Params = {
@@ -26,7 +26,7 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
         formData.append(file.name, file);
         formData.append(`${file.name}||model_name`, modelName); // format here is enforced by backend
       });
-      const response = await fetch(`${getProjectUrl(projectSlug)}/model`, { method: 'POST', body: formData });
+      const response = await fetch(`${getProjectApiUrl(projectSlug)}/model`, { method: 'POST', body: formData });
       const result: Model[] = await response.json();
       return result;
     },

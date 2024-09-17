@@ -1,5 +1,14 @@
-export type AppMode = 'local' | 'cloud';
+import { useMemo } from 'react';
 
-export function useAppMode(): AppMode {
-  return import.meta.env.MODE === 'cloud' ? 'cloud' : 'local';
+type AppMode = 'local' | 'cloud';
+
+export function useAppMode() {
+  return useMemo(() => {
+    const appMode: AppMode = import.meta.env.MODE === 'cloud' ? 'cloud' : 'local';
+    return {
+      appMode,
+      isLocalMode: appMode === 'local',
+      isCloudMode: appMode === 'cloud',
+    };
+  }, [import.meta.env.MODE]);
 }

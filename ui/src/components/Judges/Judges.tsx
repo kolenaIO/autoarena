@@ -12,8 +12,7 @@ import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
 export function Judges() {
   const { projectSlug } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
-  const appMode = useAppMode();
-  const isLocalMode = appMode == 'local';
+  const { isLocalMode } = useAppMode();
 
   const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);

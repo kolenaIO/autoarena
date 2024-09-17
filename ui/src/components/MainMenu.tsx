@@ -13,7 +13,7 @@ import { useAppMode } from '../hooks/useAppMode.ts';
 
 export function MainMenu() {
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
-  const appMode = useAppMode();
+  const { isCloudMode } = useAppMode();
   return (
     <Menu>
       <Menu.Target>
@@ -41,7 +41,7 @@ export function MainMenu() {
         <Anchor href={ExternalUrls.AUTOARENA_SLACK_COMMUNITY} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandSlack {...iconProps} />}>Slack Community</Menu.Item>
         </Anchor>
-        {appMode === 'cloud' && (
+        {isCloudMode && (
           <>
             <Menu.Divider />
             <Anchor underline="never">

@@ -4,8 +4,6 @@ on:
   push:
     tags:
       - "*"
-    branches:
-      - gh/changelog-artifact
 env:
   PYTHON_VERSION: "3.12"
   NODE_VERSION: "20.11.1"
@@ -16,7 +14,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-tags: true
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v2
       - name: Setup environment
         run: uv venv --python ${{ env.PYTHON_VERSION }} && source .venv/bin/activate
@@ -42,7 +40,6 @@ jobs:
         with:
           name: changelog
           path: "./CHANGELOG.txt"
-      - run: exit 1
       - name: Push 'autoarena' dist to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -58,6 +55,6 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.tar.gz
-          body_path: CHANGELOG.txt
+          body_path: "./CHANGELOG.txt"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

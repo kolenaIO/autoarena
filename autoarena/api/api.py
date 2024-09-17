@@ -125,6 +125,7 @@ class JudgeType(str, Enum):
     TOGETHER = "together"
     BEDROCK = "bedrock"
     CUSTOM = "custom"  # TODO: not sure how to handle calling this yet -- will it just be another Ollama model?
+    UNKNOWN = "unknown"  # catchall to gracefully handle newer judge types that are not present on an older release
 
 
 @dataclass(frozen=True)

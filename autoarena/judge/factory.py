@@ -25,14 +25,16 @@ AUTOMATED_JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[AutomatedJudge]] = {
 
 def judge_factory(judge: api.Judge, wrappers: Optional[Sequence[JudgeWrapper]] = None) -> AutomatedJudge:
     if judge.judge_type is api.JudgeType.HUMAN:
-        raise ValueError("automated judge factory cannot instantiate human judge")
+        raise ValueError("Automated judge factory cannot instantiate human judge")
+    if judge.judge_type is api.JudgeType.UNKNOWN:
+        raise ValueError("Cannot instantiate unknown judge type -- are you running an older version of AutoArena?")
     judge_class = (
         get_custom_judge_class(judge.name)
         if judge.judge_type is api.JudgeType.CUSTOM
         else AUTOMATED_JUDGE_TYPE_TO_CLASS[judge.judge_type]
     )
     if not issubclass(judge_class, AutomatedJudge) or judge.model_name is None or judge.system_prompt is None:
-        raise ValueError(f"misconfigured judge: {judge}")
+        raise ValueError(f"Misconfigured judge: {judge}")
     for wrapper in wrappers or []:
         judge_class = wrapper(judge_class)
     return judge_class(judge.name, judge.model_name, judge.system_prompt)

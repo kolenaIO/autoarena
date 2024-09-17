@@ -40,6 +40,8 @@ class JudgeService:
                 ORDER BY j.id
                 """,
             ).df()
+        judge_types = {j for j in api.JudgeType}
+        df_task["judge_type"] = df_task["judge_type"].apply(lambda j: j if j in judge_types else "unknown")
         return [api.Judge(**r) for _, r in df_task.iterrows()]
 
     @staticmethod

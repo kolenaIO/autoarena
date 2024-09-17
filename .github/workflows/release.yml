@@ -12,9 +12,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - name: Delete huge unnecessary tools folder
-        run: rm -rf /opt/hostedtoolcache
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: astral-sh/setup-uv@v2
       - name: Setup environment
         run: uv venv --python ${{ env.PYTHON_VERSION }} && source .venv/bin/activate
@@ -34,6 +34,12 @@ jobs:
         run: sed -i "s/0.0.0/$(git describe --tags --abbrev=0)/g" pyproject.toml
       - name: Run build script to build UI and bundle into Python tarball
         run: ./scripts/build.sh
+      - name: Generate a changelog
+        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: "./CHANGELOG.txt"
       - name: Push 'autoarena' dist to Test PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
         with:
@@ -45,12 +51,10 @@ jobs:
         with:
           password: ${{ secrets.PYPI_API_TOKEN }}
           skip-existing: true
-      - name: Generate a changelog
-        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
       - name: Create GitHub release
         uses: softprops/action-gh-release@v2
         with:
           files: dist/*.tar.gz
-          body_path: CHANGELOG.txt
+          body_path: "./CHANGELOG.txt"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

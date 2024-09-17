@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { ExternalUrls } from '../../lib/routes.ts';
+import { useAppMode } from '../../hooks/useAppMode.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -11,6 +12,7 @@ import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
 export function Judges() {
   const { projectSlug } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
+  const { isLocalMode } = useAppMode();
 
   const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);
@@ -50,31 +52,37 @@ export function Judges() {
             description="Configure an Anthropic model like Claude 3.5 Sonnet or Claude 3 Opus as a judge"
             onClick={toggleAnthropic}
           />
-          <ConfigureJudgeCard
-            judgeType="ollama"
-            description="Configure any local Ollama model as a judge"
-            onClick={toggleOllama}
-          />
+          {isLocalMode && (
+            <ConfigureJudgeCard
+              judgeType="ollama"
+              description="Configure any local Ollama model as a judge"
+              onClick={toggleOllama}
+            />
+          )}
           <ConfigureJudgeCard
             judgeType="cohere"
             description="Configure Command R or Command R+ from Cohere as a judge"
             onClick={toggleCohere}
           />
-          <ConfigureJudgeCard
-            judgeType="gemini"
-            description="Configure a Google Gemini model as a judge"
-            onClick={toggleGemini}
-          />
+          {isLocalMode && (
+            <ConfigureJudgeCard
+              judgeType="gemini"
+              description="Configure a Google Gemini model as a judge"
+              onClick={toggleGemini}
+            />
+          )}
           <ConfigureJudgeCard
             judgeType="together"
             description="Configure a model running on Together AI as a judge"
             onClick={toggleTogether}
           />
-          <ConfigureJudgeCard
-            judgeType="bedrock"
-            description="Configure a model running on AWS Bedrock as a judge"
-            onClick={toggleBedrock}
-          />
+          {isLocalMode && (
+            <ConfigureJudgeCard
+              judgeType="bedrock"
+              description="Configure a model running on AWS Bedrock as a judge"
+              onClick={toggleBedrock}
+            />
+          )}
         </SimpleGrid>
 
         <CreateFineTunedJudgeModal isOpen={isFineTunedOpen} onClose={closeFineTuned} />
@@ -106,50 +114,54 @@ export function Judges() {
             'claude-3-haiku-20240307',
           ]}
         />
-        <CreateJudgeModal
-          isOpen={isOllamaOpen}
-          onClose={closeOllama}
-          judgeType="ollama"
-          extraCopy={
-            <Stack gap={0}>
-              <Text size="sm">
-                Enter a model name to use as a judge that runs locally via Ollama. You can specify any model that can be
-                downloaded from{' '}
-                <Anchor href={ExternalUrls.OLLAMA_MODELS} target="_blank">
-                  Ollama
-                </Anchor>
-                . Some examples include:
-              </Text>
-              <ul>
-                <li>
-                  <Code>llama3.1:8b</Code>
-                </li>
-                <li>
-                  <Code>gemma2:9b</Code>
-                </li>
-                <li>
-                  <Code>mistral-nemo:12b</Code>
-                </li>
-              </ul>
-              <Text size="sm">
-                Note that this model must be pulled via <Code>ollama pull</Code> and the Ollama service must be running
-                on the host running AutoArena.
-              </Text>
-            </Stack>
-          }
-        />
+        {isLocalMode && (
+          <CreateJudgeModal
+            isOpen={isOllamaOpen}
+            onClose={closeOllama}
+            judgeType="ollama"
+            extraCopy={
+              <Stack gap={0}>
+                <Text size="sm">
+                  Enter a model name to use as a judge that runs locally via Ollama. You can specify any model that can
+                  be downloaded from{' '}
+                  <Anchor href={ExternalUrls.OLLAMA_MODELS} target="_blank">
+                    Ollama
+                  </Anchor>
+                  . Some examples include:
+                </Text>
+                <ul>
+                  <li>
+                    <Code>llama3.1:8b</Code>
+                  </li>
+                  <li>
+                    <Code>gemma2:9b</Code>
+                  </li>
+                  <li>
+                    <Code>mistral-nemo:12b</Code>
+                  </li>
+                </ul>
+                <Text size="sm">
+                  Note that this model must be pulled via <Code>ollama pull</Code> and the Ollama service must be
+                  running on the host running AutoArena.
+                </Text>
+              </Stack>
+            }
+          />
+        )}
         <CreateJudgeModal
           isOpen={isCohereOpen}
           onClose={closeCohere}
           judgeType="cohere"
           modelOptions={['command-r-plus', 'command-r']}
         />
-        <CreateJudgeModal
-          isOpen={isGeminiOpen}
-          onClose={closeGemini}
-          judgeType="gemini"
-          modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
-        />
+        {isLocalMode && (
+          <CreateJudgeModal
+            isOpen={isGeminiOpen}
+            onClose={closeGemini}
+            judgeType="gemini"
+            modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
+          />
+        )}
         <CreateJudgeModal
           isOpen={isTogetherOpen}
           onClose={closeTogether}
@@ -164,51 +176,53 @@ export function Judges() {
             </Text>
           }
         />
-        <CreateJudgeModal
-          isOpen={isBedrockOpen}
-          onClose={closeBedrock}
-          judgeType="bedrock"
-          modelOptions={[
-            'anthropic.claude-3-5-sonnet-20240620-v1:0',
-            'anthropic.claude-3-opus-20240229-v1:0',
-            'anthropic.claude-3-sonnet-20240229-v1:0',
-            'anthropic.claude-3-haiku-20240307-v1:0',
-            'cohere.command-r-v1:0',
-            'cohere.command-r-plus-v1:0',
-            'meta.llama3-8b-instruct-v1:0',
-            'meta.llama3-70b-instruct-v1:0',
-            'meta.llama3-1-8b-instruct-v1:0',
-            'meta.llama3-1-70b-instruct-v1:0',
-            'meta.llama3-1-405b-instruct-v1:0',
-            'mistral.mistral-large-2402-v1:0',
-            'mistral.mistral-large-2407-v1:0',
-            'mistral.mistral-small-2402-v1:0',
-          ]}
-          extraCopy={
-            <>
-              <Text inherit>
-                Models are called using the{' '}
-                <Code>
-                  <Anchor inherit href={ExternalUrls.BEDROCK_MODELS} target="_blank">
-                    Converse
-                  </Anchor>
-                </Code>{' '}
-                API.
-              </Text>
-              <Text inherit>
-                Using Bedrock models requires a valid AWS{' '}
-                <Text span inherit fw="bold">
-                  authorization
-                </Text>{' '}
-                and{' '}
-                <Text span inherit fw="bold">
-                  region
-                </Text>{' '}
-                configuration in the environment running AutoArena.
-              </Text>
-            </>
-          }
-        />
+        {isLocalMode && (
+          <CreateJudgeModal
+            isOpen={isBedrockOpen}
+            onClose={closeBedrock}
+            judgeType="bedrock"
+            modelOptions={[
+              'anthropic.claude-3-5-sonnet-20240620-v1:0',
+              'anthropic.claude-3-opus-20240229-v1:0',
+              'anthropic.claude-3-sonnet-20240229-v1:0',
+              'anthropic.claude-3-haiku-20240307-v1:0',
+              'cohere.command-r-v1:0',
+              'cohere.command-r-plus-v1:0',
+              'meta.llama3-8b-instruct-v1:0',
+              'meta.llama3-70b-instruct-v1:0',
+              'meta.llama3-1-8b-instruct-v1:0',
+              'meta.llama3-1-70b-instruct-v1:0',
+              'meta.llama3-1-405b-instruct-v1:0',
+              'mistral.mistral-large-2402-v1:0',
+              'mistral.mistral-large-2407-v1:0',
+              'mistral.mistral-small-2402-v1:0',
+            ]}
+            extraCopy={
+              <>
+                <Text inherit>
+                  Models are called using the{' '}
+                  <Code>
+                    <Anchor inherit href={ExternalUrls.BEDROCK_MODELS} target="_blank">
+                      Converse
+                    </Anchor>
+                  </Code>{' '}
+                  API.
+                </Text>
+                <Text inherit>
+                  Using Bedrock models requires a valid AWS{' '}
+                  <Text span inherit fw="bold">
+                    authorization
+                  </Text>{' '}
+                  and{' '}
+                  <Text span inherit fw="bold">
+                    region
+                  </Text>{' '}
+                  configuration in the environment running AutoArena.
+                </Text>
+              </>
+            }
+          />
+        )}
       </Stack>
     </Center>
   );

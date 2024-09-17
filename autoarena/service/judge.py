@@ -14,7 +14,7 @@ class JudgeService:
     @staticmethod
     def get_all(project_slug: str) -> list[api.Judge]:
         with ProjectService.connect(project_slug) as conn:
-            df_task = conn.execute(
+            df = conn.execute(
                 """
                 SELECT
                     j.id,
@@ -40,7 +40,9 @@ class JudgeService:
                 ORDER BY j.id
                 """,
             ).df()
-        return [api.Judge(**r) for _, r in df_task.iterrows()]
+        judge_types = {j for j in api.JudgeType}
+        df["judge_type"] = df["judge_type"].apply(lambda j: j if j in judge_types else api.JudgeType.UNRECOGNIZED.value)
+        return [api.Judge(**r) for _, r in df.iterrows()]
 
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:

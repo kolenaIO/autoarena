@@ -27,7 +27,8 @@ export type JudgeType =
   | 'cohere'
   | 'together'
   | 'bedrock'
-  | 'custom';
+  | 'custom'
+  | 'unrecognized';
 
 export function judgeTypeIconComponent(judgeType: JudgeType) {
   // TODO: get SVGs for real Ollama, Anthropic, Cohere, and Together logos
@@ -49,6 +50,7 @@ export function judgeTypeIconComponent(judgeType: JudgeType) {
     case 'bedrock':
       return IconBrandAws;
     case 'custom':
+    case 'unrecognized':
     default:
       return IconRobot;
   }
@@ -73,6 +75,7 @@ export function judgeTypeToCoverImageUrl(judgeType: JudgeType) {
     case 'custom':
       return customUrl;
     case 'human':
+    case 'unrecognized':
     default:
       return;
   }
@@ -98,6 +101,8 @@ export function judgeTypeToHumanReadableName(judgeType: JudgeType) {
       return 'AWS Bedrock';
     case 'custom':
       return 'Custom Fine-Tune';
+    case 'unrecognized':
+      return 'Unrecognized';
     default:
       return judgeType;
   }

@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL } from '../lib/routes.ts';
+import { getBaseUrl } from '../lib/routes.ts';
 import { Project, PROJECTS_QUERY_KEY } from './useProjects.ts';
 
 type CreateProjectRequest = {
@@ -14,9 +14,9 @@ export function useCreateProject({
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   return useMutation({
-    mutationKey: [`${BASE_API_URL}/project`],
+    mutationKey: [`${getBaseUrl()}/project`],
     mutationFn: async (request: CreateProjectRequest) => {
-      const response = await fetch(`${BASE_API_URL}/project`, {
+      const response = await fetch(`${getBaseUrl()}/project`, {
         method: 'PUT',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

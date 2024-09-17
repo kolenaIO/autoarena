@@ -1,10 +1,10 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL, getProjectUrl } from '../lib/routes.ts';
+import { getBaseUrl, getProjectUrl } from '../lib/routes.ts';
 import { PROJECTS_QUERY_KEY } from './useProjects.ts';
 
 function getDeleteProjectQueryKey() {
-  return [`${BASE_API_URL}/project`, 'DELETE'];
+  return [`${getBaseUrl()}/project`, 'DELETE'];
 }
 
 type Params = {

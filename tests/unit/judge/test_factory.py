@@ -45,15 +45,15 @@ def test__judge_factory__custom__failed(custom_judge_context: None) -> None:
         judge_factory(CUSTOM_REQUEST)
 
 
-def test__judge_factory__unknown__failed() -> None:
+def test__judge_factory__unrecognized__failed() -> None:
     judge = api.Judge(
         id=0,
-        judge_type=api.JudgeType.UNKNOWN,
+        judge_type=api.JudgeType.UNRECOGNIZED,
         created=datetime.utcnow(),
-        name="something unknown",
-        model_name="anything",
-        system_prompt="anything",
-        description="maybe from a newer version of AutoArena",
+        name="any-name",
+        model_name="any-model-name",
+        system_prompt="Say hi!",
+        description="Maybe from a newer version of AutoArena",
         enabled=True,
         n_votes=0,
     )

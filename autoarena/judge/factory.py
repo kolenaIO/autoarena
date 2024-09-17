@@ -26,8 +26,8 @@ AUTOMATED_JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[AutomatedJudge]] = {
 def judge_factory(judge: api.Judge, wrappers: Optional[Sequence[JudgeWrapper]] = None) -> AutomatedJudge:
     if judge.judge_type is api.JudgeType.HUMAN:
         raise ValueError("Automated judge factory cannot instantiate human judge")
-    if judge.judge_type is api.JudgeType.UNKNOWN:
-        raise ValueError("Cannot instantiate unknown judge type -- are you running an older version of AutoArena?")
+    if judge.judge_type is api.JudgeType.UNRECOGNIZED:
+        raise ValueError("Cannot instantiate unrecognized judge type. Are you running an older version of AutoArena?")
     judge_class = (
         get_custom_judge_class(judge.name)
         if judge.judge_type is api.JudgeType.CUSTOM

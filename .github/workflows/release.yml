@@ -54,3 +54,7 @@ jobs:
           body_path: CHANGELOG.txt
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: changelog
+          path: "./CHANGELOG.txt"

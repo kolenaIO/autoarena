@@ -1,17 +1,19 @@
 import time
+from typing import Optional
 
 import cohere
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, rate_limit
+from autoarena.store.environment import KeyManager
 
 
 class CohereJudge(AutomatedJudge):
     API_KEY_NAME = "COHERE_API_KEY"  # TODO: also support "CO_API_KEY"?
 
-    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
-        super().__init__(name, model_name, system_prompt)
-        self._client = cohere.Client()
+    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
+        super().__init__(name, model_name, system_prompt, key_manager=key_manager)
+        self._client = cohere.Client(api_key=self._key_manager.get(self.API_KEY_NAME))
 
     @staticmethod
     def verify_environment() -> None:

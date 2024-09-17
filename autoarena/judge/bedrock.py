@@ -1,16 +1,19 @@
 import time
+from typing import Optional
 
 import boto3
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import rate_limit, get_user_prompt
+from autoarena.store.environment import KeyManager
 
 
 class BedrockJudge(AutomatedJudge):
     API_KEY_NAME = None
 
-    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
-        super().__init__(name, model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
+        super().__init__(name, model_name, system_prompt, key_manager=key_manager)
+        # TODO: AWS auth is managed a little differently -- should update to use key manager to connect
         self._client = boto3.client(service_name="bedrock-runtime")
 
     @staticmethod

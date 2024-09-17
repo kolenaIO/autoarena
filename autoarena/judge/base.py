@@ -5,6 +5,8 @@ from typing import Optional
 import numpy as np
 from loguru import logger
 
+from autoarena.store.environment import KeyManager, OsEnvironKeyManager
+
 
 class AutomatedJudge(metaclass=ABCMeta):
     API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
@@ -14,16 +16,18 @@ class AutomatedJudge(metaclass=ABCMeta):
     _name: str
     _model_name: str
     _system_prompt: str
+    _key_manager: KeyManager
 
     n_requests: int
     total_input_tokens: int
     total_output_tokens: int
     response_seconds: list[float]
 
-    def __init__(self, name: str, model_name: str, system_prompt: str):
+    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
         self._name = name
         self._model_name = model_name
         self._system_prompt = system_prompt
+        self._key_manager = key_manager or OsEnvironKeyManager()
         self.n_requests = 0
         self.total_input_tokens = 0
         self.total_output_tokens = 0
@@ -49,6 +53,7 @@ class AutomatedJudge(metaclass=ABCMeta):
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         raise NotImplementedError
 
+    # TODO: should update to factor key manager into play
     @staticmethod
     def verify_environment() -> None:
         """

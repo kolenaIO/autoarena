@@ -1,17 +1,19 @@
 import time
+from typing import Optional
 
 import together
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import rate_limit, get_user_prompt
+from autoarena.store.environment import KeyManager
 
 
 class TogetherJudge(AutomatedJudge):
     API_KEY_NAME = "TOGETHER_API_KEY"
 
-    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
-        super().__init__(name, model_name, system_prompt)
-        self._client = together.Client()
+    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
+        super().__init__(name, model_name, system_prompt, key_manager=key_manager)
+        self._client = together.Client(api_key=self._key_manager.get(self.API_KEY_NAME))
 
     @staticmethod
     def verify_environment() -> None:

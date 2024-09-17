@@ -1,17 +1,19 @@
 import time
+from typing import Optional
 
 import httpx
 import ollama
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt
+from autoarena.store.environment import KeyManager
 
 
 class OllamaJudge(AutomatedJudge):
     API_KEY_NAME = None  # does not require an API key
 
-    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
-        super().__init__(name, model_name, system_prompt)
+    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
+        super().__init__(name, model_name, system_prompt, key_manager=key_manager)
         self._client = ollama
         try:
             self._client.show(model_name)  # ensure this model exists and is pulled

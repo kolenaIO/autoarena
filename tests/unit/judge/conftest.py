@@ -8,9 +8,6 @@ T = TypeVar("T", bound="DummyJudge")
 class DummyJudge(AutomatedJudge):
     winners: list[str]
 
-    def __init__(self, name: str, model_name: str, system_prompt: str):
-        super().__init__(name, model_name, system_prompt)
-
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         return self.winners.pop(0)
 

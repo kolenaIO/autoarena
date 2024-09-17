@@ -1,5 +1,5 @@
 from concurrent.futures import ThreadPoolExecutor
-from typing import Callable
+from typing import Callable, Optional
 
 import pandas as pd
 import pytest
@@ -12,6 +12,7 @@ from autoarena.service.head_to_head import HeadToHeadService
 from autoarena.service.judge import JudgeService
 from autoarena.service.model import ModelService
 from autoarena.service.task import TaskService
+from autoarena.store.environment import KeyManager
 from autoarena.task.auto_judge import AutoJudgeTask
 
 TEST_QUESTIONS = [
@@ -180,8 +181,8 @@ def test__auto_judge_task__saves_progress(
     log_stream: Callable[[], str],
 ) -> None:
     class CrashesAfter3Judge(AutomatedJudge):
-        def __init__(self, name: str, model_name: str, system_prompt: str):
-            super().__init__(name, model_name, system_prompt)
+        def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
+            super().__init__(name, model_name, system_prompt, key_manager=key_manager)
             self.seen = 0
 
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:

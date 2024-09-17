@@ -11,6 +11,7 @@ from autoarena.judge.ollama import OllamaJudge
 from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
 from autoarena.judge.wrapper import JudgeWrapper
+from autoarena.store.environment import KeyManager
 
 AUTOMATED_JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[AutomatedJudge]] = {
     api.JudgeType.OLLAMA: OllamaJudge,
@@ -23,7 +24,11 @@ AUTOMATED_JUDGE_TYPE_TO_CLASS: dict[api.JudgeType, type[AutomatedJudge]] = {
 }
 
 
-def judge_factory(judge: api.Judge, wrappers: Optional[Sequence[JudgeWrapper]] = None) -> AutomatedJudge:
+def judge_factory(
+    judge: api.Judge,
+    wrappers: Optional[Sequence[JudgeWrapper]] = None,
+    key_manager: Optional[KeyManager] = None,
+) -> AutomatedJudge:
     if judge.judge_type is api.JudgeType.HUMAN:
         raise ValueError("Automated judge factory cannot instantiate human judge")
     if judge.judge_type is api.JudgeType.UNRECOGNIZED:
@@ -37,7 +42,7 @@ def judge_factory(judge: api.Judge, wrappers: Optional[Sequence[JudgeWrapper]] =
         raise ValueError(f"Misconfigured judge: {judge}")
     for wrapper in wrappers or []:
         judge_class = wrapper(judge_class)
-    return judge_class(judge.name, judge.model_name, judge.system_prompt)
+    return judge_class(judge.name, judge.model_name, judge.system_prompt, key_manager=key_manager)
 
 
 def verify_judge_type_environment(judge_type: api.JudgeType) -> None:

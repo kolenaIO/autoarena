@@ -1,9 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectApiUrl } from '../lib/routes.ts';
-
-export function getModelResponsesQueryKey(projectSlug: string, modelId: number) {
-  return [getProjectApiUrl(projectSlug), '/model', modelId, '/responses'];
-}
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 export type ModelResponse = {
   prompt: string;
@@ -15,13 +11,13 @@ type Params = {
   modelId?: number;
 };
 export function useModelResponses({ projectSlug, modelId }: Params) {
+  const url = API_ROUTES.getModelResponses(projectSlug ?? '', modelId ?? -1);
   return useQuery({
-    queryKey: getModelResponsesQueryKey(projectSlug ?? '', modelId ?? -1),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
-      const url = `${getProjectApiUrl(projectSlug ?? '')}/model/${modelId}/responses`;
       const response = await fetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch model responses');
       }
       const result: ModelResponse[] = await response.json();
       return result;

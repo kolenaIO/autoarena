@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import {API_ROUTES, getProjectApiUrl, urlAsQueryKey} from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 export function useJudgeDefaultSystemPrompt(projectSlug: string) {
   const url = API_ROUTES.getDefaultSystemPrompt(projectSlug);

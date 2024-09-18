@@ -1,13 +1,14 @@
 import { useState } from 'react';
-import { Accordion, Button, Checkbox, Collapse, Group, Pill, Stack, Text, Tooltip } from '@mantine/core';
+import { Accordion, Anchor, Button, Checkbox, Collapse, Group, Pill, Stack, Text, Tooltip } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
-import { IconGavel } from '@tabler/icons-react';
+import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
 import { Judge } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { pluralize } from '../../lib/string.ts';
+import { API_ROUTES } from '../../lib/routes.ts';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
@@ -53,6 +54,9 @@ export function JudgeAccordionItem({ judge }: Props) {
             </Text>
           </Stack>
           <Group>
+            <Text c="dimmed" size="xs" fs="italic">
+              {pluralize(judge.n_votes, 'vote')}
+            </Text>
             {isEnabled && (
               <Pill bg="ice.0" c="gray.8">
                 Enabled
@@ -73,12 +77,20 @@ export function JudgeAccordionItem({ judge }: Props) {
                   onChange={() => handleToggleEnabled()}
                 />
                 <Group>
-                  <Text c="dimmed" size="xs" fs="italic">
-                    {pluralize(judge.n_votes, 'vote')} submitted
-                  </Text>
-                  <Button variant="light" color="gray" size="xs" onClick={toggleShowSystemPrompt}>
+                  <Button
+                    variant="light"
+                    color="gray"
+                    size="xs"
+                    leftSection={<IconPrompt size={20} />}
+                    onClick={toggleShowSystemPrompt}
+                  >
                     {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
                   </Button>
+                  <Anchor href={API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id)} target="_blank">
+                    <Button variant="light" color="teal" size="xs" leftSection={<IconDownload size={20} />}>
+                      Download Votes CSV
+                    </Button>
+                  </Anchor>
                   <Tooltip label="Judge must be enabled" disabled={judge.enabled}>
                     <Button
                       variant="light"

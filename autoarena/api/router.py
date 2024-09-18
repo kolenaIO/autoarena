@@ -190,7 +190,7 @@ def router() -> APIRouter:
 
     @r.get("/project/{project_slug}/judge/{judge_id}/download/votes")
     async def download_judge_votes_csv(project_slug: str, judge_id: int) -> StreamingResponse:
-        columns = ["prompt", "responseA", "responseB", "winner"]
+        columns = ["prompt", "response_a", "response_b", "winner"]
         df_response = JudgeService.get_df_vote(project_slug, judge_id)
         judge_name = df_response.iloc[0].judge
         stream = StringIO()

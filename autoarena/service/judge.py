@@ -53,8 +53,8 @@ class JudgeService:
                 SELECT
                     j.name as judge,
                     ra.prompt as prompt,
-                    ra.response as responseA,
-                    rb.response as responseB,
+                    ra.response as response_a,
+                    rb.response as response_b,
                     h2h.winner as winner
                 FROM judge j
                 JOIN head_to_head h2h ON j.id = h2h.judge_id

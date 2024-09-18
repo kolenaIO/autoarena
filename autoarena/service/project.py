@@ -100,4 +100,5 @@ class ProjectService:
         tasks = TaskService.get_all(slug)
         for task in tasks:
             if task.status not in {api.TaskStatus.COMPLETED, api.TaskStatus.FAILED}:
+                logger.warning(f"Terminating stuck '{task.task_type.value}' task with status '{task.status.value}'")
                 TaskService.update(slug, task.id, "Terminated", status=api.TaskStatus.FAILED)

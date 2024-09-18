@@ -1,8 +1,8 @@
-import { getProjectApiUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 export function getModelsQueryKey(projectSlug: string) {
-  return [getProjectApiUrl(projectSlug), '/models'];
+  return urlAsQueryKey(API_ROUTES.getModels(projectSlug));
 }
 
 export type Model = {
@@ -17,12 +17,13 @@ export type Model = {
 };
 
 export function useModels(projectSlug: string | undefined) {
+  const url = API_ROUTES.getModels(projectSlug ?? '');
   return useQueryWithErrorToast({
     queryKey: getModelsQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const response = await fetch(`${getProjectApiUrl(projectSlug ?? '')}/models`);
+      const response = await fetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch models');
       }
       const result: Model[] = await response.json();
       return result;

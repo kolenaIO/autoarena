@@ -1,5 +1,5 @@
-// TODO: collect various API URLs in this file
 import { getAppMode } from '../hooks/useAppMode';
+import { JudgeType } from '../components/Judges/types.ts';
 
 const LOCAL_BASE_API_URL = 'http://localhost:8899/api/v1';
 
@@ -8,7 +8,7 @@ function getTenantName() {
   return pathParts.length > 0 ? pathParts[0] : undefined;
 }
 
-export function getBaseApiUrl() {
+function getBaseApiUrl() {
   const { isLocalMode } = getAppMode();
   return isLocalMode ? LOCAL_BASE_API_URL : `${window.location.origin}/api/v1/${getTenantName()}`;
 }
@@ -37,7 +37,8 @@ export const API_ROUTES = {
   getModelsRankedByJudge: (projectSlug: string, judgeId: number) =>
     `${getProjectApiUrl(projectSlug)}/models/by-judge/${judgeId}`,
   uploadModelResponses: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/model`,
-  getModelResponse: (projectSlug: string, modelId: number) => `${getProjectApiUrl(projectSlug)}/model/${modelId}/judge`,
+  getModelResponses: (projectSlug: string, modelId: number) =>
+    `${getProjectApiUrl(projectSlug)}/model/${modelId}/judge`,
   triggerModelAutoJudge: (projectSlug: string, modelId: number) =>
     `${getProjectApiUrl(projectSlug)}/model/${modelId}/judge`,
   deleteModel: (projectSlug: string, modelId: number) => `${getProjectApiUrl(projectSlug)}/model/${modelId}`,
@@ -59,9 +60,15 @@ export const API_ROUTES = {
   getDefaultSystemPrompt: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/judge/default-system-prompt`,
   createJudge: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/judge`,
   updateJudge: (projectSlug: string, judgeId: number) => `${getProjectApiUrl(projectSlug)}/judge/${judgeId}`,
-  checkCanAccess: (projectSlug: string, judgeType: string) =>
-    `${getProjectApiUrl(projectSlug)}/judge/${judgeType}/can-access`, // TODO: use enum type?
+  checkCanAccess: (projectSlug: string, judgeType: JudgeType) =>
+    `${getProjectApiUrl(projectSlug)}/judge/${judgeType}/can-access`,
   deleteJudge: (projectSlug: string, judgeId: number) => `${getProjectApiUrl(projectSlug)}/judge/${judgeId}`,
   reseedEloScores: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/elo/reseed-scores`,
   createFineTuningTask: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/fine-tune`,
 };
+
+type HTTPVerb = 'GET' | 'PUT' | 'POST' | 'DELETE';
+export function urlAsQueryKey(url: string, method: HTTPVerb = 'GET') {
+  const urlObject = new URL(url);
+  return [urlObject.origin, ...urlObject.pathname.split('/').filter(Boolean), method];
+}

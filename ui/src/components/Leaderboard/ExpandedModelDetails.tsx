@@ -3,7 +3,7 @@ import moment from 'moment';
 import { IconDownload, IconGavel } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
-import { getProjectApiUrl } from '../../lib/routes.ts';
+import { API_ROUTES } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
@@ -54,12 +54,12 @@ export function ExpandedModelDetails({ model }: Props) {
           </Group>
         </Stack>
         <Group gap="xs">
-          <Anchor href={`${getProjectApiUrl(projectSlug)}/model/${model.id}/download/responses`} target="_blank">
+          <Anchor href={API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id)} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
               Download Response CSV
             </Button>
           </Anchor>
-          <Anchor href={`${getProjectApiUrl(projectSlug)}/model/${model.id}/download/head-to-heads`} target="_blank">
+          <Anchor href={API_ROUTES.downloadModelHeadToHeadsCsv(projectSlug, model.id)} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
               Download Head-to-Head CSV
             </Button>

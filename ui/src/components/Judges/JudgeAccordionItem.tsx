@@ -31,6 +31,15 @@ export function JudgeAccordionItem({ judge }: Props) {
     setIsEnabled(prev => !prev);
   }
 
+  const canDownload = judge.n_votes > 0;
+  const downloadUrl = canDownload ? API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id) : undefined;
+  const DownloadVotesComponent = (
+    <Anchor href={downloadUrl} target="_blank">
+      <Button variant="light" color="teal" size="xs" leftSection={<IconDownload size={20} />} disabled={!canDownload}>
+        Download Votes CSV
+      </Button>
+    </Anchor>
+  );
   const IconComponent = judgeTypeIconComponent(judge_type);
   return (
     <Accordion.Item key={id} value={`${judge_type}-${id}`}>
@@ -86,11 +95,7 @@ export function JudgeAccordionItem({ judge }: Props) {
                   >
                     {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
                   </Button>
-                  <Anchor href={API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id)} target="_blank">
-                    <Button variant="light" color="teal" size="xs" leftSection={<IconDownload size={20} />}>
-                      Download Votes CSV
-                    </Button>
-                  </Anchor>
+                  {DownloadVotesComponent}
                   <Tooltip label="Judge must be enabled" disabled={judge.enabled}>
                     <Button
                       variant="light"
@@ -123,9 +128,7 @@ export function JudgeAccordionItem({ judge }: Props) {
                 </Link>{' '}
                 tab to provide ratings on head-to-head matchups between models.
               </Text>
-              <Text c="dimmed" size="xs" fs="italic">
-                {pluralize(judge.n_votes, 'vote')} submitted
-              </Text>
+              {DownloadVotesComponent}
             </Group>
           )}
           <Collapse in={showSystemPrompt} fz="sm">

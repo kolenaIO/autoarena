@@ -192,6 +192,7 @@ def router() -> APIRouter:
     async def download_judge_votes_csv(project_slug: str, judge_id: int) -> StreamingResponse:
         columns = ["prompt", "response_a", "response_b", "winner"]
         df_response = JudgeService.get_df_vote(project_slug, judge_id)
+        # TODO: handle case where no votes exist
         judge_name = df_response.iloc[0].judge
         stream = StringIO()
         df_response[columns].to_csv(stream, index=False)

@@ -53,6 +53,8 @@ class JudgeService:
                 SELECT
                     j.name as judge,
                     ra.prompt as prompt,
+                    ma.name as model_a,
+                    mb.name as model_b,
                     ra.response as response_a,
                     rb.response as response_b,
                     h2h.winner as winner
@@ -60,6 +62,8 @@ class JudgeService:
                 JOIN head_to_head h2h ON j.id = h2h.judge_id
                 JOIN response ra ON ra.id = h2h.response_a_id
                 JOIN response rb ON rb.id = h2h.response_b_id
+                JOIN model ma ON ra.model_id = ma.id
+                JOIN model mb ON rb.model_id = mb.id
                 WHERE j.id = $judge_id
                 """,
                 dict(judge_id=judge_id),

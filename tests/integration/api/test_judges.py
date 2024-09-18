@@ -1,3 +1,6 @@
+from io import StringIO
+
+import pandas as pd
 import pytest
 from fastapi.testclient import TestClient
 
@@ -49,6 +52,28 @@ def test__judges__can_access__human(project_client: TestClient) -> None:
 
 def test__judges__can_access__unrecognized__failed(project_client: TestClient) -> None:
     assert not project_client.get("/judge/unrecognized/can-access").json()
+
+
+def test__judges__download_votes_csv(project_client: TestClient, model_id: int, model_b_id: int) -> None:
+    h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
+    judge_request = dict(response_a_id=h2h[0]["response_a_id"], response_b_id=h2h[0]["response_b_id"], winner="A")
+    assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
+    judges = project_client.get("/judges").json()
+    assert len(judges) == 1
+    assert judges[0]["n_votes"] == 1
+    human_judge_id = judges[0]["id"]
+    response = project_client.get(f"/judge/{human_judge_id}/download/votes")
+    assert response.status_code == 200
+    df_vote = pd.read_csv(StringIO(response.text))
+    assert len(df_vote) == 1
+    models = project_client.get("/models").json()
+    assert len(models) == 2
+    model_a, model_b = [m for m in models if m["id"] == model_id][0], [m for m in models if m["id"] == model_b_id][0]
+    df_vote_expected = pd.DataFrame(
+        [(h2h[0]["prompt"], model_a["name"], model_b["name"], h2h[0]["response_a"], h2h[0]["response_b"], "A")],
+        columns=["prompt", "model_a", "model_b", "response_a", "response_b", "winner"],
+    )
+    assert df_vote.equals(df_vote_expected)
 
 
 def test__judges__delete(project_client: TestClient, judge_id: int) -> None:

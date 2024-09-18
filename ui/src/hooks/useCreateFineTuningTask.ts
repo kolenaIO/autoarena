@@ -2,7 +2,7 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getTasksQueryKey } from './useTasks.ts';
-import {useApiFetch} from "./useApiFetch.ts";
+import { useApiFetch } from './useApiFetch.ts';
 
 type CreateFineTuningTaskRequest = {
   base_model: string;

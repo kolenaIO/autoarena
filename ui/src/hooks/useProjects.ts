@@ -1,6 +1,6 @@
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import {useApiFetch} from "./useApiFetch.ts";
+import { useApiFetch } from './useApiFetch.ts';
 
 export function getProjectsQueryKey() {
   return urlAsQueryKey(API_ROUTES.getProjects());

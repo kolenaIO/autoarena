@@ -65,6 +65,7 @@ class JudgeService:
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
                 WHERE j.id = $judge_id
+                ORDER BY h2h.id
                 """,
                 dict(judge_id=judge_id),
             ).df()

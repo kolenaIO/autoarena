@@ -1,21 +1,17 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, getBaseApiUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getProjectsQueryKey } from './useProjects.ts';
-
-function getDeleteProjectQueryKey() {
-  return [`${getBaseApiUrl()}/project`, 'DELETE'];
-}
 
 type Params = {
   projectSlug: string;
-  options?: UseMutationOptions<void, Error, string>;
+  options?: UseMutationOptions<void, Error, void>;
 };
 export function useDeleteProject({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   const url = API_ROUTES.deleteProject(projectSlug);
   return useMutation({
-    mutationKey: getDeleteProjectQueryKey(),
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async () => {
       const response = await fetch(url, { method: 'DELETE' });
       if (!response.ok) {

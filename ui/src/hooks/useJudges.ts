@@ -1,4 +1,4 @@
-import {API_ROUTES, getProjectApiUrl, urlAsQueryKey} from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { JudgeType } from '../components/Judges/types.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
@@ -19,7 +19,7 @@ export type Judge = {
 };
 
 export function useJudges(projectSlug: string | undefined) {
-  const url = API_ROUTES.getJudges(projectSlug ?? '')
+  const url = API_ROUTES.getJudges(projectSlug ?? '');
   return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {

@@ -7,7 +7,7 @@ import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 type Params = {
   projectSlug: string;
   judgeId: number;
-  options?: UseMutationOptions<void, Error, number>;
+  options?: UseMutationOptions<void, Error, void>;
 };
 export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
   const queryClient = useQueryClient();

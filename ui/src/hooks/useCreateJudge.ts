@@ -20,7 +20,7 @@ export function useCreateJudge({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
   const url = API_ROUTES.createJudge(projectSlug);
   return useMutation({
-    mutationKey: urlAsQueryKey(projectSlug, 'POST'),
+    mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: CreateJudgeRequest) => {
       const response = await fetch(url, {
         method: 'POST',

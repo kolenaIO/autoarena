@@ -21,7 +21,6 @@ export function ProjectSelect() {
     queryCilent.invalidateQueries({ queryKey: getProjectsQueryKey() });
   }
 
-  // TODO: this can be simplified now that slugs are IDs are strings
   return (
     <Group gap="xs">
       <Select

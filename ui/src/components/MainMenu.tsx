@@ -1,4 +1,4 @@
-import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { Anchor, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import {
   IconBeta,
   IconBrandGithub,
@@ -14,7 +14,7 @@ import { ExternalUrls } from '../lib/urls.ts';
 import { ROUTES } from '../lib/routes.ts';
 
 export function MainMenu() {
-  const { logout } = useAuth0();
+  const { user, logout } = useAuth0();
   const { isCloudMode } = useAppMode();
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
@@ -52,7 +52,14 @@ export function MainMenu() {
               leftSection={<IconLogout {...iconProps} />}
               onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
             >
-              Sign Out
+              <Stack gap={0}>
+                <Text inherit>Sign Out</Text>
+                {user != null && (
+                  <Text size="xs" c="dimmed">
+                    {user.email}
+                  </Text>
+                )}
+              </Stack>
             </Menu.Item>
           </>
         )}

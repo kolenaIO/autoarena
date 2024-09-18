@@ -95,6 +95,11 @@ def test__models__download_responses_csv__failed(project_client: TestClient) -> 
     assert project_client.get("/model/12345/download/responses").status_code == 404
 
 
+def test__models__trigger_auto_judge(project_client: TestClient, model_id: int) -> None:
+    assert project_client.post(f"/model/{model_id}/judge").json() is None
+    # TODO: actually check that task is kicked off? requires a configured auto-judge
+
+
 def test__models__get_ranked_by_judge(
     project_client: TestClient,
     model_id: int,

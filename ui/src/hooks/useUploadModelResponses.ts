@@ -4,12 +4,14 @@ import { zip } from 'ramda';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getModelsQueryKey, Model } from './useModels.ts';
 import { getTasksQueryKey } from './useTasks.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type Params = {
   projectSlug: string;
   options?: UseMutationOptions<Model[], Error, [File[], string[]]>;
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
+  const { apiFetch } = useApiFetch();
   const queryClient = useQueryClient();
   const url = API_ROUTES.uploadModelResponses(projectSlug);
   return useMutation({
@@ -23,7 +25,7 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
         formData.append(file.name, file);
         formData.append(`${file.name}||model_name`, modelName); // format here is enforced by backend
       });
-      const response = await fetch(url, { method: 'POST', body: formData });
+      const response = await apiFetch(url, { method: 'POST', body: formData });
       if (!response.ok) {
         throw new Error('Failed to add model responses');
       }

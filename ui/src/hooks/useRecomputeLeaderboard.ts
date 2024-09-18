@@ -2,18 +2,20 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type Params = {
   projectSlug: string;
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useRecomputeLeaderboard({ projectSlug, options = {} }: Params) {
+  const { apiFetch } = useApiFetch();
   const queryClient = useQueryClient();
   const url = API_ROUTES.reseedEloScores(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'PUT'),
     mutationFn: async () => {
-      const response = await fetch(url, { method: 'PUT' });
+      const response = await apiFetch(url, { method: 'PUT' });
       if (!response.ok) {
         throw new Error('Failed to recompute leaderboard rankings');
       }

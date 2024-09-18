@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 export type HeadToHeadHistoryItem = {
   judge_id: number;
@@ -22,12 +23,13 @@ type Params = {
   modelBId: number;
 };
 export function useHeadToHeads({ projectSlug, modelAId, modelBId }: Params) {
+  const { apiFetch } = useApiFetch();
   const url = API_ROUTES.getHeadToHeads(projectSlug);
   return useQuery({
     queryKey: [...urlAsQueryKey(url), modelAId, modelBId],
     queryFn: async () => {
       const body = { model_a_id: modelAId, model_b_id: modelBId };
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'PUT',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },

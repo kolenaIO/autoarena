@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type Params = {
   projectSlug: string;
@@ -10,12 +11,13 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
+  const { apiFetch } = useApiFetch();
   const queryClient = useQueryClient();
   const url = API_ROUTES.deleteModel(projectSlug, modelId);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async () => {
-      const response = await fetch(url, { method: 'DELETE' });
+      const response = await apiFetch(url, { method: 'DELETE' });
       if (!response.ok) {
         throw new Error('Failed to delete model');
       }

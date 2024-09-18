@@ -13,6 +13,7 @@ export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQ
   const url = API_ROUTES.getTaskStream(projectSlug, task.id);
   const queryKey = urlAsQueryKey(url);
 
+  // TODO: bearer token
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {

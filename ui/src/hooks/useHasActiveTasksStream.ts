@@ -7,6 +7,7 @@ export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<bo
   const url = API_ROUTES.getHasActiveTasksStream(projectSlug ?? '');
   const queryKey = urlAsQueryKey(url);
 
+  // TODO: auth header
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {

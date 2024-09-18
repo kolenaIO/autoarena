@@ -13,11 +13,11 @@ type Props = {
 export function DeleteProjectModal({ isOpen, onClose }: Props) {
   const { projectSlug = '' } = useUrlState();
   const { data: project } = useProject(projectSlug);
-  const { mutate: deleteProject } = useDeleteProject();
+  const { mutate: deleteProject } = useDeleteProject({ projectSlug });
   const navigate = useNavigate();
 
   function handleDeleteProject() {
-    deleteProject(projectSlug);
+    deleteProject();
     navigate(ROUTES.home());
     onClose();
   }

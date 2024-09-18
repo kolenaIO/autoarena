@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import {API_ROUTES, getBaseApiUrl, ROUTES, urlAsQueryKey} from '../lib/routes.ts';
+import { API_ROUTES, ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getProjectsQueryKey, Project } from './useProjects.ts';
 
 type CreateProjectRequest = {

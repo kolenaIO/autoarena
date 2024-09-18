@@ -1,24 +1,24 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectApiUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 
-function getDeleteModelQueryKey(projectSlug: string) {
-  return [getProjectApiUrl(projectSlug), '/model', 'DELETE'];
-}
-
 type Params = {
   projectSlug: string;
+  modelId: number;
   options?: UseMutationOptions<void, Error, number>;
 };
-export function useDeleteModel({ projectSlug, options = {} }: Params) {
+export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
   const queryClient = useQueryClient();
+  const url = API_ROUTES.deleteModel(projectSlug, modelId);
   return useMutation({
-    mutationKey: getDeleteModelQueryKey(projectSlug),
-    mutationFn: async (modelId: number) => {
-      const url = `${getProjectApiUrl(projectSlug)}/model/${modelId}`;
-      await fetch(url, { method: 'DELETE' });
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
+    mutationFn: async () => {
+      const response = await fetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete model');
+      }
     },
     onError: () => {
       notifications.show({

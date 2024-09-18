@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { getBaseApiUrl, getProjectApiUrl } from '../lib/routes.ts';
-import { PROJECTS_QUERY_KEY } from './useProjects.ts';
+import { getProjectsQueryKey } from './useProjects.ts';
 
 function getDeleteProjectQueryKey() {
   return [`${getBaseApiUrl()}/project`, 'DELETE'];
@@ -26,7 +26,7 @@ export function useDeleteProject({ options }: Params = {}) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey() });
     },
     ...options,
   });

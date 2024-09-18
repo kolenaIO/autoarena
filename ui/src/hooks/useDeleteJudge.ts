@@ -1,12 +1,8 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectApiUrl } from '../lib/routes.ts';
+import {API_ROUTES, getProjectApiUrl, urlAsQueryKey} from '../lib/routes.ts';
 import { getJudgesQueryKey } from './useJudges.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
-
-function getDeleteJudgeQueryKey(projectSlug: string) {
-  return [getProjectApiUrl(projectSlug), '/judge', 'DELETE'];
-}
 
 type Params = {
   projectSlug: string;
@@ -14,11 +10,14 @@ type Params = {
 };
 export function useDeleteJudge({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
+  const url = API_ROUTES.deleteJudge(projectSlug);
   return useMutation({
-    mutationKey: getDeleteJudgeQueryKey(projectSlug),
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async (judgeId: number) => {
-      const url = `${getProjectApiUrl(projectSlug)}/judge/${judgeId}`;
-      await fetch(url, { method: 'DELETE' });
+      const response= await fetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete judge')
+      }
     },
     onError: () => {
       notifications.show({

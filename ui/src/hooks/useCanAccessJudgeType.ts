@@ -1,23 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
 import { JudgeType } from '../components/Judges/types.ts';
-import { getProjectApiUrl } from '../lib/routes.ts';
-
-function getCanAccessJudgeTypeQueryKey(projectSlug: string, judgeType?: JudgeType) {
-  return [getProjectApiUrl(projectSlug), '/judge', judgeType, 'can-access'];
-}
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 type Params = {
   projectSlug: string;
   judgeType?: JudgeType;
 };
 export function useCanAccessJudgeType({ projectSlug, judgeType }: Params) {
+  const url = API_ROUTES.checkCanAccess(projectSlug, judgeType ?? 'unrecognized');
   return useQuery({
-    queryKey: getCanAccessJudgeTypeQueryKey(projectSlug, judgeType),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
-      const url = `${getProjectApiUrl(projectSlug)}/judge/${judgeType}/can-access`;
       const response = await fetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to check judge type availability');
       }
       const result: boolean = await response.json();
       return result;

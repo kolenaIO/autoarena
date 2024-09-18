@@ -1,11 +1,7 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectApiUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { taskStatusToColor } from '../lib/tasks.ts';
-
-function getTriggerModelJudgementQueryKey(projectSlug: string, modelId: number | undefined) {
-  return [getProjectApiUrl(projectSlug), '/model', modelId, '/judge'];
-}
 
 type Params = {
   projectSlug: string;
@@ -13,10 +9,14 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useTriggerModelAutoJudge({ projectSlug, modelId, options = {} }: Params) {
+  const url = API_ROUTES.triggerModelAutoJudge(projectSlug, modelId ?? -1);
   return useMutation({
-    mutationKey: getTriggerModelJudgementQueryKey(projectSlug, modelId),
+    mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async () => {
-      await fetch(`${getProjectApiUrl(projectSlug)}/model/${modelId}/judge`, { method: 'POST' });
+      const response = await fetch(url, { method: 'POST' });
+      if (!response.ok) {
+        throw new Error('Failed to start automated judgement for model');
+      }
     },
     onSuccess: () => {
       notifications.show({

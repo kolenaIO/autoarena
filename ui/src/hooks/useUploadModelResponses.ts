@@ -1,13 +1,9 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
-import { getProjectApiUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getModelsQueryKey, Model } from './useModels.ts';
 import { getTasksQueryKey } from './useTasks.ts';
-
-function getUploadModelResponsesQueryKey(projectSlug: string) {
-  return [`${getProjectApiUrl(projectSlug)}`, '/model', 'POST'];
-}
 
 type Params = {
   projectSlug: string;
@@ -15,8 +11,9 @@ type Params = {
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
   const queryClient = useQueryClient();
+  const url = API_ROUTES.uploadModelResponses(projectSlug);
   return useMutation({
-    mutationKey: getUploadModelResponsesQueryKey(projectSlug),
+    mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async ([files, modelNames]: [File[], string[]]) => {
       if (files.length !== modelNames.length) {
         throw new Error(`Invalid request: ${files.length} files and ${modelNames.length} model names provided`);
@@ -26,7 +23,10 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
         formData.append(file.name, file);
         formData.append(`${file.name}||model_name`, modelName); // format here is enforced by backend
       });
-      const response = await fetch(`${getProjectApiUrl(projectSlug)}/model`, { method: 'POST', body: formData });
+      const response = await fetch(url, { method: 'POST', body: formData });
+      if (!response.ok) {
+        throw new Error('Failed to add model responses');
+      }
       const result: Model[] = await response.json();
       return result;
     },

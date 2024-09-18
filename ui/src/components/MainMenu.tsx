@@ -1,4 +1,4 @@
-import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { Anchor, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import {
   IconBeta,
   IconBrandGithub,
@@ -54,7 +54,14 @@ export function MainMenu() {
               leftSection={<IconLogout {...iconProps} />}
               onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
             >
-              Sign Out
+              <Stack gap={0}>
+                <Text inherit>Sign Out</Text>
+                {user != null && (
+                  <Text size="xs" c="dimmed">
+                    {user.email}
+                  </Text>
+                )}
+              </Stack>
             </Menu.Item>
           </>
         )}

@@ -135,5 +135,10 @@ class HeadToHeadService:
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                 SELECT id_slug(response_a_id, response_b_id), response_a_id, response_b_id, judge_id, winner
                 FROM df_h2h_deduped
-                ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner
+                ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
+                    winner = IF(
+                        response_a_id = EXCLUDED.response_a_id,
+                        EXCLUDED.winner,
+                        invert_winner(EXCLUDED.winner)
+                    )
             """)

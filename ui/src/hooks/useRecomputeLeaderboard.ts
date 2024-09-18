@@ -1,11 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getModelsQueryKey } from './useModels.ts';
-
-function getDeleteJudgeQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/elo/reseed-scores'];
-}
 
 type Params = {
   projectSlug: string;
@@ -13,11 +9,14 @@ type Params = {
 };
 export function useRecomputeLeaderboard({ projectSlug, options = {} }: Params) {
   const queryClient = useQueryClient();
+  const url = API_ROUTES.reseedEloScores(projectSlug);
   return useMutation({
-    mutationKey: getDeleteJudgeQueryKey(projectSlug),
+    mutationKey: urlAsQueryKey(url, 'PUT'),
     mutationFn: async () => {
-      const url = `${getProjectUrl(projectSlug)}/elo/reseed-scores`;
-      await fetch(url, { method: 'PUT' });
+      const response = await fetch(url, { method: 'PUT' });
+      if (!response.ok) {
+        throw new Error('Failed to recompute leaderboard rankings');
+      }
     },
     onSuccess: () => {
       notifications.show({

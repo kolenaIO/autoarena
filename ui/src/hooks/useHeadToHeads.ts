@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 export type HeadToHeadHistoryItem = {
   judge_id: number;
@@ -22,17 +22,18 @@ type Params = {
   modelBId: number;
 };
 export function useHeadToHeads({ projectSlug, modelAId, modelBId }: Params) {
+  const url = API_ROUTES.getHeadToHeads(projectSlug);
   return useQuery({
-    queryKey: [getProjectUrl(projectSlug), '/head-to-heads', modelAId, modelBId],
+    queryKey: [...urlAsQueryKey(url), modelAId, modelBId],
     queryFn: async () => {
       const body = { model_a_id: modelAId, model_b_id: modelBId };
-      const response = await fetch(`${getProjectUrl(projectSlug)}/head-to-heads`, {
+      const response = await fetch(url, {
         method: 'PUT',
         body: JSON.stringify(body),
         headers: { 'Content-Type': 'application/json' },
       });
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch head-to-heads');
       }
       const result: HeadToHead[] = await response.json();
       return result;

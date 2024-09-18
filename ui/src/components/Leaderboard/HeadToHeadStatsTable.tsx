@@ -7,6 +7,7 @@ import { ModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { usePagination } from '../../hooks/usePagination.ts';
+import { ROUTES } from '../../lib/routes.ts';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   unique_id: string;
@@ -101,7 +102,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         minHeight={statsRecords.length === 0 ? 180 : undefined}
         highlightOnHover
         onRowClick={({ record: { other_model_id } }) => {
-          navigate(`/project/${projectSlug}/compare?modelA=${modelId}&modelB=${other_model_id}`);
+          navigate(`${ROUTES.compare(projectSlug)}?modelA=${modelId}&modelB=${other_model_id}`);
         }}
         page={pageNumber}
         onPageChange={setPageNumber}

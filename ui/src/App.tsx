@@ -7,9 +7,11 @@ import { createTheme, MantineProvider, Modal, Popover, Tooltip } from '@mantine/
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
+import { Auth0Provider } from '@auth0/auth0-react';
 import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components/Page.tsx';
 import { PageNotFound } from './components/PageNotFound.tsx';
-import { getAppMode } from './hooks/useAppMode.ts';
+import { getAppMode, useAppMode } from './hooks/useAppMode.ts';
+import { AUTH0 } from './lib/auth.ts';
 
 const theme = createTheme({
   primaryColor: 'kolena',
@@ -50,13 +52,27 @@ const router = createBrowserRouter([
 ]);
 
 function App() {
-  return (
+  const { isLocalMode } = useAppMode();
+  const AppComponent = (
     <QueryClientProvider client={queryClient}>
       <MantineProvider forceColorScheme="light" defaultColorScheme="light" theme={theme}>
         <Notifications />
         <RouterProvider router={router} />
       </MantineProvider>
     </QueryClientProvider>
+  );
+  return isLocalMode ? (
+    AppComponent
+  ) : (
+    <Auth0Provider
+      domain={AUTH0.DOMAIN}
+      clientId={AUTH0.CLIENT_ID}
+      authorizationParams={{ redirect_uri: `${window.location.origin}/redirect`, audience: AUTH0.API_AUDIENCE }}
+      useRefreshTokens
+      cacheLocation="localstorage"
+    >
+      {AppComponent}
+    </Auth0Provider>
   );
 }
 

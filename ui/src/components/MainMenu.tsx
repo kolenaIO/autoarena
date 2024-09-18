@@ -1,4 +1,4 @@
-import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { Anchor, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
 import {
   IconBeta,
   IconBrandGithub,
@@ -7,13 +7,18 @@ import {
   IconHome,
   IconLogout,
   IconStack2Filled,
+  IconUser,
 } from '@tabler/icons-react';
+import { useAuth0 } from '@auth0/auth0-react';
 import { useAppMode } from '../hooks/useAppMode.ts';
 import { ExternalUrls } from '../lib/urls.ts';
+import { ROUTES } from '../lib/routes.ts';
 
 export function MainMenu() {
-  const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
+  const { user, logout } = useAuth0();
   const { isCloudMode } = useAppMode();
+
+  const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
     <Menu>
       <Menu.Target>
@@ -29,7 +34,7 @@ export function MainMenu() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Anchor href="/" underline="never">
+        <Anchor href={ROUTES.home()} underline="never">
           <Menu.Item leftSection={<IconHome {...iconProps} />}>Home</Menu.Item>
         </Anchor>
         <Anchor href={ExternalUrls.AUTOARENA_GITHUB} underline="never" target="_blank">
@@ -44,9 +49,20 @@ export function MainMenu() {
         {isCloudMode && (
           <>
             <Menu.Divider />
-            <Anchor href="/" /* TODO: logout URL */ underline="never">
-              <Menu.Item leftSection={<IconLogout {...iconProps} />}>Log out</Menu.Item>
-            </Anchor>
+            {user != null && <Menu.Item leftSection={<IconUser {...iconProps} />}>{user.email}</Menu.Item>}
+            <Menu.Item
+              leftSection={<IconLogout {...iconProps} />}
+              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
+            >
+              <Stack gap={0}>
+                <Text inherit>Sign Out</Text>
+                {user != null && (
+                  <Text size="xs" c="dimmed">
+                    {user.email}
+                  </Text>
+                )}
+              </Stack>
+            </Menu.Item>
           </>
         )}
       </Menu.Dropdown>

@@ -1,9 +1,9 @@
-import { getProjectUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { JudgeType } from '../components/Judges/types.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 
 export function getJudgesQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judges'];
+  return urlAsQueryKey(API_ROUTES.getJudges(projectSlug));
 }
 
 export type Judge = {
@@ -19,13 +19,13 @@ export type Judge = {
 };
 
 export function useJudges(projectSlug: string | undefined) {
+  const url = API_ROUTES.getJudges(projectSlug ?? '');
   return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${getProjectUrl(projectSlug ?? '')}/judges`;
       const response = await fetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch judges');
       }
       const result: Judge[] = await response.json();
       return result;

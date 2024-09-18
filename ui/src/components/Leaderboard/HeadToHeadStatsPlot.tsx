@@ -8,6 +8,7 @@ import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { useJudge } from '../../hooks/useJudge.ts';
+import { ROUTES } from '../../lib/routes.ts';
 
 type ChartRecord = {
   opponentName: string;
@@ -58,7 +59,7 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
   );
 
   function handleBarClick({ opponentId }: ChartRecord) {
-    navigate(`/project/${projectSlug}/compare?modelA=${modelId}&modelB=${opponentId}`);
+    navigate(`${ROUTES.compare(projectSlug)}?modelA=${modelId}&modelB=${opponentId}`);
   }
 
   const isDisabled = plotStats.length == 0;

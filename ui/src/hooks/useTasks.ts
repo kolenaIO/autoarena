@@ -1,8 +1,8 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 export function getTasksQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/tasks'];
+  return urlAsQueryKey(API_ROUTES.getTasks(projectSlug));
 }
 
 export type Task = {
@@ -19,13 +19,13 @@ type Params = {
   options?: Partial<UseQueryOptions<Task[]>>;
 };
 export function useTasks({ projectSlug, options = {} }: Params) {
+  const url = API_ROUTES.getTasks(projectSlug ?? '');
   return useQuery({
     queryKey: getTasksQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const url = `${getProjectUrl(projectSlug ?? '')}/tasks`;
       const response = await fetch(url);
       if (!response.ok) {
-        return [];
+        throw new Error('Failed to fetch tasks');
       }
       const result: Task[] = await response.json();
       return result;

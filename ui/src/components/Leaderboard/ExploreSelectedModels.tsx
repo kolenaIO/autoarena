@@ -1,6 +1,7 @@
 import { Button, Card, Portal, Stack, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../../hooks/useUrlState.ts';
+import { ROUTES } from '../../lib/routes.ts';
 import { RankedModel } from './types.ts';
 
 type Props = {
@@ -23,7 +24,7 @@ export function ExploreSelectedModels({ selectedModels }: Props) {
     if (modelB != null) {
       params.append('modelB', String(modelB.id));
     }
-    navigate(`/project/${projectSlug}/compare?${params}`);
+    navigate(`${ROUTES.compare(projectSlug)}?${params}`);
   }
 
   return (

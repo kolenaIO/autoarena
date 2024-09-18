@@ -10,7 +10,7 @@ import { pluralize } from '../../lib/string.ts';
 import { getModelsQueryKey } from '../../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
 import { taskIsDone } from '../../lib/tasks.ts';
-import { getProjectUrl } from '../../lib/routes.ts';
+import { getProjectApiUrl } from '../../lib/routes.ts';
 import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
 import { useHasActiveTasksStream } from '../../hooks/useHasActiveTasksStream.ts';
 import { NonIdealState } from '../NonIdealState.tsx';
@@ -37,7 +37,7 @@ export function TasksDrawer() {
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
     queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug ?? '') });
-    queryClient.invalidateQueries({ queryKey: [getProjectUrl(projectSlug ?? ''), '/model'] });
+    queryClient.invalidateQueries({ queryKey: [getProjectApiUrl(projectSlug ?? ''), '/model'] });
   }, [tasksCompleted.length]);
 
   return (

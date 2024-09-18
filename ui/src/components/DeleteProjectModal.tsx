@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useProject } from '../hooks/useProject.ts';
 import { useDeleteProject } from '../hooks/useDeleteProject.ts';
+import { ROUTES } from '../lib/routes.ts';
 import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
 
 type Props = {
@@ -12,12 +13,12 @@ type Props = {
 export function DeleteProjectModal({ isOpen, onClose }: Props) {
   const { projectSlug = '' } = useUrlState();
   const { data: project } = useProject(projectSlug);
-  const { mutate: deleteProject } = useDeleteProject();
+  const { mutate: deleteProject } = useDeleteProject({ projectSlug });
   const navigate = useNavigate();
 
   function handleDeleteProject() {
-    deleteProject(projectSlug);
-    navigate('/');
+    deleteProject();
+    navigate(ROUTES.home());
     onClose();
   }
 

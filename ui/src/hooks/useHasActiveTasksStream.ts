@@ -1,19 +1,16 @@
 import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
-
-function getHasActiveTasksQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/tasks', '/has-active'];
-}
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<boolean, Error> {
   const queryClient = useQueryClient();
-  const queryKey = getHasActiveTasksQueryKey(projectSlug ?? '');
+  const url = API_ROUTES.getHasActiveTasksStream(projectSlug ?? '');
+  const queryKey = urlAsQueryKey(url);
 
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      await fetchEventSource(`${getProjectUrl(projectSlug ?? '')}/tasks/has-active`, {
+      await fetchEventSource(url, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
         signal,

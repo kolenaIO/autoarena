@@ -12,14 +12,15 @@ export function EloWidget({ elo, qLo, qHi, globalLo, globalHi }: Props) {
   const pctLo = (100 * (qLo - globalLo)) / range;
   const pctHi = (100 * (qHi - globalLo)) / range;
   const height = 12;
+  const diamondSize = height - 6;
   return (
     <div style={{ position: 'relative', minWidth: 200, height }}>
       <div
         style={{
           position: 'absolute',
           background: 'var(--mantine-color-gray-4)',
-          left: `calc(${pctLo.toFixed(1)}% - 1px)`,
-          right: `calc(100% - ${pctHi.toFixed(1)}% - 1px)`,
+          left: `calc(${pctLo.toFixed(1)}%)`,
+          right: `calc(100% - ${pctHi.toFixed(1)}%)`,
           borderRadius: height / 2,
           height: 2,
           marginTop: (height - 2) / 2,
@@ -50,9 +51,9 @@ export function EloWidget({ elo, qLo, qHi, globalLo, globalHi }: Props) {
         style={{
           position: 'absolute',
           background: 'var(--mantine-color-kolena-8)',
-          left: `calc(${pct.toFixed(1)}% - ${(height - 6) / 2}px - 1px)`,
-          width: height - 6,
-          height: height - 6,
+          left: `calc(${pct.toFixed(1)}% - ${height / 2}px)`,
+          width: diamondSize,
+          height: diamondSize,
           transform: 'rotate(45deg)',
           margin: 3,
         }}

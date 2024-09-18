@@ -41,10 +41,10 @@ dependencies = [
     "uvicorn<1",
     "duckdb",
     "pyarrow",
-    "tqdm>=4,<5",
     "python-multipart",
     "loguru<1",
     "tenacity>=9,<10",
+    "pytimeparse>=1,<2",
     # TODO: these client libraries should be arranged into extras that are installed as needed
     "openai>=1,<2",
     "ollama<1",

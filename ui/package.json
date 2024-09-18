@@ -5,7 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:cloud": "vite --mode cloud",
     "build": "tsc --build && vite build",
+    "build:cloud": "tsc --build && vite build --mode cloud",
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",
@@ -22,11 +24,13 @@
     ]
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.2.4",
     "@mantine/charts": "^7.12.2",
     "@mantine/core": "^7.11.2",
     "@mantine/form": "^7.12.0",
     "@mantine/hooks": "^7.11.2",
     "@mantine/notifications": "^7.12.2",
+    "@microsoft/fetch-event-source": "^2.0.1",
     "@tabler/icons-react": "^3.11.0",
     "@tanstack/react-query": "^5.51.16",
     "@types/ramda": "^0.30.2",
@@ -70,6 +74,6 @@
     "stylelint-prettier": "^5.0.2",
     "ts-jest": "^29.2.5",
     "typescript": "^5.2.2",
-    "vite": "^5.3.4"
+    "vite": "^5.4.6"
   }
 }

@@ -1,7 +1,6 @@
 import pytest
 
-from autoarena.judge.utils import FixingJudge
-from tests.unit.judge.test_utils import DUMMY_H2H
+from autoarena.judge.wrapper import fixing_wrapper
 from tests.unit.judge.conftest import DummyJudge
 
 
@@ -15,8 +14,10 @@ from tests.unit.judge.conftest import DummyJudge
         ("A is better.", "A"),
         ("Response B is better, because it does a better job than A.", "B"),
         ("Neither A nor B are that good.", "-"),
+        ("", "-"),  # empty responses are properly marked as ties
     ],
 )
-def test__fixing_judge(raw: str, expected: str) -> None:
-    test_judge = DummyJudge([raw])
-    assert FixingJudge(test_judge).judge(DUMMY_H2H) == expected
+def test__fixing_wrapper(raw: str, expected: str) -> None:
+    test_judge = fixing_wrapper(DummyJudge)("dummy", "dummy", "description")
+    test_judge.winners = [raw]
+    assert test_judge.judge("p", "a", "b") == expected

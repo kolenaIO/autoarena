@@ -15,6 +15,7 @@ CREATE_JUDGE_REQUEST = dict(
 
 DF_RESPONSE = pd.DataFrame([("p1", "r1"), ("p2", "r2")], columns=["prompt", "response"])
 DF_RESPONSE_B = pd.DataFrame([("p1", "b"), ("p2", "bb"), ("p3", "bbb")], columns=["prompt", "response"])
+DF_RESPONSE_C = pd.DataFrame([("p2", "c"), ("p3", "cc")], columns=["prompt", "response"])
 
 
 @dataclass(frozen=True)
@@ -48,6 +49,17 @@ def model_id(project_client: TestClient) -> int:
 def model_b_id(project_client: TestClient) -> int:
     body = construct_upload_model_body({"test-model-b": DF_RESPONSE_B})
     return project_client.post("/model", data=body.data, files=body.files).json()[0]["id"]
+
+
+@pytest.fixture
+def model_c_id(project_client: TestClient) -> int:
+    body = construct_upload_model_body({"test-model-c": DF_RESPONSE_C})
+    return project_client.post("/model", data=body.data, files=body.files).json()[0]["id"]
+
+
+@pytest.fixture
+def model_ids(model_id: int, model_b_id: int, model_c_id: int) -> list[int]:
+    return [model_id, model_b_id, model_c_id]
 
 
 @pytest.fixture

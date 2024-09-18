@@ -1,25 +1,24 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getJudgesQueryKey } from './useJudges.ts';
-import { getModelEloHistoryQueryKey } from './useModelEloHistory.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
-
-function getDeleteJudgeQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judge', 'DELETE'];
-}
 
 type Params = {
   projectSlug: string;
-  options?: UseMutationOptions<void, Error, number>;
+  judgeId: number;
+  options?: UseMutationOptions<void, Error, void>;
 };
-export function useDeleteJudge({ projectSlug, options = {} }: Params) {
+export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
   const queryClient = useQueryClient();
+  const url = API_ROUTES.deleteJudge(projectSlug, judgeId);
   return useMutation({
-    mutationKey: getDeleteJudgeQueryKey(projectSlug),
-    mutationFn: async (judgeId: number) => {
-      const url = `${getProjectUrl(projectSlug)}/judge/${judgeId}`;
-      await fetch(url, { method: 'DELETE' });
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
+    mutationFn: async () => {
+      const response = await fetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete judge');
+      }
     },
     onError: () => {
       notifications.show({
@@ -30,8 +29,7 @@ export function useDeleteJudge({ projectSlug, options = {} }: Params) {
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelEloHistoryQueryKey(projectSlug) }); // invalidate all
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
     },
     ...options,
   });

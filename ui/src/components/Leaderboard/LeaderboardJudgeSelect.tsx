@@ -3,7 +3,7 @@ import { useMemo } from 'react';
 import { useJudges } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 
-export function JudgeSelect() {
+export function LeaderboardJudgeSelect() {
   const { projectSlug, judgeId, setJudgeId } = useUrlState();
   const { data: judges, isLoading: isLoadingJudges } = useJudges(projectSlug);
 

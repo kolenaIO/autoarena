@@ -1,18 +1,15 @@
-import { getProjectUrl } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { Model } from './useModels.ts';
 
-export function getJudgesRankedByModel(projectSlug: string | undefined, judgeId: number | undefined) {
-  return [getProjectUrl(projectSlug ?? ''), '/models', '/by-judge', judgeId];
-}
-
 export function useModelsRankedByJudge(projectSlug: string | undefined, judgeId: number | undefined) {
+  const url = API_ROUTES.getModelsRankedByJudge(projectSlug ?? '', judgeId ?? -1);
   return useQueryWithErrorToast({
-    queryKey: getJudgesRankedByModel(projectSlug, judgeId),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/models/by-judge/${judgeId}`);
+      const response = await fetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch models ranked by judge');
       }
       const result: Model[] = await response.json();
       return result;

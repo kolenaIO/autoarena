@@ -1,7 +1,7 @@
 import dataclasses
 from datetime import datetime
 from enum import Enum
-from typing import Literal, Optional
+from typing import Literal, Optional, Union
 
 from pydantic.dataclasses import dataclass
 
@@ -53,7 +53,7 @@ class HeadToHeadsRequest:
     model_b_id: Optional[int] = None  # when empty, get all pairings
 
 
-WinnerType = Literal["A", "B", "-"]
+WinnerType = Union[Literal["A", "B", "-"], str]  # should be one of the literal values, but could be anything
 
 
 @dataclass(frozen=True)
@@ -103,6 +103,18 @@ class Task:
     logs: str
 
 
+@dataclass(frozen=True)
+class HasActiveTasks:
+    has_active: bool
+
+
+@dataclass(frozen=True)
+class TriggerAutoJudgeRequest:
+    judge_ids: list[int]
+    fraction: float  # on [0,1]
+    skip_existing: bool
+
+
 class JudgeType(str, Enum):
     HUMAN = "human"
     OLLAMA = "ollama"
@@ -113,6 +125,7 @@ class JudgeType(str, Enum):
     TOGETHER = "together"
     BEDROCK = "bedrock"
     CUSTOM = "custom"  # TODO: not sure how to handle calling this yet -- will it just be another Ollama model?
+    UNRECOGNIZED = "unrecognized"  # catchall to gracefully handle newer types that are not present on an older release
 
 
 @dataclass(frozen=True)

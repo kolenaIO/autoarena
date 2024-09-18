@@ -42,9 +42,13 @@ def test__judges__update(project_client: TestClient, judge_id: int) -> None:
     assert not updated_judge["enabled"]
 
 
-def test__judges__can_access(project_client: TestClient) -> None:
+def test__judges__can_access__human(project_client: TestClient) -> None:
     # just ensure that the API works; full behavior is tested at a lower level than the API
     assert project_client.get("/judge/human/can-access").json()
+
+
+def test__judges__can_access__unrecognized__failed(project_client: TestClient) -> None:
+    assert not project_client.get("/judge/unrecognized/can-access").json()
 
 
 def test__judges__delete(project_client: TestClient, judge_id: int) -> None:

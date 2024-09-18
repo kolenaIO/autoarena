@@ -12,10 +12,10 @@ type Props = {
 export function DeleteModelButton({ model }: Props) {
   const { projectSlug = '' } = useUrlState();
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: deleteModel } = useDeleteModel({ projectSlug });
+  const { mutate: deleteModel } = useDeleteModel({ projectSlug, modelId: model.id });
 
   function handleDelete() {
-    deleteModel(model.id);
+    deleteModel();
     close();
   }
 

@@ -1,16 +1,18 @@
-import { Anchor, Group, Stack, Tabs, Text, Tooltip } from '@mantine/core';
-import { IconBeta, IconCrown, IconGavel, IconStack2Filled, IconSwords } from '@tabler/icons-react';
+import { Group, Stack, Tabs } from '@mantine/core';
+import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
 import { useUrlState } from '../hooks/useUrlState.ts';
 import { useProject } from '../hooks/useProject.ts';
+import { ROUTES } from '../lib/routes.ts';
 import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
 import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
 import { Judges } from './Judges/Judges.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
 import { TasksDrawer } from './TasksDrawer/TasksDrawer.tsx';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
+import { MainMenu } from './MainMenu.tsx';
 
 export const TAB_LEADERBOARD = 'Leaderboard';
 export const TAB_COMPARISON = 'Head-to-Head';
@@ -35,41 +37,30 @@ export function Page({ tab }: Props) {
         color: 'red',
         key: 'project-not-found',
       });
-      navigate('/');
+      navigate(ROUTES.home());
     }
   }, [project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
-    const baseUrl = `/project/${projectSlug}`;
     switch (newTab) {
       case TAB_LEADERBOARD:
-        navigate(baseUrl);
+        navigate(ROUTES.leaderboard(projectSlug ?? ''));
         break;
       case TAB_COMPARISON:
-        navigate(`${baseUrl}/compare`);
+        navigate(ROUTES.compare(projectSlug ?? ''));
         break;
       case TAB_JUDGES:
-        navigate(`${baseUrl}/judges`);
+        navigate(ROUTES.judges(projectSlug ?? ''));
         break;
     }
   }
 
-  const iconProps = { width: 20, height: 20, color: 'var(--mantine-color-kolena-8)' };
+  const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
     <Tabs value={tab} onChange={setTab} keepMounted={false}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <Group align="center" p="xs" pl="lg" pr="xl" h={58}>
-          <Anchor underline="never" href="/">
-            <Group gap={4}>
-              <IconStack2Filled color="var(--mantine-color-kolena-6)" />
-              <Text fw="bold" c="black">
-                AutoArena
-              </Text>
-              <Tooltip label="Beta Release" fz="xs">
-                <IconBeta size={14} color="var(--mantine-color-ice-8)" />
-              </Tooltip>
-            </Group>
-          </Anchor>
+          <MainMenu />
         </Group>
         <Tabs.Tab
           ml="xl"
@@ -95,7 +86,7 @@ export function Page({ tab }: Props) {
         {projectSlug != null ? (
           <Leaderboard />
         ) : (
-          <Stack justify="center" align="center" h="calc(100vh - 56px)">
+          <Stack justify="center" align="center" h="calc(100vh - 58px)">
             <OnboardingTimeline dismissable={false} />
           </Stack>
         )}

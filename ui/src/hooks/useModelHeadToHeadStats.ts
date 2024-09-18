@@ -1,12 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
-
-export function getModelHeadToHeadStatsEndpoint(projectSlug: string, modelId: number) {
-  return `${getProjectUrl(projectSlug)}/model/${modelId}/head-to-head/stats`;
-}
+import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 
 export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {
-  return [getProjectUrl(projectSlug), '/model', modelId, '/head-to-head/stats'];
+  return urlAsQueryKey(API_ROUTES.getHeadToHeadStats(projectSlug, modelId ?? -1));
 }
 
 export type ModelHeadToHeadStats = {
@@ -24,13 +20,13 @@ type Params = {
   modelId?: number;
 };
 export function useModelHeadToHeadStats({ projectSlug, modelId }: Params) {
+  const url = API_ROUTES.getHeadToHeadStats(projectSlug ?? '', modelId ?? -1);
   return useQuery({
     queryKey: getModelHeadToHeadStatsQueryKey(projectSlug ?? '', modelId),
     queryFn: async () => {
-      const url = getModelHeadToHeadStatsEndpoint(projectSlug ?? '', modelId ?? -1);
       const response = await fetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch head-to-head stats');
       }
       const result: ModelHeadToHeadStats[] = await response.json();
       return result;

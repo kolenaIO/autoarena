@@ -4,10 +4,10 @@ import pandas as pd
 from loguru import logger
 
 from autoarena.api import api
+from autoarena.error import BadRequestError
 from autoarena.service.elo import EloService
-from autoarena.judge.human import HumanJudge
 from autoarena.service.project import ProjectService
-from autoarena.store.utils import id_slug
+from autoarena.store.utils import id_slug, check_required_columns
 
 
 class HeadToHeadService:
@@ -71,20 +71,31 @@ class HeadToHeadService:
         ]
 
     @staticmethod
+    def get_count(project_slug: str) -> int:
+        with ProjectService.connect(project_slug) as conn:
+            ((n_h2h,),) = conn.execute(
+                """
+                SELECT COUNT(DISTINCT id_slug(ra.id, rb.id))
+                FROM response ra
+                JOIN response rb ON ra.prompt = rb.prompt AND ra.model_id != rb.model_id
+                """,
+            ).fetchall()
+        return n_h2h
+
+    @staticmethod
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
         with ProjectService.connect(project_slug) as conn:
             # 1. insert head-to-head record
-            human_judge = HumanJudge()
             conn.execute(
                 """
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                 SELECT ID_SLUG($response_a_id, $response_b_id), $response_a_id, $response_b_id, j.id, $winner
                 FROM judge j
-                WHERE j.name = $judge_name
+                WHERE j.judge_type = $judge_type
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
                     winner = IF(response_a_id = $response_b_id, INVERT_WINNER(EXCLUDED.winner), EXCLUDED.winner)
             """,
-                dict(**dataclasses.asdict(request), judge_name=human_judge.name),
+                dict(**dataclasses.asdict(request), judge_type=api.JudgeType.HUMAN.value),
             )
 
             # 2. adjust elo scores
@@ -108,10 +119,10 @@ class HeadToHeadService:
 
     @staticmethod
     def upload_head_to_heads(project_slug: str, df_h2h: pd.DataFrame) -> None:  # TODO: return type?
-        required_columns = {"response_a_id", "response_b_id", "judge_id", "winner"}
-        missing_columns = required_columns - set(df_h2h.columns)
-        if len(missing_columns) > 0:
-            raise ValueError(f"missing required column(s): {missing_columns}")
+        try:
+            check_required_columns(df_h2h, ["response_a_id", "response_b_id", "judge_id", "winner"])
+        except ValueError as e:
+            raise BadRequestError(str(e))
         df_h2h_deduped = df_h2h.copy()
         df_h2h_deduped["response_id_slug"] = df_h2h_deduped.apply(
             lambda r: id_slug(r.response_a_id, r.response_b_id), axis=1
@@ -124,5 +135,10 @@ class HeadToHeadService:
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                 SELECT id_slug(response_a_id, response_b_id), response_a_id, response_b_id, judge_id, winner
                 FROM df_h2h_deduped
-                ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET winner = EXCLUDED.winner
+                ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
+                    winner = IF(
+                        response_a_id = EXCLUDED.response_a_id,
+                        EXCLUDED.winner,
+                        invert_winner(EXCLUDED.winner)
+                    )
             """)

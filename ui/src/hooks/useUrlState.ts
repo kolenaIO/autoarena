@@ -1,4 +1,5 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
+import { ROUTES } from '../lib/routes.ts';
 
 export function useUrlState() {
   const { projectSlug: projectSlugFromUrl } = useParams();
@@ -7,7 +8,7 @@ export function useUrlState() {
 
   const projectSlug = typeof projectSlugFromUrl === 'string' ? projectSlugFromUrl : undefined;
   function setProjectSlug(newProjectSlug: string | null | undefined) {
-    navigate(newProjectSlug != null ? `/project/${newProjectSlug}` : '/');
+    navigate(newProjectSlug != null ? ROUTES.leaderboard(newProjectSlug) : ROUTES.home());
   }
 
   const judgeIdFromUrl = searchParams.get('judgeId');

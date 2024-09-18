@@ -30,18 +30,34 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
 
 
 @pytest.mark.parametrize(
-    "df_bad",
+    "df_bad,missing",
     [
-        pd.DataFrame.from_records([dict(bad="yes", missing="prompt and response")]),
-        pd.DataFrame.from_records([dict(bad="yes", missing="prompt", response="ok")]),
-        pd.DataFrame.from_records([dict(bad="yes", missing="response", prompt="what")]),
+        (pd.DataFrame.from_records([dict(bad="yes")]), {"prompt", "response"}),
+        (pd.DataFrame.from_records([dict(bad="yes", response="ok")]), {"prompt"}),
+        (pd.DataFrame.from_records([dict(bad="yes", prompt="what")]), {"response"}),
     ],
 )
-def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame) -> None:
+def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame, missing: set[str]) -> None:
     body = construct_upload_model_body(dict(bad=df_bad))
     response = project_client.post("/model", data=body.data, files=body.files)
     assert response.status_code == 400
-    assert "Missing required column(s)" in response.json()["detail"]
+    assert f"Missing {len(missing)} required column(s)" in response.json()["detail"]
+
+
+@pytest.mark.parametrize(
+    "df,n_dropped",
+    [
+        (pd.DataFrame([("p", "r"), ("p2", "")], columns=["prompt", "response"]), 1),
+        (pd.DataFrame([("p", "r"), ("", "r")], columns=["prompt", "response"]), 1),
+        (pd.DataFrame([("p", ""), ("p2", "")], columns=["prompt", "response"]), 2),
+        (pd.DataFrame([("", "r"), ("p2", "")], columns=["prompt", "response"]), 2),
+    ],
+)
+def test__models__upload__missing_values(project_client: TestClient, df: pd.DataFrame, n_dropped: int) -> None:
+    body = construct_upload_model_body(dict(example=df))
+    models = project_client.post("/model", data=body.data, files=body.files).json()
+    assert len(models) == 1
+    assert models[0]["n_responses"] == len(df) - n_dropped
 
 
 def test__models__upload__multiple(project_client: TestClient) -> None:
@@ -97,39 +113,6 @@ def test__models__get_ranked_by_judge(
     for model in models:
         assert model["q025"] is not None
         assert model["q975"] is not None
-
-
-def test__models__get_elo_history(
-    project_client: TestClient,
-    model_id: int,
-    model_b_id: int,
-    n_model_a_votes: int,
-) -> None:
-    history = project_client.get(f"/model/{model_id}/elo-history").json()
-    judges = project_client.get("/judges").json()
-    assert len(history) == n_model_a_votes
-    assert all(h["other_model_id"] == model_b_id for h in history)
-    assert all(h["judge_id"] == judges[0]["id"] for h in history)
-    for i in range(1, len(history)):
-        assert history[i]["elo"] > history[i - 1]["elo"]  # score should be increasing as all votes are for this model
-
-
-def test__models__get_elo_history__with_judge(
-    project_client: TestClient,
-    model_id: int,
-    model_b_id: int,
-    n_model_a_votes: int,
-    judge_id: int,
-) -> None:
-    history = project_client.get(f"/model/{model_id}/elo-history").json()
-    judges = project_client.get("/judges").json()
-    params = dict(judge_id=str(judges[0]["id"]))
-    history_with_judge = project_client.get(f"/model/{model_id}/elo-history", params=params).json()
-    assert history == history_with_judge  # in this case, they're the same, since no other judges have voted
-
-    # no votes, no history
-    params = dict(judge_id=str(judge_id))
-    assert project_client.get(f"/model/{model_id}/elo-history", params=params).json() == []
 
 
 def test__models__download_head_to_heads_csv(

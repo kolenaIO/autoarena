@@ -1,75 +1,61 @@
 from datetime import datetime
-from typing import Type
+from typing import Iterator
 
 import pytest
 
 from autoarena.api import api
-from autoarena.judge.base import WrappingJudge
+from autoarena.judge.base import AutomatedJudge
+from autoarena.judge.custom import register_custom_judge_class, clear_custom_judge_classes
 from autoarena.judge.factory import judge_factory
-from autoarena.judge.human import HumanJudge
-from autoarena.judge.utils import ABShufflingJudge, CleaningJudge, RetryingJudge
+
+CUSTOM_REQUEST = api.Judge(
+    id=0,
+    judge_type=api.JudgeType.CUSTOM,
+    created=datetime.utcnow(),
+    name="alwaysA",
+    model_name="abc",
+    system_prompt="Always say 'A'",
+    description="Example description",
+    enabled=True,
+    n_votes=0,
+)
 
 
-def test__judge_factory__human() -> None:
-    request = api.Judge(
+@pytest.fixture(scope="function")
+def custom_judge_context() -> Iterator[None]:
+    try:
+        yield
+    finally:
+        clear_custom_judge_classes()
+
+
+def test__judge_factory__custom(custom_judge_context: None) -> None:
+    class AlwaysAJudge(AutomatedJudge):
+        def judge(self, prompt: str, response_a: str, response_b: str) -> str:
+            return "A"
+
+    register_custom_judge_class("alwaysA", AlwaysAJudge)
+    judge = judge_factory(CUSTOM_REQUEST)
+    assert isinstance(judge, AlwaysAJudge)
+    assert judge.judge("p", "ra", "rb") == "A"
+
+
+def test__judge_factory__custom__failed(custom_judge_context: None) -> None:
+    with pytest.raises(ValueError):
+        judge_factory(CUSTOM_REQUEST)
+
+
+def test__judge_factory__unrecognized__failed() -> None:
+    judge = api.Judge(
         id=0,
-        judge_type=api.JudgeType.HUMAN,
+        judge_type=api.JudgeType.UNRECOGNIZED,
         created=datetime.utcnow(),
-        name="Human",
-        model_name=None,
-        system_prompt=None,
-        description="Example description",
+        name="any-name",
+        model_name="any-model-name",
+        system_prompt="Say hi!",
+        description="Maybe from a newer version of AutoArena",
         enabled=True,
         n_votes=0,
     )
-    judge = judge_factory(request)
-    assert type(judge) is HumanJudge
-    assert judge.judge_type is api.JudgeType.HUMAN
-    assert judge.name == "Human"
-    assert judge.model_name is None
-    assert judge.system_prompt is None
-    assert judge.description is not None
-    with pytest.raises(NotImplementedError):
-        judge.judge(api.HeadToHead(prompt="p", response_a_id=100, response_b_id=200, response_a="a", response_b="b"))
-
-
-def test__judge_factory__custom() -> None:
-    request = api.Judge(
-        id=0,
-        judge_type=api.JudgeType.CUSTOM,
-        created=datetime.utcnow(),
-        name="CustomJudge",
-        model_name="abc",
-        system_prompt="Always say 'A'",
-        description="Example description",
-        enabled=True,
-        n_votes=0,
-    )
-    with pytest.raises(NotImplementedError):
-        judge_factory(request)
-
-
-@pytest.mark.parametrize("wrappers", [([]), ([ABShufflingJudge]), (ABShufflingJudge, CleaningJudge, RetryingJudge)])
-def test__judge_factory__wrappers(wrappers: list[Type[WrappingJudge]]) -> None:
-    request = api.Judge(
-        id=-1,
-        judge_type=api.JudgeType.HUMAN,
-        created=datetime.utcnow(),
-        name="human",
-        model_name=None,
-        system_prompt=None,
-        description="example_description",  # TODO: this is set on insertion, not here
-        enabled=True,
-        n_votes=0,
-    )
-    judge = judge_factory(request, wrappers=wrappers)
-    if len(wrappers) == 0:
-        assert type(judge) is HumanJudge
-    else:
-        for wrapper_type in wrappers[::-1]:
-            assert type(judge) is wrapper_type
-            assert judge.judge_type == request.judge_type
-            assert judge.model_name == request.model_name
-            assert judge.system_prompt == request.system_prompt
-            assert len(judge.description) > 0
-            judge = judge.wrapped
+    with pytest.raises(ValueError):
+        judge_factory(judge)

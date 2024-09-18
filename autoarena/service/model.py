@@ -6,6 +6,7 @@ from autoarena.api import api
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autoarena.service.project import ProjectService
+from autoarena.store.utils import check_required_columns
 
 
 class ModelService:
@@ -68,7 +69,6 @@ class ModelService:
         df_h2h = EloService.get_df_head_to_head(project_slug)
         df_h2h = df_h2h[df_h2h["judge_id"] == judge_id]
         df_elo = EloService.compute_elo(df_h2h)
-        df_elo = EloService.compute_confidence_intervals(df_elo, df_h2h)  # TODO: is this too expensive?
         df_model = ModelService.get_all_df(project_slug)
         df_out = pd.merge(df_model, df_elo, left_on="name", right_on="model", how="left")
         df_out[["elo", "q025", "q975"]] = df_out[["elo_y", "q025_y", "q975_y"]]
@@ -85,10 +85,14 @@ class ModelService:
 
     @staticmethod
     def upload_responses(project_slug: str, model_name: str, df_response: pd.DataFrame) -> api.Model:
-        required_columns = {"prompt", "response"}
-        missing_columns = required_columns - set(df_response.columns)
-        if len(missing_columns) > 0:
-            raise BadRequestError(f"Missing required column(s): {missing_columns}")
+        try:
+            check_required_columns(df_response, ["prompt", "response"])
+        except ValueError as e:
+            raise BadRequestError(str(e))
+        n_input = len(df_response)
+        df_response = df_response.copy().dropna(subset=["prompt", "response"])
+        if len(df_response) != n_input:
+            logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
         with ProjectService.connect(project_slug) as conn:
             ((new_model_id,),) = conn.execute(

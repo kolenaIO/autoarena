@@ -1,15 +1,19 @@
 import { Accordion, Button, Collapse, Drawer, Loader, Stack, Text } from '@mantine/core';
-import { IconCpu } from '@tabler/icons-react';
+import { IconCactus, IconCpu } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useTasks } from '../../hooks/useTasks.ts';
+import { getTasksQueryKey, useTasks } from '../../hooks/useTasks.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { pluralize } from '../../lib/string.ts';
 import { getModelsQueryKey } from '../../hooks/useModels.ts';
 import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
-import { taskIsDone } from '../../lib/tasks.ts/utils.ts';
+import { taskIsDone } from '../../lib/tasks.ts';
+import { getProjectApiUrl } from '../../lib/routes.ts';
+import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
+import { useHasActiveTasksStream } from '../../hooks/useHasActiveTasksStream.ts';
+import { NonIdealState } from '../NonIdealState.tsx';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
@@ -17,20 +21,23 @@ export function TasksDrawer() {
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
-  const { data: tasks } = useTasks({
-    projectSlug: projectSlug,
-    options: { refetchInterval: isDrawerOpen ? 1_000 : 10_000 }, // TODO: polling this every 10 seconds on the app isn't great
-  });
-  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug: projectSlug });
+  const { data: hasActiveTasks = false } = useHasActiveTasksStream(projectSlug);
+  const { data: tasks, isLoading: isLoadingTasks } = useTasks({ projectSlug });
+  const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug });
 
-  // TODO: any task you're watching in the drawer disappears into the collapsed completed section when it finishes
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ status }) => !taskIsDone(status)), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ status }) => taskIsDone(status)), [tasksSorted]);
 
-  // reload models if any tasks are newly completed
+  useEffect(() => {
+    queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
+  }, [isDrawerOpen]);
+
+  // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
     queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: [getProjectApiUrl(projectSlug ?? ''), '/model'] });
   }, [tasksCompleted.length]);
 
   return (
@@ -39,7 +46,7 @@ export function TasksDrawer() {
         variant="light"
         onClick={toggleDrawer}
         leftSection={
-          tasksInProgress.length > 0 ? (
+          hasActiveTasks ? (
             <Loader size={18} type="bars" />
           ) : (
             <IconCpu width={20} height={20} color="var(--mantine-color-kolena-8)" />
@@ -48,50 +55,64 @@ export function TasksDrawer() {
       >
         Tasks
       </Button>
-      <Drawer
+      <Drawer.Root
         opened={isDrawerOpen}
         onClose={() => {
           closeDrawer();
           closeCompletedTasks();
         }}
         position="right"
-        size="lg"
+        size="xl"
         transitionProps={{ duration: 200 }}
-        title={
-          <Text fs="italic" c="dimmed" size="sm">
-            {tasksInProgress.length > 0
-              ? `Showing ${pluralize(tasksInProgress.length, 'in-progress task')}`
-              : 'No in-progress tasks'}
-          </Text>
-        }
       >
-        <Stack>
-          <Accordion>
-            {tasksInProgress.map((task, i) => (
-              <TaskAccordionItem key={i} task={task} />
-            ))}
-          </Accordion>
-          {tasksCompleted.length > 0 && (
-            <>
-              <Button variant="light" color="gray" onClick={toggleCompletedTasks}>
-                {isCompletedTasksOpen ? 'Hide' : 'Show'} {pluralize(tasksCompleted.length, 'completed task')}
-              </Button>
-              <Collapse in={isCompletedTasksOpen}>
-                <Stack>
-                  <Accordion>
-                    {tasksCompleted.map((task, i) => (
-                      <TaskAccordionItem key={i} task={task} />
-                    ))}
-                  </Accordion>
-                  <Button variant="light" color="red" onClick={() => clearCompletedTasks()}>
-                    Clear Completed Tasks
-                  </Button>
-                </Stack>
-              </Collapse>
-            </>
-          )}
-        </Stack>
-      </Drawer>
+        <Drawer.Overlay />
+        <Drawer.Content>
+          <Drawer.Header>
+            <Drawer.Title>
+              <Text fs="italic" c="dimmed" size="sm">
+                {tasksInProgress.length > 0
+                  ? `Showing ${pluralize(tasksInProgress.length, 'active task')}`
+                  : 'No active tasks'}
+              </Text>
+            </Drawer.Title>
+            <Drawer.CloseButton />
+          </Drawer.Header>
+          <Drawer.Body flex={1} h="calc(100% - 60px)" /* full height minus header */>
+            {tasksSorted.length < 1 && !isLoadingTasks ? (
+              <Stack justify="center" h="100%">
+                <NonIdealState IconComponent={IconCactus} description="No tasks to show" />
+              </Stack>
+            ) : (
+              <Stack pb="md">
+                <Accordion>
+                  {tasksInProgress.map((task, i) => (
+                    <TaskAccordionItem key={i} task={task} />
+                  ))}
+                </Accordion>
+                {tasksCompleted.length > 0 && (
+                  <>
+                    <Button variant="light" color="gray" onClick={toggleCompletedTasks}>
+                      {isCompletedTasksOpen ? 'Hide' : 'Show'} {pluralize(tasksCompleted.length, 'completed task')}
+                    </Button>
+                    <Collapse in={isCompletedTasksOpen}>
+                      <Stack>
+                        <Accordion>
+                          {tasksCompleted.map((task, i) => (
+                            <TaskAccordionItem key={i} task={task} />
+                          ))}
+                        </Accordion>
+                        <Button variant="light" color="red" onClick={() => clearCompletedTasks()}>
+                          Clear Completed Tasks
+                        </Button>
+                      </Stack>
+                    </Collapse>
+                  </>
+                )}
+              </Stack>
+            )}
+          </Drawer.Body>
+        </Drawer.Content>
+      </Drawer.Root>
     </>
   );
 }

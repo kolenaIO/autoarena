@@ -1,5 +1,6 @@
 import { Card, Divider, Group, Image, Stack, Text, UnstyledButton } from '@mantine/core';
 import { JudgeType, judgeTypeIconComponent, judgeTypeToCoverImageUrl, judgeTypeToHumanReadableName } from './types.ts';
+import styles from './ConfigureJudgeCard.module.css';
 
 type Props = {
   judgeType: JudgeType;
@@ -11,10 +12,10 @@ export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {
   const imageUrl = judgeTypeToCoverImageUrl(judgeType);
   return (
     <UnstyledButton onClick={onClick}>
-      <Card withBorder h="100%">
+      <Card withBorder h="100%" className={styles.ConfigureJudgeCard}>
         {imageUrl != null && (
           <Card.Section>
-            <Image src={imageUrl} alt={judgeTypeToHumanReadableName(judgeType)} height={120} />
+            <Image src={imageUrl} alt={judgeTypeToHumanReadableName(judgeType)} height={120} draggable={false} />
           </Card.Section>
         )}
         <Card.Section h="100%">

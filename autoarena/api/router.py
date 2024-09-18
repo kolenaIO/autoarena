@@ -72,6 +72,12 @@ def router() -> APIRouter:
     def get_model_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
         return ModelService.get_responses(project_slug, model_id)
 
+    # TODO: potentially remove this -- it's not intuitive to have this trigger exist at the per-model level
+    @r.post("/project/{project_slug}/model/{model_id}/judge")
+    def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
+        model = ModelService.get_by_id(project_slug, model_id)
+        background_tasks.add_task(TaskService.auto_judge, project_slug, models=[model])
+
     @r.delete("/project/{project_slug}/model/{model_id}")
     def delete_model(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         try:

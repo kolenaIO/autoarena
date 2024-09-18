@@ -2,6 +2,7 @@ import { Anchor, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
 import moment from 'moment';
 import { IconDownload, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
 import { API_ROUTES, ROUTES } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
@@ -52,11 +53,11 @@ export function ExpandedModelDetails({ model }: Props) {
           </Group>
         </Stack>
         <Group gap="xs">
-          <Anchor href={`${ROUTES.compare(projectSlug)}?modelA=${model.id}`}>
+          <Link to={`${ROUTES.compare(projectSlug)}?modelA=${model.id}`}>
             <Button color="cyan" variant="light" size="xs" leftSection={<IconSwords size={20} />}>
               View Responses
             </Button>
-          </Anchor>
+          </Link>
           <Anchor href={API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id)} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
               Download Response CSV

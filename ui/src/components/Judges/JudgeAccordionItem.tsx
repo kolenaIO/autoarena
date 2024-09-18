@@ -66,10 +66,12 @@ export function JudgeAccordionItem({ judge }: Props) {
             <Text c="dimmed" size="xs" fs="italic">
               {pluralize(judge.n_votes, 'vote')}
             </Text>
-            {isEnabled && (
-              <Pill bg="ice.0" c="gray.8">
+            {isEnabled ? (
+              <Pill bg="ice.0" c="ice.9">
                 Enabled
               </Pill>
+            ) : (
+              <Pill c="gray">Disabled</Pill>
             )}
           </Group>
         </Group>

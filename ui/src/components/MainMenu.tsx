@@ -7,6 +7,7 @@ import {
   IconHome,
   IconLogout,
   IconStack2Filled,
+  IconUser,
 } from '@tabler/icons-react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { useAppMode } from '../hooks/useAppMode.ts';
@@ -14,7 +15,7 @@ import { ExternalUrls } from '../lib/urls.ts';
 import { ROUTES } from '../lib/routes.ts';
 
 export function MainMenu() {
-  const { logout } = useAuth0();
+  const { user, logout } = useAuth0();
   const { isCloudMode } = useAppMode();
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
@@ -48,6 +49,7 @@ export function MainMenu() {
         {isCloudMode && (
           <>
             <Menu.Divider />
+            {user != null && <Menu.Item leftSection={<IconUser {...iconProps} />}>{user.email}</Menu.Item>}
             <Menu.Item
               leftSection={<IconLogout {...iconProps} />}
               onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}

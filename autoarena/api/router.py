@@ -147,7 +147,7 @@ def router() -> APIRouter:
         return SSEStreamingResponse(TaskService.has_active_stream(project_slug, timeout=timeout))
 
     @r.delete("/project/{project_slug}/tasks/completed")
-    def delete_completed(project_slug: str) -> None:
+    def delete_completed_tasks(project_slug: str) -> None:
         TaskService.delete_completed(project_slug)
 
     @r.post("/project/{project_slug}/task/auto-judge")
@@ -189,7 +189,7 @@ def router() -> APIRouter:
             pass
 
     @r.put("/project/{project_slug}/elo/reseed-scores")
-    def reseed_scores(project_slug: str) -> None:
+    def reseed_elo_scores(project_slug: str) -> None:
         EloService.reseed_scores(project_slug)
 
     @r.post("/project/{project_slug}/fine-tune")

@@ -64,12 +64,12 @@ export function ExpandedModelDetails({ model }: Props) {
               </Link>
               <Anchor href={API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id)} target="_blank">
                 <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-                  Download Response CSV
+                  Download Responses CSV
                 </Button>
               </Anchor>
               <Anchor href={API_ROUTES.downloadModelHeadToHeadsCsv(projectSlug, model.id)} target="_blank">
                 <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-                  Download Head-to-Head CSV
+                  Download Head-to-Heads CSV
                 </Button>
               </Anchor>
               <Button

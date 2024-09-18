@@ -60,6 +60,8 @@ export const API_ROUTES = {
   getDefaultSystemPrompt: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/judge/default-system-prompt`,
   createJudge: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/judge`,
   updateJudge: (projectSlug: string, judgeId: number) => `${getProjectApiUrl(projectSlug)}/judge/${judgeId}`,
+  downloadJudgeVotesCsv: (projectSlug: string, judgeId: number) =>
+    `${getProjectApiUrl(projectSlug)}/judge/${judgeId}/download/votes`,
   checkCanAccess: (projectSlug: string, judgeType: JudgeType) =>
     `${getProjectApiUrl(projectSlug)}/judge/${judgeType}/can-access`,
   deleteJudge: (projectSlug: string, judgeId: number) => `${getProjectApiUrl(projectSlug)}/judge/${judgeId}`,

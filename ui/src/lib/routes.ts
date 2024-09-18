@@ -39,8 +39,6 @@ export const API_ROUTES = {
   uploadModelResponses: (projectSlug: string) => `${getProjectApiUrl(projectSlug)}/model`,
   getModelResponses: (projectSlug: string, modelId: number) =>
     `${getProjectApiUrl(projectSlug)}/model/${modelId}/responses`,
-  triggerModelAutoJudge: (projectSlug: string, modelId: number) =>
-    `${getProjectApiUrl(projectSlug)}/model/${modelId}/judge`,
   deleteModel: (projectSlug: string, modelId: number) => `${getProjectApiUrl(projectSlug)}/model/${modelId}`,
   downloadModelResponsesCsv: (projectSlug: string, modelId: number) =>
     `${getProjectApiUrl(projectSlug)}/model/${modelId}/download/responses`,

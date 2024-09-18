@@ -1,12 +1,11 @@
 import { Anchor, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
 import moment from 'moment';
-import { IconDownload, IconGavel } from '@tabler/icons-react';
+import { IconDownload, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
-import { API_ROUTES } from '../../lib/routes.ts';
+import { API_ROUTES, ROUTES } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { HeadToHeadStatsPlot } from './HeadToHeadStatsPlot.tsx';
@@ -21,7 +20,6 @@ export function ExpandedModelDetails({ model }: Props) {
     modelId: model.id,
     judgeId,
   });
-  const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({
@@ -54,6 +52,11 @@ export function ExpandedModelDetails({ model }: Props) {
           </Group>
         </Stack>
         <Group gap="xs">
+          <Anchor href={`${ROUTES.compare(projectSlug)}?modelA=${model.id}`}>
+            <Button color="cyan" variant="light" size="xs" leftSection={<IconSwords size={20} />}>
+              View Responses
+            </Button>
+          </Anchor>
           <Anchor href={API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id)} target="_blank">
             <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
               Download Response CSV
@@ -64,15 +67,6 @@ export function ExpandedModelDetails({ model }: Props) {
               Download Head-to-Head CSV
             </Button>
           </Anchor>
-          <Button
-            variant="light"
-            color="orange"
-            size="xs"
-            leftSection={<IconGavel size={20} />}
-            onClick={() => triggerModelJudgement()}
-          >
-            Run Automated Judgement
-          </Button>
           <DeleteModelButton model={model} />
         </Group>
       </Group>

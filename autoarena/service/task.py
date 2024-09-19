@@ -63,7 +63,7 @@ class TaskService:
             if prev != cur:
                 yield cur
             prev = cur
-            await asyncio.sleep(1)
+            await asyncio.sleep(0.2)
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:

@@ -20,6 +20,9 @@ export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<bo
           const parsedData: { has_active: boolean } = JSON.parse(event.data);
           queryClient.setQueryData(queryKey, parsedData.has_active);
         },
+        onerror: () => {
+          throw new Error('Failed to fetch active task stream'); // without this, fetchEventSource retries indefinitely
+        },
       });
       return false; // shouldn't get here
     },

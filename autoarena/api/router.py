@@ -19,8 +19,8 @@ from autoarena.service.task import TaskService
 from autoarena.service.model import ModelService
 
 
-def router() -> APIRouter:
-    r = APIRouter()
+def router(r: Optional[APIRouter] = None) -> APIRouter:
+    r = r or APIRouter()
 
     @r.get("/projects")
     def get_projects() -> list[api.Project]:

@@ -9,6 +9,7 @@ import {
   IconStack2Filled,
 } from '@tabler/icons-react';
 import { useAuth0 } from '@auth0/auth0-react';
+import { Link } from 'react-router-dom';
 import { useAppMode } from '../hooks/useAppMode.ts';
 import { ExternalUrls } from '../lib/urls.ts';
 import { ROUTES } from '../lib/routes.ts';
@@ -33,9 +34,9 @@ export function MainMenu() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Anchor href={ROUTES.home()} underline="never">
+        <Link to={ROUTES.home()} style={{ textDecoration: 'none' }}>
           <Menu.Item leftSection={<IconHome {...iconProps} />}>Home</Menu.Item>
-        </Anchor>
+        </Link>
         <Anchor href={ExternalUrls.AUTOARENA_GITHUB} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandGithub {...iconProps} />}>Repository</Menu.Item>
         </Anchor>

@@ -1,4 +1,5 @@
 from contextlib import contextmanager
+from contextvars import ContextVar
 from pathlib import Path
 
 import duckdb
@@ -6,17 +7,16 @@ import duckdb
 DATABASE_FILE = Path.cwd() / "autoarena.duckdb"
 MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
-_DATA_DIRECTORY = Path.cwd() / "data"
+_DATA_DIRECTORY: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=Path.cwd() / "data")
 
 
 def get_data_directory() -> Path:
-    return _DATA_DIRECTORY
+    return _DATA_DIRECTORY.get()
 
 
 # TODO: allow command line updates? e.g. --data-dir ./my-data
 def set_data_directory(path: Path) -> None:
-    global _DATA_DIRECTORY
-    _DATA_DIRECTORY = path
+    _DATA_DIRECTORY.set(path)
 
 
 @contextmanager

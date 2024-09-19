@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from typing import Optional, AsyncIterator
 
+from loguru import logger
 
 from autoarena.api import api
 from autoarena.error import NotFoundError
@@ -51,6 +52,7 @@ class TaskService:
         # TODO: shouldn't do this here, just testing something
         data_directory = get_data_directory()
         project_file_path = data_directory / f"{project_slug}.duckdb"
+        logger.info(f"project file: {project_file_path}")
 
         def has_active() -> api.HasActiveTasks:
             with get_database_connection(project_file_path) as conn:

@@ -23,6 +23,7 @@ export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<bo
       });
       return false; // shouldn't get here
     },
+    retry: 3,
     enabled: projectSlug != null,
   });
 }

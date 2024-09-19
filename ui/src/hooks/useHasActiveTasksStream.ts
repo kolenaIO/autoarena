@@ -12,7 +12,6 @@ export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<bo
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
-      console.log('trying');
       await apiFetchEventSource(url, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },

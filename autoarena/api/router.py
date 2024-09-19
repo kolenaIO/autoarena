@@ -144,6 +144,7 @@ def router() -> APIRouter:
         project_slug: str,
         timeout: Optional[float] = None,
     ) -> StreamingResponse:  # Iterator[api.HasActiveTasks]
+        raise RuntimeError
         return SSEStreamingResponse(TaskService.has_active_stream(project_slug, timeout=timeout))
 
     @r.delete("/project/{project_slug}/tasks/completed")

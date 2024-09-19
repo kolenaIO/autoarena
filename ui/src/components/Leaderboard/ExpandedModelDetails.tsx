@@ -1,4 +1,4 @@
-import { Button, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { Button, Group, Loader, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { IconDownload, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -24,11 +24,11 @@ export function ExpandedModelDetails({ model }: Props) {
     judgeId,
   });
   const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
-  const { mutate: downloadResponses } = useDownloadFile(
+  const { mutate: downloadResponses, isPending: isDownloadingResponses } = useDownloadFile(
     API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id),
     `${model.name}.csv`
   );
-  const { mutate: downloadHeadToHeads } = useDownloadFile(
+  const { mutate: downloadHeadToHeads, isPending: isDownloadingHeadToHeads } = useDownloadFile(
     API_ROUTES.downloadModelHeadToHeadsCsv(projectSlug, model.id),
     `${model.name}-head-to-heads.csv`
   );
@@ -75,7 +75,7 @@ export function ExpandedModelDetails({ model }: Props) {
                 color="teal"
                 variant="light"
                 size="xs"
-                leftSection={<IconDownload size={20} />}
+                leftSection={isDownloadingResponses ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
                 onClick={() => downloadResponses()}
               >
                 Download Responses CSV
@@ -84,7 +84,7 @@ export function ExpandedModelDetails({ model }: Props) {
                 color="teal"
                 variant="light"
                 size="xs"
-                leftSection={<IconDownload size={20} />}
+                leftSection={isDownloadingHeadToHeads ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
                 onClick={() => downloadHeadToHeads()}
               >
                 Download Head-to-Heads CSV

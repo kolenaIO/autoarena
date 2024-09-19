@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Accordion, Button, Checkbox, Collapse, Group, Pill, Stack, Text, Tooltip } from '@mantine/core';
+import { Accordion, Button, Checkbox, Collapse, Group, Loader, Pill, Stack, Text, Tooltip } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
@@ -26,7 +26,7 @@ export function JudgeAccordionItem({ judge }: Props) {
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
   const [showAutoJudgeModal, { toggle: toggleShowAutoJudgeModal, close: closeShowAutoJudgeModal }] =
     useDisclosure(false);
-  const { mutate: downloadVotes } = useDownloadFile(
+  const { mutate: downloadVotes, isPending: isDownloadingVotes } = useDownloadFile(
     API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id),
     `${judge.name}-judge-votes.csv`
   );
@@ -37,13 +37,12 @@ export function JudgeAccordionItem({ judge }: Props) {
   }
 
   const canDownload = judge.n_votes > 0;
-  const downloadUrl = canDownload ? API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id) : undefined;
   const DownloadVotesComponent = (
     <Button
       variant="light"
       color="teal"
       size="xs"
-      leftSection={<IconDownload size={20} />}
+      leftSection={isDownloadingVotes ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
       disabled={!canDownload}
       onClick={() => downloadVotes()}
     >

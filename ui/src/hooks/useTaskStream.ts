@@ -27,6 +27,9 @@ export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQ
           latest = parsedData;
           queryClient.setQueryData(queryKey, parsedData);
         },
+        onerror: () => {
+          throw new Error('Failed to fetch task stream');
+        },
       });
       return latest;
     },

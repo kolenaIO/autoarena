@@ -1,5 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {
   return urlAsQueryKey(API_ROUTES.getHeadToHeadStats(projectSlug, modelId ?? -1));
@@ -20,11 +21,12 @@ type Params = {
   modelId?: number;
 };
 export function useModelHeadToHeadStats({ projectSlug, modelId }: Params) {
+  const { apiFetch } = useApiFetch();
   const url = API_ROUTES.getHeadToHeadStats(projectSlug ?? '', modelId ?? -1);
   return useQuery({
     queryKey: getModelHeadToHeadStatsQueryKey(projectSlug ?? '', modelId),
     queryFn: async () => {
-      const response = await fetch(url);
+      const response = await apiFetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch head-to-head stats');
       }

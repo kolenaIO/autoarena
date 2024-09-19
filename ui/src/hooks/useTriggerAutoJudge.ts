@@ -2,6 +2,7 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { taskStatusToColor } from '../lib/tasks.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type TriggerAutoJudgeRequest = {
   judge_ids: number[];
@@ -14,11 +15,12 @@ type Params = {
   options?: UseMutationOptions<void, Error, TriggerAutoJudgeRequest>;
 };
 export function useTriggerAutoJudge({ projectSlug, options = {} }: Params) {
+  const { apiFetch } = useApiFetch();
   const url = API_ROUTES.triggerAutoJudge(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: TriggerAutoJudgeRequest) => {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

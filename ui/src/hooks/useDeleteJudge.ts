@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getJudgesQueryKey } from './useJudges.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type Params = {
   projectSlug: string;
@@ -10,12 +11,13 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
+  const { apiFetch } = useApiFetch();
   const queryClient = useQueryClient();
   const url = API_ROUTES.deleteJudge(projectSlug, judgeId);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async () => {
-      const response = await fetch(url, { method: 'DELETE' });
+      const response = await apiFetch(url, { method: 'DELETE' });
       if (!response.ok) {
         throw new Error('Failed to delete judge');
       }

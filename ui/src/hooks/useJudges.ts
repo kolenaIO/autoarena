@@ -1,6 +1,7 @@
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { JudgeType } from '../components/Judges/types.ts';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 export function getJudgesQueryKey(projectSlug: string) {
   return urlAsQueryKey(API_ROUTES.getJudges(projectSlug));
@@ -19,11 +20,12 @@ export type Judge = {
 };
 
 export function useJudges(projectSlug: string | undefined) {
+  const { apiFetch } = useApiFetch();
   const url = API_ROUTES.getJudges(projectSlug ?? '');
   return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {
-      const response = await fetch(url);
+      const response = await apiFetch(url);
       if (!response.ok) {
         throw new Error('Failed to fetch judges');
       }

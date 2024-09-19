@@ -1,7 +1,7 @@
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useQuery, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { Task } from './useTasks.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type Params = {
   projectSlug: string;
@@ -9,6 +9,7 @@ type Params = {
   options?: Partial<UseQueryOptions<Task, Error>>;
 };
 export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQueryResult<Task, Error> {
+  const { apiFetchEventSource } = useApiFetch();
   const queryClient = useQueryClient();
   const url = API_ROUTES.getTaskStream(projectSlug, task.id);
   const queryKey = urlAsQueryKey(url);
@@ -17,7 +18,7 @@ export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQ
     queryKey,
     queryFn: async ({ signal }) => {
       let latest = task;
-      await fetchEventSource(url, {
+      await apiFetchEventSource(url, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
         signal,

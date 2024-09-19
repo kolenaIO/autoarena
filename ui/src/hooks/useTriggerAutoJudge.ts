@@ -4,6 +4,7 @@ import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { taskStatusToColor } from '../lib/tasks.ts';
 
 type TriggerAutoJudgeRequest = {
+  model_ids: number[]; // TODO: any special behavior required for empty lists?
   judge_ids: number[];
   fraction: number;
   skip_existing: boolean;

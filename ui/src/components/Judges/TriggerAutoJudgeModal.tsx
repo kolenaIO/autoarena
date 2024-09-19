@@ -6,34 +6,51 @@ import { useJudges } from '../../hooks/useJudges.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useHeadToHeadCount } from '../../hooks/useHeadToHeadCount.ts';
 import { useTriggerAutoJudge } from '../../hooks/useTriggerAutoJudge.ts';
+import { useModels } from '../../hooks/useModels.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 type Form = {
+  modelIds: string[];
   judgeIds: string[];
   percent: number; // on [1,100]
   skipExisting: boolean;
 };
 
 type Props = {
+  modelId?: number;
   judgeId?: number;
   isOpen: boolean;
   onClose: () => void;
 };
-export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
+export function TriggerAutoJudgeModal({ modelId, judgeId, isOpen, onClose }: Props) {
   const { projectSlug = '' } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
+  const { data: models } = useModels(projectSlug);
   const { mutate: triggerAutoJudge } = useTriggerAutoJudge({ projectSlug });
 
   const form = useForm<Form>({
     mode: 'uncontrolled',
-    initialValues: { judgeIds: judgeId != null ? [String(judgeId)] : [], percent: 100, skipExisting: true },
+    initialValues: {
+      modelIds: modelId != null ? [String(modelId)] : [],
+      judgeIds: judgeId != null ? [String(judgeId)] : [],
+      percent: 100,
+      skipExisting: true,
+    },
     validateInputOnChange: true,
     validateInputOnBlur: true,
-    validate: { judgeIds: js => (js.length < 1 ? 'Select at least one judge' : undefined) },
+    validate: {
+      modelIds: ms => (ms.length < 1 ? 'Select at least one model' : undefined),
+      judgeIds: js => (js.length < 1 ? 'Select at least one judge' : undefined),
+    },
   });
 
+  // TODO: update this based on available models
   const { data: headToHeadCount } = useHeadToHeadCount(projectSlug);
 
+  const availableModels = useMemo(
+    () => (models ?? []).map(({ id, name }) => ({ label: name, value: String(id) })),
+    [models]
+  );
   const autoJudges = useMemo(
     () =>
       (judges ?? [])
@@ -44,6 +61,7 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
 
   function handleSubmit(form: Form) {
     triggerAutoJudge({
+      model_ids: form.modelIds.map(modelId => Number(modelId)),
       judge_ids: form.judgeIds.map(judgeId => Number(judgeId)),
       skip_existing: form.skipExisting,
       fraction: form.percent / 100,
@@ -55,6 +73,9 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
     onClose();
     form.reset();
   }
+
+  const hasModels = availableModels.length > 0;
+  const hasJudges = autoJudges.length > 0;
 
   // TODO: judgeIds doesn't seem to update always
   const formValues = form.getValues();
@@ -72,10 +93,28 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
         <Stack gap="lg">
           <Stack gap="xs">
             <MultiSelect
+              label="Select model or models to evaluate"
+              placeholder={formValues.modelIds.length < 1 ? 'Select a model to evaluate' : undefined}
+              data={availableModels}
+              flex={1}
+              disabled={availableModels.length < 1}
+              key={form.key('modelIds')}
+              {...form.getInputProps('modelIds')}
+              // manually set onChange as form does not update consistently with the default from form.getInputProps
+              onChange={values => form.setFieldValue('modelIds', values)}
+            />
+            <MultiSelect
               label="Select judge or judges to run"
-              placeholder={formValues.judgeIds.length < 1 ? 'Select a judge to run' : undefined}
+              placeholder={
+                !hasJudges
+                  ? 'No automated judges configured'
+                  : formValues.judgeIds.length < 1
+                    ? 'Select a judge to run'
+                    : undefined
+              }
               data={autoJudges}
               flex={1}
+              disabled={autoJudges.length < 1}
               key={form.key('judgeIds')}
               {...form.getInputProps('judgeIds')}
               // manually set onChange as form does not update consistently with the default from form.getInputProps
@@ -83,6 +122,7 @@ export function TriggerAutoJudgeModal({ judgeId, isOpen, onClose }: Props) {
             />
             <Checkbox
               label="Skip head-to-heads with existing votes"
+              disabled={!hasJudges}
               key={form.key('skipExisting')}
               {...form.getInputProps('skipExisting', { type: 'checkbox' })}
             />

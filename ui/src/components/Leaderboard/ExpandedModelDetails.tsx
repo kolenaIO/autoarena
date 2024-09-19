@@ -3,11 +3,13 @@ import { IconDownload, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment/moment';
+import { useDisclosure } from '@mantine/hooks';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
 import { API_ROUTES, ROUTES } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
+import { TriggerAutoJudgeModal } from '../Judges/TriggerAutoJudgeModal.tsx';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { HeadToHeadStatsPlot } from './HeadToHeadStatsPlot.tsx';
@@ -23,6 +25,8 @@ export function ExpandedModelDetails({ model }: Props) {
     judgeId,
   });
   const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
+  const [showAutoJudgeModal, { toggle: toggleShowAutoJudgeModal, close: closeShowAutoJudgeModal }] =
+    useDisclosure(false);
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({
@@ -77,10 +81,11 @@ export function ExpandedModelDetails({ model }: Props) {
                 color="orange"
                 size="xs"
                 leftSection={<IconGavel size={20} />}
-                onClick={() => triggerModelJudgement()}
+                onClick={toggleShowAutoJudgeModal}
               >
                 Run Automated Judgement
               </Button>
+              <TriggerAutoJudgeModal modelId={model.id} isOpen={showAutoJudgeModal} onClose={closeShowAutoJudgeModal} />
             </Group>
             <DeleteModelButton model={model} />
           </Group>

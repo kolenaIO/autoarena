@@ -94,9 +94,14 @@ def router() -> APIRouter:
         model_name = df_response.iloc[0].model
         stream = StringIO()
         df_response[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
-        return response
+        return StreamingResponse(
+            iter([stream.getvalue()]),
+            media_type="text/csv",
+            headers={
+                "Access-Control-Expose-Headers": "Content-Disposition",
+                "Content-Disposition": f'attachment; filename="{model_name}.csv"',
+            },
+        )
 
     @r.get("/project/{project_slug}/model/{model_id}/download/head-to-heads")
     async def download_model_head_to_heads_csv(project_slug: str, model_id: int) -> StreamingResponse:
@@ -105,9 +110,11 @@ def router() -> APIRouter:
         model = ModelService.get_by_id(project_slug, model_id)
         stream = StringIO()
         df_h2h[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{model.name}-head-to-head.csv"'
-        return response
+        return StreamingResponse(
+            iter([stream.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{model.name}-head-to-head.csv"'},
+        )
 
     @r.get("/project/{project_slug}/model/{model_id}/head-to-head/stats")
     def get_head_to_head_stats(project_slug: str, model_id: int) -> list[api.ModelHeadToHeadStats]:
@@ -196,9 +203,11 @@ def router() -> APIRouter:
         judge_name = df_response.iloc[0].judge
         stream = StringIO()
         df_response[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{judge_name}.csv"'
-        return response
+        return StreamingResponse(
+            iter([stream.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": f'attachment; filename="{judge_name}.csv"'},
+        )
 
     @r.put("/project/{project_slug}/elo/reseed-scores")
     def reseed_elo_scores(project_slug: str) -> None:

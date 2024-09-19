@@ -9,6 +9,7 @@ from autoarena.error import NotFoundError
 from autoarena.judge.executor import ThreadedExecutor
 from autoarena.service.elo import EloService
 from autoarena.service.project import ProjectService
+from autoarena.store.database import get_data_directory, get_database_connection
 
 
 class TaskService:
@@ -43,23 +44,26 @@ class TaskService:
             await asyncio.sleep(0.2)
 
     @staticmethod
-    def has_active(project_slug: str) -> api.HasActiveTasks:
-        with ProjectService.connect(project_slug) as conn:
-            records = conn.execute(
-                "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN ($started, $in_progress))",
-                dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
-            ).fetchall()
-            return api.HasActiveTasks(has_active=len(records) > 0)
-
-    @staticmethod
     async def has_active_stream(
         project_slug: str,
         timeout: Optional[float] = None,
     ) -> AsyncIterator[api.HasActiveTasks]:
+        # TODO: shouldn't do this here, just testing something
+        data_directory = get_data_directory()
+        project_file_path = data_directory / f"{project_slug}.duckdb"
+
+        def has_active() -> api.HasActiveTasks:
+            with get_database_connection(project_file_path) as conn:
+                records = conn.execute(
+                    "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN ($started, $in_progress))",
+                    dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
+                ).fetchall()
+                return api.HasActiveTasks(has_active=len(records) > 0)
+
         t0 = time.time()
         prev: Optional[api.HasActiveTasks] = None
         while timeout is None or time.time() - t0 < timeout:
-            cur = TaskService.has_active(project_slug)
+            cur = has_active()
             if prev != cur:
                 yield cur
             prev = cur

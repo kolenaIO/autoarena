@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Accordion, Anchor, Button, Checkbox, Collapse, Group, Pill, Stack, Text, Tooltip } from '@mantine/core';
+import { Accordion, Button, Checkbox, Collapse, Group, Loader, Pill, Stack, Text, Tooltip } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
@@ -9,6 +9,7 @@ import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { pluralize } from '../../lib/string.ts';
 import { API_ROUTES } from '../../lib/routes.ts';
+import { useDownloadFile } from '../../hooks/useDownloadFile.ts';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
@@ -25,6 +26,10 @@ export function JudgeAccordionItem({ judge }: Props) {
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
   const [showAutoJudgeModal, { toggle: toggleShowAutoJudgeModal, close: closeShowAutoJudgeModal }] =
     useDisclosure(false);
+  const { mutate: downloadVotes, isPending: isDownloadingVotes } = useDownloadFile(
+    API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id),
+    `${judge.name}-judge-votes.csv`
+  );
 
   function handleToggleEnabled() {
     updateJudge({ enabled: !enabled });
@@ -32,13 +37,17 @@ export function JudgeAccordionItem({ judge }: Props) {
   }
 
   const canDownload = judge.n_votes > 0;
-  const downloadUrl = canDownload ? API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id) : undefined;
   const DownloadVotesComponent = (
-    <Anchor href={downloadUrl} target="_blank">
-      <Button variant="light" color="teal" size="xs" leftSection={<IconDownload size={20} />} disabled={!canDownload}>
-        Download Votes CSV
-      </Button>
-    </Anchor>
+    <Button
+      variant="light"
+      color="teal"
+      size="xs"
+      leftSection={isDownloadingVotes ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
+      disabled={!canDownload}
+      onClick={() => downloadVotes()}
+    >
+      Download Votes CSV
+    </Button>
   );
   const IconComponent = judgeTypeIconComponent(judge_type);
   return (

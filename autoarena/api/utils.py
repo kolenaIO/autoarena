@@ -1,5 +1,7 @@
+from io import StringIO
 from typing import TypeVar, AsyncIterator
 
+import pandas as pd
 from pydantic import RootModel
 from starlette.responses import StreamingResponse
 
@@ -16,3 +18,13 @@ async def as_sse_stream(object_stream: AsyncIterator[T]) -> AsyncIterator[str]:
 class SSEStreamingResponse(StreamingResponse):
     def __init__(self, object_stream: AsyncIterator[T]):
         super().__init__(as_sse_stream(object_stream), media_type="text/event-stream")
+
+
+def download_csv_response(df: pd.DataFrame, stem: str) -> StreamingResponse:
+    stream = StringIO()
+    df.to_csv(stream, index=False)
+    return StreamingResponse(
+        iter([stream.getvalue()]),
+        media_type="text/csv",
+        headers={"Content-Disposition": f'attachment; filename="{stem}.csv"'},
+    )

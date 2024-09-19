@@ -2,6 +2,7 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getTasksQueryKey } from './useTasks.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type CreateFineTuningTaskRequest = {
   base_model: string;
@@ -13,12 +14,13 @@ type Params = {
   options?: UseMutationOptions<void, Error, CreateFineTuningTaskRequest>;
 };
 export function useCreateFineTuningTask({ projectSlug, options = {} }: Params) {
+  const { apiFetch } = useApiFetch();
   const queryClient = useQueryClient();
   const url = API_ROUTES.createFineTuningTask(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: CreateFineTuningTaskRequest) => {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

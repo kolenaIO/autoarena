@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { API_ROUTES, ROUTES, urlAsQueryKey } from '../lib/routes.ts';
 import { getProjectsQueryKey, Project } from './useProjects.ts';
+import { useApiFetch } from './useApiFetch.ts';
 
 type CreateProjectRequest = {
   name: string;
@@ -11,13 +12,14 @@ type CreateProjectRequest = {
 export function useCreateProject({
   options,
 }: { options?: UseMutationOptions<Project, Error, CreateProjectRequest> } = {}) {
+  const { apiFetch } = useApiFetch();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const url = API_ROUTES.createProject();
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'PUT'),
     mutationFn: async (request: CreateProjectRequest) => {
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'PUT',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },

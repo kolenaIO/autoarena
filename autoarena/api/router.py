@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from io import BytesIO, StringIO
+from io import BytesIO
 from typing import Optional
 
 import pandas as pd
@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
-from autoarena.api.utils import SSEStreamingResponse
+from autoarena.api.utils import SSEStreamingResponse, download_csv_response
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
@@ -91,23 +91,14 @@ def router(r: Optional[APIRouter] = None) -> APIRouter:
     async def download_model_responses_csv(project_slug: str, model_id: int) -> StreamingResponse:
         columns = ["prompt", "response"]
         df_response = ModelService.get_df_response(project_slug, model_id)
-        model_name = df_response.iloc[0].model
-        stream = StringIO()
-        df_response[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
-        return response
+        return download_csv_response(df_response[columns], df_response.iloc[0].model)
 
     @r.get("/project/{project_slug}/model/{model_id}/download/head-to-heads")
     async def download_model_head_to_heads_csv(project_slug: str, model_id: int) -> StreamingResponse:
         columns = ["prompt", "model_a", "model_b", "response_a", "response_b", "judge", "winner"]
         df_h2h = ModelService.get_df_head_to_head(project_slug, model_id)
         model = ModelService.get_by_id(project_slug, model_id)
-        stream = StringIO()
-        df_h2h[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{model.name}-head-to-head.csv"'
-        return response
+        return download_csv_response(df_h2h[columns], f"{model.name}-head-to-head")
 
     @r.get("/project/{project_slug}/model/{model_id}/head-to-head/stats")
     def get_head_to_head_stats(project_slug: str, model_id: int) -> list[api.ModelHeadToHeadStats]:
@@ -194,11 +185,7 @@ def router(r: Optional[APIRouter] = None) -> APIRouter:
         df_response = JudgeService.get_df_vote(project_slug, judge_id)
         # TODO: handle case where no votes exist, not a big problem for now as UI buttons are disabled for 0-vote judges
         judge_name = df_response.iloc[0].judge
-        stream = StringIO()
-        df_response[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{judge_name}.csv"'
-        return response
+        return download_csv_response(df_response[columns], f"{judge_name}-judge-votes")
 
     @r.put("/project/{project_slug}/elo/reseed-scores")
     def reseed_elo_scores(project_slug: str) -> None:

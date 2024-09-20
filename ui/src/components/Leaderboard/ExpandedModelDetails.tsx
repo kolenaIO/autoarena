@@ -1,4 +1,4 @@
-import { Anchor, Button, Group, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { Button, Group, Loader, Paper, Skeleton, Stack, Text } from '@mantine/core';
 import { IconDownload, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -8,6 +8,7 @@ import { API_ROUTES, ROUTES } from '../../lib/routes.ts';
 import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
 import { useUrlState } from '../../hooks/useUrlState.ts';
 import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
+import { useDownloadFile } from '../../hooks/useDownloadFile.ts';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { HeadToHeadStatsPlot } from './HeadToHeadStatsPlot.tsx';
@@ -23,6 +24,14 @@ export function ExpandedModelDetails({ model }: Props) {
     judgeId,
   });
   const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
+  const { mutate: downloadResponses, isPending: isDownloadingResponses } = useDownloadFile(
+    API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id),
+    `${model.name}.csv`
+  );
+  const { mutate: downloadHeadToHeads, isPending: isDownloadingHeadToHeads } = useDownloadFile(
+    API_ROUTES.downloadModelHeadToHeadsCsv(projectSlug, model.id),
+    `${model.name}-head-to-heads.csv`
+  );
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({
@@ -62,16 +71,24 @@ export function ExpandedModelDetails({ model }: Props) {
                   View Responses
                 </Button>
               </Link>
-              <Anchor href={API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id)} target="_blank">
-                <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-                  Download Responses CSV
-                </Button>
-              </Anchor>
-              <Anchor href={API_ROUTES.downloadModelHeadToHeadsCsv(projectSlug, model.id)} target="_blank">
-                <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-                  Download Head-to-Heads CSV
-                </Button>
-              </Anchor>
+              <Button
+                color="teal"
+                variant="light"
+                size="xs"
+                leftSection={isDownloadingResponses ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
+                onClick={() => downloadResponses()}
+              >
+                Download Responses CSV
+              </Button>
+              <Button
+                color="teal"
+                variant="light"
+                size="xs"
+                leftSection={isDownloadingHeadToHeads ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
+                onClick={() => downloadHeadToHeads()}
+              >
+                Download Head-to-Heads CSV
+              </Button>
               <Button
                 variant="light"
                 color="orange"

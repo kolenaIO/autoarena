@@ -22,14 +22,6 @@ class DataDirectoryProvider:
             _DATA_DIRECTORY.reset(original)
 
     @staticmethod
-    @contextmanager
-    def set_tenant(tenant: str) -> Iterator[Path]:
-        base_path = _DATA_DIRECTORY.get()
-        tenant_path = base_path / tenant
-        with DataDirectoryProvider.set(tenant_path) as p:
-            yield p
-
-    @staticmethod
     def get() -> Path:
         return _DATA_DIRECTORY.get()
 

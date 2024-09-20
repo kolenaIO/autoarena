@@ -9,18 +9,18 @@ from fastapi.testclient import TestClient
 from loguru import logger
 
 from autoarena.server import server, API_V1_STR
-from autoarena.store.database import data_directory
+from autoarena.store.database import DataDirectoryProvider
 
 
 @pytest.fixture(scope="function")
 def test_data_directory() -> Iterator[Path]:
-    data_dir = Path(__file__).parent / "data"
-    data_dir.mkdir(parents=True, exist_ok=True)
+    test_data_dir = Path(__file__).parent / "data"
+    test_data_dir.mkdir(parents=True, exist_ok=True)
     try:
-        with data_directory(data_dir):
-            yield data_dir
+        with DataDirectoryProvider.set(test_data_dir):
+            yield test_data_dir
     finally:
-        shutil.rmtree(data_dir, ignore_errors=True)
+        shutil.rmtree(test_data_dir, ignore_errors=True)
 
 
 @pytest.fixture(scope="function")

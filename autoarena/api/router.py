@@ -148,8 +148,14 @@ def router(r: Optional[APIRouter] = None) -> APIRouter:
         background_tasks: BackgroundTasks,
     ) -> None:
         judges = [j for j in JudgeService.get_all(project_slug) if j.id in set(request.judge_ids)]
-        kwargs = dict(judges=judges, fraction=request.fraction, skip_existing=request.skip_existing)
-        schedule_background_task(background_tasks, TaskService.auto_judge, project_slug, **kwargs)
+        schedule_background_task(
+            background_tasks,
+            TaskService.auto_judge,
+            project_slug,
+            judges=judges,
+            fraction=request.fraction,
+            skip_existing=request.skip_existing,
+        )
 
     @r.get("/project/{project_slug}/judges")
     def get_judges(project_slug: str) -> list[api.Judge]:

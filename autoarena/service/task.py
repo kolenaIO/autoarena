@@ -3,19 +3,15 @@ import time
 from datetime import datetime
 from typing import Optional, AsyncIterator
 
-from loguru import logger
-from fastapi import BackgroundTasks
 
 from autoarena.api import api
 from autoarena.error import NotFoundError
 from autoarena.judge.executor import ThreadedExecutor
 from autoarena.service.elo import EloService
 from autoarena.service.project import ProjectService
-from autoarena.store.database import get_data_directory, get_database_connection, data_directory
 
 
 class TaskService:
-
     @staticmethod
     def get_all(project_slug: str) -> list[api.Task]:
         with ProjectService.connect(project_slug) as conn:

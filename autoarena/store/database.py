@@ -15,11 +15,8 @@ class DataDirectoryProvider:
     @staticmethod
     @contextmanager
     def set(directory: Path) -> Iterator[Path]:
-        original = _DATA_DIRECTORY.set(directory)
-        try:
-            yield directory
-        finally:
-            _DATA_DIRECTORY.reset(original)
+        _DATA_DIRECTORY.set(directory)
+        yield directory
 
     @staticmethod
     def get() -> Path:

@@ -34,7 +34,6 @@ export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQ
       return latest;
     },
     initialData: task,
-    retry: 3,
     ...options,
   });
 }

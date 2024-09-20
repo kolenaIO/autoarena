@@ -6,7 +6,7 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.error import NotFoundError, MigrationError
-from autoarena.store.database import get_database_connection, get_data_directory, get_available_migrations
+from autoarena.store.database import get_database_connection, get_available_migrations, DataDirectoryProvider
 
 
 class ProjectService:
@@ -21,7 +21,7 @@ class ProjectService:
 
     @staticmethod
     def get_all() -> list[api.Project]:
-        paths = sorted(list(get_data_directory().glob("*.duckdb")))
+        paths = sorted(list(DataDirectoryProvider.get().glob("*.duckdb")))
         return [api.Project(slug=ProjectService._path_to_slug(p), filename=p.name, filepath=str(p)) for p in paths]
 
     @staticmethod
@@ -29,7 +29,7 @@ class ProjectService:
         # TODO: should come up with a better way than this to have services point at one another, or remove the need
         from autoarena.service.judge import JudgeService
 
-        data_directory = get_data_directory()
+        data_directory = DataDirectoryProvider.get()
         data_directory.mkdir(parents=True, exist_ok=True)
         path = data_directory / f"{request.name}.duckdb"
         slug = ProjectService._path_to_slug(path)
@@ -56,7 +56,7 @@ class ProjectService:
 
     @staticmethod
     def _slug_to_path(slug: str) -> Path:
-        return get_data_directory() / f"{slug}.duckdb"
+        return DataDirectoryProvider.get() / f"{slug}.duckdb"
 
     @staticmethod
     def _setup_database(path: Path) -> None:

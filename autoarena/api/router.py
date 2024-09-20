@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
-from autoarena.api.utils import SSEStreamingResponse, download_csv_response
+from autoarena.api.utils import SSEStreamingResponse, download_csv_response, schedule_background_task
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
@@ -19,8 +19,8 @@ from autoarena.service.task import TaskService
 from autoarena.service.model import ModelService
 
 
-def router() -> APIRouter:
-    r = APIRouter()
+def router(r: Optional[APIRouter] = None) -> APIRouter:
+    r = r or APIRouter()
 
     @r.get("/projects")
     def get_projects() -> list[api.Project]:
@@ -65,7 +65,7 @@ def router() -> APIRouter:
             ModelService.upload_responses(project_slug, model_name, df_response)
             for model_name, df_response in df_response_by_model_name.items()
         ]
-        background_tasks.add_task(TaskService.auto_judge, project_slug, models=new_models)
+        schedule_background_task(background_tasks, TaskService.auto_judge, project_slug, models=new_models)
         return new_models
 
     @r.get("/project/{project_slug}/model/{model_id}/responses")
@@ -76,13 +76,13 @@ def router() -> APIRouter:
     @r.post("/project/{project_slug}/model/{model_id}/judge")
     def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         model = ModelService.get_by_id(project_slug, model_id)
-        background_tasks.add_task(TaskService.auto_judge, project_slug, models=[model])
+        schedule_background_task(background_tasks, TaskService.auto_judge, project_slug, models=[model])
 
     @r.delete("/project/{project_slug}/model/{model_id}")
     def delete_model(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         try:
             ModelService.delete(project_slug, model_id)
-            background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
+            schedule_background_task(background_tasks, TaskService.recompute_leaderboard, project_slug)
         except NotFoundError:
             pass
 
@@ -120,7 +120,7 @@ def router() -> APIRouter:
     ) -> None:
         HeadToHeadService.submit_vote(project_slug, request)
         # recompute confidence intervals in the background if we aren't doing so already
-        background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
+        schedule_background_task(background_tasks, TaskService.recompute_leaderboard, project_slug)
 
     @r.get("/project/{project_slug}/tasks")
     def get_tasks(project_slug: str) -> list[api.Task]:
@@ -148,8 +148,14 @@ def router() -> APIRouter:
         background_tasks: BackgroundTasks,
     ) -> None:
         judges = [j for j in JudgeService.get_all(project_slug) if j.id in set(request.judge_ids)]
-        kwargs = dict(judges=judges, fraction=request.fraction, skip_existing=request.skip_existing)
-        background_tasks.add_task(TaskService.auto_judge, project_slug, **kwargs)
+        schedule_background_task(
+            background_tasks,
+            TaskService.auto_judge,
+            project_slug,
+            judges=judges,
+            fraction=request.fraction,
+            skip_existing=request.skip_existing,
+        )
 
     @r.get("/project/{project_slug}/judges")
     def get_judges(project_slug: str) -> list[api.Judge]:
@@ -175,7 +181,7 @@ def router() -> APIRouter:
     def delete_judge(project_slug: str, judge_id: int, background_tasks: BackgroundTasks) -> None:
         try:
             JudgeService.delete(project_slug, judge_id)
-            background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
+            schedule_background_task(background_tasks, TaskService.recompute_leaderboard, project_slug)
         except NotFoundError:
             pass
 

@@ -9,6 +9,7 @@ dist/
 .venv/
 
 uv.lock
+yarn.lock
 
 .coverage
 coverage.xml

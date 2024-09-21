@@ -8,14 +8,12 @@ import {
   IconLogout,
   IconStack2Filled,
 } from '@tabler/icons-react';
-import { useAuth0 } from '@auth0/auth0-react';
 import { Link } from 'react-router-dom';
 import { useContext } from 'react';
 import { AppConfigContext, ExternalUrls } from '../lib';
 import { useRoutes } from '../hooks';
 
 export function MainMenu() {
-  const { user, logout } = useAuth0();
   const { appRoutes } = useRoutes();
   const { mode } = useContext(AppConfigContext);
   const isCloudMode = mode === 'cloud';

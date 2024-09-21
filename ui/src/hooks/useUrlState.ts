@@ -1,5 +1,5 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { ROUTES } from '../lib/routes.ts';
+import { ROUTES } from '../lib';
 
 export function useUrlState() {
   const { projectSlug: projectSlugFromUrl } = useParams();

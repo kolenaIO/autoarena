@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { JudgeType } from '../components/Judges/types.ts';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { JudgeType } from '../components';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
 import { useApiFetch } from './useApiFetch.ts';
 

@@ -8,10 +8,9 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
 import { Auth0Provider } from '@auth0/auth0-react';
-import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components/Page.tsx';
-import { PageNotFound } from './components/PageNotFound.tsx';
-import { getAppMode, useAppMode } from './hooks/useAppMode.ts';
-import { AUTH0 } from './lib/auth.ts';
+import { PageNotFound, Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components';
+import { getAppMode, useAppMode } from './hooks';
+import { AUTH0 } from './lib';
 
 const theme = createTheme({
   primaryColor: 'kolena',

@@ -1,5 +1,5 @@
 import { useMutation } from '@tanstack/react-query';
-import { urlAsQueryKey } from '../lib/routes.ts';
+import { urlAsQueryKey } from '../lib';
 import { useApiFetch } from './useApiFetch.ts';
 
 export function useDownloadFile(url: string, fileName: string) {

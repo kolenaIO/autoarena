@@ -1,5 +1,5 @@
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { JudgeType } from '../components/Judges/types.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { JudgeType } from '../components';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { useApiFetch } from './useApiFetch.ts';
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
 import { useApiFetch } from './useApiFetch.ts';
 
 export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {

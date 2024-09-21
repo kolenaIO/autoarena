@@ -1,5 +1,5 @@
-import { getAppMode } from '../hooks/useAppMode';
-import { JudgeType } from '../components/Judges/types.ts';
+import { getAppMode } from '../hooks';
+import { JudgeType } from '../components';
 
 const LOCAL_BASE_API_URL = 'http://localhost:8899/api/v1';
 

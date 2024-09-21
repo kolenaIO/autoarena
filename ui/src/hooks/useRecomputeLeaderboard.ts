@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
 import { getModelsQueryKey } from './useModels.ts';
 import { useApiFetch } from './useApiFetch.ts';
 

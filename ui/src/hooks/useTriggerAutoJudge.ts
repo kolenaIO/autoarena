@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { taskStatusToColor } from '../lib/tasks.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { taskStatusToColor } from '../lib';
 import { useApiFetch } from './useApiFetch.ts';
 
 type TriggerAutoJudgeRequest = {

@@ -1,6 +1,6 @@
 import { useAuth0 } from '@auth0/auth0-react';
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
-import { AUTH0 } from '../lib/auth.ts';
+import { AUTH0 } from '../lib';
 import { useAppMode } from './useAppMode.ts';
 
 export function useApiFetch() {

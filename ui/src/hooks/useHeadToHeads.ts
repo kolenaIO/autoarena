@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
 import { useApiFetch } from './useApiFetch.ts';
 
 export type HeadToHeadHistoryItem = {
@@ -8,7 +8,7 @@ export type HeadToHeadHistoryItem = {
   winner: string;
 };
 
-export type HeadToHead = {
+export type HeadToHeadItem = {
   prompt: string;
   response_a_id: number;
   response_a: string;
@@ -37,7 +37,7 @@ export function useHeadToHeads({ projectSlug, modelAId, modelBId }: Params) {
       if (!response.ok) {
         throw new Error('Failed to fetch head-to-heads');
       }
-      const result: HeadToHead[] = await response.json();
+      const result: HeadToHeadItem[] = await response.json();
       return result;
     },
   });

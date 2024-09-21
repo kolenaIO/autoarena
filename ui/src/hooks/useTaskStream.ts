@@ -1,5 +1,5 @@
 import { useQuery, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
 import { Task } from './useTasks.ts';
 import { useApiFetch } from './useApiFetch.ts';
 

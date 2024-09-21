@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { API_ROUTES, urlAsQueryKey } from '../lib';
 import { getTasksQueryKey } from './useTasks.ts';
 import { useApiFetch } from './useApiFetch.ts';
 

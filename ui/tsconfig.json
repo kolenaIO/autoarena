@@ -8,7 +8,7 @@
     "module": "ESNext",
     "skipLibCheck": true,
     "declaration": true,
-    "declarationDir": "./types",
+    "declarationDir": "./dist/types",
 
     /* Bundler mode */
     "moduleResolution": "bundler",

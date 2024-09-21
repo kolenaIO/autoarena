@@ -23,6 +23,9 @@
       "stylelint --fix"
     ]
   },
+  "main": "dist/index.js",
+  "module": "dist/autoarena.esm.js",
+  "types": "dist/types/types.d.ts",
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
     "@mantine/charts": "^7.12.2",

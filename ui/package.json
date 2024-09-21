@@ -24,8 +24,8 @@
       "stylelint --fix"
     ]
   },
-  "main": "dist/index.js",
-  "module": "dist/autoarena.esm.js",
+  "main": "dist/autoarena.js",
+  "module": "dist/autoarena.umd.cjs",
   "types": "dist/types/types.d.ts",
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",

@@ -1,6 +1,7 @@
 import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { useRoutes } from './useRoutes.ts';
 
 export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<boolean, Error> {
   const { apiFetchEventSource } = useContext(AppConfigContext);

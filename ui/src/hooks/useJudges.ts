@@ -2,9 +2,9 @@ import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { JudgeType } from '../components';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { useRoutes } from './useRoutes.ts';
+import { ApiRoutes, useRoutes } from './useRoutes.ts';
 
-export function getJudgesQueryKey(apiRoutes: ReturnType<useRoutes>['apiRoutes'], projectSlug: string) {
+export function getJudgesQueryKey(apiRoutes: ApiRoutes, projectSlug: string) {
   return urlAsQueryKey(apiRoutes.getJudges(projectSlug));
 }
 

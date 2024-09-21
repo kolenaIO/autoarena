@@ -51,7 +51,7 @@ export function useCreateJudge({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug) });
     },
     ...options,
   });

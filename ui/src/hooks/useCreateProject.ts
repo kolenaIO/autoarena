@@ -41,7 +41,7 @@ export function useCreateProject({
       navigate(appRoutes.leaderboard(project.slug));
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey(apiRoutes) });
     },
     ...options,
   });

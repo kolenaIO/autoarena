@@ -32,8 +32,8 @@ export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(apiRoutes, projectSlug) }); // invalidate all
     },
     ...options,
   });

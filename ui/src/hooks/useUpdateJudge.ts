@@ -33,7 +33,7 @@ export function useUpdateJudge({ projectSlug, judgeId, options = {} }: Params) {
       return result;
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug) });
     },
     ...options,
   });

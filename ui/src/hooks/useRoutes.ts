@@ -56,3 +56,6 @@ export function useRoutes() {
 
   return { appRoutes, apiRoutes };
 }
+
+export type ApiRoutes = ReturnType<typeof useRoutes>['apiRoutes'];
+export type AppRoutes = ReturnType<typeof useRoutes>['appRoutes'];

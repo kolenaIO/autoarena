@@ -1,9 +1,9 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { useRoutes } from './useRoutes.ts';
+import { ApiRoutes, useRoutes } from './useRoutes.ts';
 
-export function getTasksQueryKey(apiRoutes: ReturnType<useRoutes>['apiRoutes'], projectSlug: string) {
+export function getTasksQueryKey(apiRoutes: ApiRoutes, projectSlug: string) {
   return urlAsQueryKey(apiRoutes.getTasks(projectSlug));
 }
 

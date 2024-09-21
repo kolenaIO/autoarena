@@ -1,9 +1,9 @@
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { useRoutes } from './useRoutes.ts';
+import { ApiRoutes, useRoutes } from './useRoutes.ts';
 
-export function getModelsQueryKey(apiRoutes: ReturnType<useRoutes>['apiRoutes'], projectSlug: string) {
+export function getModelsQueryKey(apiRoutes: ApiRoutes, projectSlug: string) {
   return urlAsQueryKey(apiRoutes.getModels(projectSlug));
 }
 

@@ -3,7 +3,7 @@ import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import { useUrlState, useProject, useRoutes } from '../hooks';
+import { useProject, useRoutes, useUrlState } from '../hooks';
 import { HeadToHead } from './HeadToHead';
 import { Leaderboard } from './Leaderboard';
 import { Judges } from './Judges';
@@ -11,15 +11,10 @@ import { ProjectSelect } from './ProjectSelect.tsx';
 import { TasksDrawer } from './TasksDrawer';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 import { MainMenu } from './MainMenu.tsx';
-
-export enum Tab {
-  LEADERBOARD = 'Leaderboard',
-  COMPARISON = 'Head-to-Head',
-  JUDGES = 'Judges',
-}
+import { Types } from './types.ts';
 
 type Props = {
-  tab: Tab;
+  tab: Types;
 };
 export function Page({ tab }: Props) {
   const { projectSlug } = useUrlState();
@@ -44,13 +39,13 @@ export function Page({ tab }: Props) {
 
   function setTab(newTab: string | null) {
     switch (newTab) {
-      case Tab.LEADERBOARD:
+      case Types.LEADERBOARD:
         navigate(appRoutes.leaderboard(projectSlug ?? ''));
         break;
-      case Tab.COMPARISON:
+      case Types.COMPARISON:
         navigate(appRoutes.compare(projectSlug ?? ''));
         break;
-      case Tab.JUDGES:
+      case Types.JUDGES:
         navigate(appRoutes.judges(projectSlug ?? ''));
         break;
     }
@@ -65,17 +60,17 @@ export function Page({ tab }: Props) {
         </Group>
         <Tabs.Tab
           ml="xl"
-          value={Tab.LEADERBOARD}
+          value={Types.LEADERBOARD}
           disabled={projectSlug == null}
           leftSection={<IconCrown {...iconProps} />}
         >
-          {Tab.LEADERBOARD}
+          {Types.LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={Tab.COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
-          {Tab.COMPARISON}
+        <Tabs.Tab value={Types.COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
+          {Types.COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={Tab.JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
-          {Tab.JUDGES}
+        <Tabs.Tab value={Types.JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
+          {Types.JUDGES}
         </Tabs.Tab>
         <Group gap="lg" align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
           <ProjectSelect />
@@ -83,7 +78,7 @@ export function Page({ tab }: Props) {
         </Group>
       </Tabs.List>
 
-      <Tabs.Panel value={Tab.LEADERBOARD}>
+      <Tabs.Panel value={Types.LEADERBOARD}>
         {projectSlug != null ? (
           <Leaderboard />
         ) : (
@@ -92,10 +87,10 @@ export function Page({ tab }: Props) {
           </Stack>
         )}
       </Tabs.Panel>
-      <Tabs.Panel value={Tab.COMPARISON}>
+      <Tabs.Panel value={Types.COMPARISON}>
         <HeadToHead />
       </Tabs.Panel>
-      <Tabs.Panel value={Tab.JUDGES}>
+      <Tabs.Panel value={Types.JUDGES}>
         <Judges />
       </Tabs.Panel>
     </Tabs>

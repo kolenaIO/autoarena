@@ -5,7 +5,7 @@ export type AppConfig = {
   baseApiUrl: string;
   basePath: string;
   apiFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
-  apiFetchEventSource: (input: RequestInfo, init?: FetchEventSourceInit) => Promise<void>;
+  apiFetchEventSource: (input: RequestInfo, init: FetchEventSourceInit) => Promise<void>;
   mode: 'local' | 'cloud'; // TODO: remove?
 };
 

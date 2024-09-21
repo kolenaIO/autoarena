@@ -13,3 +13,4 @@ export * from './OnboardingTimeline';
 export * from './Page';
 export * from './PageNotFound';
 export * from './ProjectSelect';
+export * from './types';

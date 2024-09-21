@@ -30,7 +30,7 @@ export function useDeleteProject({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey(apiRoutes) });
     },
     ...options,
   });

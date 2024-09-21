@@ -15,13 +15,9 @@ import {
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMemo, useState } from 'react';
-import { useUploadModelResponses } from '../hooks/useUploadModelResponses.ts';
-import { useUrlState } from '../hooks/useUrlState.ts';
-import { useModels } from '../hooks/useModels.ts';
-import { useJudges } from '../hooks/useJudges.ts';
-import { pluralize } from '../lib/string.ts';
-import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
-import { isEnabledAutoJudge } from './Judges/utils.ts';
+import { useUploadModelResponses, useUrlState, useModels, useJudges } from '../hooks';
+import { pluralize } from '../lib';
+import { ConfirmOrCancelBar, isEnabledAutoJudge } from './Judges';
 
 type Props = {
   variant?: ButtonVariant;

@@ -10,9 +10,8 @@ import {
 } from '@tabler/icons-react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Link } from 'react-router-dom';
-import { useAppMode } from '../hooks/useAppMode.ts';
-import { ExternalUrls } from '../lib/urls.ts';
-import { ROUTES } from '../lib/routes.ts';
+import { useAppMode } from '../hooks';
+import { ExternalUrls, ROUTES } from '../lib';
 
 export function MainMenu() {
   const { user, logout } = useAuth0();

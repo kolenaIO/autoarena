@@ -3,11 +3,8 @@ import { prop, reverse, sortBy } from 'ramda';
 import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
 import { useNavigate } from 'react-router-dom';
-import { ModelHeadToHeadStats } from '../../hooks/useModelHeadToHeadStats.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
-import { usePagination } from '../../hooks/usePagination.ts';
-import { ROUTES } from '../../lib/routes.ts';
+import { ModelHeadToHeadStats, useUrlState, useModelHeadToHeadStatsByJudge, usePagination } from '../../hooks';
+import { ROUTES } from '../../lib';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   unique_id: string;

@@ -1,9 +1,7 @@
 import { Group, Select } from '@mantine/core';
 import { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getProjectsQueryKey, useProjects } from '../hooks/useProjects.ts';
-import { useUrlState } from '../hooks/useUrlState.ts';
-import { useProject } from '../hooks/useProject.ts';
+import { getProjectsQueryKey, useProjects, useUrlState, useProject } from '../hooks';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 
 export function ProjectSelect() {

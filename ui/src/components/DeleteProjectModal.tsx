@@ -1,10 +1,8 @@
 import { Code, Modal, Stack, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { useUrlState } from '../hooks/useUrlState.ts';
-import { useProject } from '../hooks/useProject.ts';
-import { useDeleteProject } from '../hooks/useDeleteProject.ts';
-import { ROUTES } from '../lib/routes.ts';
-import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
+import { useUrlState, useProject, useDeleteProject } from '../hooks';
+import { ROUTES } from '../lib';
+import { ConfirmOrCancelBar } from './Judges';
 
 type Props = {
   isOpen: boolean;

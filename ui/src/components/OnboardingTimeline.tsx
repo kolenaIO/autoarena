@@ -5,13 +5,17 @@ import { prop, sortBy } from 'ramda';
 import moment, { MomentInput } from 'moment';
 import { notifications } from '@mantine/notifications';
 import { Link } from 'react-router-dom';
-import { Judge, useJudges } from '../hooks/useJudges.ts';
-import { useUrlState } from '../hooks/useUrlState.ts';
-import { Model, useModels } from '../hooks/useModels.ts';
-import { useOnboardingGuideDismissed } from '../hooks/useOnboardingGuideDismissed.ts';
-import { useProject } from '../hooks/useProject.ts';
-import { useProjects } from '../hooks/useProjects.ts';
-import { ROUTES } from '../lib/routes.ts';
+import {
+  Judge,
+  useJudges,
+  useUrlState,
+  Model,
+  useModels,
+  useOnboardingGuideDismissed,
+  useProjects,
+  useProject,
+} from '../hooks';
+import { ROUTES } from '../lib';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';

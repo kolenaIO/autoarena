@@ -3,13 +3,9 @@ import { Accordion, Button, Checkbox, Collapse, Group, Loader, Pill, Stack, Text
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
-import { Judge } from '../../hooks/useJudges.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
+import { Judge, useUpdateJudge, useUrlState, useDownloadFile } from '../../hooks';
 import { MarkdownContent } from '../MarkdownContent.tsx';
-import { pluralize } from '../../lib/string.ts';
-import { API_ROUTES } from '../../lib/routes.ts';
-import { useDownloadFile } from '../../hooks/useDownloadFile.ts';
+import { pluralize, API_ROUTES } from '../../lib';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';

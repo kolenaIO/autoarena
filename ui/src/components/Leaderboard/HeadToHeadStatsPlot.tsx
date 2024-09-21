@@ -4,11 +4,9 @@ import { useMemo, useState } from 'react';
 import { prop, sortBy } from 'ramda';
 import { IconCactus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
+import { useUrlState, useModelHeadToHeadStatsByJudge, useJudge } from '../../hooks';
 import { NonIdealState } from '../NonIdealState.tsx';
-import { useJudge } from '../../hooks/useJudge.ts';
-import { ROUTES } from '../../lib/routes.ts';
+import { ROUTES } from '../../lib';
 
 type ChartRecord = {
   opponentName: string;

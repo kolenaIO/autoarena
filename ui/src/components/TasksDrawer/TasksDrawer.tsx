@@ -4,15 +4,16 @@ import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getTasksQueryKey, useTasks } from '../../hooks/useTasks.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { pluralize } from '../../lib/string.ts';
-import { getModelsQueryKey } from '../../hooks/useModels.ts';
-import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
-import { taskIsDone } from '../../lib/tasks.ts';
-import { getProjectApiUrl } from '../../lib/routes.ts';
-import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
-import { useHasActiveTasksStream } from '../../hooks/useHasActiveTasksStream.ts';
+import {
+  getTasksQueryKey,
+  useTasks,
+  useUrlState,
+  getModelsQueryKey,
+  getJudgesQueryKey,
+  useHasActiveTasksStream,
+  useClearCompletedTasks,
+} from '../../hooks';
+import { pluralize, taskIsDone, getProjectApiUrl } from '../../lib';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 

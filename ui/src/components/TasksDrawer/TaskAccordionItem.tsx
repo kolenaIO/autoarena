@@ -2,10 +2,8 @@ import moment from 'moment/moment';
 import { IconBooks, IconCalculator, IconGavel } from '@tabler/icons-react';
 import { Accordion, Badge, Button, Code, Group, Progress, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
-import { Task } from '../../hooks/useTasks.ts';
-import { taskIsDone, taskStatusToColor, taskStatusToLabel } from '../../lib/tasks.ts';
-import { useTaskStream } from '../../hooks/useTaskStream.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
+import { Task, useTaskStream, useUrlState } from '../../hooks';
+import { taskIsDone, taskStatusToColor, taskStatusToLabel } from '../../lib';
 
 const N_LOG_LINES_DEFAULT = 30;
 

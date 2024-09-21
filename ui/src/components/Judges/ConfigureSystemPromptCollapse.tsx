@@ -2,8 +2,7 @@ import { Collapse, Group, Stack, Text, Textarea, UnstyledButton } from '@mantine
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useEffect } from 'react';
-import { useJudgeDefaultSystemPrompt } from '../../hooks/useJudgeDefaultSystemPrompt.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useJudgeDefaultSystemPrompt, useUrlState } from '../../hooks';
 
 type Props = {
   value: string;

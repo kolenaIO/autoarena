@@ -2,12 +2,8 @@ import { Code, Modal, Select, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { pluralize } from '../../lib/string.ts';
-import { useCreateFineTuningTask } from '../../hooks/useCreateFineTuningTask.ts';
-import { useProject } from '../../hooks/useProject.ts';
-import { useJudges } from '../../hooks/useJudges.ts';
-import { ROUTES } from '../../lib/routes.ts';
+import { useUrlState, useCreateFineTuningTask, useProject, useJudges } from '../../hooks';
+import { pluralize, ROUTES } from '../../lib';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
 

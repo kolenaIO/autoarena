@@ -1,7 +1,7 @@
 import { Button, Card, Portal, Stack, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { ROUTES } from '../../lib/routes.ts';
+import { useUrlState } from '../../hooks';
+import { ROUTES } from '../../lib';
 import { RankedModel } from './types.ts';
 
 type Props = {

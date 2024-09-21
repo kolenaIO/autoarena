@@ -10,14 +10,10 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useSubmitHeadToHeadVote } from '../../hooks/useSubmitHeadToHeadVote.ts';
-import { pluralize } from '../../lib/string.ts';
+import { useHeadToHeads, useUrlState, useSubmitHeadToHeadVote, useModel } from '../../hooks';
+import { pluralize, ROUTES } from '../../lib';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
-import { useModel } from '../../hooks/useModel.ts';
-import { ROUTES } from '../../lib/routes.ts';
 import { ControlBar } from './ControlBar.tsx';
 
 type ShowMode = 'All' | 'With Votes' | 'Without Votes';

@@ -39,8 +39,8 @@ export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(apiRoutes, projectSlug) }); // invalidate all
     },
     ...options,
   });

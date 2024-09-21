@@ -12,10 +12,12 @@ import { TasksDrawer } from './TasksDrawer';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 import { MainMenu } from './MainMenu.tsx';
 
-export const TAB_LEADERBOARD = 'Leaderboard';
-export const TAB_COMPARISON = 'Head-to-Head';
-export const TAB_JUDGES = 'Judges';
-type Tab = typeof TAB_LEADERBOARD | typeof TAB_COMPARISON | typeof TAB_JUDGES;
+export enum Tab {
+  LEADERBOARD = 'Leaderboard',
+  COMPARISON = 'Head-to-Head',
+  JUDGES = 'Judges',
+}
+
 type Props = {
   tab: Tab;
 };
@@ -42,13 +44,13 @@ export function Page({ tab }: Props) {
 
   function setTab(newTab: string | null) {
     switch (newTab) {
-      case TAB_LEADERBOARD:
+      case Tab.LEADERBOARD:
         navigate(appRoutes.leaderboard(projectSlug ?? ''));
         break;
-      case TAB_COMPARISON:
+      case Tab.COMPARISON:
         navigate(appRoutes.compare(projectSlug ?? ''));
         break;
-      case TAB_JUDGES:
+      case Tab.JUDGES:
         navigate(appRoutes.judges(projectSlug ?? ''));
         break;
     }
@@ -63,17 +65,17 @@ export function Page({ tab }: Props) {
         </Group>
         <Tabs.Tab
           ml="xl"
-          value={TAB_LEADERBOARD}
+          value={Tab.LEADERBOARD}
           disabled={projectSlug == null}
           leftSection={<IconCrown {...iconProps} />}
         >
-          {TAB_LEADERBOARD}
+          {Tab.LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
-          {TAB_COMPARISON}
+        <Tabs.Tab value={Tab.COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
+          {Tab.COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
-          {TAB_JUDGES}
+        <Tabs.Tab value={Tab.JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
+          {Tab.JUDGES}
         </Tabs.Tab>
         <Group gap="lg" align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
           <ProjectSelect />
@@ -81,7 +83,7 @@ export function Page({ tab }: Props) {
         </Group>
       </Tabs.List>
 
-      <Tabs.Panel value={TAB_LEADERBOARD}>
+      <Tabs.Panel value={Tab.LEADERBOARD}>
         {projectSlug != null ? (
           <Leaderboard />
         ) : (
@@ -90,10 +92,10 @@ export function Page({ tab }: Props) {
           </Stack>
         )}
       </Tabs.Panel>
-      <Tabs.Panel value={TAB_COMPARISON}>
+      <Tabs.Panel value={Tab.COMPARISON}>
         <HeadToHead />
       </Tabs.Panel>
-      <Tabs.Panel value={TAB_JUDGES}>
+      <Tabs.Panel value={Tab.JUDGES}>
         <Judges />
       </Tabs.Panel>
     </Tabs>

@@ -54,8 +54,8 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       notifications.show({ title, message, color: 'green' });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(apiRoutes, projectSlug) });
     },
     ...options,
   });

@@ -12,13 +12,15 @@ import {
   getJudgesQueryKey,
   useHasActiveTasksStream,
   useClearCompletedTasks,
+  useRoutes,
 } from '../../hooks';
-import { pluralize, taskIsDone, getProjectApiUrl } from '../../lib';
+import { pluralize, taskIsDone } from '../../lib';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
   const { projectSlug } = useUrlState();
+  const { apiRoutes } = useRoutes();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
@@ -31,14 +33,15 @@ export function TasksDrawer() {
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ status }) => taskIsDone(status)), [tasksSorted]);
 
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: getTasksQueryKey(apiRoutes, projectSlug ?? '') });
   }, [isDrawerOpen]);
 
   // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
-    queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug ?? '') });
-    queryClient.invalidateQueries({ queryKey: [getProjectApiUrl(projectSlug ?? ''), '/model'] });
+    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug ?? '') });
+    // TODO: fix this
+    // queryClient.invalidateQueries({ queryKey: [getProjectApiUrl(apiRoutes, projectSlug ?? ''), '/model'] });
   }, [tasksCompleted.length]);
 
   return (

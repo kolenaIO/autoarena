@@ -3,8 +3,8 @@ import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useRoutes } from './useRoutes.ts';
 
-export function getTasksQueryKey(projectSlug: string) {
-  return urlAsQueryKey(API_ROUTES.getTasks(projectSlug));
+export function getTasksQueryKey(apiRoutes: ReturnType<useRoutes>['apiRoutes'], projectSlug: string) {
+  return urlAsQueryKey(apiRoutes.getTasks(projectSlug));
 }
 
 export type Task = {
@@ -25,7 +25,7 @@ export function useTasks({ projectSlug, options = {} }: Params) {
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.getTasks(projectSlug ?? '');
   return useQuery({
-    queryKey: getTasksQueryKey(projectSlug ?? ''),
+    queryKey: getTasksQueryKey(apiRoutes, projectSlug ?? ''),
     queryFn: async () => {
       const response = await apiFetch(url);
       if (!response.ok) {

@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { useRoutes } from './useRoutes.ts';
 
-export function getModelsQueryKey(projectSlug: string) {
-  return urlAsQueryKey(API_ROUTES.getModels(projectSlug));
+export function getModelsQueryKey(apiRoutes: ReturnType<useRoutes>['apiRoutes'], projectSlug: string) {
+  return urlAsQueryKey(apiRoutes.getModels(projectSlug));
 }
 
 export type Model = {
@@ -23,7 +23,7 @@ export function useModels(projectSlug: string | undefined) {
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.getModels(projectSlug ?? '');
   return useQueryWithErrorToast({
-    queryKey: getModelsQueryKey(projectSlug ?? ''),
+    queryKey: getModelsQueryKey(apiRoutes, projectSlug ?? ''),
     queryFn: async () => {
       const response = await apiFetch(url);
       if (!response.ok) {

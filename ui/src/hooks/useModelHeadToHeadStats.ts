@@ -1,10 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { useContext } from 'react';
-import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useRoutes } from './useRoutes.ts';
 
-export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {
-  return urlAsQueryKey(API_ROUTES.getHeadToHeadStats(projectSlug, modelId ?? -1));
+export function getModelHeadToHeadStatsQueryKey(
+  apiRoutes: ReturnType<useRoutes>['apiRoutes'],
+  projectSlug: string,
+  modelId?: number
+) {
+  return urlAsQueryKey(apiRoutes.getHeadToHeadStats(projectSlug, modelId ?? -1));
 }
 
 export type ModelHeadToHeadStats = {

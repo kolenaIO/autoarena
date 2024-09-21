@@ -1,10 +1,10 @@
 import { useContext } from 'react';
-import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { useRoutes } from './useRoutes.ts';
 
-export function getProjectsQueryKey() {
-  return urlAsQueryKey(API_ROUTES.getProjects());
+export function getProjectsQueryKey(apiRoutes: ReturnType<useRoutes>['apiRoutes']) {
+  return urlAsQueryKey(apiRoutes.getProjects());
 }
 
 export type Project = {

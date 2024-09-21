@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
-import {AppConfigContext, urlAsQueryKey} from '../lib';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { getTasksQueryKey } from './useTasks.ts';
 import { useRoutes } from './useRoutes.ts';
 
@@ -22,7 +22,7 @@ export function useClearCompletedTasks({ projectSlug, options = {} }: Params) {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
+      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(apiRoutes, projectSlug ?? '') });
     },
     ...options,
   });

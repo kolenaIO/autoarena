@@ -1,12 +1,13 @@
 import { Group, Select } from '@mantine/core';
 import { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getProjectsQueryKey, useProjects, useUrlState, useProject } from '../hooks';
+import { getProjectsQueryKey, useProjects, useUrlState, useProject, useRoutes } from '../hooks';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 
 export function ProjectSelect() {
   const { projectSlug, setProjectSlug } = useUrlState();
-  const queryCilent = useQueryClient();
+  const { apiRoutes } = useRoutes();
+  const queryClient = useQueryClient();
   const { data: projects } = useProjects();
   const { data: currentProject } = useProject(projectSlug);
   const allProjectSlugs = useMemo(() => (projects ?? []).map(({ slug }) => slug), [projects]);
@@ -16,7 +17,7 @@ export function ProjectSelect() {
   }
 
   function handleRefetchProjects() {
-    queryCilent.invalidateQueries({ queryKey: getProjectsQueryKey() });
+    queryClient.invalidateQueries({ queryKey: getProjectsQueryKey(apiRoutes) });
   }
 
   return (

@@ -33,7 +33,7 @@ export function useSubmitHeadToHeadVote({ projectSlug, options }: Params) {
       await response.json();
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug) });
     },
     ...options,
   });

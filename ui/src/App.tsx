@@ -7,8 +7,8 @@ import { createTheme, MantineProvider, Modal, Popover, Tooltip } from '@mantine/
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
-import { PageNotFound, Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components';
-import { AppConfigContext, DEFAULT_APP_CONFIG } from './lib/appConfig.ts';
+import { PageNotFound, Page, Tab } from './components';
+import { AppConfigContext, DEFAULT_APP_CONFIG } from './lib';
 
 const theme = createTheme({
   primaryColor: 'kolena',
@@ -40,10 +40,10 @@ const theme = createTheme({
 const queryClient = new QueryClient({});
 
 const router = createBrowserRouter([
-  { path: `/`, element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: `/project/:projectSlug`, element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: `/project/:projectSlug/compare`, element: <Page tab={TAB_COMPARISON} /> },
-  { path: `/project/:projectSlug/judges`, element: <Page tab={TAB_JUDGES} /> },
+  { path: `/`, element: <Page tab={Tab.LEADERBOARD} /> },
+  { path: `/project/:projectSlug`, element: <Page tab={Tab.LEADERBOARD} /> },
+  { path: `/project/:projectSlug/compare`, element: <Page tab={Tab.COMPARISON} /> },
+  { path: `/project/:projectSlug/judges`, element: <Page tab={Tab.JUDGES} /> },
   { path: '*', element: <PageNotFound /> },
 ]);
 

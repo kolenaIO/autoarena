@@ -17,10 +17,22 @@ export default defineConfig({
       fileName: 'autoarena',
     },
     rollupOptions: {
-      external: ['react'],
+      external: [
+        'react',
+        '@mantine/core',
+        '@mantine/notifications',
+        '@mantine/hooks',
+        '@mantine/form',
+        '@mantine/charts',
+      ],
       output: {
         globals: {
           react: 'React',
+          '@mantine/core': 'MantineCore',
+          '@mantine/notifications': 'MantineNotifications',
+          '@mantine/hooks': 'MantineHooks',
+          '@mantine/form': 'MantineForm',
+          '@mantine/charts': 'MantineCharts',
         },
       },
     },

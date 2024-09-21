@@ -28,11 +28,11 @@ export default defineConfig({
       output: {
         globals: {
           react: 'React',
-          '@mantine/core': 'MantineCore',
-          '@mantine/notifications': 'MantineNotifications',
-          '@mantine/hooks': 'MantineHooks',
-          '@mantine/form': 'MantineForm',
-          '@mantine/charts': 'MantineCharts',
+          '@mantine/core': '@mantine/core',
+          '@mantine/notifications': '@mantine/notifications',
+          '@mantine/hooks': '@mantine/hooks',
+          '@mantine/form': '@mantine/form',
+          '@mantine/charts': '@mantine/charts',
         },
       },
     },

@@ -11,10 +11,10 @@ import { ProjectSelect } from './ProjectSelect.tsx';
 import { TasksDrawer } from './TasksDrawer';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 import { MainMenu } from './MainMenu.tsx';
-import { Types } from './types.ts';
+import { Tab } from './types.ts';
 
 type Props = {
-  tab: Types;
+  tab: Tab;
 };
 export function Page({ tab }: Props) {
   const { projectSlug } = useUrlState();
@@ -39,13 +39,13 @@ export function Page({ tab }: Props) {
 
   function setTab(newTab: string | null) {
     switch (newTab) {
-      case Types.LEADERBOARD:
+      case Tab.LEADERBOARD:
         navigate(appRoutes.leaderboard(projectSlug ?? ''));
         break;
-      case Types.COMPARISON:
+      case Tab.COMPARISON:
         navigate(appRoutes.compare(projectSlug ?? ''));
         break;
-      case Types.JUDGES:
+      case Tab.JUDGES:
         navigate(appRoutes.judges(projectSlug ?? ''));
         break;
     }
@@ -60,17 +60,17 @@ export function Page({ tab }: Props) {
         </Group>
         <Tabs.Tab
           ml="xl"
-          value={Types.LEADERBOARD}
+          value={Tab.LEADERBOARD}
           disabled={projectSlug == null}
           leftSection={<IconCrown {...iconProps} />}
         >
-          {Types.LEADERBOARD}
+          {Tab.LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={Types.COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
-          {Types.COMPARISON}
+        <Tabs.Tab value={Tab.COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
+          {Tab.COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={Types.JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
-          {Types.JUDGES}
+        <Tabs.Tab value={Tab.JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
+          {Tab.JUDGES}
         </Tabs.Tab>
         <Group gap="lg" align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
           <ProjectSelect />
@@ -78,7 +78,7 @@ export function Page({ tab }: Props) {
         </Group>
       </Tabs.List>
 
-      <Tabs.Panel value={Types.LEADERBOARD}>
+      <Tabs.Panel value={Tab.LEADERBOARD}>
         {projectSlug != null ? (
           <Leaderboard />
         ) : (
@@ -87,10 +87,10 @@ export function Page({ tab }: Props) {
           </Stack>
         )}
       </Tabs.Panel>
-      <Tabs.Panel value={Types.COMPARISON}>
+      <Tabs.Panel value={Tab.COMPARISON}>
         <HeadToHead />
       </Tabs.Panel>
-      <Tabs.Panel value={Types.JUDGES}>
+      <Tabs.Panel value={Tab.JUDGES}>
         <Judges />
       </Tabs.Panel>
     </Tabs>

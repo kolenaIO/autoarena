@@ -5,10 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "dev:cloud": "vite --mode cloud",
     "build": "tsc --build && vite build",
-    "build:cloud": "tsc --build && vite build --mode cloud",
-    "build:lib": "tsc --build && vite build --config vite.lib.config.ts",
+    "build:lib": "tsc --build && vite build --config vite.lib.config.ts --mode cloud",
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",
@@ -29,11 +27,11 @@
   "types": "dist/types/types.d.ts",
   "dependencies": {
     "@auth0/auth0-react": "^2.2.4",
-    "@mantine/charts": "^7.12.2",
-    "@mantine/core": "^7.11.2",
-    "@mantine/form": "^7.12.0",
-    "@mantine/hooks": "^7.11.2",
-    "@mantine/notifications": "^7.12.2",
+    "@mantine/charts": "^7",
+    "@mantine/core": "^7",
+    "@mantine/form": "^7",
+    "@mantine/hooks": "^7",
+    "@mantine/notifications": "^7",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@tabler/icons-react": "^3.11.0",
     "@tanstack/react-query": "^5.51.16",
@@ -82,11 +80,11 @@
     "vite-plugin-dts": "^4.2.1"
   },
   "peerDependencies": {
-    "@mantine/charts": "^7.12.2",
-    "@mantine/core": "^7.11.2",
-    "@mantine/form": "^7.12.0",
-    "@mantine/hooks": "^7.11.2",
-    "@mantine/notifications": "^7.12.2",
+    "@mantine/charts": "^7",
+    "@mantine/core": "^7",
+    "@mantine/form": "^7",
+    "@mantine/hooks": "^7",
+    "@mantine/notifications": "^7",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   }

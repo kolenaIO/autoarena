@@ -32,7 +32,7 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
-          'react-router-dom': 'ReactRouterDOM',
+          'react-router-dom': 'react-router-dom',
           '@mantine/core': '@mantine/core',
           'mantine/notifications': '@mantine/notifications',
           '@mantine/hooks': '@mantine/hooks',

@@ -24,7 +24,7 @@
       "stylelint --fix"
     ]
   },
-  "main": "dist/autoarena.js",
+  "main": "dist/autoarena.es.js",
   "module": "dist/autoarena.umd.cjs",
   "types": "dist/types/types.d.ts",
   "dependencies": {

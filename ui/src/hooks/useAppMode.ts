@@ -1,4 +1,5 @@
-import { useMemo } from 'react';
+import { useContext, useMemo } from 'react';
+import { AppConfigContext } from '../lib/appConfig.ts';
 
 type AppMode = 'local' | 'cloud';
 
@@ -12,5 +13,6 @@ export function getAppMode() {
 }
 
 export function useAppMode() {
+  const { mode } = useContext(AppConfigContext);
   return useMemo(getAppMode, [import.meta.env.MODE]);
 }

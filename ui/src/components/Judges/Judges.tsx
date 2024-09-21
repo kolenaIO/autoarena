@@ -1,7 +1,8 @@
 import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { useJudges, useUrlState, useAppMode } from '../../hooks';
-import { ExternalUrls } from '../../lib';
+import { useContext } from 'react';
+import { useJudges, useUrlState } from '../../hooks';
+import { AppConfigContext, ExternalUrls } from '../../lib';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -10,7 +11,8 @@ import { JudgeAccordionItem } from './JudgeAccordionItem.tsx';
 export function Judges() {
   const { projectSlug } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
-  const { isLocalMode } = useAppMode();
+  const { mode } = useContext(AppConfigContext);
+  const isLocalMode = mode === 'local';
 
   const [isFineTunedOpen, { toggle: toggleFineTuned, close: closeFineTuned }] = useDisclosure(false);
   const [isOllamaOpen, { toggle: toggleOllama, close: closeOllama }] = useDisclosure(false);

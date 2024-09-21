@@ -21,6 +21,7 @@ export default defineConfig({
       external: [
         'react',
         'react-dom',
+        'react-router-dom',
         '@mantine/core',
         '@mantine/notifications',
         '@mantine/hooks',
@@ -31,8 +32,9 @@ export default defineConfig({
         globals: {
           react: 'React',
           'react-dom': 'ReactDOM',
+          'react-router-dom': 'ReactRouterDOM',
           '@mantine/core': '@mantine/core',
-          '@mantine/notifications': '@mantine/notifications',
+          'mantine/notifications': '@mantine/notifications',
           '@mantine/hooks': '@mantine/hooks',
           '@mantine/form': '@mantine/form',
           '@mantine/charts': '@mantine/charts',

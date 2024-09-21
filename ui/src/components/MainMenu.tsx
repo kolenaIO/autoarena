@@ -10,12 +10,13 @@ import {
 } from '@tabler/icons-react';
 import { useAuth0 } from '@auth0/auth0-react';
 import { Link } from 'react-router-dom';
-import { useAppMode } from '../hooks';
-import { ExternalUrls, ROUTES } from '../lib';
+import { useContext } from 'react';
+import { AppConfigContext, ExternalUrls, ROUTES } from '../lib';
 
 export function MainMenu() {
   const { user, logout } = useAuth0();
-  const { isCloudMode } = useAppMode();
+  const { mode } = useContext(AppConfigContext);
+  const isCloudMode = mode === 'cloud';
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (

@@ -1,17 +1,19 @@
 import { useQuery } from '@tanstack/react-query';
+import { useContext } from 'react';
 import { JudgeType } from '../components';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
-import { useApiFetch } from './useApiFetch.ts';
+import { AppConfigContext } from '../lib';
+import { useRoutes } from './useRoutes.ts';
 
 type Params = {
   projectSlug: string;
   judgeType?: JudgeType;
 };
 export function useCanAccessJudgeType({ projectSlug, judgeType }: Params) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.checkCanAccess(projectSlug, judgeType ?? 'unrecognized');
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes, asQueryKey } = useRoutes();
+  const url = apiRoutes.checkCanAccess(projectSlug, judgeType ?? 'unrecognized');
   return useQuery({
-    queryKey: urlAsQueryKey(url),
+    queryKey: asQueryKey(url),
     queryFn: async () => {
       const response = await apiFetch(url);
       if (!response.ok) {

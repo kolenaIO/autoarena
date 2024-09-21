@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
 import { PageNotFound, Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components';
+import { AppConfigContext, DEFAULT_APP_CONFIG } from './lib/appConfig.ts';
 
 const theme = createTheme({
   primaryColor: 'kolena',
@@ -50,8 +51,10 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider forceColorScheme="light" defaultColorScheme="light" theme={theme}>
-        <Notifications />
-        <RouterProvider router={router} />
+        <AppConfigContext.Provider value={DEFAULT_APP_CONFIG}>
+          <Notifications />
+          <RouterProvider router={router} />
+        </AppConfigContext.Provider>
       </MantineProvider>
     </QueryClientProvider>
   );

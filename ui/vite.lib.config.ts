@@ -14,11 +14,13 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'autoarena',
-      fileName: 'autoarena',
+      fileName: format => `autoarena.${format}.js`,
+      formats: ['es', 'umd'],
     },
     rollupOptions: {
       external: [
         'react',
+        'react-dom',
         '@mantine/core',
         '@mantine/notifications',
         '@mantine/hooks',
@@ -28,6 +30,7 @@ export default defineConfig({
       output: {
         globals: {
           react: 'React',
+          'react-dom': 'ReactDOM',
           '@mantine/core': '@mantine/core',
           '@mantine/notifications': '@mantine/notifications',
           '@mantine/hooks': '@mantine/hooks',

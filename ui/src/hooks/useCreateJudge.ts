@@ -1,9 +1,10 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
+import { useContext } from 'react';
 import { JudgeType } from '../components';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { useRoutes } from './useRoutes.ts';
 
 type CreateJudgeRequest = {
   judge_type: JudgeType;
@@ -18,7 +19,8 @@ type Params = {
   options?: UseMutationOptions<Judge, Error, CreateJudgeRequest>;
 };
 export function useCreateJudge({ projectSlug, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
   const url = API_ROUTES.createJudge(projectSlug);
   return useMutation({

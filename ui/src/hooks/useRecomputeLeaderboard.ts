@@ -1,17 +1,19 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { useContext } from 'react';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { getModelsQueryKey } from './useModels.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { useRoutes } from './useRoutes.ts';
 
 type Params = {
   projectSlug: string;
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useRecomputeLeaderboard({ projectSlug, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.reseedEloScores(projectSlug);
+  const url = apiRoutes.reseedEloScores(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'PUT'),
     mutationFn: async () => {

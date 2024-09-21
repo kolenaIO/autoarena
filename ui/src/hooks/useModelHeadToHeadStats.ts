@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
-import { useApiFetch } from './useApiFetch.ts';
+import { useContext } from 'react';
+import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
+import { useRoutes } from './useRoutes.ts';
 
 export function getModelHeadToHeadStatsQueryKey(projectSlug: string, modelId?: number) {
   return urlAsQueryKey(API_ROUTES.getHeadToHeadStats(projectSlug, modelId ?? -1));
@@ -21,8 +22,9 @@ type Params = {
   modelId?: number;
 };
 export function useModelHeadToHeadStats({ projectSlug, modelId }: Params) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.getHeadToHeadStats(projectSlug ?? '', modelId ?? -1);
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
+  const url = apiRoutes.getHeadToHeadStats(projectSlug ?? '', modelId ?? -1);
   return useQuery({
     queryKey: getModelHeadToHeadStatsQueryKey(projectSlug ?? '', modelId),
     queryFn: async () => {

@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query';
-import { urlAsQueryKey } from '../lib';
-import { useApiFetch } from './useApiFetch.ts';
+import { useContext } from 'react';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 
 export function useDownloadFile(url: string, fileName: string) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useContext(AppConfigContext);
   return useMutation({
     mutationKey: urlAsQueryKey(url),
     mutationFn: async () => {

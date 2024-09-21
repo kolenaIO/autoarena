@@ -1,9 +1,10 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { useContext } from 'react';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { getModelsQueryKey } from './useModels.ts';
 import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { useRoutes } from './useRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -11,9 +12,10 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.deleteModel(projectSlug, modelId);
+  const url = apiRoutes.deleteModel(projectSlug, modelId);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async () => {

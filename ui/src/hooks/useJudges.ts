@@ -1,7 +1,8 @@
-import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { useContext } from 'react';
+import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
 import { JudgeType } from '../components';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { useRoutes } from './useRoutes.ts';
 
 export function getJudgesQueryKey(projectSlug: string) {
   return urlAsQueryKey(API_ROUTES.getJudges(projectSlug));
@@ -20,8 +21,9 @@ export type Judge = {
 };
 
 export function useJudges(projectSlug: string | undefined) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.getJudges(projectSlug ?? '');
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
+  const url = apiRoutes.getJudges(projectSlug ?? '');
   return useQueryWithErrorToast({
     queryKey: getJudgesQueryKey(projectSlug ?? ''),
     queryFn: async () => {

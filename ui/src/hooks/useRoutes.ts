@@ -53,10 +53,5 @@ export function useRoutes() {
     createFineTuningTask: (projectSlug: string) => `${baseApiUrl}/project/${projectSlug}/fine-tune`,
   };
 
-  function asQueryKey(url: string, method: 'GET' | 'PUT' | 'POST' | 'DELETE' = 'GET') {
-    const urlObject = new URL(url);
-    return [urlObject.origin, ...urlObject.pathname.split('/').filter(Boolean), method];
-  }
-
-  return { appRoutes, apiRoutes, asQueryKey };
+  return { appRoutes, apiRoutes };
 }

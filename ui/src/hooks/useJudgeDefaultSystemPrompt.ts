@@ -1,10 +1,12 @@
 import { useQuery } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
-import { useApiFetch } from './useApiFetch.ts';
+import { useContext } from 'react';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { useRoutes } from './useRoutes.ts';
 
 export function useJudgeDefaultSystemPrompt(projectSlug: string) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.getDefaultSystemPrompt(projectSlug);
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
+  const url = apiRoutes.getDefaultSystemPrompt(projectSlug);
   return useQuery({
     queryKey: urlAsQueryKey(url),
     queryFn: async () => {

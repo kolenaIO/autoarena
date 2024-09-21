@@ -1,7 +1,8 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib';
+import { useContext } from 'react';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { useRoutes } from './useRoutes.ts';
 
 type UpdateJudgeRequest = {
   enabled: boolean;
@@ -13,9 +14,10 @@ type Params = {
   options?: UseMutationOptions<Judge, Error, UpdateJudgeRequest>;
 };
 export function useUpdateJudge({ projectSlug, judgeId, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useContext(AppConfigContext);
+  const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.updateJudge(projectSlug, judgeId);
+  const url = apiRoutes.updateJudge(projectSlug, judgeId);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'PUT'),
     mutationFn: async (request: UpdateJudgeRequest) => {

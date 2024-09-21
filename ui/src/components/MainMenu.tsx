@@ -11,10 +11,12 @@ import {
 import { useAuth0 } from '@auth0/auth0-react';
 import { Link } from 'react-router-dom';
 import { useContext } from 'react';
-import { AppConfigContext, ExternalUrls, ROUTES } from '../lib';
+import { AppConfigContext, ExternalUrls } from '../lib';
+import { useRoutes } from '../hooks';
 
 export function MainMenu() {
   const { user, logout } = useAuth0();
+  const { appRoutes } = useRoutes();
   const { mode } = useContext(AppConfigContext);
   const isCloudMode = mode === 'cloud';
 
@@ -34,7 +36,7 @@ export function MainMenu() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Link to={ROUTES.home()} style={{ textDecoration: 'none' }}>
+        <Link to={appRoutes.home()} style={{ textDecoration: 'none' }}>
           <Menu.Item leftSection={<IconHome {...iconProps} />}>Home</Menu.Item>
         </Link>
         <Anchor href={ExternalUrls.AUTOARENA_GITHUB} underline="never" target="_blank">

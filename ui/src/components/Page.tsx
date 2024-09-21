@@ -3,8 +3,7 @@ import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import { useUrlState, useProject } from '../hooks';
-import { ROUTES } from '../lib';
+import { useUrlState, useProject, useRoutes } from '../hooks';
 import { HeadToHead } from './HeadToHead';
 import { Leaderboard } from './Leaderboard';
 import { Judges } from './Judges';
@@ -22,6 +21,7 @@ type Props = {
 };
 export function Page({ tab }: Props) {
   const { projectSlug } = useUrlState();
+  const { appRoutes } = useRoutes();
   const { data: project, isLoading: isLoadingProject } = useProject(projectSlug);
   const navigate = useNavigate();
 
@@ -36,20 +36,20 @@ export function Page({ tab }: Props) {
         color: 'red',
         key: 'project-not-found',
       });
-      navigate(ROUTES.home());
+      navigate(appRoutes.home());
     }
   }, [project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
     switch (newTab) {
       case TAB_LEADERBOARD:
-        navigate(ROUTES.leaderboard(projectSlug ?? ''));
+        navigate(appRoutes.leaderboard(projectSlug ?? ''));
         break;
       case TAB_COMPARISON:
-        navigate(ROUTES.compare(projectSlug ?? ''));
+        navigate(appRoutes.compare(projectSlug ?? ''));
         break;
       case TAB_JUDGES:
-        navigate(ROUTES.judges(projectSlug ?? ''));
+        navigate(appRoutes.judges(projectSlug ?? ''));
         break;
     }
   }

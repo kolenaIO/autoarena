@@ -2,6 +2,7 @@ import { useContext } from 'react';
 import { JudgeType } from '../components';
 import { AppConfigContext } from '../lib';
 
+// TODO: should this be part of AppConfig itself?
 export function useRoutes() {
   const { baseApiUrl, basePath } = useContext(AppConfigContext);
 

@@ -2,7 +2,7 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { JudgeType } from '../components';
-import { API_ROUTES, AppConfigContext, urlAsQueryKey } from '../lib';
+import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { getJudgesQueryKey, Judge } from './useJudges.ts';
 import { useRoutes } from './useRoutes.ts';
 
@@ -22,7 +22,7 @@ export function useCreateJudge({ projectSlug, options = {} }: Params) {
   const { apiFetch } = useContext(AppConfigContext);
   const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.createJudge(projectSlug);
+  const url = apiRoutes.createJudge(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: CreateJudgeRequest) => {

@@ -1,7 +1,6 @@
 import { Code, Modal, Stack, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { useUrlState, useProject, useDeleteProject } from '../hooks';
-import { ROUTES } from '../lib';
+import { useUrlState, useProject, useDeleteProject, useRoutes } from '../hooks';
 import { ConfirmOrCancelBar } from './Judges';
 
 type Props = {
@@ -10,13 +9,14 @@ type Props = {
 };
 export function DeleteProjectModal({ isOpen, onClose }: Props) {
   const { projectSlug = '' } = useUrlState();
+  const { appRoutes } = useRoutes();
   const { data: project } = useProject(projectSlug);
   const { mutate: deleteProject } = useDeleteProject({ projectSlug });
   const navigate = useNavigate();
 
   function handleDeleteProject() {
     deleteProject();
-    navigate(ROUTES.home());
+    navigate(appRoutes.home());
     onClose();
   }
 

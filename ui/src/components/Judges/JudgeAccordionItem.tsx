@@ -3,9 +3,9 @@ import { Accordion, Button, Checkbox, Collapse, Group, Loader, Pill, Stack, Text
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
-import { Judge, useUpdateJudge, useUrlState, useDownloadFile } from '../../hooks';
+import { Judge, useUpdateJudge, useUrlState, useDownloadFile, useRoutes } from '../../hooks';
 import { MarkdownContent } from '../MarkdownContent.tsx';
-import { pluralize, API_ROUTES } from '../../lib';
+import { pluralize } from '../../lib';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
@@ -17,13 +17,14 @@ type Props = {
 export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
   const { projectSlug = '' } = useUrlState();
+  const { apiRoutes } = useRoutes();
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
   const [showAutoJudgeModal, { toggle: toggleShowAutoJudgeModal, close: closeShowAutoJudgeModal }] =
     useDisclosure(false);
   const { mutate: downloadVotes, isPending: isDownloadingVotes } = useDownloadFile(
-    API_ROUTES.downloadJudgeVotesCsv(projectSlug, judge.id),
+    apiRoutes.downloadJudgeVotesCsv(projectSlug, judge.id),
     `${judge.name}-judge-votes.csv`
   );
 

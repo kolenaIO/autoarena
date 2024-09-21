@@ -14,8 +14,8 @@ import {
   useOnboardingGuideDismissed,
   useProjects,
   useProject,
+  useRoutes,
 } from '../hooks';
-import { ROUTES } from '../lib';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 import { ProjectSelect } from './ProjectSelect.tsx';
@@ -25,6 +25,7 @@ type Props = {
 };
 export function OnboardingTimeline({ dismissable = true }: Props) {
   const { projectSlug } = useUrlState();
+  const { appRoutes } = useRoutes();
   const { data: projects } = useProjects();
   const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectSlug);
   const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);
@@ -159,7 +160,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
                 timestamp={firstJudge?.created}
                 action={
                   activeStage === 1 ? (
-                    <Link to={ROUTES.judges(projectSlug ?? '')}>
+                    <Link to={appRoutes.judges(projectSlug ?? '')}>
                       <Button leftSection={<IconGavel size={18} />} size="xs">
                         Configure Judge
                       </Button>

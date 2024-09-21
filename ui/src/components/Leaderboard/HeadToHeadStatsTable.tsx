@@ -3,8 +3,13 @@ import { prop, reverse, sortBy } from 'ramda';
 import { Code, Paper } from '@mantine/core';
 import { DataTable, DataTableColumn, DataTableSortStatus } from 'mantine-datatable';
 import { useNavigate } from 'react-router-dom';
-import { ModelHeadToHeadStats, useUrlState, useModelHeadToHeadStatsByJudge, usePagination } from '../../hooks';
-import { ROUTES } from '../../lib';
+import {
+  ModelHeadToHeadStats,
+  useUrlState,
+  useModelHeadToHeadStatsByJudge,
+  usePagination,
+  useRoutes,
+} from '../../hooks';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
   unique_id: string;
@@ -46,6 +51,7 @@ type Props = {
 };
 export function HeadToHeadStatsTable({ modelId }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
+  const { appRoutes } = useRoutes();
   const navigate = useNavigate();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId });
 
@@ -99,7 +105,7 @@ export function HeadToHeadStatsTable({ modelId }: Props) {
         minHeight={statsRecords.length === 0 ? 180 : undefined}
         highlightOnHover
         onRowClick={({ record: { other_model_id } }) => {
-          navigate(`${ROUTES.compare(projectSlug)}?modelA=${modelId}&modelB=${other_model_id}`);
+          navigate(`${appRoutes.compare(projectSlug)}?modelA=${modelId}&modelB=${other_model_id}`);
         }}
         page={pageNumber}
         onPageChange={setPageNumber}

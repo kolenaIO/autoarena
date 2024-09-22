@@ -1,22 +1,12 @@
-import { Anchor, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
-import {
-  IconBeta,
-  IconBrandGithub,
-  IconBrandSlack,
-  IconBug,
-  IconHome,
-  IconLogout,
-  IconStack2Filled,
-} from '@tabler/icons-react';
-import { useAuth0 } from '@auth0/auth0-react';
+import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import { useAppMode } from '../hooks/useAppMode.ts';
-import { ExternalUrls } from '../lib/urls.ts';
-import { ROUTES } from '../lib/routes.ts';
+import { ExternalUrls, useAppConfig } from '../lib';
+import { useAppRoutes } from '../hooks';
 
 export function MainMenu() {
-  const { user, logout } = useAuth0();
-  const { isCloudMode } = useAppMode();
+  const { menuExtras } = useAppConfig();
+  const { appRoutes } = useAppRoutes();
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
@@ -34,7 +24,7 @@ export function MainMenu() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Link to={ROUTES.home()} style={{ textDecoration: 'none' }}>
+        <Link to={appRoutes.home()} style={{ textDecoration: 'none' }}>
           <Menu.Item leftSection={<IconHome {...iconProps} />}>Home</Menu.Item>
         </Link>
         <Anchor href={ExternalUrls.AUTOARENA_GITHUB} underline="never" target="_blank">
@@ -46,24 +36,7 @@ export function MainMenu() {
         <Anchor href={ExternalUrls.AUTOARENA_SLACK_COMMUNITY} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandSlack {...iconProps} />}>Slack Community</Menu.Item>
         </Anchor>
-        {isCloudMode && (
-          <>
-            <Menu.Divider />
-            <Menu.Item
-              leftSection={<IconLogout {...iconProps} />}
-              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-            >
-              <Stack gap={0}>
-                <Text inherit>Sign Out</Text>
-                {user != null && (
-                  <Text size="xs" c="dimmed">
-                    {user.email}
-                  </Text>
-                )}
-              </Stack>
-            </Menu.Item>
-          </>
-        )}
+        {menuExtras}
       </Menu.Dropdown>
     </Menu>
   );

@@ -1,9 +1,9 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { getProjectsQueryKey, Project } from './useProjects.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { Project } from './useProjects.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type CreateProjectRequest = {
   name: string;
@@ -12,10 +12,11 @@ type CreateProjectRequest = {
 export function useCreateProject({
   options,
 }: { options?: UseMutationOptions<Project, Error, CreateProjectRequest> } = {}) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.createProject();
+  const url = apiRoutes.createProject();
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'PUT'),
     mutationFn: async (request: CreateProjectRequest) => {
@@ -36,10 +37,10 @@ export function useCreateProject({
         message: `Switched to newly created project '${project.slug}'`,
         color: 'green',
       });
-      navigate(ROUTES.leaderboard(project.slug));
+      navigate(appRoutes.leaderboard(project.slug));
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey() });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getProjects()) });
     },
     ...options,
   });

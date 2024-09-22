@@ -3,26 +3,22 @@ import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import { useUrlState } from '../hooks/useUrlState.ts';
-import { useProject } from '../hooks/useProject.ts';
-import { ROUTES } from '../lib/routes.ts';
-import { HeadToHead } from './HeadToHead/HeadToHead.tsx';
-import { Leaderboard } from './Leaderboard/Leaderboard.tsx';
-import { Judges } from './Judges/Judges.tsx';
+import { useProject, useAppRoutes, useUrlState } from '../hooks';
+import { HeadToHead } from './HeadToHead';
+import { Leaderboard } from './Leaderboard';
+import { Judges } from './Judges';
 import { ProjectSelect } from './ProjectSelect.tsx';
-import { TasksDrawer } from './TasksDrawer/TasksDrawer.tsx';
+import { TasksDrawer } from './TasksDrawer';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 import { MainMenu } from './MainMenu.tsx';
+import { Tab } from './types.ts';
 
-export const TAB_LEADERBOARD = 'Leaderboard';
-export const TAB_COMPARISON = 'Head-to-Head';
-export const TAB_JUDGES = 'Judges';
-type Tab = typeof TAB_LEADERBOARD | typeof TAB_COMPARISON | typeof TAB_JUDGES;
 type Props = {
   tab: Tab;
 };
 export function Page({ tab }: Props) {
   const { projectSlug } = useUrlState();
+  const { appRoutes } = useAppRoutes();
   const { data: project, isLoading: isLoadingProject } = useProject(projectSlug);
   const navigate = useNavigate();
 
@@ -37,20 +33,20 @@ export function Page({ tab }: Props) {
         color: 'red',
         key: 'project-not-found',
       });
-      navigate(ROUTES.home());
+      navigate(appRoutes.home());
     }
   }, [project, isLoadingProject]);
 
   function setTab(newTab: string | null) {
     switch (newTab) {
-      case TAB_LEADERBOARD:
-        navigate(ROUTES.leaderboard(projectSlug ?? ''));
+      case Tab.LEADERBOARD:
+        navigate(appRoutes.leaderboard(projectSlug ?? ''));
         break;
-      case TAB_COMPARISON:
-        navigate(ROUTES.compare(projectSlug ?? ''));
+      case Tab.COMPARISON:
+        navigate(appRoutes.compare(projectSlug ?? ''));
         break;
-      case TAB_JUDGES:
-        navigate(ROUTES.judges(projectSlug ?? ''));
+      case Tab.JUDGES:
+        navigate(appRoutes.judges(projectSlug ?? ''));
         break;
     }
   }
@@ -64,17 +60,17 @@ export function Page({ tab }: Props) {
         </Group>
         <Tabs.Tab
           ml="xl"
-          value={TAB_LEADERBOARD}
+          value={Tab.LEADERBOARD}
           disabled={projectSlug == null}
           leftSection={<IconCrown {...iconProps} />}
         >
-          {TAB_LEADERBOARD}
+          {Tab.LEADERBOARD}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
-          {TAB_COMPARISON}
+        <Tabs.Tab value={Tab.COMPARISON} disabled={projectSlug == null} leftSection={<IconSwords {...iconProps} />}>
+          {Tab.COMPARISON}
         </Tabs.Tab>
-        <Tabs.Tab value={TAB_JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
-          {TAB_JUDGES}
+        <Tabs.Tab value={Tab.JUDGES} disabled={projectSlug == null} leftSection={<IconGavel {...iconProps} />}>
+          {Tab.JUDGES}
         </Tabs.Tab>
         <Group gap="lg" align="center" justify="flex-end" style={{ flexGrow: 1 }} pr="lg">
           <ProjectSelect />
@@ -82,7 +78,7 @@ export function Page({ tab }: Props) {
         </Group>
       </Tabs.List>
 
-      <Tabs.Panel value={TAB_LEADERBOARD}>
+      <Tabs.Panel value={Tab.LEADERBOARD}>
         {projectSlug != null ? (
           <Leaderboard />
         ) : (
@@ -91,10 +87,10 @@ export function Page({ tab }: Props) {
           </Stack>
         )}
       </Tabs.Panel>
-      <Tabs.Panel value={TAB_COMPARISON}>
+      <Tabs.Panel value={Tab.COMPARISON}>
         <HeadToHead />
       </Tabs.Panel>
-      <Tabs.Panel value={TAB_JUDGES}>
+      <Tabs.Panel value={Tab.JUDGES}>
         <Judges />
       </Tabs.Panel>
     </Tabs>

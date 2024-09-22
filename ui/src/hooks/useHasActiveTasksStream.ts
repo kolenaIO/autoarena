@@ -1,11 +1,12 @@
 import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<boolean, Error> {
-  const { apiFetchEventSource } = useApiFetch();
+  const { apiFetchEventSource } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.getHasActiveTasksStream(projectSlug ?? '');
+  const url = apiRoutes.getHasActiveTasksStream(projectSlug ?? '');
   const queryKey = urlAsQueryKey(url);
 
   // TODO: auth header

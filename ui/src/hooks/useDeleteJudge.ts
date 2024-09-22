@@ -1,9 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { getJudgesQueryKey } from './useJudges.ts';
-import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -11,9 +9,10 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.deleteJudge(projectSlug, judgeId);
+  const url = apiRoutes.deleteJudge(projectSlug, judgeId);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async () => {
@@ -30,8 +29,9 @@ export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug)) });
+      const h2hStatsKey = urlAsQueryKey(apiRoutes.getHeadToHeadStats(projectSlug, -1), undefined);
+      queryClient.invalidateQueries({ queryKey: h2hStatsKey.slice(0, h2hStatsKey.length - 1) }); // invalidate all
     },
     ...options,
   });

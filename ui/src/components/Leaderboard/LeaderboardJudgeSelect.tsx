@@ -1,7 +1,6 @@
 import { Select } from '@mantine/core';
 import { useMemo } from 'react';
-import { useJudges } from '../../hooks/useJudges.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useJudges, useUrlState } from '../../hooks';
 
 export function LeaderboardJudgeSelect() {
   const { projectSlug, judgeId, setJudgeId } = useUrlState();

@@ -1,16 +1,16 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { getTasksQueryKey } from './useTasks.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug?: string;
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useClearCompletedTasks({ projectSlug, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.deleteCompletedTasks(projectSlug ?? '');
+  const url = apiRoutes.deleteCompletedTasks(projectSlug ?? '');
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'DELETE'),
     mutationFn: async () => {
@@ -20,7 +20,7 @@ export function useClearCompletedTasks({ projectSlug, options = {} }: Params) {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug ?? '')) });
     },
     ...options,
   });

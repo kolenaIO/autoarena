@@ -1,4 +1,4 @@
-import { Model } from '../../hooks/useModels.ts';
+import { Model } from '../../hooks';
 
 export type RankedModel = Model & {
   rank: number;

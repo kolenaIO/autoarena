@@ -4,11 +4,13 @@ import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import moment from 'moment/moment';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
-import { API_ROUTES, ROUTES } from '../../lib/routes.ts';
-import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
-import { useDownloadFile } from '../../hooks/useDownloadFile.ts';
+import {
+  useModelHeadToHeadStatsByJudge,
+  useUrlState,
+  useTriggerModelAutoJudge,
+  useDownloadFile,
+  useAppRoutes,
+} from '../../hooks';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { HeadToHeadStatsPlot } from './HeadToHeadStatsPlot.tsx';
@@ -18,6 +20,7 @@ type Props = {
 };
 export function ExpandedModelDetails({ model }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({
     projectSlug,
     modelId: model.id,
@@ -25,11 +28,11 @@ export function ExpandedModelDetails({ model }: Props) {
   });
   const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
   const { mutate: downloadResponses, isPending: isDownloadingResponses } = useDownloadFile(
-    API_ROUTES.downloadModelResponsesCsv(projectSlug, model.id),
+    apiRoutes.downloadModelResponsesCsv(projectSlug, model.id),
     `${model.name}.csv`
   );
   const { mutate: downloadHeadToHeads, isPending: isDownloadingHeadToHeads } = useDownloadFile(
-    API_ROUTES.downloadModelHeadToHeadsCsv(projectSlug, model.id),
+    apiRoutes.downloadModelHeadToHeadsCsv(projectSlug, model.id),
     `${model.name}-head-to-heads.csv`
   );
 
@@ -66,7 +69,7 @@ export function ExpandedModelDetails({ model }: Props) {
           </Group>
           <Group gap="xs" justify="space-between" w="100%">
             <Group gap="xs">
-              <Link to={`${ROUTES.compare(projectSlug)}?modelA=${model.id}`}>
+              <Link to={`${appRoutes.compare(projectSlug)}?modelA=${model.id}`}>
                 <Button color="cyan" variant="light" size="xs" leftSection={<IconSwords size={20} />}>
                   View Responses
                 </Button>

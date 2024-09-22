@@ -2,12 +2,10 @@ import { IconArrowLeft, IconArrowRight, IconCactus } from '@tabler/icons-react';
 import { Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import { useElementSize, useHotkeys } from '@mantine/hooks';
-import { pluralize } from '../../lib/string.ts';
-import { useModelResponses } from '../../hooks/useModelResponses.ts';
+import { pluralize } from '../../lib';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { MarkdownContent } from '../MarkdownContent.tsx';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useModel } from '../../hooks/useModel.ts';
+import { useUrlState, useModel, useModelResponses } from '../../hooks';
 import { ControlBar } from './ControlBar.tsx';
 
 type Props = {

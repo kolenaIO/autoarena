@@ -1,9 +1,7 @@
 import { ActionIcon, Code, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconTrashX } from '@tabler/icons-react';
-import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { Judge } from '../../hooks/useJudges.ts';
+import { useDeleteJudge, Judge, useUrlState } from '../../hooks';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 type Props = {

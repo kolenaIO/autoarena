@@ -1,9 +1,9 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { JudgeType } from '../components/Judges/types.ts';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { getJudgesQueryKey, Judge } from './useJudges.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { JudgeType } from '../components';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { Judge } from './useJudges.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type CreateJudgeRequest = {
   judge_type: JudgeType;
@@ -18,9 +18,10 @@ type Params = {
   options?: UseMutationOptions<Judge, Error, CreateJudgeRequest>;
 };
 export function useCreateJudge({ projectSlug, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.createJudge(projectSlug);
+  const url = apiRoutes.createJudge(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: CreateJudgeRequest) => {
@@ -49,7 +50,7 @@ export function useCreateJudge({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug)) });
     },
     ...options,
   });

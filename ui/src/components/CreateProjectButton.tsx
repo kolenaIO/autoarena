@@ -2,9 +2,8 @@ import { ActionIcon, Button, MantineSize, Modal, Stack, TextInput } from '@manti
 import { IconPlus } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useForm } from '@mantine/form';
-import { useCreateProject } from '../hooks/useCreateProject.ts';
-import { useProjects } from '../hooks/useProjects.ts';
-import { ConfirmOrCancelBar } from './Judges/ConfirmOrCancelBar.tsx';
+import { useCreateProject, useProjects } from '../hooks';
+import { ConfirmOrCancelBar } from './Judges';
 
 type Form = {
   name: string;

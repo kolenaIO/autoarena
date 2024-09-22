@@ -4,40 +4,42 @@ import { useDisclosure } from '@mantine/hooks';
 import moment from 'moment';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { getTasksQueryKey, useTasks } from '../../hooks/useTasks.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { pluralize } from '../../lib/string.ts';
-import { getModelsQueryKey } from '../../hooks/useModels.ts';
-import { useClearCompletedTasks } from '../../hooks/useClearCompletedTasks.ts';
-import { taskIsDone } from '../../lib/tasks.ts';
-import { getProjectApiUrl } from '../../lib/routes.ts';
-import { getJudgesQueryKey } from '../../hooks/useJudges.ts';
-import { useHasActiveTasksStream } from '../../hooks/useHasActiveTasksStream.ts';
+import {
+  useTasks,
+  useUrlState,
+  useHasActiveTasksStream,
+  useClearCompletedTasks,
+  useAppRoutes,
+  useAllModelActionsQueryKey,
+} from '../../hooks';
+import { pluralize, taskIsDone, urlAsQueryKey } from '../../lib';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
   const { projectSlug } = useUrlState();
+  const { apiRoutes } = useAppRoutes();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);
   const { data: hasActiveTasks = false } = useHasActiveTasksStream(projectSlug);
   const { data: tasks, isLoading: isLoadingTasks } = useTasks({ projectSlug });
   const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug });
+  const allModelActionsQueryKey = useAllModelActionsQueryKey(projectSlug);
 
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ status }) => !taskIsDone(status)), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ status }) => taskIsDone(status)), [tasksSorted]);
 
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug ?? '')) });
   }, [isDrawerOpen]);
 
   // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug ?? '') });
-    queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug ?? '') });
-    queryClient.invalidateQueries({ queryKey: [getProjectApiUrl(projectSlug ?? ''), '/model'] });
+    queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug ?? '')) });
+    queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug ?? '')) });
+    queryClient.invalidateQueries({ queryKey: allModelActionsQueryKey });
   }, [tasksCompleted.length]);
 
   return (

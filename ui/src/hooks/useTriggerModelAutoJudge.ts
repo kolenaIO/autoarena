@@ -1,8 +1,8 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { taskStatusToColor } from '../lib/tasks.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { taskStatusToColor } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -10,8 +10,9 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useTriggerModelAutoJudge({ projectSlug, modelId, options = {} }: Params) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.triggerModelAutoJudge(projectSlug, modelId ?? -1);
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
+  const url = apiRoutes.triggerModelAutoJudge(projectSlug, modelId ?? -1);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async () => {

@@ -1,19 +1,19 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { getModelsQueryKey, Model } from './useModels.ts';
-import { getTasksQueryKey } from './useTasks.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { Model } from './useModels.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
   options?: UseMutationOptions<Model[], Error, [File[], string[]]>;
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
-  const { apiFetch } = useApiFetch();
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
-  const url = API_ROUTES.uploadModelResponses(projectSlug);
+  const url = apiRoutes.uploadModelResponses(projectSlug);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async ([files, modelNames]: [File[], string[]]) => {
@@ -52,8 +52,8 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       notifications.show({ title, message, color: 'green' });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug)) });
     },
     ...options,
   });

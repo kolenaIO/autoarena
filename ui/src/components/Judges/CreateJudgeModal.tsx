@@ -1,9 +1,7 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { Modal, Select, Stack, Text, TextInput, Transition } from '@mantine/core';
 import { useForm } from '@mantine/form';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useCreateJudge } from '../../hooks/useCreateJudge.ts';
-import { useJudges } from '../../hooks/useJudges.ts';
+import { useUrlState, useCreateJudge, useJudges } from '../../hooks';
 import { JudgeType, judgeTypeToHumanReadableName } from './types.ts';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';

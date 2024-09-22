@@ -10,14 +10,10 @@ import {
 import { useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
-import { useHeadToHeads } from '../../hooks/useHeadToHeads.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useSubmitHeadToHeadVote } from '../../hooks/useSubmitHeadToHeadVote.ts';
-import { pluralize } from '../../lib/string.ts';
+import { useHeadToHeads, useUrlState, useSubmitHeadToHeadVote, useModel, useAppRoutes } from '../../hooks';
+import { pluralize } from '../../lib';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
-import { useModel } from '../../hooks/useModel.ts';
-import { ROUTES } from '../../lib/routes.ts';
 import { ControlBar } from './ControlBar.tsx';
 
 type ShowMode = 'All' | 'With Votes' | 'Without Votes';
@@ -28,6 +24,7 @@ type Props = {
 };
 export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const { projectSlug = '' } = useUrlState();
+  const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();
   const [showVoteHistory, { toggle: toggleShowVoteHistory }] = useDisclosure(false);
   const { data: allHeadToHeads, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
@@ -158,7 +155,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
               <Text>
                 Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between {modelNames}
               </Text>
-              <Button onClick={() => navigate(ROUTES.leaderboard(projectSlug))}>View Leaderboard</Button>
+              <Button onClick={() => navigate(appRoutes.leaderboard(projectSlug))}>View Leaderboard</Button>
             </Stack>
           }
         />

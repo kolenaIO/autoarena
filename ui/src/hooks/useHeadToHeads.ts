@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
-import { useApiFetch } from './useApiFetch.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export type HeadToHeadHistoryItem = {
   judge_id: number;
@@ -8,7 +8,7 @@ export type HeadToHeadHistoryItem = {
   winner: string;
 };
 
-export type HeadToHead = {
+export type HeadToHeadItem = {
   prompt: string;
   response_a_id: number;
   response_a: string;
@@ -23,8 +23,9 @@ type Params = {
   modelBId: number;
 };
 export function useHeadToHeads({ projectSlug, modelAId, modelBId }: Params) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.getHeadToHeads(projectSlug);
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
+  const url = apiRoutes.getHeadToHeads(projectSlug);
   return useQuery({
     queryKey: [...urlAsQueryKey(url), modelAId, modelBId],
     queryFn: async () => {
@@ -37,7 +38,7 @@ export function useHeadToHeads({ projectSlug, modelAId, modelBId }: Params) {
       if (!response.ok) {
         throw new Error('Failed to fetch head-to-heads');
       }
-      const result: HeadToHead[] = await response.json();
+      const result: HeadToHeadItem[] = await response.json();
       return result;
     },
   });

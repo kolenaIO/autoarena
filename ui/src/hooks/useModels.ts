@@ -1,10 +1,6 @@
-import { API_ROUTES, urlAsQueryKey } from '../lib/routes.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { useApiFetch } from './useApiFetch.ts';
-
-export function getModelsQueryKey(projectSlug: string) {
-  return urlAsQueryKey(API_ROUTES.getModels(projectSlug));
-}
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export type Model = {
   id: number;
@@ -18,10 +14,11 @@ export type Model = {
 };
 
 export function useModels(projectSlug: string | undefined) {
-  const { apiFetch } = useApiFetch();
-  const url = API_ROUTES.getModels(projectSlug ?? '');
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
+  const url = apiRoutes.getModels(projectSlug ?? '');
   return useQueryWithErrorToast({
-    queryKey: getModelsQueryKey(projectSlug ?? ''),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
       const response = await apiFetch(url);
       if (!response.ok) {

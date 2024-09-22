@@ -7,11 +7,8 @@ import { createTheme, MantineProvider, Modal, Popover, Tooltip } from '@mantine/
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
-import { Auth0Provider } from '@auth0/auth0-react';
-import { Page, TAB_COMPARISON, TAB_JUDGES, TAB_LEADERBOARD } from './components/Page.tsx';
-import { PageNotFound } from './components/PageNotFound.tsx';
-import { getAppMode, useAppMode } from './hooks/useAppMode.ts';
-import { AUTH0 } from './lib/auth.ts';
+import { PageNotFound, Page, Tab } from './components';
+import { AppConfigContext, DEFAULT_APP_CONFIG } from './lib';
 
 const theme = createTheme({
   primaryColor: 'kolena',
@@ -42,37 +39,24 @@ const theme = createTheme({
 
 const queryClient = new QueryClient({});
 
-const pathPrefix = getAppMode().isCloudMode ? '/:tenant' : '';
 const router = createBrowserRouter([
-  { path: `${pathPrefix}/`, element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: `${pathPrefix}/project/:projectSlug`, element: <Page tab={TAB_LEADERBOARD} /> },
-  { path: `${pathPrefix}/project/:projectSlug/compare`, element: <Page tab={TAB_COMPARISON} /> },
-  { path: `${pathPrefix}/project/:projectSlug/judges`, element: <Page tab={TAB_JUDGES} /> },
+  { path: `/`, element: <Page tab={Tab.LEADERBOARD} /> },
+  { path: `/project/:projectSlug`, element: <Page tab={Tab.LEADERBOARD} /> },
+  { path: `/project/:projectSlug/compare`, element: <Page tab={Tab.COMPARISON} /> },
+  { path: `/project/:projectSlug/judges`, element: <Page tab={Tab.JUDGES} /> },
   { path: '*', element: <PageNotFound /> },
 ]);
 
 function App() {
-  const { isLocalMode } = useAppMode();
-  const AppComponent = (
+  return (
     <QueryClientProvider client={queryClient}>
       <MantineProvider forceColorScheme="light" defaultColorScheme="light" theme={theme}>
-        <Notifications />
-        <RouterProvider router={router} />
+        <AppConfigContext.Provider value={DEFAULT_APP_CONFIG}>
+          <Notifications />
+          <RouterProvider router={router} />
+        </AppConfigContext.Provider>
       </MantineProvider>
     </QueryClientProvider>
-  );
-  return isLocalMode ? (
-    AppComponent
-  ) : (
-    <Auth0Provider
-      domain={AUTH0.DOMAIN}
-      clientId={AUTH0.CLIENT_ID}
-      authorizationParams={{ redirect_uri: `${window.location.origin}/redirect`, audience: AUTH0.API_AUDIENCE }}
-      useRefreshTokens
-      cacheLocation="localstorage"
-    >
-      {AppComponent}
-    </Auth0Provider>
   );
 }
 

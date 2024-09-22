@@ -2,10 +2,7 @@ import { Checkbox, Group, Input, Modal, MultiSelect, Paper, Slider, Stack, Text 
 import { useForm } from '@mantine/form';
 import { useMemo } from 'react';
 import { IconEqual, IconMinus, IconX } from '@tabler/icons-react';
-import { useJudges } from '../../hooks/useJudges.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useHeadToHeadCount } from '../../hooks/useHeadToHeadCount.ts';
-import { useTriggerAutoJudge } from '../../hooks/useTriggerAutoJudge.ts';
+import { useJudges, useUrlState, useHeadToHeadCount, useTriggerAutoJudge } from '../../hooks';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 type Form = {

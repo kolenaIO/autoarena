@@ -1,12 +1,13 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
 import { Context, createContext } from 'react';
+import { JudgeType } from '../components';
 
 export type AppConfig = {
   baseApiUrl: string;
   basePath: string;
   apiFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   apiFetchEventSource: (input: RequestInfo, init: FetchEventSourceInit) => Promise<void>;
-  mode: 'local' | 'cloud'; // TODO: remove?
+  enabledJudges: JudgeType[];
 };
 
 export const DEFAULT_APP_CONFIG: AppConfig = {
@@ -14,7 +15,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   basePath: '',
   apiFetch: fetch,
   apiFetchEventSource: fetchEventSource,
-  mode: 'local',
+  enabledJudges: ['ollama', 'openai', 'anthropic', 'gemini', 'cohere', 'together', 'bedrock'],
 };
 
 export const AppConfigContext: Context<AppConfig> = createContext(DEFAULT_APP_CONFIG);

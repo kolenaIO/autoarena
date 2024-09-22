@@ -1,22 +1,11 @@
-import { Anchor, Group, Menu, Stack, Text, Tooltip } from '@mantine/core';
-import {
-  IconBeta,
-  IconBrandGithub,
-  IconBrandSlack,
-  IconBug,
-  IconHome,
-  IconLogout,
-  IconStack2Filled,
-} from '@tabler/icons-react';
+import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import { useContext } from 'react';
-import { AppConfigContext, ExternalUrls } from '../lib';
+import { ExternalUrls } from '../lib';
 import { useRoutes } from '../hooks';
 
 export function MainMenu() {
   const { appRoutes } = useRoutes();
-  const { mode } = useContext(AppConfigContext);
-  const isCloudMode = mode === 'cloud';
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
@@ -46,24 +35,6 @@ export function MainMenu() {
         <Anchor href={ExternalUrls.AUTOARENA_SLACK_COMMUNITY} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandSlack {...iconProps} />}>Slack Community</Menu.Item>
         </Anchor>
-        {isCloudMode && (
-          <>
-            <Menu.Divider />
-            <Menu.Item
-              leftSection={<IconLogout {...iconProps} />}
-              onClick={() => logout({ logoutParams: { returnTo: window.location.origin } })}
-            >
-              <Stack gap={0}>
-                <Text inherit>Sign Out</Text>
-                {user != null && (
-                  <Text size="xs" c="dimmed">
-                    {user.email}
-                  </Text>
-                )}
-              </Stack>
-            </Menu.Item>
-          </>
-        )}
       </Menu.Dropdown>
     </Menu>
   );

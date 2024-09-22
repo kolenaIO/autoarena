@@ -34,7 +34,7 @@ export default defineConfig({
           'react-dom': 'ReactDOM',
           'react-router-dom': 'react-router-dom',
           '@mantine/core': '@mantine/core',
-          'mantine/notifications': '@mantine/notifications',
+          '@mantine/notifications': '@mantine/notifications',
           '@mantine/hooks': '@mantine/hooks',
           '@mantine/form': '@mantine/form',
           '@mantine/charts': '@mantine/charts',

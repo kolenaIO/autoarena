@@ -1,5 +1,4 @@
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { useRoutes } from './useRoutes.ts';
 
@@ -10,7 +9,7 @@ export type Project = {
 };
 
 export function useProjects() {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes } = useRoutes();
   return useQueryWithErrorToast({
     queryKey: urlAsQueryKey(apiRoutes.getProjects()),

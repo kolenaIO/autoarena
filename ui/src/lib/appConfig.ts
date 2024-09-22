@@ -1,5 +1,5 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
-import { Context, createContext, ReactNode } from 'react';
+import { Context, createContext, ReactNode, useContext } from 'react';
 import { JudgeType } from '../components';
 
 export type AppConfig = {
@@ -21,3 +21,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
 };
 
 export const AppConfigContext: Context<AppConfig> = createContext(DEFAULT_APP_CONFIG);
+
+export function useAppConfig() {
+  return useContext(AppConfigContext);
+}

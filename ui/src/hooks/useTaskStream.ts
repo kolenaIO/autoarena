@@ -1,6 +1,5 @@
 import { useQuery, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Task } from './useTasks.ts';
 import { useRoutes } from './useRoutes.ts';
 
@@ -10,7 +9,7 @@ type Params = {
   options?: Partial<UseQueryOptions<Task, Error>>;
 };
 export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQueryResult<Task, Error> {
-  const { apiFetchEventSource } = useContext(AppConfigContext);
+  const { apiFetchEventSource } = useAppConfig();
   const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.getTaskStream(projectSlug, task.id);

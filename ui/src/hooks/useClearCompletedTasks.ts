@@ -1,6 +1,5 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useRoutes } from './useRoutes.ts';
 
 type Params = {
@@ -8,7 +7,7 @@ type Params = {
   options?: UseMutationOptions<void, Error, void>;
 };
 export function useClearCompletedTasks({ projectSlug, options = {} }: Params) {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.deleteCompletedTasks(projectSlug ?? '');

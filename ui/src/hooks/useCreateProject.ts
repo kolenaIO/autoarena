@@ -1,8 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Project } from './useProjects.ts';
 import { useRoutes } from './useRoutes.ts';
 
@@ -13,7 +12,7 @@ type CreateProjectRequest = {
 export function useCreateProject({
   options,
 }: { options?: UseMutationOptions<Project, Error, CreateProjectRequest> } = {}) {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes, appRoutes } = useRoutes();
   const navigate = useNavigate();
   const queryClient = useQueryClient();

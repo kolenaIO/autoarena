@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
-import { useContext } from 'react';
 import { JudgeType } from '../components';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useRoutes } from './useRoutes.ts';
 
 type Params = {
@@ -9,7 +8,7 @@ type Params = {
   judgeType?: JudgeType;
 };
 export function useCanAccessJudgeType({ projectSlug, judgeType }: Params) {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.checkCanAccess(projectSlug, judgeType ?? 'unrecognized');
   return useQuery({

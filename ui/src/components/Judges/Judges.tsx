@@ -1,8 +1,8 @@
 import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
-import { ReactNode, useContext } from 'react';
+import { ReactNode } from 'react';
 import { useJudges, useUrlState } from '../../hooks';
-import { AppConfigContext, ExternalUrls } from '../../lib';
+import { ExternalUrls, useAppConfig } from '../../lib';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -12,7 +12,7 @@ import { JudgeType } from './types.ts';
 export function Judges() {
   const { projectSlug } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
-  const { enabledJudges } = useContext(AppConfigContext);
+  const { enabledJudges } = useAppConfig();
 
   const availableJudges: { [judgeType in JudgeType]: () => ReactNode } = {
     custom: CreateFineTunedJudgeCard,

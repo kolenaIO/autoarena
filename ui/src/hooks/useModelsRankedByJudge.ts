@@ -1,11 +1,10 @@
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { Model } from './useModels.ts';
 import { useRoutes } from './useRoutes.ts';
 
 export function useModelsRankedByJudge(projectSlug: string | undefined, judgeId: number | undefined) {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.getModelsRankedByJudge(projectSlug ?? '', judgeId ?? -1);
   return useQueryWithErrorToast({

@@ -1,9 +1,9 @@
-import { useContext, useMemo } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { useMemo } from 'react';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useModels } from './useModels.ts';
 
 export function useAllModelActionsQueryKey(projectSlug?: string) {
-  const { baseApiUrl } = useContext(AppConfigContext);
+  const { baseApiUrl } = useAppConfig();
   return urlAsQueryKey(`${baseApiUrl}/project/${projectSlug ?? ''}/model`, undefined);
 }
 

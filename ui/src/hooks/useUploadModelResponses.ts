@@ -1,8 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Model } from './useModels.ts';
 import { useRoutes } from './useRoutes.ts';
 
@@ -11,7 +10,7 @@ type Params = {
   options?: UseMutationOptions<Model[], Error, [File[], string[]]>;
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.uploadModelResponses(projectSlug);

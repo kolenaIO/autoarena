@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { useContext } from 'react';
-import { AppConfigContext, urlAsQueryKey } from '../lib';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useRoutes } from './useRoutes.ts';
 
 export type ModelResponse = {
@@ -13,7 +12,7 @@ type Params = {
   modelId?: number;
 };
 export function useModelResponses({ projectSlug, modelId }: Params) {
-  const { apiFetch } = useContext(AppConfigContext);
+  const { apiFetch } = useAppConfig();
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.getModelResponses(projectSlug ?? '', modelId ?? -1);
   return useQuery({

@@ -14,7 +14,7 @@ export function Judges() {
   const { data: judges } = useJudges(projectSlug);
   const { enabledJudges } = useContext(AppConfigContext);
 
-  const availableJudges: { [judgeType: JudgeType]: () => ReactNode } = {
+  const availableJudges: { [judgeType in JudgeType]: () => ReactNode } = {
     custom: CreateFineTunedJudgeCard,
     openai: CreateOpenAIJudgeCard,
     anthropic: CreateAnthropicJudgeCard,
@@ -23,6 +23,8 @@ export function Judges() {
     gemini: CreateGeminiJudgeCard,
     together: CreateTogetherAIJudgeCard,
     bedrock: CreateBedrockJudgeCard,
+    human: () => undefined,
+    unrecognized: () => undefined,
   };
 
   return (

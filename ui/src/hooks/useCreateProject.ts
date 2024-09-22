@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getProjectsQueryKey, Project } from './useProjects.ts';
+import { Project } from './useProjects.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type CreateProjectRequest = {
@@ -41,7 +41,7 @@ export function useCreateProject({
       navigate(appRoutes.leaderboard(project.slug));
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey(apiRoutes) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getProjects()) });
     },
     ...options,
   });

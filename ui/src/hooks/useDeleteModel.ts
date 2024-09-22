@@ -2,9 +2,8 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getModelsQueryKey } from './useModels.ts';
-import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 import { useRoutes } from './useRoutes.ts';
+import { useAllModelActionsQueryKey } from './useModel.ts';
 
 type Params = {
   projectSlug: string;
@@ -15,6 +14,7 @@ export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
   const { apiFetch } = useContext(AppConfigContext);
   const { apiRoutes } = useRoutes();
   const queryClient = useQueryClient();
+  const allModelActionsQueryKey = useAllModelActionsQueryKey(projectSlug);
   const url = apiRoutes.deleteModel(projectSlug, modelId);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'DELETE'),
@@ -39,8 +39,8 @@ export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(apiRoutes, projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
+      queryClient.invalidateQueries({ queryKey: allModelActionsQueryKey }); // invalidate all
     },
     ...options,
   });

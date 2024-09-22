@@ -2,8 +2,6 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getJudgesQueryKey } from './useJudges.ts';
-import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type Params = {
@@ -32,8 +30,9 @@ export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(apiRoutes, projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug)) });
+      const h2hStatsKey = urlAsQueryKey(apiRoutes.getHeadToHeadStats(projectSlug, -1), undefined);
+      queryClient.invalidateQueries({ queryKey: h2hStatsKey.slice(0, h2hStatsKey.length - 1) }); // invalidate all
     },
     ...options,
   });

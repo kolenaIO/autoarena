@@ -1,7 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getModelsQueryKey } from './useModels.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type HeadToHeadVoteRequest = {
@@ -33,7 +32,7 @@ export function useSubmitHeadToHeadVote({ projectSlug, options }: Params) {
       await response.json();
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
     },
     ...options,
   });

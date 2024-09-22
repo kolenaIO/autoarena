@@ -1,11 +1,7 @@
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { ApiRoutes, useRoutes } from './useRoutes.ts';
-
-export function getModelsQueryKey(apiRoutes: ApiRoutes, projectSlug: string) {
-  return urlAsQueryKey(apiRoutes.getModels(projectSlug));
-}
+import { useRoutes } from './useRoutes.ts';
 
 export type Model = {
   id: number;
@@ -23,7 +19,7 @@ export function useModels(projectSlug: string | undefined) {
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.getModels(projectSlug ?? '');
   return useQueryWithErrorToast({
-    queryKey: getModelsQueryKey(apiRoutes, projectSlug ?? ''),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
       const response = await apiFetch(url);
       if (!response.ok) {

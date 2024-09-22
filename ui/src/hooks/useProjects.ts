@@ -1,11 +1,7 @@
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { ApiRoutes, useRoutes } from './useRoutes.ts';
-
-export function getProjectsQueryKey(apiRoutes: ApiRoutes) {
-  return urlAsQueryKey(apiRoutes.getProjects());
-}
+import { useRoutes } from './useRoutes.ts';
 
 export type Project = {
   slug: string;
@@ -17,7 +13,7 @@ export function useProjects() {
   const { apiFetch } = useContext(AppConfigContext);
   const { apiRoutes } = useRoutes();
   return useQueryWithErrorToast({
-    queryKey: getProjectsQueryKey(apiRoutes),
+    queryKey: urlAsQueryKey(apiRoutes.getProjects()),
     queryFn: async () => {
       const response = await apiFetch(apiRoutes.getProjects());
       if (!response.ok) {

@@ -2,7 +2,6 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getTasksQueryKey } from './useTasks.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type CreateFineTuningTaskRequest = {
@@ -38,7 +37,7 @@ export function useCreateFineTuningTask({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug)) });
     },
     ...options,
   });

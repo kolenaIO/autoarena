@@ -5,16 +5,14 @@ import moment from 'moment';
 import { useEffect, useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import {
-  getTasksQueryKey,
   useTasks,
   useUrlState,
-  getModelsQueryKey,
-  getJudgesQueryKey,
   useHasActiveTasksStream,
   useClearCompletedTasks,
   useRoutes,
+  useAllModelActionsQueryKey,
 } from '../../hooks';
-import { pluralize, taskIsDone } from '../../lib';
+import { pluralize, taskIsDone, urlAsQueryKey } from '../../lib';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
@@ -27,21 +25,21 @@ export function TasksDrawer() {
   const { data: hasActiveTasks = false } = useHasActiveTasksStream(projectSlug);
   const { data: tasks, isLoading: isLoadingTasks } = useTasks({ projectSlug });
   const { mutate: clearCompletedTasks } = useClearCompletedTasks({ projectSlug });
+  const allModelActionsQueryKey = useAllModelActionsQueryKey(projectSlug);
 
   const tasksSorted = useMemo(() => (tasks ?? []).sort((a, b) => moment(b.created).diff(moment(a.created))), [tasks]);
   const tasksInProgress = useMemo(() => tasksSorted.filter(({ status }) => !taskIsDone(status)), [tasksSorted]);
   const tasksCompleted = useMemo(() => tasksSorted.filter(({ status }) => taskIsDone(status)), [tasksSorted]);
 
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getTasksQueryKey(apiRoutes, projectSlug ?? '') });
+    queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug ?? '')) });
   }, [isDrawerOpen]);
 
   // reload models and any related queries if any tasks are newly completed
   useEffect(() => {
-    queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug ?? '') });
-    queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug ?? '') });
-    // TODO: fix this
-    // queryClient.invalidateQueries({ queryKey: [getProjectApiUrl(apiRoutes, projectSlug ?? ''), '/model'] });
+    queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug ?? '')) });
+    queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug ?? '')) });
+    queryClient.invalidateQueries({ queryKey: allModelActionsQueryKey });
   }, [tasksCompleted.length]);
 
   return (

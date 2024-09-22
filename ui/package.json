@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc --build && vite build",
-    "build:lib": "tsc --build && vite build --config vite.lib.config.ts --mode cloud",
+    "build:lib": "tsc --build && vite build --config vite.lib.config.ts",
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",

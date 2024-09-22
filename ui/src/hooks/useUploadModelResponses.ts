@@ -3,8 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getModelsQueryKey, Model } from './useModels.ts';
-import { getTasksQueryKey } from './useTasks.ts';
+import { Model } from './useModels.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type Params = {
@@ -54,8 +53,8 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       notifications.show({ title, message, color: 'green' });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(apiRoutes, projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug)) });
     },
     ...options,
   });

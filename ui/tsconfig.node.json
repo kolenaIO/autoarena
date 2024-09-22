@@ -8,8 +8,6 @@
     "allowSyntheticDefaultImports": true,
     "strict": true,
     "noEmit": true,
-    "declaration": true,
-    "declarationDir": "./types"
   },
   "include": ["vite.config.ts"]
 }

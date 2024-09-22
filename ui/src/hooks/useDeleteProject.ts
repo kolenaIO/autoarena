@@ -2,7 +2,6 @@ import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react
 import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getProjectsQueryKey } from './useProjects.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type Params = {
@@ -30,7 +29,7 @@ export function useDeleteProject({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getProjectsQueryKey(apiRoutes) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getProjects()) });
     },
     ...options,
   });

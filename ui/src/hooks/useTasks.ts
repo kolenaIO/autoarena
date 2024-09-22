@@ -1,11 +1,7 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 import { useContext } from 'react';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { ApiRoutes, useRoutes } from './useRoutes.ts';
-
-export function getTasksQueryKey(apiRoutes: ApiRoutes, projectSlug: string) {
-  return urlAsQueryKey(apiRoutes.getTasks(projectSlug));
-}
+import { useRoutes } from './useRoutes.ts';
 
 export type Task = {
   id: number;
@@ -25,7 +21,7 @@ export function useTasks({ projectSlug, options = {} }: Params) {
   const { apiRoutes } = useRoutes();
   const url = apiRoutes.getTasks(projectSlug ?? '');
   return useQuery({
-    queryKey: getTasksQueryKey(apiRoutes, projectSlug ?? ''),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
       const response = await apiFetch(url);
       if (!response.ok) {

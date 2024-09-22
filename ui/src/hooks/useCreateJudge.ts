@@ -3,7 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { useContext } from 'react';
 import { JudgeType } from '../components';
 import { AppConfigContext, urlAsQueryKey } from '../lib';
-import { getJudgesQueryKey, Judge } from './useJudges.ts';
+import { Judge } from './useJudges.ts';
 import { useRoutes } from './useRoutes.ts';
 
 type CreateJudgeRequest = {
@@ -51,7 +51,7 @@ export function useCreateJudge({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(apiRoutes, projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug)) });
     },
     ...options,
   });

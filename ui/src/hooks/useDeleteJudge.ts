@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { urlAsQueryKey, useAppConfig } from '../lib';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -10,7 +10,7 @@ type Params = {
 };
 export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.deleteJudge(projectSlug, judgeId);
   return useMutation({

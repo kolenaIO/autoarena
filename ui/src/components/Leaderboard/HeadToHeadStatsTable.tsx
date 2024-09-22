@@ -8,7 +8,7 @@ import {
   useUrlState,
   useModelHeadToHeadStatsByJudge,
   usePagination,
-  useRoutes,
+  useAppRoutes,
 } from '../../hooks';
 
 type H2hStatsRecord = ModelHeadToHeadStats & {
@@ -51,7 +51,7 @@ type Props = {
 };
 export function HeadToHeadStatsTable({ modelId }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId });
 

@@ -1,10 +1,10 @@
 import { useQuery, useQueryClient, UseQueryResult } from '@tanstack/react-query';
 import { urlAsQueryKey, useAppConfig } from '../lib';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export function useHasActiveTasksStream(projectSlug?: string): UseQueryResult<boolean, Error> {
   const { apiFetchEventSource } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.getHasActiveTasksStream(projectSlug ?? '');
   const queryKey = urlAsQueryKey(url);

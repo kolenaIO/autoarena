@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { notifications } from '@mantine/notifications';
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Project } from './useProjects.ts';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type CreateProjectRequest = {
   name: string;
@@ -13,7 +13,7 @@ export function useCreateProject({
   options,
 }: { options?: UseMutationOptions<Project, Error, CreateProjectRequest> } = {}) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes, appRoutes } = useRoutes();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const url = apiRoutes.createProject();

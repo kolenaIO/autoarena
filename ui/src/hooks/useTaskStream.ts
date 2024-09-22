@@ -1,7 +1,7 @@
 import { useQuery, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Task } from './useTasks.ts';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -10,7 +10,7 @@ type Params = {
 };
 export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQueryResult<Task, Error> {
   const { apiFetchEventSource } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.getTaskStream(projectSlug, task.id);
   const queryKey = urlAsQueryKey(url);

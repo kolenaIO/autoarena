@@ -3,7 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Model } from './useModels.ts';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -11,7 +11,7 @@ type Params = {
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.uploadModelResponses(projectSlug);
   return useMutation({

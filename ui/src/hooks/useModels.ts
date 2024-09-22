@@ -1,6 +1,6 @@
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export type Model = {
   id: number;
@@ -15,7 +15,7 @@ export type Model = {
 
 export function useModels(projectSlug: string | undefined) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const url = apiRoutes.getModels(projectSlug ?? '');
   return useQueryWithErrorToast({
     queryKey: urlAsQueryKey(url),

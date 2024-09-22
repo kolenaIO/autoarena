@@ -9,7 +9,7 @@ import {
   useUrlState,
   useTriggerModelAutoJudge,
   useDownloadFile,
-  useRoutes,
+  useAppRoutes,
 } from '../../hooks';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
@@ -20,7 +20,7 @@ type Props = {
 };
 export function ExpandedModelDetails({ model }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
-  const { apiRoutes, appRoutes } = useRoutes();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({
     projectSlug,
     modelId: model.id,

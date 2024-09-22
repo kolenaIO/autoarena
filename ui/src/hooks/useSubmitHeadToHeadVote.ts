@@ -1,6 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { urlAsQueryKey, useAppConfig } from '../lib';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type HeadToHeadVoteRequest = {
   response_a_id: number;
@@ -14,7 +14,7 @@ type Params = {
 };
 export function useSubmitHeadToHeadVote({ projectSlug, options }: Params) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.submitHeadToHeadVote(projectSlug);
   return useMutation({

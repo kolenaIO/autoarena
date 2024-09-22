@@ -3,7 +3,7 @@ import { IconCrown, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
 import { notifications } from '@mantine/notifications';
-import { useProject, useRoutes, useUrlState } from '../hooks';
+import { useProject, useAppRoutes, useUrlState } from '../hooks';
 import { HeadToHead } from './HeadToHead';
 import { Leaderboard } from './Leaderboard';
 import { Judges } from './Judges';
@@ -18,7 +18,7 @@ type Props = {
 };
 export function Page({ tab }: Props) {
   const { projectSlug } = useUrlState();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const { data: project, isLoading: isLoadingProject } = useProject(projectSlug);
   const navigate = useNavigate();
 

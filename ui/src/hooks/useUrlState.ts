@@ -1,9 +1,9 @@
 import { useNavigate, useParams, useSearchParams } from 'react-router-dom';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export function useUrlState() {
   const { projectSlug: projectSlugFromUrl } = useParams();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 

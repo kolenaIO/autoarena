@@ -2,7 +2,7 @@ import { Code, Modal, Select, Stack, Text } from '@mantine/core';
 import { useMemo, useState } from 'react';
 import moment from 'moment';
 import { Link } from 'react-router-dom';
-import { useUrlState, useCreateFineTuningTask, useProject, useJudges, useRoutes } from '../../hooks';
+import { useUrlState, useCreateFineTuningTask, useProject, useJudges, useAppRoutes } from '../../hooks';
 import { pluralize } from '../../lib';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 import { ConfigureSystemPromptCollapse } from './ConfigureSystemPromptCollapse.tsx';
@@ -15,7 +15,7 @@ type Props = {
 };
 export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
   const { projectSlug = '' } = useUrlState();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const { mutate: createFineTuningTask } = useCreateFineTuningTask({ projectSlug });
   const { data: project } = useProject(projectSlug);
   const { data: judges } = useJudges(projectSlug);

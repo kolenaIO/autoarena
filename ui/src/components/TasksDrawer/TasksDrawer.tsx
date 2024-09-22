@@ -9,7 +9,7 @@ import {
   useUrlState,
   useHasActiveTasksStream,
   useClearCompletedTasks,
-  useRoutes,
+  useAppRoutes,
   useAllModelActionsQueryKey,
 } from '../../hooks';
 import { pluralize, taskIsDone, urlAsQueryKey } from '../../lib';
@@ -18,7 +18,7 @@ import { TaskAccordionItem } from './TaskAccordionItem.tsx';
 
 export function TasksDrawer() {
   const { projectSlug } = useUrlState();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const [isDrawerOpen, { toggle: toggleDrawer, close: closeDrawer }] = useDisclosure(false);
   const queryClient = useQueryClient();
   const [isCompletedTasksOpen, { toggle: toggleCompletedTasks, close: closeCompletedTasks }] = useDisclosure(false);

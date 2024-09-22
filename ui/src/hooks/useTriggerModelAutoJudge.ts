@@ -2,7 +2,7 @@ import { useMutation, UseMutationOptions } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { taskStatusToColor } from '../lib';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -11,7 +11,7 @@ type Params = {
 };
 export function useTriggerModelAutoJudge({ projectSlug, modelId, options = {} }: Params) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const url = apiRoutes.triggerModelAutoJudge(projectSlug, modelId ?? -1);
   return useMutation({
     mutationKey: urlAsQueryKey(url, 'POST'),

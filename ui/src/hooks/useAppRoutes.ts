@@ -1,8 +1,7 @@
 import { JudgeType } from '../components';
 import { useAppConfig } from '../lib';
 
-// TODO: should this be part of AppConfig itself?
-export function useRoutes() {
+export function useAppRoutes() {
   const { baseApiUrl, basePath } = useAppConfig();
 
   const appRoutes = {
@@ -55,6 +54,3 @@ export function useRoutes() {
 
   return { appRoutes, apiRoutes };
 }
-
-export type ApiRoutes = ReturnType<typeof useRoutes>['apiRoutes'];
-export type AppRoutes = ReturnType<typeof useRoutes>['appRoutes'];

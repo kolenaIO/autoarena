@@ -2,11 +2,11 @@ import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
 import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { ExternalUrls, useAppConfig } from '../lib';
-import { useRoutes } from '../hooks';
+import { useAppRoutes } from '../hooks';
 
 export function MainMenu() {
   const { menuExtras } = useAppConfig();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (

@@ -1,13 +1,13 @@
 import { Group, Select } from '@mantine/core';
 import { useMemo } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useProjects, useUrlState, useProject, useRoutes } from '../hooks';
+import { useProjects, useUrlState, useProject, useAppRoutes } from '../hooks';
 import { urlAsQueryKey } from '../lib';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
 
 export function ProjectSelect() {
   const { projectSlug, setProjectSlug } = useUrlState();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const { data: projects } = useProjects();
   const { data: currentProject } = useProject(projectSlug);

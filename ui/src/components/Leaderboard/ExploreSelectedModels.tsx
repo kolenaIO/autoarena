@@ -1,6 +1,6 @@
 import { Button, Card, Portal, Stack, Text } from '@mantine/core';
 import { useNavigate } from 'react-router-dom';
-import { useRoutes, useUrlState } from '../../hooks';
+import { useAppRoutes, useUrlState } from '../../hooks';
 import { RankedModel } from './types.ts';
 
 type Props = {
@@ -8,7 +8,7 @@ type Props = {
 };
 export function ExploreSelectedModels({ selectedModels }: Props) {
   const { projectSlug } = useUrlState();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();
 
   function handleGoCompare() {

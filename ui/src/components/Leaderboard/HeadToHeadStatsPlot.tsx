@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react';
 import { prop, sortBy } from 'ramda';
 import { IconCactus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useUrlState, useModelHeadToHeadStatsByJudge, useJudge, useRoutes } from '../../hooks';
+import { useUrlState, useModelHeadToHeadStatsByJudge, useJudge, useAppRoutes } from '../../hooks';
 import { NonIdealState } from '../NonIdealState.tsx';
 
 type ChartRecord = {
@@ -21,7 +21,7 @@ type Props = {
 };
 export function HeadToHeadStatsPlot({ modelId }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();
   const { data: judge } = useJudge(projectSlug, judgeId);
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId });

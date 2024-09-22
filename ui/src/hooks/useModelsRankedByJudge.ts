@@ -1,11 +1,11 @@
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
 import { Model } from './useModels.ts';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export function useModelsRankedByJudge(projectSlug: string | undefined, judgeId: number | undefined) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const url = apiRoutes.getModelsRankedByJudge(projectSlug ?? '', judgeId ?? -1);
   return useQueryWithErrorToast({
     queryKey: urlAsQueryKey(url),

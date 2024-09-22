@@ -14,7 +14,7 @@ import {
   useOnboardingGuideDismissed,
   useProjects,
   useProject,
-  useRoutes,
+  useAppRoutes,
 } from '../hooks';
 import { AddModelButton } from './AddModelButton.tsx';
 import { CreateProjectButton } from './CreateProjectButton.tsx';
@@ -25,7 +25,7 @@ type Props = {
 };
 export function OnboardingTimeline({ dismissable = true }: Props) {
   const { projectSlug } = useUrlState();
-  const { appRoutes } = useRoutes();
+  const { appRoutes } = useAppRoutes();
   const { data: projects } = useProjects();
   const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectSlug);
   const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);

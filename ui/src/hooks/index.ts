@@ -1,3 +1,4 @@
+export * from './useAppRoutes.ts';
 export * from './useCanAccessJudgeType';
 export * from './useClearCompletedTasks';
 export * from './useCreateFineTuningTask';
@@ -25,7 +26,6 @@ export * from './useProject';
 export * from './useProjects';
 export * from './useQueryWithErrorToast';
 export * from './useRecomputeLeaderboard';
-export * from './useRoutes';
 export * from './useSubmitHeadToHeadVote';
 export * from './useTasks';
 export * from './useTaskStream';

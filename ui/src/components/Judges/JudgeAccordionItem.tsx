@@ -3,7 +3,7 @@ import { Accordion, Button, Checkbox, Collapse, Group, Loader, Pill, Stack, Text
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
 import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
-import { Judge, useUpdateJudge, useUrlState, useDownloadFile, useRoutes } from '../../hooks';
+import { Judge, useUpdateJudge, useUrlState, useDownloadFile, useAppRoutes } from '../../hooks';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { pluralize } from '../../lib';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
@@ -17,7 +17,7 @@ type Props = {
 export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
   const { projectSlug = '' } = useUrlState();
-  const { apiRoutes, appRoutes } = useRoutes();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);

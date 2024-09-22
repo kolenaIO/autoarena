@@ -3,7 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { JudgeType } from '../components';
 import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Judge } from './useJudges.ts';
-import { useRoutes } from './useRoutes.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type CreateJudgeRequest = {
   judge_type: JudgeType;
@@ -19,7 +19,7 @@ type Params = {
 };
 export function useCreateJudge({ projectSlug, options = {} }: Params) {
   const { apiFetch } = useAppConfig();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
   const url = apiRoutes.createJudge(projectSlug);
   return useMutation({

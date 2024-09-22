@@ -1,10 +1,12 @@
 import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
 import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
-import { ExternalUrls } from '../lib';
+import { useContext } from 'react';
+import { AppConfigContext, ExternalUrls } from '../lib';
 import { useRoutes } from '../hooks';
 
 export function MainMenu() {
+  const { menuExtras } = useContext(AppConfigContext);
   const { appRoutes } = useRoutes();
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
@@ -35,6 +37,7 @@ export function MainMenu() {
         <Anchor href={ExternalUrls.AUTOARENA_SLACK_COMMUNITY} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandSlack {...iconProps} />}>Slack Community</Menu.Item>
         </Anchor>
+        {menuExtras}
       </Menu.Dropdown>
     </Menu>
   );

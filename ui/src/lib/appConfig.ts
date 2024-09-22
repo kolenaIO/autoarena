@@ -1,5 +1,5 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
-import { Context, createContext } from 'react';
+import { Context, createContext, ReactNode } from 'react';
 import { JudgeType } from '../components';
 
 export type AppConfig = {
@@ -8,6 +8,7 @@ export type AppConfig = {
   apiFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   apiFetchEventSource: (input: RequestInfo, init: FetchEventSourceInit) => Promise<void>;
   enabledJudges: JudgeType[];
+  menuExtras: ReactNode[];
 };
 
 export const DEFAULT_APP_CONFIG: AppConfig = {
@@ -15,7 +16,8 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   basePath: '',
   apiFetch: fetch,
   apiFetchEventSource: fetchEventSource,
-  enabledJudges: ['ollama', 'openai', 'anthropic', 'gemini', 'cohere', 'together', 'bedrock'],
+  enabledJudges: ['openai', 'anthropic', 'cohere', 'ollama', 'gemini', 'together', 'bedrock'],
+  menuExtras: [],
 };
 
 export const AppConfigContext: Context<AppConfig> = createContext(DEFAULT_APP_CONFIG);

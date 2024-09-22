@@ -17,7 +17,7 @@ type Props = {
 export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
   const { projectSlug = '' } = useUrlState();
-  const { apiRoutes } = useRoutes();
+  const { apiRoutes, appRoutes } = useRoutes();
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
@@ -129,7 +129,7 @@ export function JudgeAccordionItem({ judge }: Props) {
             <Group justify="space-between">
               <Text size="sm">
                 Visit the{' '}
-                <Link to={`/project/${projectSlug}/compare`}>
+                <Link to={appRoutes.compare(projectSlug)} style={{ textDecoration: 'none' }}>
                   <Text span c="kolena.8">
                     Head-to-Head
                   </Text>

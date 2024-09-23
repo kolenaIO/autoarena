@@ -20,7 +20,7 @@ class AnthropicJudge(AutomatedJudge):
         try:
             client = anthropic.Client(api_key=KeyManagerProvider.get().get(AnthropicJudge.API_KEY_NAME))
             client.post("/v1/messages", cast_to=object)
-        except (anthropic.AuthenticationError, TypeError) as e:
+        except (anthropic.AuthenticationError, TypeError, KeyError) as e:
             raise e
         except Exception:
             pass

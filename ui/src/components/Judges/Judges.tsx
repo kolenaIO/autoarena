@@ -41,7 +41,10 @@ export function Judges() {
 
         <Title order={5}>Configure Automated Judge</Title>
         <SimpleGrid cols={3} w={1080}>
-          {enabledJudges.map(judgeType => availableJudges[judgeType]?.())}
+          {enabledJudges.map((judgeType, i) => {
+            const CardComponent = availableJudges[judgeType];
+            return <CardComponent key={i} />;
+          })}
         </SimpleGrid>
       </Stack>
     </Center>

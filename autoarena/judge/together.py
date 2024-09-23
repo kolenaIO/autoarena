@@ -4,7 +4,7 @@ import together
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import rate_limit, get_user_prompt
-from autoarena.store.environment import KeyManagerProvider
+from autoarena.store.key_manager import KeyManagerProvider
 
 
 class TogetherJudge(AutomatedJudge):

@@ -15,7 +15,7 @@ from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
 from autoarena.judge.wrapper import retrying_wrapper, cleaning_wrapper, ab_shuffling_wrapper, JudgeWrapper
 from autoarena.service.judge import JudgeService
-from autoarena.store.environment import KeyManager, KeyManagerProvider
+from autoarena.store.key_manager import KeyManager, KeyManagerProvider
 from tests.integration.judge.conftest import (
     unset_environment_variable,
     temporary_environment_variable,

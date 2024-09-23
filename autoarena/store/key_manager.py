@@ -23,8 +23,11 @@ class KeyManagerProvider:
     @staticmethod
     @contextmanager
     def set(key_manager: KeyManager) -> Iterator[KeyManager]:
-        _KEY_MANAGER.set(key_manager)
-        yield key_manager
+        original = _KEY_MANAGER.set(key_manager)
+        try:
+            yield key_manager
+        finally:
+            _KEY_MANAGER.reset(original)
 
     @staticmethod
     def get() -> KeyManager:

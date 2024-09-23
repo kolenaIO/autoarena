@@ -7,7 +7,7 @@ from pytimeparse.timeparse import timeparse
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, rate_limit
-from autoarena.store.environment import KeyManagerProvider
+from autoarena.store.key_manager import KeyManagerProvider
 
 
 class OpenAIJudge(AutomatedJudge):

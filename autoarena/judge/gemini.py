@@ -5,7 +5,7 @@ from loguru import logger
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
-from autoarena.store.environment import KeyManagerProvider
+from autoarena.store.key_manager import KeyManagerProvider
 
 
 class GeminiJudge(AutomatedJudge):

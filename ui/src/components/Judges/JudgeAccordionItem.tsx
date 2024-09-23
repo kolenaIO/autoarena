@@ -1,13 +1,11 @@
 import { useState } from 'react';
-import { Accordion, Button, Checkbox, Collapse, Group, Pill, Stack, Text, Tooltip } from '@mantine/core';
+import { Accordion, Button, Checkbox, Collapse, Group, Loader, Pill, Stack, Text, Tooltip } from '@mantine/core';
 import { Link } from 'react-router-dom';
 import { useDisclosure } from '@mantine/hooks';
-import { IconGavel } from '@tabler/icons-react';
-import { Judge } from '../../hooks/useJudges.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useUpdateJudge } from '../../hooks/useUpdateJudge.ts';
+import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
+import { Judge, useUpdateJudge, useUrlState, useDownloadFile, useAppRoutes } from '../../hooks';
 import { MarkdownContent } from '../MarkdownContent.tsx';
-import { pluralize } from '../../lib/string.ts';
+import { pluralize } from '../../lib';
 import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
@@ -19,17 +17,35 @@ type Props = {
 export function JudgeAccordionItem({ judge }: Props) {
   const { id, judge_type, name, description, enabled } = judge;
   const { projectSlug = '' } = useUrlState();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const [isEnabled, setIsEnabled] = useState(enabled);
   const { mutate: updateJudge } = useUpdateJudge({ projectSlug, judgeId: id });
   const [showSystemPrompt, { toggle: toggleShowSystemPrompt }] = useDisclosure(false);
   const [showAutoJudgeModal, { toggle: toggleShowAutoJudgeModal, close: closeShowAutoJudgeModal }] =
     useDisclosure(false);
+  const { mutate: downloadVotes, isPending: isDownloadingVotes } = useDownloadFile(
+    apiRoutes.downloadJudgeVotesCsv(projectSlug, judge.id),
+    `${judge.name}-judge-votes.csv`
+  );
 
   function handleToggleEnabled() {
     updateJudge({ enabled: !enabled });
     setIsEnabled(prev => !prev);
   }
 
+  const canDownload = judge.n_votes > 0;
+  const DownloadVotesComponent = (
+    <Button
+      variant="light"
+      color="teal"
+      size="xs"
+      leftSection={isDownloadingVotes ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
+      disabled={!canDownload}
+      onClick={() => downloadVotes()}
+    >
+      Download Votes CSV
+    </Button>
+  );
   const IconComponent = judgeTypeIconComponent(judge_type);
   return (
     <Accordion.Item key={id} value={`${judge_type}-${id}`}>
@@ -53,10 +69,15 @@ export function JudgeAccordionItem({ judge }: Props) {
             </Text>
           </Stack>
           <Group>
-            {isEnabled && (
-              <Pill bg="ice.0" c="gray.8">
+            <Text c="dimmed" size="xs" fs="italic">
+              {pluralize(judge.n_votes, 'vote')}
+            </Text>
+            {isEnabled ? (
+              <Pill bg="ice.0" c="ice.9">
                 Enabled
               </Pill>
+            ) : (
+              <Pill c="gray">Disabled</Pill>
             )}
           </Group>
         </Group>
@@ -73,12 +94,16 @@ export function JudgeAccordionItem({ judge }: Props) {
                   onChange={() => handleToggleEnabled()}
                 />
                 <Group>
-                  <Text c="dimmed" size="xs" fs="italic">
-                    {pluralize(judge.n_votes, 'vote')} submitted
-                  </Text>
-                  <Button variant="light" color="gray" size="xs" onClick={toggleShowSystemPrompt}>
+                  <Button
+                    variant="light"
+                    color="gray"
+                    size="xs"
+                    leftSection={<IconPrompt size={20} />}
+                    onClick={toggleShowSystemPrompt}
+                  >
                     {showSystemPrompt ? 'Hide' : 'Show'} System Prompt
                   </Button>
+                  {DownloadVotesComponent}
                   <Tooltip label="Judge must be enabled" disabled={judge.enabled}>
                     <Button
                       variant="light"
@@ -104,16 +129,14 @@ export function JudgeAccordionItem({ judge }: Props) {
             <Group justify="space-between">
               <Text size="sm">
                 Visit the{' '}
-                <Link to={`/project/${projectSlug}/compare`}>
+                <Link to={appRoutes.compare(projectSlug)} style={{ textDecoration: 'none' }}>
                   <Text span c="kolena.8">
                     Head-to-Head
                   </Text>
                 </Link>{' '}
                 tab to provide ratings on head-to-head matchups between models.
               </Text>
-              <Text c="dimmed" size="xs" fs="italic">
-                {pluralize(judge.n_votes, 'vote')} submitted
-              </Text>
+              {DownloadVotesComponent}
             </Group>
           )}
           <Collapse in={showSystemPrompt} fz="sm">

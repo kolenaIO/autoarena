@@ -1,22 +1,21 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
-import { getProjectUrl } from '../lib/routes.ts';
-import { getModelsQueryKey, Model } from './useModels.ts';
-import { getTasksQueryKey } from './useTasks.ts';
-
-function getUploadModelResponsesQueryKey(projectSlug: string) {
-  return [`${getProjectUrl(projectSlug)}`, '/model', 'POST'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { Model } from './useModels.ts';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
   options?: UseMutationOptions<Model[], Error, [File[], string[]]>;
 };
 export function useUploadModelResponses({ projectSlug, options }: Params) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
+  const url = apiRoutes.uploadModelResponses(projectSlug);
   return useMutation({
-    mutationKey: getUploadModelResponsesQueryKey(projectSlug),
+    mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async ([files, modelNames]: [File[], string[]]) => {
       if (files.length !== modelNames.length) {
         throw new Error(`Invalid request: ${files.length} files and ${modelNames.length} model names provided`);
@@ -26,7 +25,10 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
         formData.append(file.name, file);
         formData.append(`${file.name}||model_name`, modelName); // format here is enforced by backend
       });
-      const response = await fetch(`${getProjectUrl(projectSlug)}/model`, { method: 'POST', body: formData });
+      const response = await apiFetch(url, { method: 'POST', body: formData });
+      if (!response.ok) {
+        throw new Error('Failed to add model responses');
+      }
       const result: Model[] = await response.json();
       return result;
     },
@@ -50,8 +52,8 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       notifications.show({ title, message, color: 'green' });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug)) });
     },
     ...options,
   });

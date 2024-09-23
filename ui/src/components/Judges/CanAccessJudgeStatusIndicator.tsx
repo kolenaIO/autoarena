@@ -1,7 +1,6 @@
 import { Code, Group, Loader, Stack, Text } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
-import { useCanAccessJudgeType } from '../../hooks/useCanAccessJudgeType.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useCanAccessJudgeType, useUrlState } from '../../hooks';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {

@@ -1,8 +1,7 @@
 import { ActionIcon, Loader, Menu } from '@mantine/core';
 import { IconAdjustmentsHorizontal, IconCalculator, IconTrashX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
-import { useRecomputeLeaderboard } from '../../hooks/useRecomputeLeaderboard.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
+import { useRecomputeLeaderboard, useUrlState } from '../../hooks';
 import { DeleteProjectModal } from '../DeleteProjectModal.tsx';
 
 export function LeaderboardSettings() {

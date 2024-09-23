@@ -1,11 +1,12 @@
 {
-  "name": "kscope",
+  "name": "@autoarena/ui",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",
     "build": "tsc --build && vite build",
+    "build:lib": "tsc --build && vite build --config vite.lib.config.ts",
     "lint": "eslint '*/**/*.{ts,tsx}' --max-warnings=0 && stylelint '*/**/*.{css,scss}'",
     "lint:fix": "eslint '*/**/*.{ts,tsx}' --fix; stylelint '*/**/*.{css,scss}' --fix",
     "lint:staged": "lint-staged",
@@ -21,12 +22,15 @@
       "stylelint --fix"
     ]
   },
+  "main": "dist/autoarena.es.js",
+  "module": "dist/autoarena.umd.cjs",
+  "types": "dist/types/types.d.ts",
   "dependencies": {
-    "@mantine/charts": "^7.12.2",
-    "@mantine/core": "^7.11.2",
-    "@mantine/form": "^7.12.0",
-    "@mantine/hooks": "^7.11.2",
-    "@mantine/notifications": "^7.12.2",
+    "@mantine/charts": "^7",
+    "@mantine/core": "^7",
+    "@mantine/form": "^7",
+    "@mantine/hooks": "^7",
+    "@mantine/notifications": "^7",
     "@microsoft/fetch-event-source": "^2.0.1",
     "@tabler/icons-react": "^3.11.0",
     "@tanstack/react-query": "^5.51.16",
@@ -71,6 +75,7 @@
     "stylelint-prettier": "^5.0.2",
     "ts-jest": "^29.2.5",
     "typescript": "^5.2.2",
-    "vite": "^5.3.4"
+    "vite": "^5.4.6",
+    "vite-plugin-dts": "^4.2.1"
   }
 }

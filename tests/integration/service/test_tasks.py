@@ -1,3 +1,4 @@
+import contextvars
 from concurrent.futures import ThreadPoolExecutor
 from typing import Callable, Optional
 
@@ -242,7 +243,8 @@ def test__auto_judge_task__saves_progress__concurrent(
         tasks.append(auto_judge_task)
 
     with ThreadPoolExecutor(max_workers=n_tasks) as executor:
-        futures = [executor.submit(auto_judge_task.run, BlockingExecutor()) for auto_judge_task in tasks]
+        # ensure that each task is running with the same context by copying it in
+        futures = [executor.submit(contextvars.copy_context().run, t.run, BlockingExecutor()) for t in tasks]
 
     assert all(f.result() is None for f in futures)
     assert log_stream().count("SUCCESS") == n_tasks

@@ -1,3 +1,6 @@
+/*
+ * Main build configuration for AutoArena UI static HTML/CSS/JS assets
+ */
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 

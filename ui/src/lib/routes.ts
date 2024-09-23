@@ -1,17 +1,6 @@
-// TODO: collect various API URLs in this file
-export const BASE_API_URL = 'http://localhost:8899/api/v1';
+type HTTPVerb = 'GET' | 'PUT' | 'POST' | 'DELETE';
 
-export function getProjectUrl(projectSlug: string) {
-  return `${BASE_API_URL}/project/${projectSlug}`;
-}
-
-export enum ExternalUrls {
-  AUTOARENA_GITHUB = 'https://github.com/kolenaIO/autoarena',
-  AUTOARENA_GITHUB_ISSUES = 'https://github.com/kolenaIO/autoarena/issues/new',
-  AUTOARENA_SLACK_COMMUNITY = 'https://kolena-autoarena.slack.com',
-
-  TOGETHER_MODELS = 'https://docs.together.ai/docs/chat-models',
-  OLLAMA_MODELS = 'https://ollama.com/library',
-  BEDROCK_MODELS = 'https://docs.aws.amazon.com/bedrock/latest/userguide/conversation-inference.html',
-  OPENAI_BASE_URL_README = 'https://github.com/openai/openai-python#configuring-the-http-client',
+export function urlAsQueryKey(url: string, method: HTTPVerb | undefined = 'GET') {
+  const urlObject = new URL(url);
+  return [urlObject.origin, ...urlObject.pathname.split('/').filter(Boolean), ...(method != null ? [method] : [])];
 }

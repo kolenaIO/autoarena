@@ -1,9 +1,6 @@
-import { getProjectUrl } from '../lib/routes.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-
-export function getModelsQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/models'];
-}
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export type Model = {
   id: number;
@@ -17,12 +14,15 @@ export type Model = {
 };
 
 export function useModels(projectSlug: string | undefined) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
+  const url = apiRoutes.getModels(projectSlug ?? '');
   return useQueryWithErrorToast({
-    queryKey: getModelsQueryKey(projectSlug ?? ''),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/models`);
+      const response = await apiFetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch models');
       }
       const result: Model[] = await response.json();
       return result;

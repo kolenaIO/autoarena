@@ -1,24 +1,25 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
-import { getJudgesQueryKey } from './useJudges.ts';
-import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
-
-function getDeleteJudgeQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judge', 'DELETE'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
-  options?: UseMutationOptions<void, Error, number>;
+  judgeId: number;
+  options?: UseMutationOptions<void, Error, void>;
 };
-export function useDeleteJudge({ projectSlug, options = {} }: Params) {
+export function useDeleteJudge({ projectSlug, judgeId, options = {} }: Params) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
+  const url = apiRoutes.deleteJudge(projectSlug, judgeId);
   return useMutation({
-    mutationKey: getDeleteJudgeQueryKey(projectSlug),
-    mutationFn: async (judgeId: number) => {
-      const url = `${getProjectUrl(projectSlug)}/judge/${judgeId}`;
-      await fetch(url, { method: 'DELETE' });
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
+    mutationFn: async () => {
+      const response = await apiFetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete judge');
+      }
     },
     onError: () => {
       notifications.show({
@@ -28,8 +29,9 @@ export function useDeleteJudge({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getJudgesQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getJudges(projectSlug)) });
+      const h2hStatsKey = urlAsQueryKey(apiRoutes.getHeadToHeadStats(projectSlug, -1), undefined);
+      queryClient.invalidateQueries({ queryKey: h2hStatsKey.slice(0, h2hStatsKey.length - 1) }); // invalidate all
     },
     ...options,
   });

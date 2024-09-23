@@ -1,10 +1,6 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
-import { getModelsQueryKey } from './useModels.ts';
-
-function getSubmitHeadToHeadVoteQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/head-to-head/vote', 'POST'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type HeadToHeadVoteRequest = {
   response_a_id: number;
@@ -17,19 +13,25 @@ type Params = {
   options?: UseMutationOptions<void, Error, HeadToHeadVoteRequest>;
 };
 export function useSubmitHeadToHeadVote({ projectSlug, options }: Params) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
+  const url = apiRoutes.submitHeadToHeadVote(projectSlug);
   return useMutation({
-    mutationKey: getSubmitHeadToHeadVoteQueryKey(projectSlug),
+    mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: HeadToHeadVoteRequest) => {
-      const response = await fetch(`${getProjectUrl(projectSlug)}/head-to-head/vote`, {
+      const response = await apiFetch(url, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
       });
+      if (!response.ok) {
+        throw new Error('Failed to submit vote');
+      }
       await response.json();
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
     },
     ...options,
   });

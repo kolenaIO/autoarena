@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
-
-function getHeadToHeadCountQueryKey(projectSlug?: string) {
-  return [getProjectUrl(projectSlug ?? ''), '/head-to-head', '/count'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export function useHeadToHeadCount(projectSlug?: string) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
+  const url = apiRoutes.getHeadToHeadCount(projectSlug ?? '');
   return useQuery({
-    queryKey: getHeadToHeadCountQueryKey(projectSlug),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug ?? '')}/head-to-head/count`);
+      const response = await apiFetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch head-to-head count');
       }
       const result: number = await response.json();
       return result;

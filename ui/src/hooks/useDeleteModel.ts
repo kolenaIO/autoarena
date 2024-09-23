@@ -1,24 +1,27 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
-import { getModelsQueryKey } from './useModels.ts';
-import { getModelHeadToHeadStatsQueryKey } from './useModelHeadToHeadStats.ts';
-
-function getDeleteModelQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/model', 'DELETE'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
+import { useAllModelActionsQueryKey } from './useModel.ts';
 
 type Params = {
   projectSlug: string;
-  options?: UseMutationOptions<void, Error, number>;
+  modelId: number;
+  options?: UseMutationOptions<void, Error, void>;
 };
-export function useDeleteModel({ projectSlug, options = {} }: Params) {
+export function useDeleteModel({ projectSlug, modelId, options = {} }: Params) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
+  const allModelActionsQueryKey = useAllModelActionsQueryKey(projectSlug);
+  const url = apiRoutes.deleteModel(projectSlug, modelId);
   return useMutation({
-    mutationKey: getDeleteModelQueryKey(projectSlug),
-    mutationFn: async (modelId: number) => {
-      const url = `${getProjectUrl(projectSlug)}/model/${modelId}`;
-      await fetch(url, { method: 'DELETE' });
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
+    mutationFn: async () => {
+      const response = await apiFetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete model');
+      }
     },
     onError: () => {
       notifications.show({
@@ -35,8 +38,8 @@ export function useDeleteModel({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getModelsQueryKey(projectSlug) });
-      queryClient.invalidateQueries({ queryKey: getModelHeadToHeadStatsQueryKey(projectSlug) }); // invalidate all
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
+      queryClient.invalidateQueries({ queryKey: allModelActionsQueryKey }); // invalidate all
     },
     ...options,
   });

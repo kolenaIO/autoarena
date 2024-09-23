@@ -1,9 +1,7 @@
 import { ActionIcon, Code, Modal, Stack, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { IconTrashX } from '@tabler/icons-react';
-import { useDeleteJudge } from '../../hooks/useDeleteJudge.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { Judge } from '../../hooks/useJudges.ts';
+import { useDeleteJudge, Judge, useUrlState } from '../../hooks';
 import { ConfirmOrCancelBar } from './ConfirmOrCancelBar.tsx';
 
 type Props = {
@@ -12,10 +10,10 @@ type Props = {
 export function DeleteJudgeButton({ judge }: Props) {
   const { projectSlug = '' } = useUrlState();
   const [isOpen, { toggle, close }] = useDisclosure(false);
-  const { mutate: deleteJudge } = useDeleteJudge({ projectSlug });
+  const { mutate: deleteJudge } = useDeleteJudge({ projectSlug, judgeId: judge.id });
 
   function handleDelete() {
-    deleteJudge(judge.id);
+    deleteJudge();
     close();
   }
 

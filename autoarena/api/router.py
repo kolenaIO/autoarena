@@ -1,5 +1,5 @@
 from collections import OrderedDict
-from io import BytesIO, StringIO
+from io import BytesIO
 from typing import Optional
 
 import pandas as pd
@@ -8,7 +8,7 @@ from starlette.requests import Request
 from starlette.responses import StreamingResponse
 
 from autoarena.api import api
-from autoarena.api.utils import SSEStreamingResponse
+from autoarena.api.utils import SSEStreamingResponse, download_csv_response, schedule_background_task
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.fine_tuning import FineTuningService
@@ -19,8 +19,8 @@ from autoarena.service.task import TaskService
 from autoarena.service.model import ModelService
 
 
-def router() -> APIRouter:
-    r = APIRouter()
+def router(r: Optional[APIRouter] = None) -> APIRouter:
+    r = r or APIRouter()
 
     @r.get("/projects")
     def get_projects() -> list[api.Project]:
@@ -65,7 +65,7 @@ def router() -> APIRouter:
             ModelService.upload_responses(project_slug, model_name, df_response)
             for model_name, df_response in df_response_by_model_name.items()
         ]
-        background_tasks.add_task(TaskService.auto_judge, project_slug, models=new_models)
+        schedule_background_task(background_tasks, TaskService.auto_judge, project_slug, models=new_models)
         return new_models
 
     @r.get("/project/{project_slug}/model/{model_id}/responses")
@@ -76,13 +76,13 @@ def router() -> APIRouter:
     @r.post("/project/{project_slug}/model/{model_id}/judge")
     def trigger_model_auto_judge(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         model = ModelService.get_by_id(project_slug, model_id)
-        background_tasks.add_task(TaskService.auto_judge, project_slug, models=[model])
+        schedule_background_task(background_tasks, TaskService.auto_judge, project_slug, models=[model])
 
     @r.delete("/project/{project_slug}/model/{model_id}")
     def delete_model(project_slug: str, model_id: int, background_tasks: BackgroundTasks) -> None:
         try:
             ModelService.delete(project_slug, model_id)
-            background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
+            schedule_background_task(background_tasks, TaskService.recompute_leaderboard, project_slug)
         except NotFoundError:
             pass
 
@@ -91,23 +91,14 @@ def router() -> APIRouter:
     async def download_model_responses_csv(project_slug: str, model_id: int) -> StreamingResponse:
         columns = ["prompt", "response"]
         df_response = ModelService.get_df_response(project_slug, model_id)
-        model_name = df_response.iloc[0].model
-        stream = StringIO()
-        df_response[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{model_name}.csv"'
-        return response
+        return download_csv_response(df_response[columns], df_response.iloc[0].model)
 
     @r.get("/project/{project_slug}/model/{model_id}/download/head-to-heads")
     async def download_model_head_to_heads_csv(project_slug: str, model_id: int) -> StreamingResponse:
         columns = ["prompt", "model_a", "model_b", "response_a", "response_b", "judge", "winner"]
         df_h2h = ModelService.get_df_head_to_head(project_slug, model_id)
         model = ModelService.get_by_id(project_slug, model_id)
-        stream = StringIO()
-        df_h2h[columns].to_csv(stream, index=False)
-        response = StreamingResponse(iter([stream.getvalue()]), media_type="text/csv")
-        response.headers["Content-Disposition"] = f'attachment; filename="{model.name}-head-to-head.csv"'
-        return response
+        return download_csv_response(df_h2h[columns], f"{model.name}-head-to-head")
 
     @r.get("/project/{project_slug}/model/{model_id}/head-to-head/stats")
     def get_head_to_head_stats(project_slug: str, model_id: int) -> list[api.ModelHeadToHeadStats]:
@@ -129,7 +120,7 @@ def router() -> APIRouter:
     ) -> None:
         HeadToHeadService.submit_vote(project_slug, request)
         # recompute confidence intervals in the background if we aren't doing so already
-        background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
+        schedule_background_task(background_tasks, TaskService.recompute_leaderboard, project_slug)
 
     @r.get("/project/{project_slug}/tasks")
     def get_tasks(project_slug: str) -> list[api.Task]:
@@ -147,7 +138,7 @@ def router() -> APIRouter:
         return SSEStreamingResponse(TaskService.has_active_stream(project_slug, timeout=timeout))
 
     @r.delete("/project/{project_slug}/tasks/completed")
-    def delete_completed(project_slug: str) -> None:
+    def delete_completed_tasks(project_slug: str) -> None:
         TaskService.delete_completed(project_slug)
 
     @r.post("/project/{project_slug}/task/auto-judge")
@@ -157,8 +148,14 @@ def router() -> APIRouter:
         background_tasks: BackgroundTasks,
     ) -> None:
         judges = [j for j in JudgeService.get_all(project_slug) if j.id in set(request.judge_ids)]
-        kwargs = dict(judges=judges, fraction=request.fraction, skip_existing=request.skip_existing)
-        background_tasks.add_task(TaskService.auto_judge, project_slug, **kwargs)
+        schedule_background_task(
+            background_tasks,
+            TaskService.auto_judge,
+            project_slug,
+            judges=judges,
+            fraction=request.fraction,
+            skip_existing=request.skip_existing,
+        )
 
     @r.get("/project/{project_slug}/judges")
     def get_judges(project_slug: str) -> list[api.Judge]:
@@ -184,12 +181,20 @@ def router() -> APIRouter:
     def delete_judge(project_slug: str, judge_id: int, background_tasks: BackgroundTasks) -> None:
         try:
             JudgeService.delete(project_slug, judge_id)
-            background_tasks.add_task(TaskService.recompute_leaderboard, project_slug)
+            schedule_background_task(background_tasks, TaskService.recompute_leaderboard, project_slug)
         except NotFoundError:
             pass
 
+    @r.get("/project/{project_slug}/judge/{judge_id}/download/votes")
+    async def download_judge_votes_csv(project_slug: str, judge_id: int) -> StreamingResponse:
+        columns = ["prompt", "model_a", "model_b", "response_a", "response_b", "winner"]
+        df_response = JudgeService.get_df_vote(project_slug, judge_id)
+        # TODO: handle case where no votes exist, not a big problem for now as UI buttons are disabled for 0-vote judges
+        judge_name = df_response.iloc[0].judge
+        return download_csv_response(df_response[columns], f"{judge_name}-judge-votes")
+
     @r.put("/project/{project_slug}/elo/reseed-scores")
-    def reseed_scores(project_slug: str) -> None:
+    def reseed_elo_scores(project_slug: str) -> None:
         EloService.reseed_scores(project_slug)
 
     @r.post("/project/{project_slug}/fine-tune")

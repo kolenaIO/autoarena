@@ -4,10 +4,8 @@ import { useMemo, useState } from 'react';
 import { prop, sortBy } from 'ramda';
 import { IconCactus } from '@tabler/icons-react';
 import { useNavigate } from 'react-router-dom';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
+import { useUrlState, useModelHeadToHeadStatsByJudge, useJudge, useAppRoutes } from '../../hooks';
 import { NonIdealState } from '../NonIdealState.tsx';
-import { useJudge } from '../../hooks/useJudge.ts';
 
 type ChartRecord = {
   opponentName: string;
@@ -23,6 +21,7 @@ type Props = {
 };
 export function HeadToHeadStatsPlot({ modelId }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
+  const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();
   const { data: judge } = useJudge(projectSlug, judgeId);
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({ projectSlug, modelId, judgeId });
@@ -58,7 +57,7 @@ export function HeadToHeadStatsPlot({ modelId }: Props) {
   );
 
   function handleBarClick({ opponentId }: ChartRecord) {
-    navigate(`/project/${projectSlug}/compare?modelA=${modelId}&modelB=${opponentId}`);
+    navigate(`${appRoutes.compare(projectSlug)}?modelA=${modelId}&modelB=${opponentId}`);
   }
 
   const isDisabled = plotStats.length == 0;

@@ -69,6 +69,8 @@ def fixing_wrapper(judge_class: type[T]) -> type[T]:
 
         def judge(self, prompt: str, response_a: str, response_b: str) -> str:
             winner_raw = super().judge(prompt, response_a, response_b)
+            if winner_raw == "":
+                return self.CLASS_TO_WINNER[self.TIE]
             winner = clean_judgement(winner_raw)
             if winner not in ACCEPTABLE_RESPONSES:
                 classifications = self.pipe(winner_raw, candidate_labels=self.CLASSES)

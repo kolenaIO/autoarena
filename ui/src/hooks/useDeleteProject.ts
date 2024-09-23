@@ -1,22 +1,24 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { BASE_API_URL, getProjectUrl } from '../lib/routes.ts';
-import { PROJECTS_QUERY_KEY } from './useProjects.ts';
-
-function getDeleteProjectQueryKey() {
-  return [`${BASE_API_URL}/project`, 'DELETE'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
-  options?: UseMutationOptions<void, Error, string>;
+  projectSlug: string;
+  options?: UseMutationOptions<void, Error, void>;
 };
-export function useDeleteProject({ options }: Params = {}) {
+export function useDeleteProject({ projectSlug, options = {} }: Params) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
+  const url = apiRoutes.deleteProject(projectSlug);
   return useMutation({
-    mutationKey: getDeleteProjectQueryKey(),
-    mutationFn: async (projectSlug: string) => {
-      const url = getProjectUrl(projectSlug);
-      await fetch(url, { method: 'DELETE' });
+    mutationKey: urlAsQueryKey(url, 'DELETE'),
+    mutationFn: async () => {
+      const response = await apiFetch(url, { method: 'DELETE' });
+      if (!response.ok) {
+        throw new Error('Failed to delete project');
+      }
     },
     onError: () => {
       notifications.show({
@@ -26,7 +28,7 @@ export function useDeleteProject({ options }: Params = {}) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: PROJECTS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getProjects()) });
     },
     ...options,
   });

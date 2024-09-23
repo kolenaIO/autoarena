@@ -1,8 +1,13 @@
 import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
 import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
-import { ExternalUrls } from '../lib/routes.ts';
+import { Link } from 'react-router-dom';
+import { ExternalUrls, useAppConfig } from '../lib';
+import { useAppRoutes } from '../hooks';
 
 export function MainMenu() {
+  const { menuExtras } = useAppConfig();
+  const { appRoutes } = useAppRoutes();
+
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
     <Menu>
@@ -19,9 +24,9 @@ export function MainMenu() {
       </Menu.Target>
 
       <Menu.Dropdown>
-        <Anchor href="/" underline="never">
+        <Link to={appRoutes.home()} style={{ textDecoration: 'none' }}>
           <Menu.Item leftSection={<IconHome {...iconProps} />}>Home</Menu.Item>
-        </Anchor>
+        </Link>
         <Anchor href={ExternalUrls.AUTOARENA_GITHUB} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandGithub {...iconProps} />}>Repository</Menu.Item>
         </Anchor>
@@ -31,6 +36,7 @@ export function MainMenu() {
         <Anchor href={ExternalUrls.AUTOARENA_SLACK_COMMUNITY} underline="never" target="_blank">
           <Menu.Item leftSection={<IconBrandSlack {...iconProps} />}>Slack Community</Menu.Item>
         </Anchor>
+        {menuExtras}
       </Menu.Dropdown>
     </Menu>
   );

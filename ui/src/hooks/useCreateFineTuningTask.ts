@@ -1,11 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
-import { getProjectUrl } from '../lib/routes.ts';
-import { getTasksQueryKey } from './useTasks.ts';
-
-function getCreateFineTuningTaskQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/fine-tune'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type CreateFineTuningTaskRequest = {
   base_model: string;
@@ -17,12 +13,14 @@ type Params = {
   options?: UseMutationOptions<void, Error, CreateFineTuningTaskRequest>;
 };
 export function useCreateFineTuningTask({ projectSlug, options = {} }: Params) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
+  const url = apiRoutes.createFineTuningTask(projectSlug);
   return useMutation({
-    mutationKey: getCreateFineTuningTaskQueryKey(projectSlug),
+    mutationKey: urlAsQueryKey(url, 'POST'),
     mutationFn: async (request: CreateFineTuningTaskRequest) => {
-      const url = `${getProjectUrl(projectSlug)}/${projectSlug}`;
-      const response = await fetch(url, {
+      const response = await apiFetch(url, {
         method: 'POST',
         body: JSON.stringify(request),
         headers: { 'Content-Type': 'application/json' },
@@ -38,7 +36,7 @@ export function useCreateFineTuningTask({ projectSlug, options = {} }: Params) {
       });
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey: getTasksQueryKey(projectSlug) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug)) });
     },
     ...options,
   });

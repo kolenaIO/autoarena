@@ -1,11 +1,7 @@
-import { fetchEventSource } from '@microsoft/fetch-event-source';
 import { useQuery, useQueryClient, UseQueryOptions, UseQueryResult } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { Task } from './useTasks.ts';
-
-function getTaskStreamQueryKey(projectSlug: string, task: Task) {
-  return [getProjectUrl(projectSlug), '/task', task.id, '/stream'];
-}
+import { useAppRoutes } from './useAppRoutes.ts';
 
 type Params = {
   projectSlug: string;
@@ -13,14 +9,17 @@ type Params = {
   options?: Partial<UseQueryOptions<Task, Error>>;
 };
 export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQueryResult<Task, Error> {
+  const { apiFetchEventSource } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   const queryClient = useQueryClient();
-  const queryKey = getTaskStreamQueryKey(projectSlug, task);
+  const url = apiRoutes.getTaskStream(projectSlug, task.id);
+  const queryKey = urlAsQueryKey(url);
 
   return useQuery({
     queryKey,
     queryFn: async ({ signal }) => {
       let latest = task;
-      await fetchEventSource(`${getProjectUrl(projectSlug)}/task/${task.id}/stream`, {
+      await apiFetchEventSource(url, {
         method: 'GET',
         headers: { Accept: 'text/event-stream' },
         signal,
@@ -28,6 +27,9 @@ export function useTaskStream({ projectSlug, task, options = {} }: Params): UseQ
           const parsedData: Task = JSON.parse(event.data);
           latest = parsedData;
           queryClient.setQueryData(queryKey, parsedData);
+        },
+        onerror: () => {
+          throw new Error('Failed to fetch task stream');
         },
       });
       return latest;

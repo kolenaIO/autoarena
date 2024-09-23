@@ -35,7 +35,8 @@ jobs:
       - name: Run build script to build UI and bundle into Python tarball
         run: ./scripts/build.sh
       - name: Generate a changelog
-        run: git log $(git describe --tags --abbrev=0)..HEAD --oneline > CHANGELOG.txt
+        run: |
+          git log $(git describe --tags --abbrev=0 $(git describe --tags --abbrev=0)^)..HEAD --oneline > CHANGELOG.txt
       - uses: actions/upload-artifact@v4
         with:
           name: changelog

@@ -1,12 +1,16 @@
-import { Anchor, Button, Group, Skeleton, Stack, Text } from '@mantine/core';
-import moment from 'moment';
-import { IconDownload, IconGavel } from '@tabler/icons-react';
+import { Button, Group, Loader, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { IconDownload, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
+import { Link } from 'react-router-dom';
+import moment from 'moment/moment';
 import { DeleteModelButton } from '../DeleteModelButton.tsx';
-import { getProjectUrl } from '../../lib/routes.ts';
-import { useModelHeadToHeadStatsByJudge } from '../../hooks/useModelHeadToHeadStatsByJudge.ts';
-import { useUrlState } from '../../hooks/useUrlState.ts';
-import { useTriggerModelAutoJudge } from '../../hooks/useTriggerModelAutoJudge.ts';
+import {
+  useModelHeadToHeadStatsByJudge,
+  useUrlState,
+  useTriggerModelAutoJudge,
+  useDownloadFile,
+  useAppRoutes,
+} from '../../hooks';
 import { RankedModel } from './types.ts';
 import { HeadToHeadStatsTable } from './HeadToHeadStatsTable.tsx';
 import { HeadToHeadStatsPlot } from './HeadToHeadStatsPlot.tsx';
@@ -16,12 +20,21 @@ type Props = {
 };
 export function ExpandedModelDetails({ model }: Props) {
   const { projectSlug = '', judgeId } = useUrlState();
+  const { apiRoutes, appRoutes } = useAppRoutes();
   const { data: headToHeadStats, isLoading } = useModelHeadToHeadStatsByJudge({
     projectSlug,
     modelId: model.id,
     judgeId,
   });
   const { mutate: triggerModelJudgement } = useTriggerModelAutoJudge({ projectSlug, modelId: model.id });
+  const { mutate: downloadResponses, isPending: isDownloadingResponses } = useDownloadFile(
+    apiRoutes.downloadModelResponsesCsv(projectSlug, model.id),
+    `${model.name}.csv`
+  );
+  const { mutate: downloadHeadToHeads, isPending: isDownloadingHeadToHeads } = useDownloadFile(
+    apiRoutes.downloadModelHeadToHeadsCsv(projectSlug, model.id),
+    `${model.name}-head-to-heads.csv`
+  );
 
   const { nWins, nTies, nLosses } = useMemo(
     () => ({
@@ -34,48 +47,66 @@ export function ExpandedModelDetails({ model }: Props) {
 
   return (
     <Stack bg="gray.1" gap="xs" pt="xs" p="xl">
-      <Group justify="space-between">
-        <Stack gap={2} fz="xs">
-          <Group gap="xs">
-            <Text inherit fw="bold">
-              Created:
-            </Text>
-            <Text inherit>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Text>
+      <Paper p="xs" withBorder>
+        <Stack gap="xs">
+          <Group gap="xs" fz="xs" justify="space-between">
+            <Group gap="xs">
+              <Text inherit fw="bold">
+                Record (Win - Loss - Tie):
+              </Text>
+              <Text inherit>
+                <Skeleton visible={isLoading}>
+                  {nWins.toLocaleString()} - {nLosses.toLocaleString()} - {nTies.toLocaleString()}
+                </Skeleton>
+              </Text>
+            </Group>
+            <Group gap="xs">
+              <Text inherit fw="bold">
+                Created:
+              </Text>
+              <Text inherit>{moment(model.created).format('YYYY-MM-DD (hh:mm A)')}</Text>
+            </Group>
           </Group>
-          <Group gap="xs">
-            <Text inherit fw="bold">
-              Record (Win - Loss - Tie):
-            </Text>
-            <Text inherit>
-              <Skeleton visible={isLoading}>
-                {nWins.toLocaleString()} - {nLosses.toLocaleString()} - {nTies.toLocaleString()}
-              </Skeleton>
-            </Text>
+          <Group gap="xs" justify="space-between" w="100%">
+            <Group gap="xs">
+              <Link to={`${appRoutes.compare(projectSlug)}?modelA=${model.id}`}>
+                <Button color="cyan" variant="light" size="xs" leftSection={<IconSwords size={20} />}>
+                  View Responses
+                </Button>
+              </Link>
+              <Button
+                color="teal"
+                variant="light"
+                size="xs"
+                leftSection={isDownloadingResponses ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
+                onClick={() => downloadResponses()}
+              >
+                Download Responses CSV
+              </Button>
+              <Button
+                color="teal"
+                variant="light"
+                size="xs"
+                leftSection={isDownloadingHeadToHeads ? <Loader color="teal" size={20} /> : <IconDownload size={20} />}
+                onClick={() => downloadHeadToHeads()}
+              >
+                Download Head-to-Heads CSV
+              </Button>
+              <Button
+                variant="light"
+                color="orange"
+                size="xs"
+                leftSection={<IconGavel size={20} />}
+                onClick={() => triggerModelJudgement()}
+              >
+                Run Automated Judgement
+              </Button>
+            </Group>
+            <DeleteModelButton model={model} />
           </Group>
         </Stack>
-        <Group gap="xs">
-          <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/responses`} target="_blank">
-            <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Response CSV
-            </Button>
-          </Anchor>
-          <Anchor href={`${getProjectUrl(projectSlug)}/model/${model.id}/download/head-to-heads`} target="_blank">
-            <Button color="teal" variant="light" size="xs" leftSection={<IconDownload size={20} />}>
-              Download Head-to-Head CSV
-            </Button>
-          </Anchor>
-          <Button
-            variant="light"
-            color="orange"
-            size="xs"
-            leftSection={<IconGavel size={20} />}
-            onClick={() => triggerModelJudgement()}
-          >
-            Run Automated Judgement
-          </Button>
-          <DeleteModelButton model={model} />
-        </Group>
-      </Group>
+      </Paper>
+
       <HeadToHeadStatsPlot modelId={model.id} />
       <HeadToHeadStatsTable modelId={model.id} />
     </Stack>

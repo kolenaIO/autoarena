@@ -2,12 +2,12 @@ import functools
 import math
 import sys
 import time
-from typing import Callable
+from typing import Callable, TypeVar
 
 if sys.version_info[:2] >= (3, 10):
-    from typing import ParamSpec, TypeVar
+    from typing import ParamSpec
 else:
-    from typing_extensions import ParamSpec, TypeVar
+    from typing_extensions import ParamSpec
 
 from loguru import logger
 

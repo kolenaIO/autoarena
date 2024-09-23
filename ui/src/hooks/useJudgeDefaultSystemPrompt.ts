@@ -1,17 +1,17 @@
 import { useQuery } from '@tanstack/react-query';
-import { getProjectUrl } from '../lib/routes.ts';
-
-function getJudgeDefaultSystemPromptQueryKey(projectSlug: string) {
-  return [getProjectUrl(projectSlug), '/judge/default-system-prompt'];
-}
+import { urlAsQueryKey, useAppConfig } from '../lib';
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export function useJudgeDefaultSystemPrompt(projectSlug: string) {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
+  const url = apiRoutes.getDefaultSystemPrompt(projectSlug);
   return useQuery({
-    queryKey: getJudgeDefaultSystemPromptQueryKey(projectSlug),
+    queryKey: urlAsQueryKey(url),
     queryFn: async () => {
-      const response = await fetch(`${getProjectUrl(projectSlug)}/judge/default-system-prompt`);
+      const response = await apiFetch(url);
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch default judge system prompt');
       }
       const result: string = await response.json();
       return result;

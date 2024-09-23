@@ -1,8 +1,6 @@
-import { BASE_API_URL } from '../lib/routes.ts';
+import { urlAsQueryKey, useAppConfig } from '../lib';
 import { useQueryWithErrorToast } from './useQueryWithErrorToast.ts';
-
-const PROJECTS_ENDPOINT = `${BASE_API_URL}/projects`;
-export const PROJECTS_QUERY_KEY = [PROJECTS_ENDPOINT];
+import { useAppRoutes } from './useAppRoutes.ts';
 
 export type Project = {
   slug: string;
@@ -11,12 +9,14 @@ export type Project = {
 };
 
 export function useProjects() {
+  const { apiFetch } = useAppConfig();
+  const { apiRoutes } = useAppRoutes();
   return useQueryWithErrorToast({
-    queryKey: PROJECTS_QUERY_KEY,
+    queryKey: urlAsQueryKey(apiRoutes.getProjects()),
     queryFn: async () => {
-      const response = await fetch(PROJECTS_ENDPOINT);
+      const response = await apiFetch(apiRoutes.getProjects());
       if (!response.ok) {
-        return;
+        throw new Error('Failed to fetch projects');
       }
       const result: Project[] = await response.json();
       return result;

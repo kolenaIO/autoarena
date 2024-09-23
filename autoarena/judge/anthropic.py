@@ -1,25 +1,25 @@
 import time
-from typing import Optional
 
 import anthropic
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, rate_limit
-from autoarena.store.environment import KeyManager
+from autoarena.store.environment import KeyManagerProvider
 
 
 class AnthropicJudge(AutomatedJudge):
     API_KEY_NAME = "ANTHROPIC_API_KEY"
 
-    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
-        super().__init__(name, model_name, system_prompt, key_manager=key_manager)
-        self._client = anthropic.Client(api_key=self._key_manager.get(self.API_KEY_NAME))
+    def __init__(self, name: str, model_name: str, system_prompt: str):
+        super().__init__(name, model_name, system_prompt)
+        self._client = anthropic.Client(api_key=KeyManagerProvider.get().get(self.API_KEY_NAME))
 
     @staticmethod
     def verify_environment() -> None:
         # this is a little dirty, but gets the job done as requests without valid auth are rejected eagerly
         try:
-            anthropic.Client().post("/v1/messages", cast_to=object)
+            client = anthropic.Client(api_key=KeyManagerProvider.get().get(AnthropicJudge.API_KEY_NAME))
+            client.post("/v1/messages", cast_to=object)
         except (anthropic.AuthenticationError, TypeError) as e:
             raise e
         except Exception:

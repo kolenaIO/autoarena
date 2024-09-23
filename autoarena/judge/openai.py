@@ -1,5 +1,4 @@
 import time
-from typing import Optional
 
 import httpx
 from loguru import logger
@@ -8,19 +7,19 @@ from pytimeparse.timeparse import timeparse
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, rate_limit
-from autoarena.store.environment import KeyManager
+from autoarena.store.environment import KeyManagerProvider
 
 
 class OpenAIJudge(AutomatedJudge):
     API_KEY_NAME = "OPENAI_API_KEY"
 
-    def __init__(self, name: str, model_name: str, system_prompt: str, key_manager: Optional[KeyManager] = None):
-        super().__init__(name, model_name, system_prompt, key_manager=key_manager)
-        self._client = OpenAI(api_key=self._key_manager.get(self.API_KEY_NAME))
+    def __init__(self, name: str, model_name: str, system_prompt: str):
+        super().__init__(name, model_name, system_prompt)
+        self._client = OpenAI(api_key=KeyManagerProvider.get().get(self.API_KEY_NAME))
 
     @staticmethod
     def verify_environment() -> None:
-        OpenAI().models.list()
+        OpenAI(api_key=KeyManagerProvider.get().get(OpenAIJudge.API_KEY_NAME)).models.list()
 
     # OpenAI has different tiers and different rate limits for different models, choose a safeish value
     @rate_limit(n_calls=1_000, n_seconds=60)

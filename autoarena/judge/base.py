@@ -5,6 +5,8 @@ from typing import Optional
 import numpy as np
 from loguru import logger
 
+from autoarena.store.key_manager import KeyManagerProvider
+
 
 class AutomatedJudge(metaclass=ABCMeta):
     API_KEY_NAME: Optional[str] = None  # if set, verify that this exists in environment on init
@@ -27,8 +29,9 @@ class AutomatedJudge(metaclass=ABCMeta):
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         self.response_seconds = []
-        key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
-        if self.API_KEY_NAME is not None and key is None:
+        try:
+            KeyManagerProvider.get(self.API_KEY_NAME) if self.API_KEY_NAME is not None else None
+        except KeyError:
             message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
             raise RuntimeError(message)
 

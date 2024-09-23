@@ -1,26 +1,13 @@
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
-from typing import Iterator
 
 import duckdb
 
 DATABASE_FILE = Path.cwd() / "autoarena.duckdb"
 MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
-_DATA_DIRECTORY: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=Path.cwd() / "data")
-
-
-class DataDirectoryProvider:
-    @staticmethod
-    @contextmanager
-    def set(directory: Path) -> Iterator[Path]:
-        _DATA_DIRECTORY.set(directory)
-        yield directory
-
-    @staticmethod
-    def get() -> Path:
-        return _DATA_DIRECTORY.get()
+DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=Path.cwd() / "data")
 
 
 @contextmanager

@@ -173,6 +173,7 @@ def router(r: Optional[APIRouter] = None) -> APIRouter:
     def update_judge(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
         return JudgeService.update(project_slug, judge_id, request)
 
+    # TODO: shouldn't really be scoped to a project as keys aren't scoped to a project
     @r.get("/project/{project_slug}/judge/{judge_type}/can-access")
     def check_can_access(project_slug: str, judge_type: api.JudgeType) -> bool:
         return JudgeService.check_can_access(judge_type)

@@ -1,9 +1,10 @@
-import os
 from abc import abstractmethod, ABCMeta
 from typing import Optional
 
 import numpy as np
 from loguru import logger
+
+from autoarena.store.key_manager import KeyManagerProvider
 
 
 class AutomatedJudge(metaclass=ABCMeta):
@@ -11,39 +12,27 @@ class AutomatedJudge(metaclass=ABCMeta):
     MAX_TOKENS: int = 12  # should really just need one or two
     SLOW_THRESHOLD_SECONDS: float = 5
 
-    _name: str
-    _model_name: str
-    _system_prompt: str
-
+    name: str
+    model_name: str
+    system_prompt: str
     n_requests: int
     total_input_tokens: int
     total_output_tokens: int
     response_seconds: list[float]
 
     def __init__(self, name: str, model_name: str, system_prompt: str):
-        self._name = name
-        self._model_name = model_name
-        self._system_prompt = system_prompt
+        self.name = name
+        self.model_name = model_name
+        self.system_prompt = system_prompt
         self.n_requests = 0
         self.total_input_tokens = 0
         self.total_output_tokens = 0
         self.response_seconds = []
-        key = os.environ.get(self.API_KEY_NAME, None) if self.API_KEY_NAME is not None else None
-        if self.API_KEY_NAME is not None and key is None:
+        try:
+            KeyManagerProvider.get().get(self.API_KEY_NAME) if self.API_KEY_NAME is not None else None
+        except KeyError:
             message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
             raise RuntimeError(message)
-
-    @property
-    def name(self) -> str:
-        return self._name
-
-    @property
-    def model_name(self) -> str:
-        return self._model_name
-
-    @property
-    def system_prompt(self) -> str:
-        return self._system_prompt
 
     @abstractmethod
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:

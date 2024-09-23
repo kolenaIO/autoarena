@@ -1,4 +1,4 @@
-import { Button, Group, Loader, Paper, Skeleton, Stack, Text } from '@mantine/core';
+import { Button, Group, Loader, Paper, Stack, Text } from '@mantine/core';
 import { IconDownload, IconGavel, IconSwords } from '@tabler/icons-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
@@ -55,9 +55,7 @@ export function ExpandedModelDetails({ model }: Props) {
                 Record (Win - Loss - Tie):
               </Text>
               <Text inherit>
-                <Skeleton visible={isLoading}>
-                  {nWins.toLocaleString()} - {nLosses.toLocaleString()} - {nTies.toLocaleString()}
-                </Skeleton>
+                {!isLoading && `${nWins.toLocaleString()} - ${nLosses.toLocaleString()} - ${nTies.toLocaleString()}`}
               </Text>
             </Group>
             <Group gap="xs">

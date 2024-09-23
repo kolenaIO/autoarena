@@ -17,8 +17,8 @@ def test_data_directory() -> Iterator[Path]:
     test_data_dir = Path(__file__).parent / "data"
     test_data_dir.mkdir(parents=True, exist_ok=True)
     try:
-        with DataDirectoryProvider.set(test_data_dir):
-            yield test_data_dir
+        DataDirectoryProvider.set(test_data_dir)
+        yield test_data_dir
     finally:
         shutil.rmtree(test_data_dir, ignore_errors=True)
 

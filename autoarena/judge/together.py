@@ -4,18 +4,19 @@ import together
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import rate_limit, get_user_prompt
+from autoarena.store.key_manager import KeyManagerProvider
 
 
 class TogetherJudge(AutomatedJudge):
     API_KEY_NAME = "TOGETHER_API_KEY"
 
-    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+    def __init__(self, name: str, model_name: str, system_prompt: str):
         super().__init__(name, model_name, system_prompt)
-        self._client = together.Client()
+        self._client = together.Client(api_key=KeyManagerProvider.get().get(self.API_KEY_NAME))
 
     @staticmethod
     def verify_environment() -> None:
-        together.Client().models.list()
+        together.Client(api_key=KeyManagerProvider.get().get(TogetherJudge.API_KEY_NAME)).models.list()
 
     @rate_limit(n_calls=10, n_seconds=1, n_call_buffer=2)
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:

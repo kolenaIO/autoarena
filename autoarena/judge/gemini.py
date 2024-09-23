@@ -1,4 +1,3 @@
-import os
 import time
 
 import google.generativeai as genai
@@ -6,19 +5,21 @@ from loguru import logger
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import get_user_prompt, JOINED_PROMPT_TEMPLATE, rate_limit
+from autoarena.store.key_manager import KeyManagerProvider
 
 
 class GeminiJudge(AutomatedJudge):
     API_KEY_NAME = "GOOGLE_API_KEY"
 
-    def __init__(self, name: str, model_name: str, system_prompt: str) -> None:
+    def __init__(self, name: str, model_name: str, system_prompt: str):
         super().__init__(name, model_name, system_prompt)
-        genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
+        # TODO: this global-scoped configuration is not good
+        genai.configure(api_key=KeyManagerProvider.get().get(GeminiJudge.API_KEY_NAME))
         self._model = genai.GenerativeModel(model_name)
 
     @staticmethod
     def verify_environment() -> None:
-        genai.configure(api_key=os.environ.get(GeminiJudge.API_KEY_NAME, None))
+        genai.configure(api_key=KeyManagerProvider.get().get(GeminiJudge.API_KEY_NAME))
         # TODO: this takes a while, likely due to retries -- haven't figured out how to disable
         list(genai.list_models(page_size=1))
 

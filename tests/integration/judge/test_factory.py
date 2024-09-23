@@ -1,3 +1,4 @@
+import contextvars
 from datetime import datetime
 from typing import Type
 
@@ -15,6 +16,7 @@ from autoarena.judge.openai import OpenAIJudge
 from autoarena.judge.together import TogetherJudge
 from autoarena.judge.wrapper import retrying_wrapper, cleaning_wrapper, ab_shuffling_wrapper, JudgeWrapper
 from autoarena.service.judge import JudgeService
+from autoarena.store.key_manager import KeyManager, KeyManagerProvider
 from tests.integration.judge.conftest import (
     unset_environment_variable,
     temporary_environment_variable,
@@ -118,13 +120,28 @@ def test__check_can_access(judge_type: api.JudgeType) -> None:
         # api.JudgeType.BEDROCK,  # credentials for bedrock access are set up in CI testing environment
     ],
 )
-def test__check_can_access__fail(judge_type: api.JudgeType) -> None:
+def test__check_can_access__fail__unset_variable(judge_type: api.JudgeType) -> None:
     judge_class = AUTOMATED_JUDGE_TYPE_TO_CLASS[judge_type]
-    if judge_class is None:
-        raise RuntimeError("implementation error")
     api_key_name = judge_class.API_KEY_NAME if issubclass(judge_class, AutomatedJudge) else None
     if api_key_name is not None:
         with unset_environment_variable(api_key_name):
             assert not JudgeService.check_can_access(judge_type)
     else:
         assert not JudgeService.check_can_access(judge_type)
+
+
+@pytest.mark.parametrize(
+    "judge_type",
+    # skip OLLAMA and BEDROCK for the reasons listed above
+    [api.JudgeType.OPENAI, api.JudgeType.ANTHROPIC, api.JudgeType.COHERE, api.JudgeType.GEMINI, api.JudgeType.TOGETHER],
+)
+def test__check_can_access__fail__bad_value(judge_type: api.JudgeType) -> None:
+    class GarbageKeyManager(KeyManager):
+        def get(self, key: str) -> str:
+            return "garbage"
+
+    def test() -> None:
+        KeyManagerProvider.set(GarbageKeyManager())
+        assert not JudgeService.check_can_access(judge_type)
+
+    contextvars.copy_context().run(test)

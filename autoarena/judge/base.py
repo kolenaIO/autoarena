@@ -36,7 +36,6 @@ class AutomatedJudge(metaclass=ABCMeta):
     def judge(self, prompt: str, response_a: str, response_b: str) -> str:
         raise NotImplementedError
 
-    # TODO: should update to factor key manager into play
     @staticmethod
     def verify_environment() -> None:
         """

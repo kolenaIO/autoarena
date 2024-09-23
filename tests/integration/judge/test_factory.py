@@ -1,3 +1,4 @@
+import contextvars
 from datetime import datetime
 from typing import Type
 
@@ -139,5 +140,8 @@ def test__check_can_access__fail__bad_value(judge_type: api.JudgeType) -> None:
         def get(self, key: str) -> str:
             return "garbage"
 
-    with KeyManagerProvider.set(GarbageKeyManager()):
+    def test() -> None:
+        KeyManagerProvider.set(GarbageKeyManager())
         assert not JudgeService.check_can_access(judge_type)
+
+    contextvars.copy_context().run(test)

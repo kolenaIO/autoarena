@@ -85,7 +85,11 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
 
   const hasVoteHistory = (headToHead?.history?.length ?? 0) > 0;
   const { votesA, votesTie, votesB } = useMemo(() => {
-    return (headToHead?.history ?? []).reduce<{ votesA: string[]; votesTie: string[]; votesB: string[] }>(
+    const { votesA, votesTie, votesB } = (headToHead?.history ?? []).reduce<{
+      votesA: string[];
+      votesTie: string[];
+      votesB: string[];
+    }>(
       ({ votesA, votesTie, votesB }, { winner, judge_name }) => ({
         votesA: [...votesA, ...(winner === 'A' ? [judge_name] : [])],
         votesTie: [...votesTie, ...(winner === '-' ? [judge_name] : [])],
@@ -93,6 +97,11 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
       }),
       { votesA: [], votesTie: [], votesB: [] }
     );
+    return {
+      votesA: votesA.sort(),
+      votesTie: votesTie.sort(),
+      votesB: votesB.sort(),
+    };
   }, [showVoteHistory, headToHead]);
 
   const modelNames = modelA != null && modelB != null ? `'${modelA.name}' and '${modelB.name}'` : 'selected models';

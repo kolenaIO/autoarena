@@ -196,7 +196,7 @@ function CreateGeminiJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="gemini"
-        modelOptions={['gemini-1.5-flash', 'gemini-1.5-pro']}
+        modelOptions={['gemini-1.5-flash-002', 'gemini-1.5-pro-002', 'gemini-1.5-flash-001', 'gemini-1.5-pro-001']}
       />
     </div>
   );

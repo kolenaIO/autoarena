@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Modal, Select, Stack, Text, TextInput, Transition } from '@mantine/core';
+import { Autocomplete, Modal, Stack, Text, TextInput, Transition } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useUrlState, useCreateJudge, useJudges } from '../../hooks';
 import { JudgeType, judgeTypeToHumanReadableName } from './types.ts';
@@ -67,6 +67,7 @@ export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, ext
     handleClose();
   }
 
+  const modelNameSuggestions = modelOptions != null ? [{ group: 'Recommended', items: modelOptions }] : [];
   return (
     <Modal
       opened={isOpen}
@@ -78,25 +79,14 @@ export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, ext
         <Stack fz="sm">
           <Text inherit>Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
           {extraCopy}
-          {modelOptions != null ? (
-            <Select
-              label="Model Name"
-              placeholder="Select Model"
-              data={modelOptions}
-              searchable
-              flex={1}
-              key={form.key('modelName')}
-              {...form.getInputProps('modelName')}
-            />
-          ) : (
-            <TextInput
-              label="Model Name"
-              placeholder="Enter model name"
-              flex={1}
-              key={form.key('modelName')}
-              {...form.getInputProps('modelName')}
-            />
-          )}
+          <Autocomplete
+            label="Model Name"
+            placeholder="Enter model name"
+            data={modelNameSuggestions}
+            flex={1}
+            key={form.key('modelName')}
+            {...form.getInputProps('modelName')}
+          />
           <Transition mounted={isOpen && showNameInput} transition="slide-right" duration={200} timingFunction="ease">
             {transitionStyle => (
               <TextInput

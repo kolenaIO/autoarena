@@ -1,3 +1,29 @@
 body {
   overscroll-behavior-y: none;
+  background-color: white;
+  background-image: url('/assets/cubes.png');
+}
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/assets/fonts/Sora-Regular.ttf') format('truetype');
+  font-weight: 400;
+}
+
+@font-face {
+  font-family: 'Sora';
+  src: url('/assets/fonts/Sora-SemiBold.ttf') format('truetype');
+  font-weight: 600;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Sora', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 600;
+  font-style: normal;
 }

@@ -1,5 +1,5 @@
 import { ReactNode, useEffect, useMemo, useState } from 'react';
-import { Modal, Select, Stack, Text, TextInput, Transition } from '@mantine/core';
+import { Autocomplete, Modal, Stack, Text, TextInput, Transition } from '@mantine/core';
 import { useForm } from '@mantine/form';
 import { useUrlState, useCreateJudge, useJudges } from '../../hooks';
 import { JudgeType, judgeTypeToHumanReadableName } from './types.ts';
@@ -15,12 +15,12 @@ type Form = {
 
 type Props = {
   judgeType: JudgeType;
-  modelOptions?: string[];
+  recommendedModels?: string[];
   isOpen: boolean;
   onClose: () => void;
   extraCopy?: ReactNode;
 };
-export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
+export function CreateJudgeModal({ judgeType, recommendedModels, isOpen, onClose, extraCopy }: Props) {
   const { projectSlug = '' } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
   const { mutate: createJudge } = useCreateJudge({ projectSlug });
@@ -67,6 +67,7 @@ export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, ext
     handleClose();
   }
 
+  const modelNameSuggestions = recommendedModels != null ? [{ group: 'Recommended', items: recommendedModels }] : [];
   return (
     <Modal
       opened={isOpen}
@@ -78,25 +79,14 @@ export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, ext
         <Stack fz="sm">
           <Text inherit>Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
           {extraCopy}
-          {modelOptions != null ? (
-            <Select
-              label="Model Name"
-              placeholder="Select Model"
-              data={modelOptions}
-              searchable
-              flex={1}
-              key={form.key('modelName')}
-              {...form.getInputProps('modelName')}
-            />
-          ) : (
-            <TextInput
-              label="Model Name"
-              placeholder="Enter model name"
-              flex={1}
-              key={form.key('modelName')}
-              {...form.getInputProps('modelName')}
-            />
-          )}
+          <Autocomplete
+            label="Model Name"
+            placeholder="Enter model name"
+            data={modelNameSuggestions}
+            flex={1}
+            key={form.key('modelName')}
+            {...form.getInputProps('modelName')}
+          />
           <Transition mounted={isOpen && showNameInput} transition="slide-right" duration={200} timingFunction="ease">
             {transitionStyle => (
               <TextInput

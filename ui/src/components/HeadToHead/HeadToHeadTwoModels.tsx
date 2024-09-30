@@ -145,29 +145,33 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
       </Group>
 
       {!isLoading && nHeadToHeads === 0 ? (
-        <NonIdealState
-          IconComponent={IconCactus}
-          description={
-            <Stack align="center" gap="xs">
-              <Text inherit>
-                No head-to-heads {showMode !== 'All' && `${showMode.toLowerCase()} `}between {modelNames}
-              </Text>
-              {showMode !== 'All' && <Text>({pluralize(nHeadToHeadsTotal, 'total head-to-head')})</Text>}
-            </Stack>
-          }
-        />
+        <Paper withBorder bg="white" p="xl">
+          <NonIdealState
+            IconComponent={IconCactus}
+            description={
+              <Stack align="center" gap="xs">
+                <Text inherit>
+                  No head-to-heads {showMode !== 'All' && `${showMode.toLowerCase()} `}between {modelNames}
+                </Text>
+                {showMode !== 'All' && <Text>({pluralize(nHeadToHeadsTotal, 'total head-to-head')})</Text>}
+              </Stack>
+            }
+          />
+        </Paper>
       ) : !isLoading && headToHeadIndex > nHeadToHeads - 1 ? (
-        <NonIdealState
-          IconComponent={IconBalloon}
-          description={
-            <Stack>
-              <Text>
-                Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between {modelNames}
-              </Text>
-              <Button onClick={() => navigate(appRoutes.leaderboard(projectSlug))}>View Leaderboard</Button>
-            </Stack>
-          }
-        />
+        <Paper withBorder bg="white" p="xl">
+          <NonIdealState
+            IconComponent={IconBalloon}
+            description={
+              <Stack>
+                <Text>
+                  Judged all {nHeadToHeads.toLocaleString()} head-to-head matchups between {modelNames}
+                </Text>
+                <Button onClick={() => navigate(appRoutes.leaderboard(projectSlug))}>View Leaderboard</Button>
+              </Stack>
+            }
+          />
+        </Paper>
       ) : !isLoading ? (
         <>
           <Paper withBorder p="md" bg="gray.0" style={{ overflow: 'auto' }}>

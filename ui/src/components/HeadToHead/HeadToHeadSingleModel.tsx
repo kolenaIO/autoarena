@@ -38,7 +38,9 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
   const modelName = model != null ? `'${model.name}'` : 'selected model';
   const iconProps = { size: 18 };
   return !isLoading && nResponses === 0 ? (
-    <NonIdealState IconComponent={IconCactus} description={`No responses from ${modelName}`} />
+    <Paper withBorder p="xl" bg="white">
+      <NonIdealState IconComponent={IconCactus} description={`No responses from ${modelName}`} />
+    </Paper>
   ) : !isLoading ? (
     <>
       <Stack pb={height + 32}>

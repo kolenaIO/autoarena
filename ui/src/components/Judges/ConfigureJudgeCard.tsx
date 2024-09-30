@@ -11,7 +11,7 @@ export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {
   const IconComponent = judgeTypeIconComponent(judgeType);
   const imageUrl = judgeTypeToCoverImageUrl(judgeType);
   return (
-    <UnstyledButton onClick={onClick}>
+    <UnstyledButton onClick={onClick} w="100%" h="100%">
       <Card withBorder h="100%" className={styles.ConfigureJudgeCard}>
         {imageUrl != null && (
           <Card.Section>
@@ -21,7 +21,7 @@ export function ConfigureJudgeCard({ judgeType, description, onClick }: Props) {
         <Card.Section h="100%">
           <Divider />
           <Group wrap="nowrap" p="md" align="center" h="100%">
-            <IconComponent size={36} color="var(--mantine-color-gray-8)" />
+            <IconComponent size={28} color="var(--mantine-color-black)" style={{ flexShrink: 0 }} />
             <Stack gap={0}>
               <Text>{judgeTypeToHumanReadableName(judgeType)}</Text>
               <Text size="xs" c="dimmed">

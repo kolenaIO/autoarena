@@ -1,4 +1,4 @@
-import { Anchor, Group, Menu, Text, Tooltip } from '@mantine/core';
+import { Anchor, Group, Menu, Title, Tooltip } from '@mantine/core';
 import { IconBeta, IconBrandGithub, IconBrandSlack, IconBug, IconHome, IconStack2Filled } from '@tabler/icons-react';
 import { Link } from 'react-router-dom';
 import { ExternalUrls, useAppConfig } from '../lib';
@@ -14,9 +14,9 @@ export function MainMenu() {
       <Menu.Target>
         <Group gap={4}>
           <IconStack2Filled {...iconProps} />
-          <Text fw="bold" c="black">
+          <Title order={5} c="black">
             AutoArena
-          </Text>
+          </Title>
           <Tooltip label="Beta Release" fz="xs">
             <IconBeta size={14} color="var(--mantine-color-ice-8)" />
           </Tooltip>

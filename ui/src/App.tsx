@@ -3,7 +3,7 @@ import 'mantine-datatable/styles.layer.css';
 import '@mantine/notifications/styles.css';
 import '@mantine/charts/styles.css';
 import './global.css';
-import { createTheme, MantineProvider, Modal, Popover, Tooltip } from '@mantine/core';
+import { Accordion, Button, createTheme, MantineProvider, Modal, Popover, Tooltip } from '@mantine/core';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
@@ -19,6 +19,8 @@ const theme = createTheme({
     Modal: Modal.extend({ defaultProps: { transitionProps: { transition: 'fade', duration: 100 } } }),
     Tooltip: Tooltip.extend({ defaultProps: { openDelay: 200 } }),
     Popover: Popover.extend({ defaultProps: { shadow: 'sm' } }),
+    Accordion: Accordion.extend({ defaultProps: { bg: 'white' } }),
+    Button: Button.extend({ defaultProps: { style: { backdropFilter: 'blur(4px)' } } }),
   },
   colors: {
     kolena: [

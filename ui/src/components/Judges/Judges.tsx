@@ -78,7 +78,7 @@ function CreateOpenAIJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="openai"
-        modelOptions={['gpt-4o', 'gpt-4o-mini']}
+        recommendedModels={['gpt-4o-mini', 'gpt-4o']}
         extraCopy={
           <Text inherit>
             Note that a custom API URL can be used by setting{' '}
@@ -108,11 +108,11 @@ function CreateAnthropicJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="anthropic"
-        modelOptions={[
-          'claude-3-5-sonnet-20240620',
-          'claude-3-opus-20240229',
-          'claude-3-sonnet-20240229',
+        recommendedModels={[
           'claude-3-haiku-20240307',
+          'claude-3-sonnet-20240229',
+          'claude-3-opus-20240229',
+          'claude-3-5-sonnet-20240620',
         ]}
       />
     </div>
@@ -132,6 +132,7 @@ function CreateOllamaJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="ollama"
+        recommendedModels={['llama3.1:8b', 'gemma2:9b', 'mistral-nemo:12b']}
         extraCopy={
           <Stack gap={0}>
             <Text size="sm">
@@ -177,7 +178,7 @@ function CreateCohereJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="cohere"
-        modelOptions={['command-r-plus', 'command-r']}
+        recommendedModels={['command-r', 'command-r-plus']}
       />
     </div>
   );
@@ -196,7 +197,7 @@ function CreateGeminiJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="gemini"
-        modelOptions={['gemini-1.5-flash-002', 'gemini-1.5-pro-002', 'gemini-1.5-flash-001', 'gemini-1.5-pro-001']}
+        recommendedModels={['gemini-1.5-flash-002', 'gemini-1.5-pro-002', 'gemini-1.5-flash-001', 'gemini-1.5-pro-001']}
       />
     </div>
   );
@@ -214,6 +215,12 @@ function CreateTogetherAIJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="together"
+        recommendedModels={[
+          'google/gemma-2-9b-it',
+          'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+          'databricks/dbrx-instruct',
+          'Qwen/Qwen2-72B-Instruct',
+        ]}
         extraCopy={
           <Text inherit>
             Choose any inference model listed in the{' '}
@@ -240,7 +247,7 @@ function CreateBedrockJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="bedrock"
-        modelOptions={[
+        recommendedModels={[
           'anthropic.claude-3-5-sonnet-20240620-v1:0',
           'anthropic.claude-3-opus-20240229-v1:0',
           'anthropic.claude-3-sonnet-20240229-v1:0',

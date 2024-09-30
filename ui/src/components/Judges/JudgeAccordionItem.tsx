@@ -49,7 +49,14 @@ export function JudgeAccordionItem({ judge }: Props) {
   const IconComponent = judgeTypeIconComponent(judge_type);
   return (
     <Accordion.Item key={id} value={`${judge_type}-${id}`}>
-      <Accordion.Control icon={<IconComponent width={20} height={20} color="var(--mantine-color-gray-8)" />}>
+      <Accordion.Control
+        icon={
+          <IconComponent
+            size={20}
+            color={isEnabled ? 'var(--mantine-color-black)' : 'var(--mantine-color-gray-light-color)'}
+          />
+        }
+      >
         <Group justify="space-between" pl="xs" pr="lg">
           <Stack gap={0}>
             <Text c={!isEnabled ? 'gray.6' : undefined}>

@@ -1,5 +1,5 @@
 import { useSearchParams } from 'react-router-dom';
-import { Button, Center, Group, Divider, Select, Stack } from '@mantine/core';
+import { Button, Center, Group, Divider, Select, Stack, Paper } from '@mantine/core';
 import { useMemo } from 'react';
 import { IconClick } from '@tabler/icons-react';
 import { prop, sortBy } from 'ramda';
@@ -113,7 +113,9 @@ export function HeadToHead() {
         ) : modelA != null || modelB != null ? (
           <HeadToHeadSingleModel modelId={modelA?.id ?? modelB?.id ?? -1} />
         ) : (
-          <NonIdealState IconComponent={IconClick} description="Select two models to compare head-to-head" />
+          <Paper withBorder bg="white" p="xl">
+            <NonIdealState IconComponent={IconClick} description="Select two models to compare head-to-head" />
+          </Paper>
         )}
       </Stack>
     </Center>

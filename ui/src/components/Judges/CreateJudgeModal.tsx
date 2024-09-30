@@ -15,12 +15,12 @@ type Form = {
 
 type Props = {
   judgeType: JudgeType;
-  modelOptions?: string[];
+  recommendedModels?: string[];
   isOpen: boolean;
   onClose: () => void;
   extraCopy?: ReactNode;
 };
-export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, extraCopy }: Props) {
+export function CreateJudgeModal({ judgeType, recommendedModels, isOpen, onClose, extraCopy }: Props) {
   const { projectSlug = '' } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
   const { mutate: createJudge } = useCreateJudge({ projectSlug });
@@ -67,7 +67,7 @@ export function CreateJudgeModal({ judgeType, modelOptions, isOpen, onClose, ext
     handleClose();
   }
 
-  const modelNameSuggestions = modelOptions != null ? [{ group: 'Recommended', items: modelOptions }] : [];
+  const modelNameSuggestions = recommendedModels != null ? [{ group: 'Recommended', items: recommendedModels }] : [];
   return (
     <Modal
       opened={isOpen}

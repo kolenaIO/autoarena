@@ -1,3 +1,4 @@
+export * from './Error';
 export * from './HeadToHead';
 export * from './Judges';
 export * from './Leaderboard';

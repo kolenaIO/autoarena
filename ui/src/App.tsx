@@ -7,7 +7,7 @@ import { Accordion, Button, createTheme, MantineProvider, Modal, Popover, Toolti
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import { Notifications } from '@mantine/notifications';
-import { PageNotFound, Page, Tab } from './components';
+import { PageNotFound, Page, Tab, UnhandledError } from './components';
 import { AppConfigContext, DEFAULT_APP_CONFIG } from './lib';
 
 const theme = createTheme({
@@ -41,12 +41,13 @@ const theme = createTheme({
 
 const queryClient = new QueryClient({});
 
+const errorElement = <UnhandledError />;
 const router = createBrowserRouter([
-  { path: `/`, element: <Page tab={Tab.LEADERBOARD} /> },
-  { path: `/project/:projectSlug`, element: <Page tab={Tab.LEADERBOARD} /> },
-  { path: `/project/:projectSlug/compare`, element: <Page tab={Tab.COMPARISON} /> },
-  { path: `/project/:projectSlug/judges`, element: <Page tab={Tab.JUDGES} /> },
-  { path: '*', element: <PageNotFound /> },
+  { path: `/`, element: <Page tab={Tab.LEADERBOARD} />, errorElement },
+  { path: `/project/:projectSlug`, element: <Page tab={Tab.LEADERBOARD} />, errorElement },
+  { path: `/project/:projectSlug/compare`, element: <Page tab={Tab.COMPARISON} />, errorElement },
+  { path: `/project/:projectSlug/judges`, element: <Page tab={Tab.JUDGES} />, errorElement },
+  { path: '*', element: <PageNotFound />, errorElement },
 ]);
 
 function App() {

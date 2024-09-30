@@ -1,4 +1,3 @@
-export * from './Error';
 export * from './HeadToHead';
 export * from './Judges';
 export * from './Leaderboard';
@@ -15,3 +14,4 @@ export * from './Page';
 export * from './PageNotFound';
 export * from './ProjectSelect';
 export * from './types';
+export * from './UnhandledError';

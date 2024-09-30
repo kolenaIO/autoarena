@@ -1,6 +1,6 @@
 import { Button, Group, Paper, Stack, Text } from '@mantine/core';
 import { IconExclamationCircle, IconHome, IconRefresh } from '@tabler/icons-react';
-import { NonIdealState } from '../NonIdealState.tsx';
+import { NonIdealState } from './NonIdealState.tsx';
 
 export function UnhandledError() {
   return (

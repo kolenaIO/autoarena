@@ -1,4 +1,4 @@
-import { Button, Stack, Text } from '@mantine/core';
+import { Button, Paper, Stack, Text } from '@mantine/core';
 import { IconFileUnknown } from '@tabler/icons-react';
 import { useRouteError } from 'react-router-dom';
 import { NonIdealState } from './NonIdealState.tsx';
@@ -7,7 +7,7 @@ export function PageNotFound() {
   useRouteError();
   return (
     <Stack justify="center" align="center" h="100vh">
-      <Stack justify="center" align="center">
+      <Paper withBorder p="xl">
         <NonIdealState
           IconComponent={IconFileUnknown}
           description={
@@ -17,7 +17,7 @@ export function PageNotFound() {
             </Stack>
           }
         />
-      </Stack>
+      </Paper>
     </Stack>
   );
 }

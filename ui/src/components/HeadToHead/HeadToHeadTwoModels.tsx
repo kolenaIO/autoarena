@@ -7,7 +7,7 @@ import {
   IconBalloon,
   IconCactus,
 } from '@tabler/icons-react';
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads, useUrlState, useSubmitHeadToHeadVote, useModel, useAppRoutes } from '../../hooks';
@@ -104,6 +104,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     };
   }, [showVoteHistory, headToHead]);
 
+  console.log(headToHead?.history);
   const modelNames = modelA != null && modelB != null ? `'${modelA.name}' and '${modelB.name}'` : 'selected models';
   const iconProps = { size: 18 };
   return (
@@ -248,21 +249,22 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
                 >
                   Next
                 </Button>
-                {showVoteHistory && (
-                  <>
-                    <div />
-                    {[votesA, votesTie, votesB].map((votes, i) => (
-                      <Stack key={i} gap="xs" align="center" fz="xs">
-                        {votes.map((judge, i) => (
-                          <Text key={i} span inherit>
-                            {judge}
-                          </Text>
-                        ))}
-                      </Stack>
-                    ))}
-                    <div />
-                  </>
-                )}
+                {showVoteHistory &&
+                  headToHead?.history?.map(({ winner, judge_name }, i) => (
+                    <Fragment key={`${headToHeadIndex}-${i}`}>
+                      <div />
+                      <Text maw={150} ta="center" fz="xs" truncate="end">
+                        {winner === 'A' ? judge_name : ''}
+                      </Text>
+                      <Text maw={150} ta="center" fz="xs" truncate="end">
+                        {winner !== 'A' && winner !== 'B' ? judge_name : ''}
+                      </Text>
+                      <Text maw={150} ta="center" fz="xs" truncate="end">
+                        {winner === 'B' ? judge_name : ''}
+                      </Text>
+                      <div />
+                    </Fragment>
+                  ))}
               </SimpleGrid>
             </Stack>
 

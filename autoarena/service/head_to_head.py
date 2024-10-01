@@ -105,10 +105,10 @@ class HeadToHeadService:
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                 SELECT :response_id_slug, :response_a_id, :response_b_id, j.id, :winner
                 FROM judge j
-                WHERE j.judge_type = $judge_type
+                WHERE j.judge_type = :judge_type
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
                     winner = IIF(
-                        response_a_id = $response_b_id,
+                        response_a_id = :response_b_id,
                         IIF(EXCLUDED.winner = 'A', 'B', IIF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)), -- invert
                         EXCLUDED.winner
                     )

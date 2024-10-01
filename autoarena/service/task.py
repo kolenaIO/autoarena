@@ -110,10 +110,10 @@ class TaskService:
             conn.cursor().execute(
                 """
                 UPDATE task
-                SET progress = IFNULL($progress, progress),
-                    status = $status,
-                    logs = logs || '\n' || $log
-                WHERE id = $id
+                SET progress = IFNULL(:progress, progress),
+                    status = :status,
+                    logs = logs || '\n' || :log
+                WHERE id = :id
                 """,
                 dict(id=task_id, log=log, progress=progress, status=status.value),
             )

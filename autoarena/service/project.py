@@ -77,7 +77,7 @@ class ProjectService:
                     cur = conn.cursor()
                     cur.executescript(migration.read_text())
                     cur.execute(
-                        "INSERT INTO migration (migration_index, filename) VALUES ($index, $filename)",
+                        "INSERT INTO migration (migration_index, filename) VALUES (:index, :filename)",
                         dict(index=int(migration.name.split("__")[0]), filename=migration.name),
                     )
             except Exception as e:

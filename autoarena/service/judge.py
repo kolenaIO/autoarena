@@ -125,7 +125,7 @@ class JudgeService:
     def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
         with ProjectService.connect(project_slug, autocommit=True) as conn:
             conn.cursor().execute(
-                "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",
+                "UPDATE judge SET enabled = :enabled WHERE id = :judge_id",
                 dict(judge_id=judge_id, enabled=request.enabled),
             )
         return [j for j in JudgeService.get_all(project_slug) if j.id == judge_id][0]
@@ -133,8 +133,7 @@ class JudgeService:
     @staticmethod
     def delete(project_slug: str, judge_id: int) -> None:
         with ProjectService.connect(project_slug, autocommit=True) as conn:
-            conn.execute("DELETE FROM head_to_head WHERE judge_id = $judge_id", dict(judge_id=judge_id))
-            conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
+            conn.execute("DELETE FROM judge WHERE id = :judge_id", dict(judge_id=judge_id))
 
     @staticmethod
     def check_can_access(judge_type: api.JudgeType) -> bool:

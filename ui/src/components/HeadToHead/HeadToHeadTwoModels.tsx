@@ -104,7 +104,6 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
     };
   }, [showVoteHistory, headToHead]);
 
-  console.log(headToHead?.history);
   const modelNames = modelA != null && modelB != null ? `'${modelA.name}' and '${modelB.name}'` : 'selected models';
   const iconProps = { size: 18 };
   return (

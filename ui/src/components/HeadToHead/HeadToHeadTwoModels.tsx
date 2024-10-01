@@ -233,13 +233,13 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
                     <Fragment key={`${headToHeadIndex}-${i}`}>
                       <div />
                       <Text maw={150} ta="center" fz="xs" truncate="end">
-                        {winner === 'A' ? judge_name : ''}
+                        {winner === 'A' ? judge_name : undefined}
                       </Text>
                       <Text maw={150} ta="center" fz="xs" truncate="end">
-                        {winner !== 'A' && winner !== 'B' ? judge_name : ''}
+                        {winner !== 'A' && winner !== 'B' ? judge_name : undefined}
                       </Text>
                       <Text maw={150} ta="center" fz="xs" truncate="end">
-                        {winner === 'B' ? judge_name : ''}
+                        {winner === 'B' ? judge_name : undefined}
                       </Text>
                       <div />
                     </Fragment>

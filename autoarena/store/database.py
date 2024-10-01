@@ -7,7 +7,7 @@ from typing import Iterator
 
 import pandas as pd
 
-from autoarena.store.utils import id_slug
+from autoarena.store.utils import id_slug, invert_winner
 
 MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
@@ -21,6 +21,7 @@ def get_database_connection(path: Path, commit: bool = False) -> Iterator[sqlite
     cur = conn.cursor()
     try:
         conn.create_function("id_slug", 2, id_slug)
+        conn.create_function("invert_winner", 1, invert_winner)
         cur.execute("PRAGMA foreign_keys = ON")
         yield conn
         if commit:

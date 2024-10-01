@@ -34,9 +34,7 @@ class HeadToHeadService:
                     JSON_GROUP_ARRAY(JSON_OBJECT(
                         'judge_id', j2.id,
                         'judge_name', j2.name,
-                        'winner', CASE WHEN h2.winner = 'A' THEN 'B'
-                                       WHEN h2.winner = 'B' THEN 'A'
-                                       ELSE h2.winner END
+                        'winner', invert_winner(h2.winner)
                     )) AS history_b
                 FROM response ra
                 JOIN response rb ON ra.prompt = rb.prompt
@@ -85,7 +83,6 @@ class HeadToHeadService:
     def get_count(project_slug: str) -> int:
         with ProjectService.connect(project_slug) as conn:
             ((n_h2h,),) = conn.execute(
-                # TODO: clean up id_slug
                 """
                 SELECT COUNT(DISTINCT id_slug(ra.id, rb.id))
                 FROM response ra
@@ -107,11 +104,7 @@ class HeadToHeadService:
                 FROM judge j
                 WHERE j.judge_type = :judge_type
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
-                    winner = IIF(
-                        response_a_id = :response_b_id,
-                        IIF(EXCLUDED.winner = 'A', 'B', IIF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)), -- invert
-                        EXCLUDED.winner
-                    )
+                    winner = IIF(response_a_id = :response_b_id, invert_winner(EXCLUDED.winner), EXCLUDED.winner)
             """,
                 dict(
                     **dataclasses.asdict(request),
@@ -164,6 +157,6 @@ class HeadToHeadService:
                         winner = IIF(
                             response_a_id = EXCLUDED.response_a_id,
                             EXCLUDED.winner,
-                            IIF(EXCLUDED.winner = 'A', 'B', IIF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)) -- invert
+                            invert_winner(EXCLUDED.winner)
                         )
                 """)

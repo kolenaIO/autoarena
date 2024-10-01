@@ -1,6 +1,6 @@
+import sqlite3
 from pathlib import Path
 
-import duckdb
 import pytest
 
 from autoarena.api import api
@@ -60,11 +60,12 @@ def test__migration__existing(test_data_directory: Path) -> None:
 
 def test__migration__existing__pre_migration_system(test_data_directory: Path) -> None:
     project_name = "test__migration__existing__pre_migration_system"
-    old_database_file = test_data_directory / f"{project_name}.duckdb"
+    old_database_file = test_data_directory / f"{project_name}.sqlite"
     initial_migration_file = get_available_migrations()[0]
-    with duckdb.connect(str(old_database_file)) as conn:
+    with sqlite3.connect(str(old_database_file)) as conn:
+        cur = conn.cursor()
         # manually construct a database in the state that it would be in before introducing this migration system
-        conn.sql(initial_migration_file.read_text())
-        conn.execute("DROP TABLE migration")
+        cur.execute(initial_migration_file.read_text())
+        cur.execute("DROP TABLE migration")
     project = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name))
     assert_all_migrations_applied(project)

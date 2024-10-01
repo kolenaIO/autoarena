@@ -1,20 +1,20 @@
+import sqlite3
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
+from typing import Iterator
 
-import duckdb
-
-DATABASE_FILE = Path.cwd() / "autoarena.duckdb"
 MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
 DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=Path.cwd() / "data")
 
 
 @contextmanager
-def get_database_connection(path: Path) -> duckdb.DuckDBPyConnection:
-    conn = duckdb.connect(str(path))
+def get_database_cursor(path: Path) -> Iterator[sqlite3.Cursor]:
+    conn = sqlite3.connect(str(path))
     try:
-        yield conn
+        # TODO: autocommit
+        yield conn.cursor()
     finally:
         conn.close()
 

@@ -74,6 +74,7 @@ class HeadToHeadService:
     def get_count(project_slug: str) -> int:
         with ProjectService.connect(project_slug) as conn:
             ((n_h2h,),) = conn.execute(
+                # TODO: clean up id_slug
                 """
                 SELECT COUNT(DISTINCT id_slug(ra.id, rb.id))
                 FROM response ra
@@ -89,13 +90,21 @@ class HeadToHeadService:
             conn.execute(
                 """
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
-                SELECT ID_SLUG($response_a_id, $response_b_id), $response_a_id, $response_b_id, j.id, $winner
+                SELECT $response_id_slug, $response_a_id, $response_b_id, j.id, $winner
                 FROM judge j
                 WHERE j.judge_type = $judge_type
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
-                    winner = IF(response_a_id = $response_b_id, INVERT_WINNER(EXCLUDED.winner), EXCLUDED.winner)
+                    winner = IF(
+                        response_a_id = $response_b_id,
+                        IF(EXCLUDED.winner = 'A', 'B', IF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)), -- invert
+                        EXCLUDED.winner
+                    )
             """,
-                dict(**dataclasses.asdict(request), judge_type=api.JudgeType.HUMAN.value),
+                dict(
+                    **dataclasses.asdict(request),
+                    response_id_slug=id_slug(request.response_a_id, request.response_b_id),
+                    judge_type=api.JudgeType.HUMAN.value,
+                ),
             )
 
             # 2. adjust elo scores
@@ -133,12 +142,12 @@ class HeadToHeadService:
         with ProjectService.connect(project_slug) as conn:
             conn.execute("""
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
-                SELECT id_slug(response_a_id, response_b_id), response_a_id, response_b_id, judge_id, winner
+                SELECT response_id_slug, response_a_id, response_b_id, judge_id, winner
                 FROM df_h2h_deduped
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
                     winner = IF(
                         response_a_id = EXCLUDED.response_a_id,
                         EXCLUDED.winner,
-                        invert_winner(EXCLUDED.winner)
+                        IF(EXCLUDED.winner = 'A', 'B', IF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)) -- invert
                     )
             """)

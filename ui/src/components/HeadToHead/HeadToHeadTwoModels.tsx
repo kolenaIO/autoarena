@@ -7,7 +7,7 @@ import {
   IconBalloon,
   IconCactus,
 } from '@tabler/icons-react';
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads, useUrlState, useSubmitHeadToHeadVote, useModel, useAppRoutes } from '../../hooks';
@@ -30,7 +30,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const { data: allHeadToHeads, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
   const { data: modelA } = useModel(projectSlug, modelAId);
   const { data: modelB } = useModel(projectSlug, modelBId);
-  const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
+  const { mutate: submitJudgement, isPending } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
   const [showMode, setShowMode] = useState<ShowMode>('All');
@@ -62,7 +62,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
 
   function submitVote(vote: 'A' | 'B' | '-') {
     return () => {
-      if (headToHead != null) {
+      if (headToHead != null && !isPending) {
         submitJudgement({
           response_a_id: headToHead.response_a_id,
           response_b_id: headToHead.response_b_id,
@@ -84,26 +84,6 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   ]);
 
   const hasVoteHistory = (headToHead?.history?.length ?? 0) > 0;
-  const { votesA, votesTie, votesB } = useMemo(() => {
-    const { votesA, votesTie, votesB } = (headToHead?.history ?? []).reduce<{
-      votesA: string[];
-      votesTie: string[];
-      votesB: string[];
-    }>(
-      ({ votesA, votesTie, votesB }, { winner, judge_name }) => ({
-        votesA: [...votesA, ...(winner === 'A' ? [judge_name] : [])],
-        votesTie: [...votesTie, ...(winner === '-' ? [judge_name] : [])],
-        votesB: [...votesB, ...(winner === 'B' ? [judge_name] : [])],
-      }),
-      { votesA: [], votesTie: [], votesB: [] }
-    );
-    return {
-      votesA: votesA.sort(),
-      votesTie: votesTie.sort(),
-      votesB: votesB.sort(),
-    };
-  }, [showVoteHistory, headToHead]);
-
   const modelNames = modelA != null && modelB != null ? `'${modelA.name}' and '${modelB.name}'` : 'selected models';
   const iconProps = { size: 18 };
   return (
@@ -200,18 +180,42 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
                 >
                   Back
                 </Button>
-                <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')} h="100%">
+                <Button
+                  leftSection={<IconArrowLeft {...iconProps} />}
+                  variant="light"
+                  onClick={submitVote('A')}
+                  h="100%"
+                  disabled={isPending}
+                >
                   Left is Better
                 </Button>
                 <Stack gap={4}>
-                  <Button size="compact-xs" leftSection={<IconArrowUp {...iconProps} />} onClick={submitVote('-')}>
+                  <Button
+                    size="compact-xs"
+                    variant="light"
+                    leftSection={<IconArrowUp {...iconProps} />}
+                    onClick={submitVote('-')}
+                    disabled={isPending}
+                  >
                     Both are Good
                   </Button>
-                  <Button size="compact-xs" leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('-')}>
+                  <Button
+                    size="compact-xs"
+                    variant="light"
+                    leftSection={<IconArrowDown {...iconProps} />}
+                    onClick={submitVote('-')}
+                    disabled={isPending}
+                  >
                     Both are Bad
                   </Button>
                 </Stack>
-                <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')} h="100%">
+                <Button
+                  rightSection={<IconArrowRight {...iconProps} />}
+                  variant="light"
+                  onClick={submitVote('B')}
+                  h="100%"
+                  disabled={isPending}
+                >
                   Right is Better
                 </Button>
                 <Button
@@ -224,21 +228,22 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
                 >
                   Next
                 </Button>
-                {showVoteHistory && (
-                  <>
-                    <div />
-                    {[votesA, votesTie, votesB].map((votes, i) => (
-                      <Stack key={i} gap="xs" align="center" fz="xs">
-                        {votes.map((judge, i) => (
-                          <Text key={i} span inherit>
-                            {judge}
-                          </Text>
-                        ))}
-                      </Stack>
-                    ))}
-                    <div />
-                  </>
-                )}
+                {showVoteHistory &&
+                  headToHead?.history?.map(({ winner, judge_name }, i) => (
+                    <Fragment key={`${headToHeadIndex}-${i}`}>
+                      <div />
+                      <Text maw={150} ta="center" fz="xs" truncate="end">
+                        {winner === 'A' ? judge_name : undefined}
+                      </Text>
+                      <Text maw={150} ta="center" fz="xs" truncate="end">
+                        {winner !== 'A' && winner !== 'B' ? judge_name : undefined}
+                      </Text>
+                      <Text maw={150} ta="center" fz="xs" truncate="end">
+                        {winner === 'B' ? judge_name : undefined}
+                      </Text>
+                      <div />
+                    </Fragment>
+                  ))}
               </SimpleGrid>
             </Stack>
 

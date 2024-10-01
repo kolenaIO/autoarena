@@ -27,10 +27,12 @@ export function CreateProjectButton({ size, small }: Props) {
   function validateName(name: string) {
     const existingProjects = new Set((projects ?? []).map(({ slug }) => slug));
     return name === ''
-      ? 'Name cannot be empty'
+      ? 'Project name cannot be empty'
       : existingProjects.has(name)
         ? `Project '${name}' already exists`
-        : undefined;
+        : !/^[a-zA-Z0-9-_ ]*$/.test(name)
+          ? 'Project name can only contain letters, numbers, spaces, -, and _'
+          : undefined;
   }
 
   function handleClose() {

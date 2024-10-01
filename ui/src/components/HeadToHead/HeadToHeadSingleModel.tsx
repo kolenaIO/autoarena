@@ -66,6 +66,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
                 leftSection={<IconArrowLeft {...iconProps} />}
                 onClick={navigateBack}
                 disabled={responseIndex < 1}
+                variant="light"
               >
                 Back
               </Button>
@@ -75,6 +76,7 @@ export function HeadToHeadSingleModel({ modelId }: Props) {
                 rightSection={<IconArrowRight {...iconProps} />}
                 onClick={navigateNext}
                 disabled={responseIndex >= nResponses - 1}
+                variant="light"
               >
                 Next
               </Button>

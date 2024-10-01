@@ -49,7 +49,7 @@ class JudgeService:
     @staticmethod
     def get_df_vote(project_slug: str, judge_id: int) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_vote = conn.execute(
+            return pd.read_sql_query(
                 """
                 SELECT
                     j.name as judge,
@@ -65,12 +65,12 @@ class JudgeService:
                 JOIN response rb ON rb.id = h2h.response_b_id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
-                WHERE j.id = $judge_id
+                WHERE j.id = :judge_id
                 ORDER BY h2h.id
                 """,
-                dict(judge_id=judge_id),
-            ).df()
-        return df_vote
+                conn,
+                params=dict(judge_id=judge_id),
+            )
 
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
@@ -126,8 +126,8 @@ class JudgeService:
 
     @staticmethod
     def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute(
+        with ProjectService.connect(project_slug, autocommit=True) as conn:
+            conn.cursor().execute(
                 "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",
                 dict(judge_id=judge_id, enabled=request.enabled),
             )
@@ -135,7 +135,7 @@ class JudgeService:
 
     @staticmethod
     def delete(project_slug: str, judge_id: int) -> None:
-        with ProjectService.connect(project_slug) as conn:
+        with ProjectService.connect(project_slug, autocommit=True) as conn:
             conn.execute("DELETE FROM head_to_head WHERE judge_id = $judge_id", dict(judge_id=judge_id))
             conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
 

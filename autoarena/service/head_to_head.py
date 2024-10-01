@@ -14,7 +14,7 @@ class HeadToHeadService:
     @staticmethod
     def get_df(project_slug: str, request: api.HeadToHeadsRequest) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            return conn.execute(
+            return pd.read_sql_query(
                 """
                 SELECT
                     ra.model_id AS model_a_id,
@@ -24,7 +24,8 @@ class HeadToHeadService:
                     rb.id AS response_b_id,
                     ra.response AS response_a,
                     rb.response AS response_b,
-                    IFNULL(ARRAY_CONCAT(
+                    -- TODO: this will need to be rewritten
+                    /* IFNULL(ARRAY_CONCAT(
                         ARRAY_AGG({
                             'judge_id': j1.id,
                             'judge_name': j1.name,
@@ -37,7 +38,7 @@ class HeadToHeadService:
                                            WHEN h2.winner = 'B' THEN 'A'
                                            ELSE h2.winner END,
                         }) FILTER (h2.winner IS NOT NULL)
-                    ), []) AS history
+                    ), []) */ '[]' AS history
                 FROM response ra
                 JOIN response rb ON ra.prompt = rb.prompt
                 JOIN model ma ON ra.model_id = ma.id
@@ -46,14 +47,15 @@ class HeadToHeadService:
                 LEFT JOIN judge j1 ON j1.id = h1.judge_id
                 LEFT JOIN head_to_head h2 ON h2.response_b_id = ra.id AND h2.response_a_id = rb.id
                 LEFT JOIN judge j2 ON j2.id = h2.judge_id
-                WHERE ra.model_id = $model_a_id
-                AND ($model_b_id IS NULL OR rb.model_id = $model_b_id)
+                WHERE ra.model_id = :model_a_id
+                AND (:model_b_id IS NULL OR rb.model_id = :model_b_id)
                 AND ra.model_id != rb.model_id
                 GROUP BY ra.model_id, rb.model_id, ra.id, rb.id, ra.prompt, ra.response, rb.response
                 ORDER BY ra.id, rb.id
                 """,
-                dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
-            ).df()
+                conn,
+                params=dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
+            )
 
     @staticmethod
     def get(project_slug: str, request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
@@ -85,7 +87,7 @@ class HeadToHeadService:
 
     @staticmethod
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
-        with ProjectService.connect(project_slug) as conn:
+        with ProjectService.connect(project_slug, autocommit=True) as conn:
             # 1. insert head-to-head record
             conn.execute(
                 """
@@ -108,7 +110,7 @@ class HeadToHeadService:
             )
 
             # 2. adjust elo scores
-            df_model = conn.execute(
+            df_model = pd.read_sql_query(
                 """
                 SELECT id, elo
                 FROM model m
@@ -117,8 +119,9 @@ class HeadToHeadService:
                 SELECT id, elo
                 FROM model m
                 WHERE EXISTS (SELECT 1 FROM response r WHERE r.id = $response_b_id AND r.model_id = m.id)
-            """,
-                dict(response_a_id=request.response_a_id, response_b_id=request.response_b_id),
+                """,
+                conn,
+                params=dict(response_a_id=request.response_a_id, response_b_id=request.response_b_id),
             ).df()
             model_a = df_model.iloc[0]
             model_b = df_model.iloc[1]

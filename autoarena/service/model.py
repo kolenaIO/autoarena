@@ -6,6 +6,7 @@ from autoarena.api import api
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autoarena.service.project import ProjectService
+from autoarena.store.database import temp_table
 from autoarena.store.utils import check_required_columns
 
 
@@ -16,13 +17,13 @@ class ModelService:
             FROM response r
             GROUP BY r.model_id
         ), vote_count_a AS ( -- this is inelegant but this query is tricky to write
-            SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
+            SELECT m.id AS model_id, SUM(IIF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN response r ON r.model_id = m.id
             LEFT JOIN head_to_head h ON r.id = h.response_a_id
             GROUP BY m.id
         ), vote_count_b AS (
-            SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
+            SELECT m.id AS model_id, SUM(IIF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN response r ON r.model_id = m.id
             LEFT JOIN head_to_head h ON r.id = h.response_b_id
@@ -46,7 +47,11 @@ class ModelService:
     @staticmethod
     def get_by_id(project_slug: str, model_id: int) -> api.Model:
         with ProjectService.connect(project_slug) as conn:
-            df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
+            df_model = pd.read_sql_query(
+                f"{ModelService.MODELS_QUERY} WHERE m.id = :model_id",
+                conn,
+                params=dict(model_id=model_id),
+            )
         try:
             return [api.Model(**r) for _, r in df_model.iterrows()][0]
         except IndexError:
@@ -55,7 +60,7 @@ class ModelService:
     @staticmethod
     def get_all_df(project_slug: str) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_model = conn.execute(ModelService.MODELS_QUERY).df()
+            df_model = pd.read_sql_query(ModelService.MODELS_QUERY, conn)
         df_model = df_model.replace({np.nan: None})
         return df_model
 
@@ -94,17 +99,22 @@ class ModelService:
         if len(df_response) != n_input:
             logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
-        with ProjectService.connect(project_slug) as conn:
-            ((new_model_id,),) = conn.execute(
-                "INSERT INTO model (name) VALUES ($model_name) RETURNING id",
-                dict(model_name=model_name),
-            ).fetchall()
+        with ProjectService.connect(project_slug, autocommit=True) as conn:
+            ((new_model_id,),) = (
+                conn.cursor()
+                .execute(
+                    "INSERT INTO model (name) VALUES (:model_name) RETURNING id",
+                    dict(model_name=model_name),
+                )
+                .fetchall()
+            )
             df_response["model_id"] = new_model_id
-            conn.execute("""
-                INSERT INTO response (model_id, prompt, response)
-                SELECT model_id, prompt, response
-                FROM df_response
-            """)
+            with temp_table(conn, df_response, "df_response"):
+                conn.execute("""
+                    INSERT INTO response (model_id, prompt, response)
+                    SELECT model_id, prompt, response
+                    FROM df_response
+                """)
         models = ModelService.get_all(project_slug)
         new_model = [model for model in models if model.id == new_model_id][0]
         return new_model

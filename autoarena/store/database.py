@@ -4,6 +4,8 @@ from contextvars import ContextVar
 from pathlib import Path
 from typing import Iterator
 
+import pandas as pd
+
 MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
 DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=Path.cwd() / "data")
@@ -20,6 +22,15 @@ def get_database_connection(path: Path, autocommit: bool = False) -> Iterator[sq
         if autocommit:
             conn.commit()
         conn.close()
+
+
+@contextmanager
+def temp_table(conn: sqlite3.Connection, df: pd.DataFrame, table_name: str) -> Iterator[None]:
+    df.to_sql(table_name, conn, if_exists="fail", index=False)
+    try:
+        yield
+    finally:
+        conn.execute(f"DROP TABLE {table_name}")
 
 
 def get_available_migrations() -> list[Path]:

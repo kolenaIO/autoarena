@@ -15,15 +15,17 @@ DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=
 
 
 @contextmanager
-def get_database_connection(path: Path, autocommit: bool = False) -> Iterator[sqlite3.Connection]:
-    conn = sqlite3.connect(str(path))
+def get_database_connection(path: Path, commit: bool = False) -> Iterator[sqlite3.Connection]:
+    mode = "rwc" if commit else "ro"  # open in readonly mode unless configured to commit
+    conn = sqlite3.connect(f"file:{path}?mode={mode}", timeout=10, uri=True)
+    cur = conn.cursor()
     try:
         conn.create_function("id_slug", 2, id_slug)
-        conn.cursor().execute("PRAGMA foreign_keys = ON")
+        cur.execute("PRAGMA foreign_keys = ON")
         yield conn
-    finally:
-        if autocommit:
+        if commit:
             conn.commit()
+    finally:
         conn.close()
 
 

@@ -13,11 +13,11 @@ from autoarena.store.database import get_database_connection, get_available_migr
 class ProjectService:
     @staticmethod
     @contextmanager
-    def connect(slug: str, autocommit: bool = False) -> Iterator[sqlite3.Connection]:
+    def connect(slug: str, commit: bool = False) -> Iterator[sqlite3.Connection]:
         path = ProjectService._slug_to_path(slug)
         if not path.exists():
             raise NotFoundError(f"File for project '{slug}' not found (expected: {path})")
-        with get_database_connection(path, autocommit=autocommit) as conn:
+        with get_database_connection(path, commit=commit) as conn:
             yield conn
 
     @staticmethod
@@ -72,7 +72,7 @@ class ProjectService:
             if migration.name in applied_migrations:
                 continue
             try:
-                with get_database_connection(path, autocommit=True) as conn:
+                with get_database_connection(path, commit=True) as conn:
                     logger.info(f"Applying migration '{migration.name}' to '{path.name}'")
                     cur = conn.cursor()
                     cur.executescript(migration.read_text())
@@ -91,7 +91,6 @@ class ProjectService:
                 cur = conn.cursor()
                 cur.execute("SELECT migration_index, filename FROM migration ORDER BY migration_index")
                 return cur.fetchall()
-        # TODO: what exception should this be?
         except sqlite3.OperationalError:
             return []  # database is new and does not have a migration table
 

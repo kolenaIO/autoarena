@@ -47,14 +47,11 @@ class TaskService:
     @staticmethod
     def has_active(project_slug: str) -> api.HasActiveTasks:
         with ProjectService.connect(project_slug) as conn:
-            records = (
-                conn.cursor()
-                .execute(
-                    "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN (:started, :in_progress))",
-                    dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
-                )
-                .fetchall()
-            )
+            cur = conn.cursor()
+            records = cur.execute(
+                "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN (:started, :in_progress))",
+                dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
+            ).fetchall()
             return api.HasActiveTasks(has_active=len(records) > 0)
 
     @staticmethod
@@ -73,25 +70,22 @@ class TaskService:
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             logs = f"{TaskService._time_slug()} {log}"
-            ((task_id, created, progress, status, logs),) = (
-                conn.cursor()
-                .execute(
-                    """
+            cur = conn.cursor()
+            ((task_id, created, progress, status, logs),) = cur.execute(
+                """
                 INSERT INTO task (task_type, status, logs)
                 VALUES (:task_type, :status, :logs)
                 RETURNING id, created, progress, status, logs
                 """,
-                    dict(task_type=task_type.value, status=api.TaskStatus.STARTED.value, logs=logs),
-                )
-                .fetchall()
-            )
+                dict(task_type=task_type.value, status=api.TaskStatus.STARTED.value, logs=logs),
+            ).fetchall()
         return api.Task(id=task_id, task_type=task_type, created=created, progress=progress, status=status, logs=logs)
 
     @staticmethod
     def delete_completed(project_slug: str) -> None:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             conn.cursor().execute(
                 "DELETE FROM task WHERE status IN (:completed, :failed)",
                 dict(completed=api.TaskStatus.COMPLETED.value, failed=api.TaskStatus.FAILED.value),
@@ -105,7 +99,7 @@ class TaskService:
         progress: Optional[float] = None,
         status: api.TaskStatus = api.TaskStatus.IN_PROGRESS,
     ) -> None:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             log = f"{TaskService._time_slug()} {log}"
             conn.cursor().execute(
                 """

@@ -96,7 +96,7 @@ class HeadToHeadService:
 
     @staticmethod
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             cur = conn.cursor()
 
             # 1. insert head-to-head record
@@ -153,7 +153,7 @@ class HeadToHeadService:
         df_h2h_deduped = df_h2h_deduped.drop_duplicates(subset=["response_id_slug", "judge_id"], keep="first")
         if len(df_h2h_deduped) != len(df_h2h):
             logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             with temporary_table(conn, df_h2h_deduped) as tmp:
                 conn.execute(f"""
                     INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)

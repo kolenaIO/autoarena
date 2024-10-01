@@ -99,7 +99,7 @@ class ModelService:
         if len(df_response) != n_input:
             logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             ((new_model_id,),) = (
                 conn.cursor()
                 .execute(
@@ -122,7 +122,7 @@ class ModelService:
     @staticmethod
     def delete(project_slug: str, model_id: int) -> None:
         params = dict(model_id=model_id)
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             conn.execute("DELETE FROM model WHERE id = :model_id", params)  # let cascading deletes handle the rest
 
     @staticmethod

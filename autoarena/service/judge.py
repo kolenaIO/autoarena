@@ -74,7 +74,7 @@ class JudgeService:
 
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             cur = conn.cursor()
             ((judge_id, created, enabled),) = cur.execute(
                 """
@@ -105,7 +105,7 @@ class JudgeService:
     # TODO: is this necessary?
     @staticmethod
     def create_human_judge(project_slug: str) -> api.Judge:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             conn.cursor().execute(
                 """
                 INSERT INTO judge (judge_type, name, description, enabled)
@@ -123,7 +123,7 @@ class JudgeService:
 
     @staticmethod
     def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             conn.cursor().execute(
                 "UPDATE judge SET enabled = :enabled WHERE id = :judge_id",
                 dict(judge_id=judge_id, enabled=request.enabled),
@@ -132,7 +132,7 @@ class JudgeService:
 
     @staticmethod
     def delete(project_slug: str, judge_id: int) -> None:
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             conn.execute("DELETE FROM judge WHERE id = :judge_id", dict(judge_id=judge_id))
 
     @staticmethod

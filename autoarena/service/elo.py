@@ -51,7 +51,7 @@ class EloService:
     def reseed_scores(project_slug: str, config: EloConfig = DEFAULT_ELO_CONFIG) -> None:
         df_h2h = EloService.get_df_head_to_head(project_slug)
         df_elo = EloService.compute_elo(df_h2h, config=config)  # noqa: F841
-        with ProjectService.connect(project_slug, autocommit=True) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             with temporary_table(conn, df_elo) as tmp:
                 conn.cursor().execute(
                     f"""

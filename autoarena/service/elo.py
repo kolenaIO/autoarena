@@ -7,7 +7,7 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.service.project import ProjectService
-from autoarena.store.database import temp_table
+from autoarena.store.database import temporary_table
 
 
 @dataclass(frozen=True)
@@ -52,13 +52,13 @@ class EloService:
         df_h2h = EloService.get_df_head_to_head(project_slug)
         df_elo = EloService.compute_elo(df_h2h, config=config)  # noqa: F841
         with ProjectService.connect(project_slug, autocommit=True) as conn:
-            with temp_table(conn, df_elo, "df_elo"):
+            with temporary_table(conn, df_elo) as tmp:
                 conn.cursor().execute(
-                    """
+                    f"""
                     UPDATE model
-                    SET elo = IFNULL(df_elo.elo, :default_elo), q025 = df_elo.q025, q975 = df_elo.q975
+                    SET elo = IFNULL({tmp}.elo, :default_elo), q025 = {tmp}.q025, q975 = {tmp}.q975
                     FROM model m2
-                    LEFT JOIN df_elo ON df_elo.model = m2.name -- left join to set null values for models without votes
+                    LEFT JOIN {tmp} ON {tmp}.model = m2.name -- left join to set null values for models without votes
                     WHERE model.id = m2.id;
                     """,
                     dict(default_elo=config.default_score),

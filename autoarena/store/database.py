@@ -1,4 +1,5 @@
 import sqlite3
+import uuid
 from contextlib import contextmanager
 from contextvars import ContextVar
 from pathlib import Path
@@ -28,10 +29,11 @@ def get_database_connection(path: Path, autocommit: bool = False) -> Iterator[sq
 
 
 @contextmanager
-def temp_table(conn: sqlite3.Connection, df: pd.DataFrame, table_name: str) -> Iterator[None]:
+def temporary_table(conn: sqlite3.Connection, df: pd.DataFrame) -> Iterator[str]:
+    table_name = f"tmp_{uuid.uuid4()}".replace("-", "_")
     df.to_sql(table_name, conn, if_exists="fail", index=False)
     try:
-        yield
+        yield table_name
     finally:
         conn.execute(f"DROP TABLE {table_name}")
 

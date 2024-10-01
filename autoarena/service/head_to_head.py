@@ -8,7 +8,7 @@ from autoarena.api import api
 from autoarena.error import BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.project import ProjectService
-from autoarena.store.database import temp_table
+from autoarena.store.database import temporary_table
 from autoarena.store.utils import id_slug, check_required_columns
 
 
@@ -154,11 +154,11 @@ class HeadToHeadService:
         if len(df_h2h_deduped) != len(df_h2h):
             logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
         with ProjectService.connect(project_slug, autocommit=True) as conn:
-            with temp_table(conn, df_h2h_deduped, "df_h2h_deduped"):
-                conn.execute("""
+            with temporary_table(conn, df_h2h_deduped) as tmp:
+                conn.execute(f"""
                     INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                     SELECT response_id_slug, response_a_id, response_b_id, judge_id, winner
-                    FROM df_h2h_deduped
+                    FROM {tmp}
                     WHERE TRUE
                     ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
                         winner = IIF(

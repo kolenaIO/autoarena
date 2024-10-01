@@ -6,7 +6,7 @@ from autoarena.api import api
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autoarena.service.project import ProjectService
-from autoarena.store.database import temp_table
+from autoarena.store.database import temporary_table
 from autoarena.store.utils import check_required_columns
 
 
@@ -109,11 +109,11 @@ class ModelService:
                 .fetchall()
             )
             df_response["model_id"] = new_model_id
-            with temp_table(conn, df_response, "df_response"):
-                conn.execute("""
+            with temporary_table(conn, df_response) as tmp:
+                conn.execute(f"""
                     INSERT INTO response (model_id, prompt, response)
                     SELECT model_id, prompt, response
-                    FROM df_response
+                    FROM {tmp}
                 """)
         models = ModelService.get_all(project_slug)
         new_model = [model for model in models if model.id == new_model_id][0]

@@ -6,6 +6,7 @@ from tenacity import retry, stop_after_attempt, RetryCallState, wait_exponential
 
 from autoarena.judge.base import AutomatedJudge
 from autoarena.judge.utils import ACCEPTABLE_RESPONSES
+from autoarena.store.utils import invert_winner
 
 JudgeWrapper = Callable[[type[AutomatedJudge]], type[AutomatedJudge]]
 T = TypeVar("T", bound=AutomatedJudge)
@@ -20,11 +21,7 @@ def ab_shuffling_wrapper(judge_class: type[T]) -> type[T]:
             shuffled = np.random.randint(2) == 0
             ra, rb = (response_b, response_a) if shuffled else (response_a, response_b)
             winner = super().judge(prompt, ra, rb)
-            return self._unshuffle_winner(winner) if shuffled else winner
-
-        @staticmethod
-        def _unshuffle_winner(winner: str) -> str:
-            return "B" if winner == "A" else "A" if winner == "B" else "-"
+            return invert_winner(winner) if shuffled else winner
 
     return ABShufflingJudge
 

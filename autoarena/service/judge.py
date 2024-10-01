@@ -75,24 +75,21 @@ class JudgeService:
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
         with ProjectService.connect(project_slug, autocommit=True) as conn:
-            ((judge_id, created, enabled),) = (
-                conn.cursor()
-                .execute(
-                    """
+            cur = conn.cursor()
+            ((judge_id, created, enabled),) = cur.execute(
+                """
                 INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
                 VALUES (:judge_type, :name, :model_name, :system_prompt, :description, TRUE)
                 RETURNING id, created, enabled
-            """,
-                    dict(
-                        judge_type=request.judge_type.value,
-                        name=request.name,
-                        model_name=request.model_name,
-                        system_prompt=request.system_prompt,
-                        description=request.description,
-                    ),
-                )
-                .fetchall()
-            )
+                """,
+                dict(
+                    judge_type=request.judge_type.value,
+                    name=request.name,
+                    model_name=request.model_name,
+                    system_prompt=request.system_prompt,
+                    description=request.description,
+                ),
+            ).fetchall()
         return api.Judge(
             id=judge_id,
             judge_type=request.judge_type,

@@ -26,21 +26,18 @@ class HeadToHeadService:
                     rb.id AS response_b_id,
                     ra.response AS response_a,
                     rb.response AS response_b,
-                    -- TODO: this will need to be rewritten
-                    /* IFNULL(ARRAY_CONCAT(
-                        ARRAY_AGG({
-                            'judge_id': j1.id,
-                            'judge_name': j1.name,
-                            'winner': h1.winner,
-                        }) FILTER (h1.winner IS NOT NULL),
-                        ARRAY_AGG({
-                            'judge_id': j2.id,
-                            'judge_name': j2.name,
-                            'winner': CASE WHEN h2.winner = 'A' THEN 'B'
-                                           WHEN h2.winner = 'B' THEN 'A'
-                                           ELSE h2.winner END,
-                        }) FILTER (h2.winner IS NOT NULL)
-                    ), []) */ '[]' AS history
+                    JSON_GROUP_ARRAY(JSON_OBJECT(
+                        'judge_id', j1.id,
+                        'judge_name', j1.name,
+                        'winner', h1.winner
+                    )) AS history_a,
+                    JSON_GROUP_ARRAY(JSON_OBJECT(
+                        'judge_id', j2.id,
+                        'judge_name', j2.name,
+                        'winner', CASE WHEN h2.winner = 'A' THEN 'B'
+                                       WHEN h2.winner = 'B' THEN 'A'
+                                       ELSE h2.winner END
+                    )) AS history_b
                 FROM response ra
                 JOIN response rb ON ra.prompt = rb.prompt
                 JOIN model ma ON ra.model_id = ma.id
@@ -58,8 +55,16 @@ class HeadToHeadService:
                 conn,
                 params=dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             )
-        df_h2h["history"] = df_h2h["history"].apply(json.loads)
-        return df_h2h
+        if len(df_h2h) == 0:
+            df_h2h = df_h2h.assign(history=None)
+        else:
+            df_h2h["history"] = df_h2h.apply(
+                lambda r: [
+                    h for h in [*json.loads(r.history_a), *json.loads(r.history_b)] if h["judge_id"] is not None
+                ],
+                axis=1,
+            )
+        return df_h2h.drop(columns=["history_a", "history_b"])
 
     @staticmethod
     def get(project_slug: str, request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:

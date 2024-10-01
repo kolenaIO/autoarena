@@ -11,10 +11,9 @@ from autoarena.store.database import get_database_connection, get_available_migr
 
 
 class ProjectService:
-    # TODO: rename usage to 'cursor' or something similar
     @staticmethod
     @contextmanager
-    def connect(slug: str, autocommit: bool = False) -> Iterator[sqlite3.Cursor]:
+    def connect(slug: str, autocommit: bool = False) -> Iterator[sqlite3.Connection]:
         path = ProjectService._slug_to_path(slug)
         if not path.exists():
             raise NotFoundError(f"File for project '{slug}' not found (expected: {path})")

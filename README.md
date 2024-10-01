@@ -75,7 +75,7 @@ AutoArena requires two pieces of information to test a model: the input `prompt`
 
 ### 📂 Data Storage
 
-Data is stored in `./data/<project>.duckdb` files in the directory where you invoked AutoArena. See
+Data is stored in `./data/<project>.sqlite` files in the directory where you invoked AutoArena. See
 [`data/README.md`](./data/README.md) for more details on data storage in AutoArena.
 
 ## 🦾 Development

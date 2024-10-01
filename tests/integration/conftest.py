@@ -50,7 +50,7 @@ def api_v1_client(test_data_directory: Path) -> Iterator[TestClient]:
 @pytest.fixture(scope="function")
 def project_slug(api_v1_client: TestClient, test_data_directory: Path) -> Iterator[str]:
     slug = f"test-{str(uuid.uuid4())}"
-    database_file = test_data_directory / f"{slug}.duckdb"
+    database_file = test_data_directory / f"{slug}.sqlite"
     database_file.unlink(missing_ok=True)
     api_v1_client.put("/project", json=dict(name=slug)).json()
     try:

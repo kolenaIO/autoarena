@@ -18,9 +18,8 @@ DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=
 def get_database_connection(path: Path, autocommit: bool = False) -> Iterator[sqlite3.Connection]:
     conn = sqlite3.connect(str(path))
     try:
-        # TODO: autocommit
         conn.create_function("id_slug", 2, id_slug)
-        conn.cursor().execute("PRAGMA foreign_keys = ON")  # TODO: is this necessary to run every time?
+        conn.cursor().execute("PRAGMA foreign_keys = ON")
         yield conn
     finally:
         if autocommit:

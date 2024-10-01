@@ -7,18 +7,18 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.error import NotFoundError, MigrationError
-from autoarena.store.database import get_database_cursor, get_available_migrations, DataDirectoryProvider
+from autoarena.store.database import get_database_connection, get_available_migrations, DataDirectoryProvider
 
 
 class ProjectService:
     # TODO: rename usage to 'cursor' or something similar
     @staticmethod
     @contextmanager
-    def connect(slug: str) -> Iterator[sqlite3.Cursor]:
+    def connect(slug: str, autocommit: bool = False) -> Iterator[sqlite3.Cursor]:
         path = ProjectService._slug_to_path(slug)
         if not path.exists():
             raise NotFoundError(f"File for project '{slug}' not found (expected: {path})")
-        with get_database_cursor(path) as conn:
+        with get_database_connection(path, autocommit=autocommit) as conn:
             yield conn
 
     @staticmethod
@@ -73,10 +73,11 @@ class ProjectService:
             if migration.name in applied_migrations:
                 continue
             try:
-                with get_database_cursor(path) as conn:
+                with get_database_connection(path, autocommit=True) as conn:
                     logger.info(f"Applying migration '{migration.name}' to '{path.name}'")
-                    conn.execute(migration.read_text())
-                    conn.execute(
+                    cur = conn.cursor()
+                    cur.executescript(migration.read_text())
+                    cur.execute(
                         "INSERT INTO migration (migration_index, filename) VALUES ($index, $filename)",
                         dict(index=int(migration.name.split("__")[0]), filename=migration.name),
                     )
@@ -87,9 +88,10 @@ class ProjectService:
     @staticmethod
     def _get_applied_migrations(path: Path) -> list[tuple[int, str]]:
         try:
-            with get_database_cursor(path) as conn:
-                conn.execute("SELECT migration_index, filename FROM migration ORDER BY migration_index")
-                return conn.fetchall()
+            with get_database_connection(path) as conn:
+                cur = conn.cursor()
+                cur.execute("SELECT migration_index, filename FROM migration ORDER BY migration_index")
+                return cur.fetchall()
         # TODO: what exception should this be?
         except sqlite3.OperationalError:
             return []  # database is new and does not have a migration table

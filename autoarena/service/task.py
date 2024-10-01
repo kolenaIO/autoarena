@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from typing import Optional, AsyncIterator
 
+import pandas as pd
 
 from autoarena.api import api
 from autoarena.error import NotFoundError
@@ -15,17 +16,18 @@ class TaskService:
     @staticmethod
     def get_all(project_slug: str) -> list[api.Task]:
         with ProjectService.connect(project_slug) as conn:
-            df_task = conn.execute("SELECT id, task_type, created, progress, status, logs FROM task").df()
+            df_task = pd.read_sql_query("SELECT id, task_type, created, progress, status, logs FROM task", conn)
         return [api.Task(**r) for _, r in df_task.iterrows()]
 
     @staticmethod
     def get(project_slug: str, task_id: int) -> api.Task:
         try:
             with ProjectService.connect(project_slug) as conn:
-                df_task = conn.execute(
-                    "SELECT id, task_type, created, progress, status, logs FROM task WHERE id = $task_id",
-                    dict(task_id=task_id),
-                ).df()
+                df_task = pd.read_sql_query(
+                    "SELECT id, task_type, created, progress, status, logs FROM task WHERE id = :task_id",
+                    conn,
+                    params=dict(task_id=task_id),
+                )
                 return [api.Task(**r) for _, r in df_task.iterrows()][0]
         except IndexError:
             raise NotFoundError(f"Task with id '{task_id}' not found")

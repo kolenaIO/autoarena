@@ -10,12 +10,15 @@ DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=
 
 
 @contextmanager
-def get_database_cursor(path: Path) -> Iterator[sqlite3.Cursor]:
+def get_database_connection(path: Path, autocommit: bool = False) -> Iterator[sqlite3.Connection]:
     conn = sqlite3.connect(str(path))
     try:
         # TODO: autocommit
-        yield conn.cursor()
+        conn.cursor().execute("PRAGMA foreign_keys = ON")  # TODO: is this necessary to run every time?
+        yield conn
     finally:
+        if autocommit:
+            conn.commit()
         conn.close()
 
 

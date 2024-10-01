@@ -15,7 +15,7 @@ class JudgeService:
     @staticmethod
     def get_all(project_slug: str) -> list[api.Judge]:
         with ProjectService.connect(project_slug) as conn:
-            df = conn.execute(
+            df = pd.read_sql_query(
                 """
                 SELECT
                     j.id,
@@ -24,9 +24,9 @@ class JudgeService:
                     j.name,
                     j.model_name,
                     j.system_prompt,
-                    j,description,
+                    j.description,
                     j.enabled,
-                    SUM(IF(h.id IS NOT NULL, 1, 0)) AS n_votes
+                    SUM(IIF(h.id IS NOT NULL, 1, 0)) AS n_votes
                 FROM judge j
                 LEFT JOIN head_to_head h ON h.judge_id = j.id
                 GROUP BY
@@ -40,7 +40,8 @@ class JudgeService:
                     j.enabled
                 ORDER BY j.id
                 """,
-            ).df()
+                conn,
+            )
         judge_types = {j for j in api.JudgeType}
         df["judge_type"] = df["judge_type"].apply(lambda j: j if j in judge_types else api.JudgeType.UNRECOGNIZED.value)
         return [api.Judge(**r) for _, r in df.iterrows()]
@@ -73,21 +74,25 @@ class JudgeService:
 
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
-        with ProjectService.connect(project_slug) as conn:
-            ((judge_id, created, enabled),) = conn.execute(
-                """
+        with ProjectService.connect(project_slug, autocommit=True) as conn:
+            ((judge_id, created, enabled),) = (
+                conn.cursor()
+                .execute(
+                    """
                 INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
-                VALUES ($judge_type, $name, $model_name, $system_prompt, $description, TRUE)
+                VALUES (:judge_type, :name, :model_name, :system_prompt, :description, TRUE)
                 RETURNING id, created, enabled
             """,
-                dict(
-                    judge_type=request.judge_type.value,
-                    name=request.name,
-                    model_name=request.model_name,
-                    system_prompt=request.system_prompt,
-                    description=request.description,
-                ),
-            ).fetchall()
+                    dict(
+                        judge_type=request.judge_type.value,
+                        name=request.name,
+                        model_name=request.model_name,
+                        system_prompt=request.system_prompt,
+                        description=request.description,
+                    ),
+                )
+                .fetchall()
+            )
         return api.Judge(
             id=judge_id,
             judge_type=request.judge_type,
@@ -103,11 +108,11 @@ class JudgeService:
     # TODO: is this necessary?
     @staticmethod
     def create_human_judge(project_slug: str) -> api.Judge:
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute(
+        with ProjectService.connect(project_slug, autocommit=True) as conn:
+            conn.cursor().execute(
                 """
                 INSERT INTO judge (judge_type, name, description, enabled)
-                VALUES ($judge_type, $name, $description, TRUE)
+                VALUES (:judge_type, :name, :description, TRUE)
                 ON CONFLICT (name) DO NOTHING
             """,
                 dict(

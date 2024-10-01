@@ -1,4 +1,5 @@
 import dataclasses
+import json
 
 import pandas as pd
 from loguru import logger
@@ -7,6 +8,7 @@ from autoarena.api import api
 from autoarena.error import BadRequestError
 from autoarena.service.elo import EloService
 from autoarena.service.project import ProjectService
+from autoarena.store.database import temp_table
 from autoarena.store.utils import id_slug, check_required_columns
 
 
@@ -14,7 +16,7 @@ class HeadToHeadService:
     @staticmethod
     def get_df(project_slug: str, request: api.HeadToHeadsRequest) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            return pd.read_sql_query(
+            df_h2h = pd.read_sql_query(
                 """
                 SELECT
                     ra.model_id AS model_a_id,
@@ -56,6 +58,8 @@ class HeadToHeadService:
                 conn,
                 params=dict(model_a_id=request.model_a_id, model_b_id=request.model_b_id),
             )
+        df_h2h["history"] = df_h2h["history"].apply(json.loads)
+        return df_h2h
 
     @staticmethod
     def get(project_slug: str, request: api.HeadToHeadsRequest) -> list[api.HeadToHead]:
@@ -88,17 +92,19 @@ class HeadToHeadService:
     @staticmethod
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
         with ProjectService.connect(project_slug, autocommit=True) as conn:
+            cur = conn.cursor()
+
             # 1. insert head-to-head record
-            conn.execute(
+            cur.execute(
                 """
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
-                SELECT $response_id_slug, $response_a_id, $response_b_id, j.id, $winner
+                SELECT :response_id_slug, :response_a_id, :response_b_id, j.id, :winner
                 FROM judge j
                 WHERE j.judge_type = $judge_type
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
-                    winner = IF(
+                    winner = IIF(
                         response_a_id = $response_b_id,
-                        IF(EXCLUDED.winner = 'A', 'B', IF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)), -- invert
+                        IIF(EXCLUDED.winner = 'A', 'B', IIF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)), -- invert
                         EXCLUDED.winner
                     )
             """,
@@ -114,20 +120,20 @@ class HeadToHeadService:
                 """
                 SELECT id, elo
                 FROM model m
-                WHERE EXISTS (SELECT 1 FROM response r WHERE r.id = $response_a_id AND r.model_id = m.id)
+                WHERE EXISTS (SELECT 1 FROM response r WHERE r.id = :response_a_id AND r.model_id = m.id)
                 UNION ALL
                 SELECT id, elo
                 FROM model m
-                WHERE EXISTS (SELECT 1 FROM response r WHERE r.id = $response_b_id AND r.model_id = m.id)
+                WHERE EXISTS (SELECT 1 FROM response r WHERE r.id = :response_b_id AND r.model_id = m.id)
                 """,
                 conn,
                 params=dict(response_a_id=request.response_a_id, response_b_id=request.response_b_id),
-            ).df()
+            )
             model_a = df_model.iloc[0]
             model_b = df_model.iloc[1]
             elo_a, elo_b = EloService.compute_elo_single(model_a.elo, model_b.elo, request.winner)
             for model_id, elo in [(model_a.id, elo_a), (model_b.id, elo_b)]:
-                conn.execute("UPDATE model SET elo = $elo WHERE id = $model_id", dict(model_id=model_id, elo=elo))
+                cur.execute("UPDATE model SET elo = :elo WHERE id = :model_id", dict(model_id=model_id, elo=elo))
 
     @staticmethod
     def upload_head_to_heads(project_slug: str, df_h2h: pd.DataFrame) -> None:  # TODO: return type?
@@ -143,14 +149,16 @@ class HeadToHeadService:
         if len(df_h2h_deduped) != len(df_h2h):
             logger.warning(f"Dropped {len(df_h2h) - len(df_h2h_deduped)} duplicate rows before uploading")
         with ProjectService.connect(project_slug) as conn:
-            conn.execute("""
-                INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
-                SELECT response_id_slug, response_a_id, response_b_id, judge_id, winner
-                FROM df_h2h_deduped
-                ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
-                    winner = IF(
-                        response_a_id = EXCLUDED.response_a_id,
-                        EXCLUDED.winner,
-                        IF(EXCLUDED.winner = 'A', 'B', IF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)) -- invert
-                    )
-            """)
+            with temp_table(conn, df_h2h_deduped, "df_h2h_deduped"):
+                conn.execute("""
+                    INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
+                    SELECT response_id_slug, response_a_id, response_b_id, judge_id, winner
+                    FROM df_h2h_deduped
+                    WHERE TRUE
+                    ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
+                        winner = IIF(
+                            response_a_id = EXCLUDED.response_a_id,
+                            EXCLUDED.winner,
+                            IIF(EXCLUDED.winner = 'A', 'B', IIF(EXCLUDED.winner = 'B', 'A', EXCLUDED.winner)) -- invert
+                        )
+                """)

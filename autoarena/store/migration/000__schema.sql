@@ -24,7 +24,7 @@ CREATE TABLE IF NOT EXISTS response (
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     prompt TEXT NOT NULL,
     response TEXT NOT NULL,
-    FOREIGN KEY (model_id) REFERENCES model (id),
+    FOREIGN KEY (model_id) REFERENCES model (id) ON DELETE CASCADE,
     -- TODO: should we allow dupes for nondeterminism? This is a convenience to skip duplicate inserts
     UNIQUE (model_id, prompt)
 );
@@ -40,9 +40,9 @@ CREATE TABLE IF NOT EXISTS head_to_head (
     judge_id INTEGER NOT NULL,
     created TIMESTAMPTZ NOT NULL DEFAULT current_timestamp,
     winner TEXT NOT NULL, -- e.g. "A", "B", "-"
-    FOREIGN KEY (response_a_id) REFERENCES response (id),
-    FOREIGN KEY (response_b_id) REFERENCES response (id),
-    FOREIGN KEY (judge_id) REFERENCES judge (id),
+    FOREIGN KEY (response_a_id) REFERENCES response (id) ON DELETE CASCADE,
+    FOREIGN KEY (response_b_id) REFERENCES response (id) ON DELETE CASCADE,
+    FOREIGN KEY (judge_id) REFERENCES judge (id) ON DELETE CASCADE,
     -- TODO: allow duplicate ratings from same judge (e.g. human)? Unique for now for convenience
     UNIQUE (response_id_slug, judge_id)
 );

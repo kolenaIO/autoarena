@@ -6,6 +6,8 @@ from typing import Iterator
 
 import pandas as pd
 
+from autoarena.store.utils import id_slug
+
 MIGRATION_DIRECTORY = Path(__file__).parent / "migration"
 
 DataDirectoryProvider: ContextVar[Path] = ContextVar("_DATA_DIRECTORY", default=Path.cwd() / "data")
@@ -16,6 +18,7 @@ def get_database_connection(path: Path, autocommit: bool = False) -> Iterator[sq
     conn = sqlite3.connect(str(path))
     try:
         # TODO: autocommit
+        conn.create_function("id_slug", 2, id_slug)
         conn.cursor().execute("PRAGMA foreign_keys = ON")  # TODO: is this necessary to run every time?
         yield conn
     finally:

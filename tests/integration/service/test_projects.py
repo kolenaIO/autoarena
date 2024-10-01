@@ -65,7 +65,8 @@ def test__migration__existing__pre_migration_system(test_data_directory: Path) -
     with sqlite3.connect(str(old_database_file)) as conn:
         cur = conn.cursor()
         # manually construct a database in the state that it would be in before introducing this migration system
-        cur.execute(initial_migration_file.read_text())
+        cur.executescript(initial_migration_file.read_text())
         cur.execute("DROP TABLE migration")
+        conn.commit()
     project = ProjectService.create_idempotent(api.CreateProjectRequest(name=project_name))
     assert_all_migrations_applied(project)

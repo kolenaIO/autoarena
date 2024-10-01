@@ -56,7 +56,7 @@ class EloService:
                 conn.cursor().execute(
                     """
                     UPDATE model
-                    SET elo = IFNULL(df_elo.elo, $default_elo), q025 = df_elo.q025, q975 = df_elo.q975
+                    SET elo = IFNULL(df_elo.elo, :default_elo), q025 = df_elo.q025, q975 = df_elo.q975
                     FROM model m2
                     LEFT JOIN df_elo ON df_elo.model = m2.name -- left join to set null values for models without votes
                     WHERE model.id = m2.id;

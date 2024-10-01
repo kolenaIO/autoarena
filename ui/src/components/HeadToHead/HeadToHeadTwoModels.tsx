@@ -30,7 +30,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const { data: allHeadToHeads, isLoading } = useHeadToHeads({ projectSlug, modelAId, modelBId });
   const { data: modelA } = useModel(projectSlug, modelAId);
   const { data: modelB } = useModel(projectSlug, modelBId);
-  const { mutate: submitJudgement } = useSubmitHeadToHeadVote({ projectSlug });
+  const { mutate: submitJudgement, isPending } = useSubmitHeadToHeadVote({ projectSlug });
   const [headToHeadIndex, setHeadToHeadIndex] = useState(0);
   const { ref: controlBarRef, height } = useElementSize<HTMLDivElement>();
   const [showMode, setShowMode] = useState<ShowMode>('All');
@@ -62,7 +62,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
 
   function submitVote(vote: 'A' | 'B' | '-') {
     return () => {
-      if (headToHead != null) {
+      if (headToHead != null && !isPending) {
         submitJudgement({
           response_a_id: headToHead.response_a_id,
           response_b_id: headToHead.response_b_id,
@@ -200,18 +200,42 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
                 >
                   Back
                 </Button>
-                <Button leftSection={<IconArrowLeft {...iconProps} />} onClick={submitVote('A')} h="100%">
+                <Button
+                  leftSection={<IconArrowLeft {...iconProps} />}
+                  variant="light"
+                  onClick={submitVote('A')}
+                  h="100%"
+                  disabled={isPending}
+                >
                   Left is Better
                 </Button>
                 <Stack gap={4}>
-                  <Button size="compact-xs" leftSection={<IconArrowUp {...iconProps} />} onClick={submitVote('-')}>
+                  <Button
+                    size="compact-xs"
+                    variant="light"
+                    leftSection={<IconArrowUp {...iconProps} />}
+                    onClick={submitVote('-')}
+                    disabled={isPending}
+                  >
                     Both are Good
                   </Button>
-                  <Button size="compact-xs" leftSection={<IconArrowDown {...iconProps} />} onClick={submitVote('-')}>
+                  <Button
+                    size="compact-xs"
+                    variant="light"
+                    leftSection={<IconArrowDown {...iconProps} />}
+                    onClick={submitVote('-')}
+                    disabled={isPending}
+                  >
                     Both are Bad
                   </Button>
                 </Stack>
-                <Button rightSection={<IconArrowRight {...iconProps} />} onClick={submitVote('B')} h="100%">
+                <Button
+                  rightSection={<IconArrowRight {...iconProps} />}
+                  variant="light"
+                  onClick={submitVote('B')}
+                  h="100%"
+                  disabled={isPending}
+                >
                   Right is Better
                 </Button>
                 <Button

@@ -29,9 +29,11 @@ export function useSubmitHeadToHeadVote({ projectSlug, options }: Params) {
         throw new Error('Failed to submit vote');
       }
       await response.json();
+      await new Promise(resolve => setTimeout(resolve, 500)); // add some delay to debounce
     },
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
+      queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getHeadToHeads(projectSlug)) });
     },
     ...options,
   });

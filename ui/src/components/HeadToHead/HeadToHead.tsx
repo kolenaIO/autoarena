@@ -5,9 +5,9 @@ import { IconClick } from '@tabler/icons-react';
 import { prop, sortBy } from 'ramda';
 import { useUrlState, useModels } from '../../hooks';
 import { NonIdealState } from '../NonIdealState.tsx';
+import { APP_CONTENT_WIDTH } from '../constants.ts';
 import { HeadToHeadTwoModels } from './HeadToHeadTwoModels.tsx';
 import { HeadToHeadSingleModel } from './HeadToHeadSingleModel.tsx';
-import {APP_CONTENT_WIDTH} from "../constants.ts";
 
 export function HeadToHead() {
   const { projectSlug } = useUrlState();

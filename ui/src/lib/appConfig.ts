@@ -1,9 +1,8 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
 import { Context, createContext, useContext } from 'react';
-import { Judges, MainMenu } from '../components';
 
-type PropOverrideKey = React.JSXElementConstructor<any>;
-type PropOverrideValue = { [key: string]: any };
+type PropOverrideKey = React.JSXElementConstructor<never>;
+type PropOverrideValue = { [key: string]: unknown };
 
 export type AppConfig = {
   baseApiUrl: string;
@@ -18,10 +17,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   basePath: '',
   apiFetch: fetch,
   apiFetchEventSource: fetchEventSource,
-  propOverrides: new Map([
-    [MainMenu, { extraMenuItems: ['foobar'] }],
-    [Judges, { enabledJudges: ['openai'] }],
-  ] as [PropOverrideKey, PropOverrideValue][]),
+  propOverrides: new Map(),
 };
 
 export const AppConfigContext: Context<AppConfig> = createContext(DEFAULT_APP_CONFIG);

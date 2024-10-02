@@ -1,4 +1,4 @@
-import { Box, Button, Group, Kbd, Paper, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Box, Button, Group, Kbd, Paper, SimpleGrid, Stack, Text, Title } from '@mantine/core';
 import {
   IconArrowDown,
   IconArrowLeft,
@@ -87,7 +87,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
   const modelNames = modelA != null && modelB != null ? `'${modelA.name}' and '${modelB.name}'` : 'selected models';
   const iconProps = { size: 18 };
   return (
-    <Stack pb={height + 32}>
+    <Stack pb={Math.max(height, 100) + 32}>
       <Group justify="space-between">
         <Paper withBorder>
           <Button.Group>
@@ -168,7 +168,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
 
           <ControlBar ref={controlBarRef}>
             <Stack align="center" gap="xs">
-              <Text fw="bold">Which response is better?</Text>
+              <Title order={5}>Which response is better?</Title>
               <SimpleGrid cols={5} spacing="xs">
                 <Button
                   leftSection={<Kbd>b</Kbd>}

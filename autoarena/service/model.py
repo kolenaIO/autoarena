@@ -100,17 +100,14 @@ class ModelService:
             logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
         with ProjectService.connect(project_slug, commit=True) as conn:
-            ((new_model_id,),) = (
-                conn.cursor()
-                .execute(
-                    "INSERT INTO model (name) VALUES (:model_name) RETURNING id",
-                    dict(model_name=model_name),
-                )
-                .fetchall()
-            )
+            cur = conn.cursor()
+            ((new_model_id,),) = cur.execute(
+                "INSERT INTO model (name) VALUES (:model_name) RETURNING id",
+                dict(model_name=model_name),
+            ).fetchall()
             df_response["model_id"] = new_model_id
             with temporary_table(conn, df_response) as tmp:
-                conn.execute(f"""
+                cur.execute(f"""
                     INSERT INTO response (model_id, prompt, response)
                     SELECT model_id, prompt, response
                     FROM {tmp}

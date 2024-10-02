@@ -7,6 +7,7 @@ export type AppConfig = {
   basePath: string;
   apiFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   apiFetchEventSource: (input: RequestInfo, init: FetchEventSourceInit) => Promise<void>;
+  // components that consume prop overrides must register here
   propOverrides: Partial<{
     MainMenu: Partial<ComponentProps<typeof MainMenu>>;
     Judges: Partial<ComponentProps<typeof Judges>>;

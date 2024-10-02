@@ -1,8 +1,9 @@
+import datetime
 import shutil
 import uuid
 from io import StringIO
 from pathlib import Path
-from typing import Iterator, Callable
+from typing import Iterator, Callable, Union
 
 import pytest
 from fastapi.testclient import TestClient
@@ -63,3 +64,13 @@ def project_slug(api_v1_client: TestClient, test_data_directory: Path) -> Iterat
 def project_client(project_slug: Path) -> Iterator[TestClient]:
     with TestClient(server(), base_url=f"http://testserver{API_V1_STR}/project/{project_slug}") as client:
         yield client
+
+
+def assert_recent(timestamp: Union[datetime.datetime, str]) -> None:
+    if isinstance(timestamp, str):
+        if timestamp.endswith("Z"):
+            timestamp = timestamp[:-1] + "+00:00"  # Python <=3.10 doesn't like 'Z' as a UTC indicator
+        timestamp = datetime.datetime.fromisoformat(timestamp)
+    now = datetime.datetime.now(datetime.timezone.utc)  # use datetime.timezone instead of datetime.UTC for <=3.10
+    ten_seconds_ago = now - datetime.timedelta(seconds=10)
+    assert ten_seconds_ago < timestamp < now

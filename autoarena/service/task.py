@@ -16,7 +16,19 @@ class TaskService:
     @staticmethod
     def get_all(project_slug: str) -> list[api.Task]:
         with ProjectService.connect(project_slug) as conn:
-            df_task = pd.read_sql_query("SELECT id, task_type, created, progress, status, logs FROM task", conn)
+            df_task = pd.read_sql_query(
+                """
+                SELECT
+                    id,
+                    task_type,
+                    strftime('%Y-%m-%dT%H:%M:%SZ', created) AS created,
+                    progress,
+                    status,
+                    logs
+                FROM task
+                """,
+                conn,
+            )
         return [api.Task(**r) for _, r in df_task.iterrows()]
 
     @staticmethod
@@ -24,7 +36,17 @@ class TaskService:
         try:
             with ProjectService.connect(project_slug) as conn:
                 df_task = pd.read_sql_query(
-                    "SELECT id, task_type, created, progress, status, logs FROM task WHERE id = :task_id",
+                    """
+                    SELECT
+                        id,
+                        task_type,
+                        strftime('%Y-%m-%dT%H:%M:%SZ', created) AS created,
+                        progress,
+                        status,
+                        logs
+                    FROM task
+                    WHERE id = :task_id
+                    """,
                     conn,
                     params=dict(task_id=task_id),
                 )
@@ -77,7 +99,7 @@ class TaskService:
                 """
                 INSERT INTO task (task_type, status, logs)
                 VALUES (:task_type, :status, :logs)
-                RETURNING id, created, progress, status, logs
+                RETURNING id, strftime('%Y-%m-%dT%H:%M:%SZ', created), progress, status, logs
                 """,
                 dict(task_type=task_type.value, status=api.TaskStatus.STARTED.value, logs=logs),
             ).fetchall()

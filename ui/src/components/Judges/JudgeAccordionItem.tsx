@@ -136,10 +136,11 @@ export function JudgeAccordionItem({ judge }: Props) {
             <Group justify="space-between">
               <Text size="sm">
                 Visit the{' '}
-                <Link to={appRoutes.compare(projectSlug)} style={{ textDecoration: 'none' }}>
-                  <Text span c="kolena.8">
-                    Head-to-Head
-                  </Text>
+                <Link
+                  to={appRoutes.compare(projectSlug)}
+                  style={{ textDecoration: 'none', color: 'var(--mantine-color-kolena-light-color)' }}
+                >
+                  Head-to-Head
                 </Link>{' '}
                 tab to provide ratings on head-to-head matchups between models.
               </Text>

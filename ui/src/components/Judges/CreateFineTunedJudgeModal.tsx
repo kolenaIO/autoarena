@@ -48,10 +48,11 @@ export function CreateFineTunedJudgeModal({ isOpen, onClose }: Props) {
         <Text size="sm">
           Start a <b>fine-tuning job</b> to create a custom judge model using the {pluralize(nVotes, 'manual vote')}{' '}
           submitted on the{' '}
-          <Link to={appRoutes.compare(projectSlug)} style={{ textDecoration: 'none' }}>
-            <Text span c="kolena">
-              Head-to-Head
-            </Text>
+          <Link
+            to={appRoutes.compare(projectSlug)}
+            style={{ textDecoration: 'none', color: 'var(--mantine-color-kolena-light-color)' }}
+          >
+            Head-to-Head
           </Link>{' '}
           tab within the <Code>{project?.slug}</Code> project.
         </Text>

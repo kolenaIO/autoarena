@@ -3,7 +3,7 @@ import shutil
 import uuid
 from io import StringIO
 from pathlib import Path
-from typing import Iterator, Callable
+from typing import Iterator, Callable, Union
 
 import pytest
 from fastapi.testclient import TestClient
@@ -66,7 +66,7 @@ def project_client(project_slug: Path) -> Iterator[TestClient]:
         yield client
 
 
-def assert_recent(timestamp: datetime.datetime | str) -> None:
+def assert_recent(timestamp: Union[datetime.datetime, str]) -> None:
     if isinstance(timestamp, str):
         timestamp = datetime.datetime.fromisoformat(timestamp)
     now = datetime.datetime.now(datetime.UTC)

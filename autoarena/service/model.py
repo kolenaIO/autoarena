@@ -32,7 +32,7 @@ class ModelService:
         SELECT
             id,
             name,
-            created,
+            strftime('%Y-%m-%dT%H:%M:%SZ', created) AS created,
             elo,
             q025,
             q975,

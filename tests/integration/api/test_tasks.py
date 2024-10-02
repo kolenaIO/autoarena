@@ -2,6 +2,8 @@ import json
 
 from fastapi.testclient import TestClient
 
+from tests.integration.conftest import assert_recent
+
 
 def parse_sse_stream(stream: bytes) -> list[dict]:
     return [json.loads(r.split("data: ")[-1]) for r in stream.decode("utf-8").split("\n\n") if r != ""]
@@ -16,6 +18,7 @@ def test__tasks__get(project_client: TestClient) -> None:
     assert tasks[0]["task_type"] == "fine-tune"
     assert tasks[0]["progress"] < 1
     assert len(tasks[0]["status"]) > 0
+    assert_recent(tasks[0]["created"])
 
 
 def test__tasks__has_active(project_client: TestClient) -> None:

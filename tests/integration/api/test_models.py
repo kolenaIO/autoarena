@@ -6,6 +6,7 @@ from fastapi.testclient import TestClient
 
 from autoarena.api import api
 from tests.integration.api.conftest import DF_RESPONSE, DF_RESPONSE_B, construct_upload_model_body
+from tests.integration.conftest import assert_recent
 
 
 @pytest.fixture
@@ -27,6 +28,7 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     assert models[0]["name"] == "test-model-a"
     assert models[0]["n_responses"] == 2
     assert models[0]["n_votes"] == 0
+    assert_recent(models[0].created)
 
 
 def test__models__upload__empty(project_client: TestClient) -> None:

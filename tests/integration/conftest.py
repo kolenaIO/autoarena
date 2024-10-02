@@ -1,3 +1,4 @@
+import datetime
 import shutil
 import uuid
 from io import StringIO
@@ -63,3 +64,11 @@ def project_slug(api_v1_client: TestClient, test_data_directory: Path) -> Iterat
 def project_client(project_slug: Path) -> Iterator[TestClient]:
     with TestClient(server(), base_url=f"http://testserver{API_V1_STR}/project/{project_slug}") as client:
         yield client
+
+
+def assert_recent(timestamp: datetime.datetime | str) -> None:
+    if isinstance(timestamp, str):
+        timestamp = datetime.datetime.fromisoformat(timestamp)
+    now = datetime.datetime.now(datetime.UTC)
+    ten_seconds_ago = now - datetime.timedelta(seconds=10)
+    assert ten_seconds_ago < timestamp < now

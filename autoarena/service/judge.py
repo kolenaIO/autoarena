@@ -20,7 +20,7 @@ class JudgeService:
                 SELECT
                     j.id,
                     j.judge_type,
-                    j.created,
+                    strftime('%Y-%m-%dT%H:%M:%SZ', j.created) AS created,
                     j.name,
                     j.model_name,
                     j.system_prompt,
@@ -80,7 +80,7 @@ class JudgeService:
                 """
                 INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
                 VALUES (:judge_type, :name, :model_name, :system_prompt, :description, TRUE)
-                RETURNING id, created, enabled
+                RETURNING id, strftime('%Y-%m-%dT%H:%M:%SZ', created), enabled
                 """,
                 dict(
                     judge_type=request.judge_type.value,

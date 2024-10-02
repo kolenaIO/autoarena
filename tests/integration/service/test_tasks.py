@@ -14,6 +14,7 @@ from autoarena.service.judge import JudgeService
 from autoarena.service.model import ModelService
 from autoarena.service.task import TaskService
 from autoarena.task.auto_judge import AutoJudgeTask
+from tests.integration.conftest import assert_recent
 
 TEST_QUESTIONS = [
     dict(prompt="What is 2+2?", wrong="100 million", right="4"),
@@ -85,6 +86,7 @@ def test__task__auto_judge__models(
     assert tasks[0].progress == 1
     assert tasks[0].status is api.TaskStatus.COMPLETED
     assert len(tasks[0].logs) > 0
+    assert_recent(tasks[0].created)
 
 
 def test__task__auto_judge__many(
@@ -123,6 +125,7 @@ def test__task__auto_judge__no_head_to_heads(project_slug: str, enabled_auto_jud
     assert tasks[0].progress == 1
     assert tasks[0].status is api.TaskStatus.COMPLETED
     assert len(tasks[0].logs) > 0
+    assert_recent(tasks[0].created)
 
 
 def test__task__auto_judge__no_enabled_judges(
@@ -172,6 +175,7 @@ def test__task__recompute_leaderboard(project_slug: str, models_with_responses: 
     assert tasks[0].task_type is api.TaskType.RECOMPUTE_LEADERBOARD
     assert tasks[0].progress == 1
     assert len(tasks[0].status) > 0
+    assert_recent(tasks[0].created)
 
 
 def test__auto_judge_task__saves_progress(

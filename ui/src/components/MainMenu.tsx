@@ -9,7 +9,7 @@ type Props = {
   extraMenuItems?: ReactNode[];
 };
 export function MainMenu(props: Props) {
-  const { extraMenuItems } = usePropOverrides(MainMenu, props);
+  const { extraMenuItems } = usePropOverrides('MainMenu', props);
   const { appRoutes } = useAppRoutes();
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };

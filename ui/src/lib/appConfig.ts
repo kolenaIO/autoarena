@@ -1,16 +1,17 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
-import { Context, createContext, useContext } from 'react';
-
-// TODO: type safety here can be improved
-export type PropOverrideKey = React.JSXElementConstructor<never>;
-export type PropOverrideValue = { [key: string]: unknown };
+import { ComponentProps, Context, createContext, useContext } from 'react';
+import { CanAccessJudgeStatusIndicator, MainMenu, Judges } from '../components';
 
 export type AppConfig = {
   baseApiUrl: string;
   basePath: string;
   apiFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   apiFetchEventSource: (input: RequestInfo, init: FetchEventSourceInit) => Promise<void>;
-  propOverrides: Map<PropOverrideKey, PropOverrideValue>;
+  propOverrides: Partial<{
+    MainMenu: Partial<ComponentProps<typeof MainMenu>>;
+    Judges: Partial<ComponentProps<typeof Judges>>;
+    CanAccessJudgeStatusIndicator: Partial<ComponentProps<typeof CanAccessJudgeStatusIndicator>>;
+  }>;
 };
 
 export const DEFAULT_APP_CONFIG: AppConfig = {
@@ -18,7 +19,7 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   basePath: '',
   apiFetch: fetch,
   apiFetchEventSource: fetchEventSource,
-  propOverrides: new Map(),
+  propOverrides: {},
 };
 
 export const AppConfigContext: Context<AppConfig> = createContext(DEFAULT_APP_CONFIG);
@@ -27,8 +28,8 @@ export function useAppConfig() {
   return useContext(AppConfigContext);
 }
 
-export function usePropOverrides<T>(Component: React.JSXElementConstructor<T>, defaultProps: T) {
+export function usePropOverrides<T>(componentName: keyof AppConfig['propOverrides'], defaultProps: T) {
   const { propOverrides } = useAppConfig();
-  const overriddenProps = propOverrides.has(Component) ? propOverrides.get(Component) : {};
+  const overriddenProps = propOverrides[componentName] ?? {};
   return { ...defaultProps, ...overriddenProps };
 }

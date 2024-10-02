@@ -10,7 +10,7 @@ type Props = {
   CallToActionComponent?: ({ judgeType }: { judgeType: JudgeType }) => ReactNode;
 };
 export function CanAccessJudgeStatusIndicator(props: Props) {
-  const { judgeType, CallToActionComponent } = usePropOverrides(CanAccessJudgeStatusIndicator, props);
+  const { judgeType, CallToActionComponent } = usePropOverrides('CanAccessJudgeStatusIndicator', props);
   const { projectSlug = '' } = useUrlState();
   const { data: canAccess, isLoading } = useCanAccessJudgeType({ projectSlug, judgeType });
   const judgeTypeName = judgeTypeToHumanReadableName(judgeType);

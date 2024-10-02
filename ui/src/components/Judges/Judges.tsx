@@ -14,7 +14,7 @@ type Props = {
   enabledJudges: JudgeType[];
 };
 export function Judges(props: Props) {
-  const { enabledJudges } = usePropOverrides(Judges, props);
+  const { enabledJudges } = usePropOverrides('Judges', props);
   const { projectSlug } = useUrlState();
   const { data: judges } = useJudges(projectSlug);
 

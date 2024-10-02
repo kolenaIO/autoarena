@@ -7,7 +7,7 @@ import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from '
 
 type Props = {
   judgeType: JudgeType;
-  CallToActionComponent?: ({ judgeType }: JudgeType) => ReactNode;
+  CallToActionComponent?: ({ judgeType }: { judgeType: JudgeType }) => ReactNode;
 };
 export function CanAccessJudgeStatusIndicator(props: Props) {
   const { judgeType, CallToActionComponent } = usePropOverrides(CanAccessJudgeStatusIndicator, props);

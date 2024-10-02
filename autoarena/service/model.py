@@ -6,6 +6,7 @@ from autoarena.api import api
 from autoarena.error import NotFoundError, BadRequestError
 from autoarena.service.elo import EloService, DEFAULT_ELO_CONFIG
 from autoarena.service.project import ProjectService
+from autoarena.store.database import temporary_table
 from autoarena.store.utils import check_required_columns
 
 
@@ -16,13 +17,13 @@ class ModelService:
             FROM response r
             GROUP BY r.model_id
         ), vote_count_a AS ( -- this is inelegant but this query is tricky to write
-            SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
+            SELECT m.id AS model_id, SUM(IIF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN response r ON r.model_id = m.id
             LEFT JOIN head_to_head h ON r.id = h.response_a_id
             GROUP BY m.id
         ), vote_count_b AS (
-            SELECT m.id AS model_id, SUM(IF(h.id IS NOT NULL, 1, 0)) AS vote_count
+            SELECT m.id AS model_id, SUM(IIF(h.id IS NOT NULL, 1, 0)) AS vote_count
             FROM model m
             JOIN response r ON r.model_id = m.id
             LEFT JOIN head_to_head h ON r.id = h.response_b_id
@@ -46,7 +47,11 @@ class ModelService:
     @staticmethod
     def get_by_id(project_slug: str, model_id: int) -> api.Model:
         with ProjectService.connect(project_slug) as conn:
-            df_model = conn.execute(f"{ModelService.MODELS_QUERY} WHERE m.id = $model_id", dict(model_id=model_id)).df()
+            df_model = pd.read_sql_query(
+                f"{ModelService.MODELS_QUERY} WHERE m.id = :model_id",
+                conn,
+                params=dict(model_id=model_id),
+            )
         try:
             return [api.Model(**r) for _, r in df_model.iterrows()][0]
         except IndexError:
@@ -55,7 +60,7 @@ class ModelService:
     @staticmethod
     def get_all_df(project_slug: str) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_model = conn.execute(ModelService.MODELS_QUERY).df()
+            df_model = pd.read_sql_query(ModelService.MODELS_QUERY, conn)
         df_model = df_model.replace({np.nan: None})
         return df_model
 
@@ -99,17 +104,19 @@ class ModelService:
         if len(df_response) != n_input:
             logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
-        with ProjectService.connect(project_slug) as conn:
-            ((new_model_id,),) = conn.execute(
-                "INSERT INTO model (name) VALUES ($model_name) RETURNING id",
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            cur = conn.cursor()
+            ((new_model_id,),) = cur.execute(
+                "INSERT INTO model (name) VALUES (:model_name) RETURNING id",
                 dict(model_name=model_name),
             ).fetchall()
             df_response["model_id"] = new_model_id
-            conn.execute("""
-                INSERT INTO response (model_id, prompt, response)
-                SELECT model_id, prompt, response
-                FROM df_response
-            """)
+            with temporary_table(conn, df_response) as tmp:
+                cur.execute(f"""
+                    INSERT INTO response (model_id, prompt, response)
+                    SELECT model_id, prompt, response
+                    FROM {tmp}
+                """)
         models = ModelService.get_all(project_slug)
         new_model = [model for model in models if model.id == new_model_id][0]
         return new_model
@@ -117,21 +124,8 @@ class ModelService:
     @staticmethod
     def delete(project_slug: str, model_id: int) -> None:
         params = dict(model_id=model_id)
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute(
-                """
-                DELETE FROM head_to_head h
-                WHERE EXISTS (
-                    SELECT 1
-                    FROM response r
-                    WHERE r.model_id = $model_id
-                    AND (h.response_a_id = r.id OR h.response_b_id = r.id)
-                )
-                """,
-                params,
-            )
-            conn.execute("DELETE FROM response WHERE model_id = $model_id", params)
-            conn.execute("DELETE FROM model WHERE id = $model_id", params)
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            conn.execute("DELETE FROM model WHERE id = :model_id", params)  # let cascading deletes handle the rest
 
     @staticmethod
     def get_responses(project_slug: str, model_id: int) -> list[api.ModelResponse]:
@@ -141,7 +135,7 @@ class ModelService:
     @staticmethod
     def get_df_response(project_slug: str, model_id: int) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_response = conn.execute(
+            df_response = pd.read_sql_query(
                 """
                 SELECT
                     m.name AS model,
@@ -150,10 +144,11 @@ class ModelService:
                     r.response AS response
                 FROM model m
                 JOIN response r ON m.id = r.model_id
-                WHERE m.id = $model_id
-            """,
-                dict(model_id=model_id),
-            ).df()
+                WHERE m.id = :model_id
+                """,
+                conn,
+                params=dict(model_id=model_id),
+            )
         if len(df_response) == 0:
             raise NotFoundError(f"Model with ID '{model_id}' not found")  # model can't exist without any responses
         return df_response
@@ -161,7 +156,7 @@ class ModelService:
     @staticmethod
     def get_df_head_to_head(project_slug: str, model_id: int) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_h2h = conn.execute(
+            return pd.read_sql_query(
                 """
                 SELECT
                     ra.prompt,
@@ -177,17 +172,17 @@ class ModelService:
                 JOIN response rb ON rb.id = h.response_b_id
                 JOIN model ma ON ma.id = ra.model_id
                 JOIN model mb ON mb.id = rb.model_id
-                WHERE ma.id = $model_id
-                OR mb.id = $model_id
-            """,
-                dict(model_id=model_id),
-            ).df()
-        return df_h2h
+                WHERE ma.id = :model_id
+                OR mb.id = :model_id
+                """,
+                conn,
+                params=dict(model_id=model_id),
+            )
 
     @staticmethod
     def get_head_to_head_stats(project_slug: str, model_id: int) -> list[api.ModelHeadToHeadStats]:
         with ProjectService.connect(project_slug) as conn:
-            df_h2h_stats = conn.execute(
+            df_h2h_stats = pd.read_sql_query(
                 """
                 WITH head_to_head_response AS (
                     SELECT
@@ -213,16 +208,17 @@ class ModelService:
                     m_other.name AS other_model_name,
                     j.id AS judge_id,
                     j.name AS judge_name,
-                    SUM(IF(hr.won IS TRUE, 1, 0)) AS count_wins,
-                    SUM(IF(hr.won IS FALSE, 1, 0)) AS count_losses,
-                    SUM(IF(hr.won IS NULL, 1, 0)) AS count_ties
+                    SUM(IIF(hr.won IS TRUE, 1, 0)) AS count_wins,
+                    SUM(IIF(hr.won IS FALSE, 1, 0)) AS count_losses,
+                    SUM(IIF(hr.won IS NULL, 1, 0)) AS count_ties
                 FROM head_to_head_response hr
                 JOIN judge j ON j.id = hr.judge_id
                 JOIN model m ON m.id = hr.model_id
                 JOIN model m_other ON m_other.id = hr.other_model_id
-                WHERE m.id = $model_id
+                WHERE m.id = :model_id
                 GROUP BY m.id, m.name, m_other.id, m_other.name, j.id, j.name
-            """,
-                dict(model_id=model_id),
-            ).df()
+                """,
+                conn,
+                params=dict(model_id=model_id),
+            )
         return [api.ModelHeadToHeadStats(**r) for _, r in df_h2h_stats.iterrows()]

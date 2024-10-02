@@ -7,6 +7,7 @@ from loguru import logger
 
 from autoarena.api import api
 from autoarena.service.project import ProjectService
+from autoarena.store.database import temporary_table
 
 
 @dataclass(frozen=True)
@@ -25,7 +26,7 @@ class EloService:
     @staticmethod
     def get_df_head_to_head(project_slug: str) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            return conn.execute(
+            return pd.read_sql_query(
                 """
                 SELECT
                     j.id AS judge_id,
@@ -42,24 +43,26 @@ class EloService:
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
                 ORDER BY h.id -- ensure we are replaying head-to-heads in the order they were submitted
-            """,
-            ).df()
+                """,
+                conn,
+            )
 
     @staticmethod
     def reseed_scores(project_slug: str, config: EloConfig = DEFAULT_ELO_CONFIG) -> None:
         df_h2h = EloService.get_df_head_to_head(project_slug)
         df_elo = EloService.compute_elo(df_h2h, config=config)  # noqa: F841
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute(
-                """
-                UPDATE model
-                SET elo = IFNULL(df_elo.elo, $default_elo), q025 = df_elo.q025, q975 = df_elo.q975
-                FROM model m2
-                LEFT JOIN df_elo ON df_elo.model = m2.name -- left join to set null values for any models without votes
-                WHERE model.id = m2.id;
-                """,
-                dict(default_elo=config.default_score),
-            )
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            with temporary_table(conn, df_elo) as tmp:
+                conn.cursor().execute(
+                    f"""
+                    UPDATE model
+                    SET elo = IFNULL({tmp}.elo, :default_elo), q025 = {tmp}.q025, q975 = {tmp}.q975
+                    FROM model m2
+                    LEFT JOIN {tmp} ON {tmp}.model = m2.name -- left join to set null values for models without votes
+                    WHERE model.id = m2.id;
+                    """,
+                    dict(default_elo=config.default_score),
+                )
 
     # most elo-related code is from https://github.com/lm-sys/FastChat/blob/main/fastchat/serve/monitor/elo_analysis.py
     @staticmethod

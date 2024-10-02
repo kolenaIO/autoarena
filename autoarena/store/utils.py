@@ -2,7 +2,11 @@ import pandas as pd
 
 
 def id_slug(a: int, b: int) -> str:
-    return f"{int(min(a, b))}-{int(max(a, b))}"  # matches duckdb implementation in 000__schema.sql
+    return f"{int(min(a, b))}-{int(max(a, b))}"  # loaded as a sqlite extension
+
+
+def invert_winner(winner: str) -> str:
+    return "B" if winner == "A" else "A" if winner == "B" else winner
 
 
 def check_required_columns(df: pd.DataFrame, required_columns: list[str]) -> None:

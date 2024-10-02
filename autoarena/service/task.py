@@ -3,6 +3,7 @@ import time
 from datetime import datetime
 from typing import Optional, AsyncIterator
 
+import pandas as pd
 
 from autoarena.api import api
 from autoarena.error import NotFoundError
@@ -15,17 +16,18 @@ class TaskService:
     @staticmethod
     def get_all(project_slug: str) -> list[api.Task]:
         with ProjectService.connect(project_slug) as conn:
-            df_task = conn.execute("SELECT id, task_type, created, progress, status, logs FROM task").df()
+            df_task = pd.read_sql_query("SELECT id, task_type, created, progress, status, logs FROM task", conn)
         return [api.Task(**r) for _, r in df_task.iterrows()]
 
     @staticmethod
     def get(project_slug: str, task_id: int) -> api.Task:
         try:
             with ProjectService.connect(project_slug) as conn:
-                df_task = conn.execute(
-                    "SELECT id, task_type, created, progress, status, logs FROM task WHERE id = $task_id",
-                    dict(task_id=task_id),
-                ).df()
+                df_task = pd.read_sql_query(
+                    "SELECT id, task_type, created, progress, status, logs FROM task WHERE id = :task_id",
+                    conn,
+                    params=dict(task_id=task_id),
+                )
                 return [api.Task(**r) for _, r in df_task.iterrows()][0]
         except IndexError:
             raise NotFoundError(f"Task with id '{task_id}' not found")
@@ -45,8 +47,9 @@ class TaskService:
     @staticmethod
     def has_active(project_slug: str) -> api.HasActiveTasks:
         with ProjectService.connect(project_slug) as conn:
-            records = conn.execute(
-                "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN ($started, $in_progress))",
+            cur = conn.cursor()
+            records = cur.execute(
+                "SELECT 1 WHERE EXISTS (SELECT 1 FROM task WHERE status IN (:started, :in_progress))",
                 dict(started=api.TaskStatus.STARTED.value, in_progress=api.TaskStatus.IN_PROGRESS.value),
             ).fetchall()
             return api.HasActiveTasks(has_active=len(records) > 0)
@@ -67,12 +70,13 @@ class TaskService:
 
     @staticmethod
     def create(project_slug: str, task_type: api.TaskType, log: str = "Started") -> api.Task:
-        with ProjectService.connect(project_slug) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             logs = f"{TaskService._time_slug()} {log}"
-            ((task_id, created, progress, status, logs),) = conn.execute(
+            cur = conn.cursor()
+            ((task_id, created, progress, status, logs),) = cur.execute(
                 """
                 INSERT INTO task (task_type, status, logs)
-                VALUES ($task_type, $status, $logs)
+                VALUES (:task_type, :status, :logs)
                 RETURNING id, created, progress, status, logs
                 """,
                 dict(task_type=task_type.value, status=api.TaskStatus.STARTED.value, logs=logs),
@@ -81,8 +85,11 @@ class TaskService:
 
     @staticmethod
     def delete_completed(project_slug: str) -> None:
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute("TRUNCATE task")
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            conn.cursor().execute(
+                "DELETE FROM task WHERE status IN (:completed, :failed)",
+                dict(completed=api.TaskStatus.COMPLETED.value, failed=api.TaskStatus.FAILED.value),
+            )
 
     @staticmethod
     def update(
@@ -92,15 +99,15 @@ class TaskService:
         progress: Optional[float] = None,
         status: api.TaskStatus = api.TaskStatus.IN_PROGRESS,
     ) -> None:
-        with ProjectService.connect(project_slug) as conn:
+        with ProjectService.connect(project_slug, commit=True) as conn:
             log = f"{TaskService._time_slug()} {log}"
-            conn.execute(
+            conn.cursor().execute(
                 """
                 UPDATE task
-                SET progress = IFNULL($progress, progress),
-                    status = $status,
-                    logs = logs || '\n' || $log
-                WHERE id = $id
+                SET progress = IFNULL(:progress, progress),
+                    status = :status,
+                    logs = logs || '\n' || :log
+                WHERE id = :id
                 """,
                 dict(id=task_id, log=log, progress=progress, status=status.value),
             )

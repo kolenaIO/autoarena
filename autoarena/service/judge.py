@@ -15,7 +15,7 @@ class JudgeService:
     @staticmethod
     def get_all(project_slug: str) -> list[api.Judge]:
         with ProjectService.connect(project_slug) as conn:
-            df = conn.execute(
+            df = pd.read_sql_query(
                 """
                 SELECT
                     j.id,
@@ -24,9 +24,9 @@ class JudgeService:
                     j.name,
                     j.model_name,
                     j.system_prompt,
-                    j,description,
+                    j.description,
                     j.enabled,
-                    SUM(IF(h.id IS NOT NULL, 1, 0)) AS n_votes
+                    SUM(IIF(h.id IS NOT NULL, 1, 0)) AS n_votes
                 FROM judge j
                 LEFT JOIN head_to_head h ON h.judge_id = j.id
                 GROUP BY
@@ -40,7 +40,8 @@ class JudgeService:
                     j.enabled
                 ORDER BY j.id
                 """,
-            ).df()
+                conn,
+            )
         judge_types = {j for j in api.JudgeType}
         df["judge_type"] = df["judge_type"].apply(lambda j: j if j in judge_types else api.JudgeType.UNRECOGNIZED.value)
         return [api.Judge(**r) for _, r in df.iterrows()]
@@ -48,7 +49,7 @@ class JudgeService:
     @staticmethod
     def get_df_vote(project_slug: str, judge_id: int) -> pd.DataFrame:
         with ProjectService.connect(project_slug) as conn:
-            df_vote = conn.execute(
+            return pd.read_sql_query(
                 """
                 SELECT
                     j.name as judge,
@@ -64,22 +65,23 @@ class JudgeService:
                 JOIN response rb ON rb.id = h2h.response_b_id
                 JOIN model ma ON ra.model_id = ma.id
                 JOIN model mb ON rb.model_id = mb.id
-                WHERE j.id = $judge_id
+                WHERE j.id = :judge_id
                 ORDER BY h2h.id
                 """,
-                dict(judge_id=judge_id),
-            ).df()
-        return df_vote
+                conn,
+                params=dict(judge_id=judge_id),
+            )
 
     @staticmethod
     def create(project_slug: str, request: api.CreateJudgeRequest) -> api.Judge:
-        with ProjectService.connect(project_slug) as conn:
-            ((judge_id, created, enabled),) = conn.execute(
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            cur = conn.cursor()
+            ((judge_id, created, enabled),) = cur.execute(
                 """
                 INSERT INTO judge (judge_type, name, model_name, system_prompt, description, enabled)
-                VALUES ($judge_type, $name, $model_name, $system_prompt, $description, TRUE)
+                VALUES (:judge_type, :name, :model_name, :system_prompt, :description, TRUE)
                 RETURNING id, created, enabled
-            """,
+                """,
                 dict(
                     judge_type=request.judge_type.value,
                     name=request.name,
@@ -103,11 +105,11 @@ class JudgeService:
     # TODO: is this necessary?
     @staticmethod
     def create_human_judge(project_slug: str) -> api.Judge:
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute(
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            conn.cursor().execute(
                 """
                 INSERT INTO judge (judge_type, name, description, enabled)
-                VALUES ($judge_type, $name, $description, TRUE)
+                VALUES (:judge_type, :name, :description, TRUE)
                 ON CONFLICT (name) DO NOTHING
             """,
                 dict(
@@ -121,18 +123,17 @@ class JudgeService:
 
     @staticmethod
     def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute(
-                "UPDATE judge SET enabled = $enabled WHERE id = $judge_id",
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            conn.cursor().execute(
+                "UPDATE judge SET enabled = :enabled WHERE id = :judge_id",
                 dict(judge_id=judge_id, enabled=request.enabled),
             )
         return [j for j in JudgeService.get_all(project_slug) if j.id == judge_id][0]
 
     @staticmethod
     def delete(project_slug: str, judge_id: int) -> None:
-        with ProjectService.connect(project_slug) as conn:
-            conn.execute("DELETE FROM head_to_head WHERE judge_id = $judge_id", dict(judge_id=judge_id))
-            conn.execute("DELETE FROM judge WHERE id = $judge_id", dict(judge_id=judge_id))
+        with ProjectService.connect(project_slug, commit=True) as conn:
+            conn.execute("DELETE FROM judge WHERE id = :judge_id", dict(judge_id=judge_id))
 
     @staticmethod
     def check_can_access(judge_type: api.JudgeType) -> bool:

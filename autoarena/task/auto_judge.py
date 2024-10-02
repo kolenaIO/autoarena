@@ -1,12 +1,11 @@
 import dataclasses
 import time
 from collections import defaultdict
-from typing import Optional, Callable
+from typing import Optional
 
 import pandas as pd
 from loguru import logger
 from pydantic.dataclasses import dataclass
-from tenacity import retry, stop_after_attempt, RetryCallState, wait_random_exponential
 
 from autoarena.api import api
 from autoarena.judge.base import AutomatedJudge
@@ -92,6 +91,7 @@ class AutoJudgeTask:
 
     def _retrieve_head_to_heads(self) -> pd.DataFrame:
         h2h_requests = [api.HeadToHeadsRequest(model_a_id=m.id) for m in self.models]
+        # TODO: calling this N times for N models is inefficient -- can take a few seconds on larger projects
         df_h2h = pd.concat([HeadToHeadService.get_df(self.project_slug, request) for request in h2h_requests])
         if len(df_h2h) == 0:
             self.log("No head-to-heads found, exiting", status=api.TaskStatus.COMPLETED, progress=1, level="WARNING")
@@ -161,7 +161,7 @@ class AutoJudgeTask:
                 message = f"Judged {n_this_judge} of {n_h2h_by_judge_name[auto_judge.name]} with '{auto_judge.name}'"
                 self.log(message, progress=progress)
                 df_h2h_chunk = pd.DataFrame(responses[auto_judge.name][-self.update_every :], columns=out_columns)
-                self._try_write(lambda: HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_chunk))
+                HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_chunk)
             if n_this_judge == n_h2h_by_judge_name[auto_judge.name]:
                 message = (
                     f"Judge '{auto_judge.name}' finished judging {n_h2h_by_judge_name[auto_judge.name]} head-to-heads "
@@ -171,28 +171,9 @@ class AutoJudgeTask:
                 for usage_summary_line in auto_judge.get_usage_summary():
                     self.log(usage_summary_line)
                 df_h2h_all = pd.DataFrame(responses[auto_judge.name], columns=out_columns)
-                self._try_write(lambda: HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_all))
+                HeadToHeadService.upload_head_to_heads(self.project_slug, df_h2h_all)
 
         self.log("Recomputing leaderboard rankings", progress=0.975)
-        self._try_write(lambda: EloService.reseed_scores(self.project_slug, config=self.elo_config))
+        EloService.reseed_scores(self.project_slug, config=self.elo_config)
         message = f"Completed automated judging in {time.time() - self.t_start:0.1f} seconds"
         self.log(message, progress=1, status=api.TaskStatus.COMPLETED, level="SUCCESS")
-
-    @staticmethod
-    def _try_write(write_thunk: Callable[[], None]) -> None:
-        """
-        We're running into a limitation of DuckDB here -- concurrent writes are not well-supported. Give a best effort
-        by retrying write attempts, an [officially endorsed strategy](https://duckdb.org/docs/connect/concurrency.html).
-
-        This situation could be improved but requires answering tough questions about what kind of operations we want to
-        optimize the persistence layer for, and what kind of operations we're OK with it struggling with.
-        """
-
-        def _log_retry(retry_state: RetryCallState) -> None:
-            logger.warning(f"Retrying write attempt {retry_state.attempt_number} (error: {retry_state.outcome})")
-
-        @retry(wait=wait_random_exponential(max=5), stop=stop_after_attempt(5), after=_log_retry)
-        def _try_write_inner(thunk: Callable[[], None]) -> None:
-            thunk()
-
-        return _try_write_inner(write_thunk)

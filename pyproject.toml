@@ -39,7 +39,6 @@ dependencies = [
     "fastapi<1",
     "pandas>=2,<3",
     "uvicorn<1",
-    "duckdb",
     "pyarrow",
     "python-multipart",
     "loguru<1",

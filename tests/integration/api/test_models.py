@@ -29,6 +29,13 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     assert models[0]["n_votes"] == 0
 
 
+def test__models__upload__empty(project_client: TestClient) -> None:
+    body = construct_upload_model_body(dict(bad=pd.DataFrame([], columns=["prompt", "response"])))
+    response = project_client.post("/model", data=body.data, files=body.files)
+    assert response.status_code == 400
+    assert "Responses must not be empty"
+
+
 @pytest.mark.parametrize(
     "df_bad,missing",
     [
@@ -37,7 +44,7 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
         (pd.DataFrame.from_records([dict(bad="yes", prompt="what")]), {"response"}),
     ],
 )
-def test__models__upload__failed(project_client: TestClient, df_bad: pd.DataFrame, missing: set[str]) -> None:
+def test__models__upload__missing_columns(project_client: TestClient, df_bad: pd.DataFrame, missing: set[str]) -> None:
     body = construct_upload_model_body(dict(bad=df_bad))
     response = project_client.post("/model", data=body.data, files=body.files)
     assert response.status_code == 400

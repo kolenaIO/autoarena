@@ -89,6 +89,9 @@ class ModelService:
             check_required_columns(df_response, ["prompt", "response"])
         except ValueError as e:
             raise BadRequestError(str(e))
+        n_duplicate_prompts = len(df_response) - len(set(df_response["prompt"]))
+        if n_duplicate_prompts > 0:
+            raise BadRequestError(f"Each 'prompt' value must be unique (received {n_duplicate_prompts} duplicate(s))")
         n_input = len(df_response)
         df_response = df_response.copy().dropna(subset=["prompt", "response"])
         if len(df_response) != n_input:

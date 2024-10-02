@@ -60,6 +60,14 @@ def test__models__upload__missing_values(project_client: TestClient, df: pd.Data
     assert models[0]["n_responses"] == len(df) - n_dropped
 
 
+def test__models__upload__duplicate_prompts(project_client: TestClient) -> None:
+    df = pd.DataFrame([("p", "r1"), ("p", "r2")], columns=["prompt", "response"])
+    body = construct_upload_model_body(dict(example=df))
+    response = project_client.post("/model", data=body.data, files=body.files)
+    assert response.status_code == 400
+    assert "Each 'prompt' value must be unique" in response.json()["detail"]
+
+
 def test__models__upload__multiple(project_client: TestClient) -> None:
     body = construct_upload_model_body(dict(a=DF_RESPONSE, b=DF_RESPONSE_B))
     models = project_client.post("/model", data=body.data, files=body.files).json()

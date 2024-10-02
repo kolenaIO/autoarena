@@ -91,6 +91,7 @@ class AutoJudgeTask:
 
     def _retrieve_head_to_heads(self) -> pd.DataFrame:
         h2h_requests = [api.HeadToHeadsRequest(model_a_id=m.id) for m in self.models]
+        # TODO: calling this N times for N models is inefficient -- can take a few seconds on larger projects
         df_h2h = pd.concat([HeadToHeadService.get_df(self.project_slug, request) for request in h2h_requests])
         if len(df_h2h) == 0:
             self.log("No head-to-heads found, exiting", status=api.TaskStatus.COMPLETED, progress=1, level="WARNING")

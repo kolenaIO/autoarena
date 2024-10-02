@@ -84,9 +84,9 @@ class HeadToHeadService:
         with ProjectService.connect(project_slug) as conn:
             ((n_h2h,),) = conn.execute(
                 """
-                SELECT COUNT(DISTINCT id_slug(ra.id, rb.id))
+                SELECT COUNT(1) / 2
                 FROM response ra
-                JOIN response rb ON ra.prompt = rb.prompt AND ra.model_id != rb.model_id
+                JOIN response rb ON ra.id != rb.id AND ra.prompt = rb.prompt AND ra.model_id != rb.model_id
                 """,
             ).fetchall()
         return n_h2h

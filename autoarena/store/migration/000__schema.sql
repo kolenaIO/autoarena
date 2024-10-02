@@ -28,6 +28,7 @@ CREATE TABLE IF NOT EXISTS response (
     -- TODO: should we allow dupes for nondeterminism? This is a convenience to skip duplicate inserts
     UNIQUE (model_id, prompt)
 );
+CREATE INDEX IF NOT EXISTS response_prompt_idx ON response (prompt);
 
 -- TODO: would be great to use enum but it does not have an idempotent CREATE option
 -- CREATE TYPE WINNER AS ENUM ('A', 'B', '-');

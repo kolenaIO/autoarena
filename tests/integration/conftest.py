@@ -68,7 +68,9 @@ def project_client(project_slug: Path) -> Iterator[TestClient]:
 
 def assert_recent(timestamp: Union[datetime.datetime, str]) -> None:
     if isinstance(timestamp, str):
+        if timestamp.endswith("Z"):
+            timestamp = timestamp[:-1] + "+00:00"  # Python <=3.10 doesn't like 'Z' as a UTC indicator
         timestamp = datetime.datetime.fromisoformat(timestamp)
-    now = datetime.datetime.now(datetime.UTC)
+    now = datetime.datetime.now(datetime.timezone.utc)  # use datetime.timezone instead of datetime.UTC for <=3.10
     ten_seconds_ago = now - datetime.timedelta(seconds=10)
     assert ten_seconds_ago < timestamp < now

@@ -5,6 +5,7 @@ import { IconClick } from '@tabler/icons-react';
 import { prop, sortBy } from 'ramda';
 import { useUrlState, useModels } from '../../hooks';
 import { NonIdealState } from '../NonIdealState.tsx';
+import { APP_CONTENT_WIDTH } from '../constants.ts';
 import { HeadToHeadTwoModels } from './HeadToHeadTwoModels.tsx';
 import { HeadToHeadSingleModel } from './HeadToHeadSingleModel.tsx';
 
@@ -60,7 +61,7 @@ export function HeadToHead() {
   const noMoreModels = allSelectModels.length - (modelA != null ? 1 : 0) - (modelB != null ? 1 : 0) < 1;
   return (
     <Center p="lg">
-      <Stack w={1080} /* TODO: should be max width */>
+      <Stack w={APP_CONTENT_WIDTH}>
         <Group justify="space-between" grow>
           <Group align="flex-end" justify="space-between">
             <Select

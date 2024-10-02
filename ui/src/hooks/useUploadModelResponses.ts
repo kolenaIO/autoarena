@@ -1,7 +1,7 @@
 import { useMutation, UseMutationOptions, useQueryClient } from '@tanstack/react-query';
 import { notifications } from '@mantine/notifications';
 import { zip } from 'ramda';
-import { urlAsQueryKey, useAppConfig } from '../lib';
+import { pluralize, urlAsQueryKey, useAppConfig } from '../lib';
 import { Model } from './useModels.ts';
 import { useAppRoutes } from './useAppRoutes.ts';
 
@@ -27,16 +27,32 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       });
       const response = await apiFetch(url, { method: 'POST', body: formData });
       if (!response.ok) {
-        throw new Error('Failed to add model responses');
+        let detail: string;
+        try {
+          const error: { detail: string } = await response.json();
+          detail = error.detail;
+        } catch (e) {
+          detail = 'Unable to add model responses';
+        }
+        throw new Error(detail);
       }
       const result: Model[] = await response.json();
       return result;
     },
-    onError: () => {
+    onMutate: ([, modelNames]) => {
+      notifications.show({
+        message: `Uploading responses from ${pluralize(modelNames.length, 'model')}...`,
+        loading: true,
+        autoClose: false,
+        id: 'uploading-model-responses',
+      });
+    },
+    onError: e => {
       notifications.show({
         title: 'Failed to add model responses',
-        message: 'Unable to add model responses',
+        message: e.toString(),
         color: 'red',
+        autoClose: 10_000,
       });
     },
     onSuccess: (models: Model[]) => {
@@ -52,6 +68,7 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
       notifications.show({ title, message, color: 'green' });
     },
     onSettled: () => {
+      notifications.hide('uploading-model-responses');
       queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getModels(projectSlug)) });
       queryClient.invalidateQueries({ queryKey: urlAsQueryKey(apiRoutes.getTasks(projectSlug)) });
     },

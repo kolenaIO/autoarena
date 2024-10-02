@@ -15,7 +15,8 @@ import {
 import { IconCheck, IconPlus, IconX } from '@tabler/icons-react';
 import { useDisclosure } from '@mantine/hooks';
 import { useMemo, useState } from 'react';
-import { useUploadModelResponses, useUrlState, useModels, useJudges } from '../hooks';
+import { Link } from 'react-router-dom';
+import { useUploadModelResponses, useUrlState, useModels, useJudges, useAppRoutes } from '../hooks';
 import { pluralize } from '../lib';
 import { ConfirmOrCancelBar, isEnabledAutoJudge } from './Judges';
 
@@ -25,10 +26,11 @@ type Props = {
 };
 export function AddModelButton({ variant, size }: Props) {
   const { projectSlug = '' } = useUrlState();
+  const { appRoutes } = useAppRoutes();
   const { data: models } = useModels(projectSlug);
   const { data: judges } = useJudges(projectSlug);
-  const [isOpen, { toggle, close }] = useDisclosure(false);
   const { mutate: uploadModelResponses } = useUploadModelResponses({ projectSlug });
+  const [isOpen, { toggle, close }] = useDisclosure(false);
 
   const [files, setFiles] = useState<File[]>([]);
   const [names, setNames] = useState<string[]>([]);
@@ -130,9 +132,19 @@ export function AddModelButton({ variant, size }: Props) {
                     : 'No automated judges configured'}
                 </Text>
                 <Text inherit c="dimmed">
-                  {configuredAutoJudges.length > 0
-                    ? `Model${files.length > 0 ? 's' : ''} will be ranked against existing models on leaderboard`
-                    : 'Configure an automated judge to rank against existing models'}
+                  {configuredAutoJudges.length > 0 ? (
+                    `Model${files.length > 0 ? 's' : ''} will be ranked against existing models on leaderboard`
+                  ) : (
+                    <>
+                      <Link
+                        to={appRoutes.judges(projectSlug)}
+                        style={{ textDecoration: 'none', color: 'var(--mantine-color-kolena-light-color)' }}
+                      >
+                        Configure an automated judge
+                      </Link>{' '}
+                      to rank against existing models
+                    </>
+                  )}
                 </Text>
               </Stack>
             </Text>

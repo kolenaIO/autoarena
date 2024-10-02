@@ -3,6 +3,7 @@ import { useDisclosure } from '@mantine/hooks';
 import { ReactNode } from 'react';
 import { useJudges, useUrlState } from '../../hooks';
 import { ExternalUrls, useAppConfig } from '../../lib';
+import { APP_CONTENT_WIDTH } from '../constants.ts';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -29,9 +30,9 @@ export function Judges() {
 
   return (
     <Center p="lg">
-      <Stack>
+      <Stack w={APP_CONTENT_WIDTH}>
         <Title order={5}>Configured Judges</Title>
-        <Accordion variant="contained" w={1080}>
+        <Accordion variant="contained">
           {(judges ?? []).map(judge => (
             <JudgeAccordionItem key={judge.id} judge={judge} />
           ))}
@@ -40,7 +41,7 @@ export function Judges() {
         <Divider />
 
         <Title order={5}>Configure Automated Judge</Title>
-        <SimpleGrid cols={3} w={1080}>
+        <SimpleGrid cols={3}>
           {enabledJudges.map((judgeType, i) => {
             const CardComponent = availableJudges[judgeType];
             return <CardComponent key={i} />;

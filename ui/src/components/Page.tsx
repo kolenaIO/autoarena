@@ -12,6 +12,7 @@ import { TasksDrawer } from './TasksDrawer';
 import { OnboardingTimeline } from './OnboardingTimeline.tsx';
 import { MainMenu } from './MainMenu.tsx';
 import { Tab } from './types.ts';
+import { APP_CONTENT_WIDTH } from './constants.ts';
 
 type Props = {
   tab: Tab;
@@ -53,7 +54,7 @@ export function Page({ tab }: Props) {
 
   const iconProps = { size: 20, color: 'var(--mantine-color-kolena-light-color)' };
   return (
-    <Tabs value={tab} onChange={setTab} keepMounted={false}>
+    <Tabs value={tab} onChange={setTab} keepMounted={false} style={{ minWidth: APP_CONTENT_WIDTH }}>
       <Tabs.List bg="gray.0" style={{ position: 'sticky', top: 0, zIndex: 10 }}>
         <Group align="center" p="xs" pl="lg" pr="xl" h={58}>
           <MainMenu />

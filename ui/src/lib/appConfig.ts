@@ -1,14 +1,16 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
-import { Context, createContext, ReactNode, useContext } from 'react';
-import { JudgeType } from '../components';
+import { Context, createContext, useContext } from 'react';
+
+// TODO: type safety here can be improved
+export type PropOverrideKey = React.JSXElementConstructor<never>;
+export type PropOverrideValue = { [key: string]: unknown };
 
 export type AppConfig = {
   baseApiUrl: string;
   basePath: string;
   apiFetch: (input: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
   apiFetchEventSource: (input: RequestInfo, init: FetchEventSourceInit) => Promise<void>;
-  enabledJudges: JudgeType[];
-  menuExtras: ReactNode[];
+  propOverrides: Map<PropOverrideKey, PropOverrideValue>;
 };
 
 export const DEFAULT_APP_CONFIG: AppConfig = {
@@ -16,12 +18,17 @@ export const DEFAULT_APP_CONFIG: AppConfig = {
   basePath: '',
   apiFetch: fetch,
   apiFetchEventSource: fetchEventSource,
-  enabledJudges: ['openai', 'anthropic', 'cohere', 'ollama', 'gemini', 'together', 'bedrock'],
-  menuExtras: [],
+  propOverrides: new Map(),
 };
 
 export const AppConfigContext: Context<AppConfig> = createContext(DEFAULT_APP_CONFIG);
 
 export function useAppConfig() {
   return useContext(AppConfigContext);
+}
+
+export function usePropOverrides<T>(Component: React.JSXElementConstructor<T>, defaultProps: T) {
+  const { propOverrides } = useAppConfig();
+  const overriddenProps = propOverrides.has(Component) ? propOverrides.get(Component) : {};
+  return { ...defaultProps, ...overriddenProps };
 }

@@ -1,12 +1,16 @@
 import { Code, Group, Loader, Stack, Text } from '@mantine/core';
 import { IconCheck, IconX } from '@tabler/icons-react';
+import { ReactNode } from 'react';
 import { useCanAccessJudgeType, useUrlState } from '../../hooks';
+import { usePropOverrides } from '../../lib';
 import { JudgeType, judgeTypeToApiKeyName, judgeTypeToHumanReadableName } from './types.ts';
 
 type Props = {
   judgeType: JudgeType;
+  CallToActionComponent?: ({ judgeType }: { judgeType: JudgeType }) => ReactNode;
 };
-export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
+export function CanAccessJudgeStatusIndicator(props: Props) {
+  const { judgeType, CallToActionComponent } = usePropOverrides(CanAccessJudgeStatusIndicator, props);
   const { projectSlug = '' } = useUrlState();
   const { data: canAccess, isLoading } = useCanAccessJudgeType({ projectSlug, judgeType });
   const judgeTypeName = judgeTypeToHumanReadableName(judgeType);
@@ -40,7 +44,9 @@ export function CanAccessJudgeStatusIndicator({ judgeType }: Props) {
       ) : (
         <Stack gap={4}>
           <Text size="sm">Unable to access {judgeTypeName} API</Text>
-          {apiKeyName != null ? (
+          {CallToActionComponent != null ? (
+            <CallToActionComponent judgeType={judgeType} />
+          ) : apiKeyName != null ? (
             <Text size="xs" c="dimmed">
               Ensure that you have the <Code>{apiKeyName}</Code> variable set in the environment running AutoArena.
             </Text>

@@ -92,7 +92,7 @@ export function Page({ tab }: Props) {
         <HeadToHead />
       </Tabs.Panel>
       <Tabs.Panel value={Tab.JUDGES}>
-        <Judges />
+        <Judges enabledJudges={['openai', 'anthropic', 'cohere', 'ollama', 'gemini', 'together', 'bedrock']} />
       </Tabs.Panel>
     </Tabs>
   );

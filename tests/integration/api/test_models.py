@@ -28,7 +28,7 @@ def test__models__upload(project_client: TestClient, model_id: int) -> None:
     assert models[0]["name"] == "test-model-a"
     assert models[0]["n_responses"] == 2
     assert models[0]["n_votes"] == 0
-    assert_recent(models[0].created)
+    assert_recent(models[0]["created"])
 
 
 def test__models__upload__empty(project_client: TestClient) -> None:

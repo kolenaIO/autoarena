@@ -1,8 +1,8 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
 import { Context, createContext, useContext } from 'react';
 
-type PropOverrideKey = React.JSXElementConstructor<never>;
-type PropOverrideValue = { [key: string]: unknown };
+export type PropOverrideKey = React.JSXElementConstructor<never>;
+export type PropOverrideValue = { [key: string]: unknown };
 
 export type AppConfig = {
   baseApiUrl: string;

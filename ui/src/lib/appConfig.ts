@@ -1,6 +1,7 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
 import { Context, createContext, useContext } from 'react';
 
+// TODO: type safety here can be improved
 export type PropOverrideKey = React.JSXElementConstructor<never>;
 export type PropOverrideValue = { [key: string]: unknown };
 

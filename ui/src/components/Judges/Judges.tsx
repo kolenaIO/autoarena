@@ -1,9 +1,10 @@
-import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code } from '@mantine/core';
+import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code, Paper } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { ReactNode } from 'react';
-import { useJudges, useUrlState } from '../../hooks';
+import { Judge, useJudges, useUrlState } from '../../hooks';
 import { ExternalUrls, usePropOverrides } from '../../lib';
 import { APP_CONTENT_WIDTH } from '../constants.ts';
+import { NonIdealState } from '../NonIdealState.tsx';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -16,7 +17,7 @@ type Props = {
 export function Judges(props: Props) {
   const { enabledJudges } = usePropOverrides('Judges', props);
   const { projectSlug } = useUrlState();
-  const { data: judges } = useJudges(projectSlug);
+  const { data: judges = [] }: { data: Judge[] } = useJudges(projectSlug);
 
   const availableJudges: { [judgeType in JudgeType]: () => ReactNode } = {
     custom: CreateFineTunedJudgeCard,
@@ -36,9 +37,13 @@ export function Judges(props: Props) {
       <Stack w={APP_CONTENT_WIDTH}>
         <Title order={5}>Configured Judges</Title>
         <Accordion variant="contained">
-          {(judges ?? []).map(judge => (
-            <JudgeAccordionItem key={judge.id} judge={judge} />
-          ))}
+          {judges.length > 0 ? (
+            judges.map(judge => <JudgeAccordionItem key={judge.id} judge={judge} />)
+          ) : (
+            <Paper withBorder>
+              <NonIdealState description="No judges configured" />
+            </Paper>
+          )}
         </Accordion>
 
         <Divider />

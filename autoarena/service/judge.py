@@ -114,7 +114,7 @@ class JudgeService:
                 dict(
                     judge_type=api.JudgeType.HUMAN.value,
                     name=name,
-                    description="Manual ratings submitted via the 'Head-to-Head' tab",
+                    description="Manual votes submitted via the 'Head-to-Head' tab",
                 ),
             )
 

@@ -17,6 +17,7 @@ import cohereUrl from '../../../assets/cohere.jpg';
 import togetherUrl from '../../../assets/together.jpg';
 import bedrockUrl from '../../../assets/bedrock.jpg';
 import customUrl from '../../../assets/custom.jpg';
+import { Judge } from '../../hooks';
 
 export type JudgeType =
   | 'human'
@@ -121,4 +122,12 @@ export function judgeTypeToApiKeyName(judgeType: JudgeType) {
     case 'together':
       return 'TOGETHER_API_KEY';
   }
+}
+
+export function isEnabledAutoJudge(judge: Judge) {
+  return judge.enabled && judge.judge_type !== 'human';
+}
+
+export function isDefaultHumanJudge(judge: Judge) {
+  return judge.judge_type === 'human' && judge.name === 'human';
 }

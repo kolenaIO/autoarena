@@ -96,6 +96,7 @@ class HeadToHeadService:
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
         # 1. ensure judge exists
         JudgeService.create_human_judge(project_slug, request.human_judge_name)
+
         with ProjectService.connect(project_slug, commit=True) as conn:
             cur = conn.cursor()
 

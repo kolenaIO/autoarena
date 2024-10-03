@@ -90,12 +90,12 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             <Text {...subtitleProps}>
               {activeProject != null ? (
                 <>
-                  Created project '{activeProject?.slug}' at <Code>{activeProject?.filepath}</Code>
+                  Selected project '{activeProject?.slug}' at <Code>{activeProject?.filepath}</Code>
                 </>
               ) : hasProjects ? (
                 'Select a project or create a new one'
               ) : (
-                'Create a new project file'
+                'Create a new project'
               )}
             </Text>
           </Timeline.Item>

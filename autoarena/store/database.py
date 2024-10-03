@@ -30,7 +30,8 @@ def get_database_connection(path: Path, commit: bool = False) -> Iterator[sqlite
         if commit:
             conn.commit()
     except Exception as e:
-        conn.rollback()
+        if commit:
+            conn.rollback()
         raise e
     finally:
         conn.close()

@@ -51,7 +51,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
   useEffect(() => {
     setActiveStage(prevActiveStage => {
       const newActiveStage = !hasCreatedProject ? -1 : !hasConfiguredJudge ? 0 : !hasUploadedTwoModels ? 1 : 2;
-      if (!onboardingGuideDismissed && newActiveStage === 3 && prevActiveStage < newActiveStage) {
+      if (!onboardingGuideDismissed && newActiveStage === 2 && prevActiveStage < newActiveStage) {
         setOnboardingGuideDismissed(true); // only show this message once per project
       }
       return newActiveStage;

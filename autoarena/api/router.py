@@ -61,6 +61,7 @@ def router(r: Optional[APIRouter] = None) -> APIRouter:
             df_response_by_model_name[value] = pd.read_csv(BytesIO(await file.read()))
         if len(df_response_by_model_name) == 0:
             raise BadRequestError("No valid model responses in body")
+        # TODO: ideally this would all take place within a single transaction
         new_models = [
             ModelService.upload_responses(project_slug, model_name, df_response)
             for model_name, df_response in df_response_by_model_name.items()

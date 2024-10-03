@@ -25,7 +25,7 @@ def get_database_connection(path: Path, commit: bool = False) -> Iterator[sqlite
         cur.execute("PRAGMA foreign_keys = ON")
         cur.execute("PRAGMA journal_mode = WAL")
         if commit:
-            cur.execute("BEGIN TRANSACTION")
+            cur.execute("BEGIN IMMEDIATE TRANSACTION")
         yield conn
         if commit:
             conn.commit()

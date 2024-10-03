@@ -6,7 +6,7 @@ import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
 import { Judge, useUpdateJudge, useUrlState, useDownloadFile, useAppRoutes } from '../../hooks';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { pluralize } from '../../lib';
-import { isDefaultHumanJudge, judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
+import { judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 import { TriggerAutoJudgeModal } from './TriggerAutoJudgeModal.tsx';
@@ -60,16 +60,10 @@ export function JudgeAccordionItem({ judge }: Props) {
         <Group justify="space-between" pl="xs" pr="lg">
           <Stack gap={0}>
             <Text c={!isEnabled ? 'gray.6' : undefined}>
-              {isDefaultHumanJudge(judge) ? (
-                judgeTypeToHumanReadableName(judge_type)
-              ) : (
-                <>
-                  {name}{' '}
-                  <Text span c="dimmed">
-                    ({judgeTypeToHumanReadableName(judge_type)})
-                  </Text>
-                </>
-              )}
+              {name}{' '}
+              <Text span c="dimmed">
+                ({judgeTypeToHumanReadableName(judge_type)})
+              </Text>
             </Text>
             <Text c="dimmed" size="xs">
               {description}

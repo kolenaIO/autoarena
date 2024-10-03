@@ -24,7 +24,7 @@ type Props = {
   humanJudgeName?: string;
 };
 export function HeadToHeadTwoModels(props: Props) {
-  const { modelAId, modelBId, humanJudgeName = 'human' } = usePropOverrides('HeadToHeadTwoModels', props);
+  const { modelAId, modelBId, humanJudgeName = 'AutoArena User' } = usePropOverrides('HeadToHeadTwoModels', props);
   const { projectSlug = '' } = useUrlState();
   const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();

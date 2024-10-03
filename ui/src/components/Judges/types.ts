@@ -127,7 +127,3 @@ export function judgeTypeToApiKeyName(judgeType: JudgeType) {
 export function isEnabledAutoJudge(judge: Judge) {
   return judge.enabled && judge.judge_type !== 'human';
 }
-
-export function isDefaultHumanJudge(judge: Judge) {
-  return judge.judge_type === 'human' && judge.name === 'human';
-}

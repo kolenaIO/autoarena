@@ -96,7 +96,21 @@ class HeadToHeadService:
         with ProjectService.connect(project_slug, commit=True) as conn:
             cur = conn.cursor()
 
-            # 1. insert head-to-head record
+            # 1. ensure judge exists
+            cur.execute(
+                """
+                INSERT INTO judge (name, judge_type, description, enabled)
+                VALUES (:name, :judge_type, :description, TRUE)
+                ON CONFLICT (name) DO NOTHING
+                """,
+                dict(
+                    name=request.human_judge_name,
+                    judge_type=api.JudgeType.HUMAN.value,
+                    description=f"Human judge '{request.human_judge_name}'",
+                ),
+            )
+
+            # 2. insert head-to-head record
             cur.execute(
                 """
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
@@ -113,7 +127,7 @@ class HeadToHeadService:
                 ),
             )
 
-            # 2. adjust elo scores
+            # 3. adjust elo scores
             df_model = pd.read_sql_query(
                 """
                 SELECT id, elo

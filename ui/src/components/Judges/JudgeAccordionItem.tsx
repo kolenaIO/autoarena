@@ -60,15 +60,15 @@ export function JudgeAccordionItem({ judge }: Props) {
         <Group justify="space-between" pl="xs" pr="lg">
           <Stack gap={0}>
             <Text c={!isEnabled ? 'gray.6' : undefined}>
-              {judge_type !== 'human' ? (
+              {judge_type === 'human' || name === 'human' ? (
+                judgeTypeToHumanReadableName(judge_type)
+              ) : (
                 <>
                   {name}{' '}
                   <Text span c="dimmed">
                     ({judgeTypeToHumanReadableName(judge_type)})
                   </Text>
                 </>
-              ) : (
-                'Human'
               )}
             </Text>
             <Text c="dimmed" size="xs">

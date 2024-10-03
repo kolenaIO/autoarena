@@ -35,7 +35,7 @@ class ProjectService:
         path = data_directory / f"{request.name}.sqlite"
         slug = ProjectService._path_to_slug(path)
         ProjectService._setup_database(path)
-        JudgeService.create_human_judge(slug)
+        JudgeService.create_default_human_judge(slug)
         return api.Project(slug=slug, filename=path.name, filepath=str(path))
 
     @staticmethod

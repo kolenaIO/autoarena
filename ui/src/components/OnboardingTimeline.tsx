@@ -1,10 +1,9 @@
-import { Timeline, Text, Paper, Title, Stack, Group, Button, Code, CloseButton, Divider } from '@mantine/core';
+import { Timeline, Text, Paper, Title, Stack, Group, Button, Code, CloseButton, Divider, Anchor } from '@mantine/core';
 import { ReactNode, useEffect, useMemo, useState } from 'react';
 import { IconGavel, IconPlus, IconRobot } from '@tabler/icons-react';
 import { prop, sortBy } from 'ramda';
 import moment, { MomentInput } from 'moment';
-import { notifications } from '@mantine/notifications';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import {
   Judge,
   useJudges,
@@ -26,6 +25,7 @@ type Props = {
 export function OnboardingTimeline({ dismissable = true }: Props) {
   const { projectSlug } = useUrlState();
   const { appRoutes } = useAppRoutes();
+  const navigate = useNavigate();
   const { data: projects } = useProjects();
   const { data: activeProject, isLoading: isLoadingProjects } = useProject(projectSlug);
   const { data: models, isLoading: isLoadingModels } = useModels(projectSlug);
@@ -36,10 +36,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
   const hasCreatedProject = activeProject != null;
 
   const modelsSorted = useMemo(() => sortBy<Model>(prop('created'))(models ?? []), [models]);
-  const firstModel: Model | undefined = modelsSorted[0];
-  const hasUploadedFirstModel = firstModel != null;
-  const secondModel: Model | undefined = modelsSorted[1];
-  const hasUploadedSecondModel = secondModel != null;
+  const hasUploadedTwoModels = modelsSorted.length >= 2;
 
   const judgesSorted = useMemo(() => {
     const automatedJudges = (judges ?? []).filter(({ judge_type }) => judge_type !== 'human');
@@ -49,45 +46,17 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
   const firstJudge: Judge | undefined = judgesSorted[0];
   const hasConfiguredJudge = firstJudge != null;
 
-  const hasCompletedOnboarding = hasUploadedFirstModel && hasConfiguredJudge && hasUploadedSecondModel;
+  const hasCompletedOnboarding = hasConfiguredJudge && hasUploadedTwoModels;
 
   useEffect(() => {
     setActiveStage(prevActiveStage => {
-      const newActiveStage = !hasCreatedProject
-        ? -1
-        : !hasUploadedFirstModel
-          ? 0
-          : !hasConfiguredJudge
-            ? 1
-            : !hasUploadedSecondModel
-              ? 2
-              : 3;
-      if (
-        !onboardingGuideDismissed &&
-        newActiveStage === 3 &&
-        prevActiveStage < newActiveStage &&
-        firstModel?.q025 == null
-      ) {
-        notifications.show({
-          title: 'Onboarding complete',
-          message:
-            "Check the 'Tasks' drawer to see automated judge progress. Leaderboard will update when judging is complete",
-          color: 'green',
-          autoClose: 10_000,
-          id: 'onboarding-complete',
-        });
+      const newActiveStage = !hasCreatedProject ? -1 : !hasConfiguredJudge ? 0 : !hasUploadedTwoModels ? 1 : 2;
+      if (!onboardingGuideDismissed && newActiveStage === 2 && prevActiveStage < newActiveStage) {
         setOnboardingGuideDismissed(true); // only show this message once per project
       }
       return newActiveStage;
     });
-  }, [
-    firstModel,
-    hasCreatedProject,
-    hasUploadedFirstModel,
-    hasConfiguredJudge,
-    hasUploadedSecondModel,
-    onboardingGuideDismissed,
-  ]);
+  }, [hasCreatedProject, hasConfiguredJudge, hasUploadedTwoModels, onboardingGuideDismissed]);
 
   const hasProjects = projects?.length ?? 0 > 0;
   const iconProps = { size: 14 };
@@ -121,33 +90,12 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             <Text {...subtitleProps}>
               {activeProject != null ? (
                 <>
-                  Created project '{activeProject?.slug}' at <Code>{activeProject?.filepath}</Code>
+                  Selected project '{activeProject?.slug}' at <Code>{activeProject?.filepath}</Code>
                 </>
               ) : hasProjects ? (
                 'Select a project or create a new one'
               ) : (
-                'Create a new project file'
-              )}
-            </Text>
-          </Timeline.Item>
-
-          <Timeline.Item
-            bullet={<IconRobot {...iconProps} />}
-            title={
-              <TimelineItemTitle
-                title="Add first model responses"
-                timestamp={firstModel?.created}
-                action={activeStage === 0 ? <AddModelButton size="xs" /> : undefined}
-              />
-            }
-          >
-            <Text {...subtitleProps}>
-              {firstModel != null ? (
-                `Added model '${firstModel?.name}'`
-              ) : (
-                <Text>
-                  Add a model by uploading a CSV with <Code>prompt</Code> and <Code>response</Code> columns
-                </Text>
+                'Create a new project'
               )}
             </Text>
           </Timeline.Item>
@@ -159,7 +107,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
                 title="Configure an automated judge"
                 timestamp={firstJudge?.created}
                 action={
-                  activeStage === 1 ? (
+                  activeStage === 0 ? (
                     <Link to={appRoutes.judges(projectSlug ?? '')}>
                       <Button leftSection={<IconGavel size={18} />} size="xs">
                         Configure Judge
@@ -171,9 +119,19 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             }
           >
             <Text {...subtitleProps}>
-              {firstJudge != null
-                ? `Configured judge '${firstJudge.name}'`
-                : "Visit the 'Judges' tab to configure an automated judge"}
+              {firstJudge != null ? (
+                `Configured judge '${firstJudge.name}'`
+              ) : (
+                <>
+                  Visit the{' '}
+                  {projectSlug != null ? (
+                    <Anchor onClick={() => navigate(appRoutes.judges(projectSlug))}>Judges</Anchor>
+                  ) : (
+                    'Judges'
+                  )}{' '}
+                  tab to configure an automated judge
+                </>
+              )}
             </Text>
           </Timeline.Item>
 
@@ -181,15 +139,21 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconRobot {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Add responses from a second model"
-                timestamp={secondModel?.created}
-                action={activeStage === 2 ? <AddModelButton size="xs" /> : undefined}
+                title="Add responses from two models to evaluate"
+                timestamp={modelsSorted[1]?.created}
+                action={activeStage === 1 ? <AddModelButton size="xs" /> : undefined}
               />
             }
           >
             <Text {...subtitleProps}>
-              Add a second model to compare{firstModel != null && ` against '${firstModel.name}'`}
-              {firstJudge != null && ` using '${firstJudge.name}' as judge`}
+              {modelsSorted[0] != null ? (
+                `Added first model '${modelsSorted[0]?.name}' ${moment(modelsSorted[0]?.created).fromNow()}`
+              ) : (
+                <Text>
+                  Add two models to evaluate by uploading CSVs with <Code>prompt</Code> and <Code>response</Code>{' '}
+                  columns
+                </Text>
+              )}
             </Text>
           </Timeline.Item>
         </Timeline>

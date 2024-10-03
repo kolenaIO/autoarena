@@ -27,12 +27,13 @@ def test__cli__seed(test_data_directory: Path) -> None:
     ]
     df_h2h_input = pd.DataFrame.from_records(h2h_records)
     with tempfile.NamedTemporaryFile(suffix=".csv") as f:
-        filename = f.name
+        filepath = f.name
         df_h2h_input.to_csv(f, index=False)
-        main(["seed", filename])
+        main(["seed", filepath])
 
     projects = ProjectService.get_all()
-    project_slug = Path(filename).stem
+    judge_name = Path(filepath).name
+    project_slug = Path(filepath).stem
     assert len(projects) == 1
     assert projects[0].slug == project_slug
 
@@ -47,7 +48,7 @@ def test__cli__seed(test_data_directory: Path) -> None:
         df_h2h_input_model = df_h2h_input[(df_h2h_input.model_a == model.name) | (df_h2h_input.model_b == model.name)]
         assert len(df_h2h_model) == len(df_h2h_input_model)
         assert all(df_h2h_model.history.apply(lambda h: len(h) == 1))
-        assert all(df_h2h_model.history.apply(lambda h: h[0]["judge_name"] == "human"))
+        assert all(df_h2h_model.history.apply(lambda h: h[0]["judge_name"] == judge_name))
 
 
 def test__cli__seed__missing_argument(test_data_directory: None) -> None:

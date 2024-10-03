@@ -7,6 +7,7 @@ from loguru import logger
 from autoarena.api import api
 from autoarena.error import BadRequestError
 from autoarena.service.elo import EloService
+from autoarena.service.judge import JudgeService
 from autoarena.service.project import ProjectService
 from autoarena.store.database import temporary_table
 from autoarena.store.utils import id_slug, check_required_columns
@@ -93,22 +94,10 @@ class HeadToHeadService:
 
     @staticmethod
     def submit_vote(project_slug: str, request: api.HeadToHeadVoteRequest) -> None:
+        # 1. ensure judge exists
+        JudgeService.create_human_judge(project_slug, request.human_judge_name)
         with ProjectService.connect(project_slug, commit=True) as conn:
             cur = conn.cursor()
-
-            # 1. ensure judge exists
-            cur.execute(
-                """
-                INSERT INTO judge (name, judge_type, description, enabled)
-                VALUES (:name, :judge_type, :description, TRUE)
-                ON CONFLICT (name) DO NOTHING
-                """,
-                dict(
-                    name=request.human_judge_name,
-                    judge_type=api.JudgeType.HUMAN.value,
-                    description=f"Human judge '{request.human_judge_name}'",
-                ),
-            )
 
             # 2. insert head-to-head record
             cur.execute(

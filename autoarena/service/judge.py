@@ -103,7 +103,7 @@ class JudgeService:
         )
 
     @staticmethod
-    def create_default_human_judge(project_slug: str) -> None:
+    def create_human_judge(project_slug: str, name: str = api.JudgeType.HUMAN.value) -> None:
         with ProjectService.connect(project_slug, commit=True) as conn:
             conn.cursor().execute(
                 """
@@ -113,7 +113,7 @@ class JudgeService:
             """,
                 dict(
                     judge_type=api.JudgeType.HUMAN.value,
-                    name=api.JudgeType.HUMAN.value,
+                    name=name,
                     description="Manual ratings submitted via the 'Head-to-Head' tab",
                 ),
             )

@@ -31,7 +31,7 @@ class AutomatedJudge(metaclass=ABCMeta):
         try:
             KeyManagerProvider.get().get(self.API_KEY_NAME) if self.API_KEY_NAME is not None else None
         except KeyError:
-            message = f"API key '{self.API_KEY_NAME}' must be set in environment running AutoArena to use '{self.name}'"
+            message = f"API key '{self.API_KEY_NAME}' must be set to use '{self.name}'"
             raise RuntimeError(message)
 
     @abstractmethod

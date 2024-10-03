@@ -146,7 +146,7 @@ export function JudgeAccordionItem({ judge }: Props) {
               </Text>
               <Group>
                 {DownloadVotesComponent}
-                {!isDefaultHumanJudge(judge) && <DeleteJudgeButton judge={judge} />}
+                <DeleteJudgeButton judge={judge} />
               </Group>
             </Group>
           )}

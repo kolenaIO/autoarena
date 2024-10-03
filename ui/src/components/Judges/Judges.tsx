@@ -4,7 +4,6 @@ import { ReactNode } from 'react';
 import { Judge, useJudges, useUrlState } from '../../hooks';
 import { ExternalUrls, usePropOverrides } from '../../lib';
 import { APP_CONTENT_WIDTH } from '../constants.ts';
-import { NonIdealState } from '../NonIdealState.tsx';
 import { ConfigureJudgeCard } from './ConfigureJudgeCard.tsx';
 import { CreateJudgeModal } from './CreateJudgeModal.tsx';
 import { CreateFineTunedJudgeModal } from './CreateFineTunedJudgeModal.tsx';
@@ -40,8 +39,12 @@ export function Judges(props: Props) {
           {judges.length > 0 ? (
             judges.map(judge => <JudgeAccordionItem key={judge.id} judge={judge} />)
           ) : (
-            <Paper withBorder>
-              <NonIdealState description="No judges configured" />
+            <Paper withBorder p={24} /* 24px padding is very close to the size of a single accordion item */>
+              <Center>
+                <Text c="dimmed" fs="italic" size="sm">
+                  No judges configured
+                </Text>
+              </Center>
             </Paper>
           )}
         </Accordion>

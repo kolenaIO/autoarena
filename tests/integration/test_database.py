@@ -31,7 +31,7 @@ def test__concurrent__read(n_readers: int, test_data_directory: Path) -> None:
 def test__concurrent__write(n_writers: int, n_readers: int, test_data_directory: Path) -> None:
     database_file = test_data_directory / "test__concurrent__write.sqlite"
     with get_database_connection(database_file, commit=True) as conn:
-        conn.execute("CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT)")
+        conn.execute("CREATE TABLE test (id INTEGER PRIMARY KEY, value TEXT UNIQUE)")
         conn.execute("INSERT INTO test (value) VALUES ('test')")
 
     def read() -> list[tuple[str]]:
@@ -40,7 +40,7 @@ def test__concurrent__write(n_writers: int, n_readers: int, test_data_directory:
 
     def write() -> None:
         with get_database_connection(database_file, commit=True) as conn_writer:
-            conn_writer.cursor().execute("INSERT INTO test (value) VALUES ('concurrent')")
+            conn_writer.cursor().execute("INSERT INTO test (value) VALUES ('concurrent-' || uuid())")
 
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=n_writers + n_readers) as executor:

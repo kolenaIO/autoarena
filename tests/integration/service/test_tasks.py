@@ -159,7 +159,12 @@ def test__task__recompute_leaderboard(project_slug: str, models_with_responses: 
     model_a, model_b = models_with_responses
     h2hs = HeadToHeadService.get(project_slug, api.HeadToHeadsRequest(model_a_id=model_a.id, model_b_id=model_b.id))
     for h2h in h2hs:
-        vote = api.HeadToHeadVoteRequest(response_a_id=h2h.response_a_id, response_b_id=h2h.response_b_id, winner="A")
+        vote = api.HeadToHeadVoteRequest(
+            response_a_id=h2h.response_a_id,
+            response_b_id=h2h.response_b_id,
+            winner="A",
+            human_judge_name="test-user",
+        )
         HeadToHeadService.submit_vote(project_slug, vote)
     models_before = ModelService.get_all(project_slug)
     TaskService.recompute_leaderboard(project_slug)

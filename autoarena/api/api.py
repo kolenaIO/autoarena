@@ -78,6 +78,7 @@ class HeadToHeadVoteRequest:  # this is always coming from humans
     response_a_id: int
     response_b_id: int
     winner: WinnerType
+    human_judge_name: str  # often 'AutoArena User' but may be a specific username if one is available
 
 
 class TaskType(str, Enum):

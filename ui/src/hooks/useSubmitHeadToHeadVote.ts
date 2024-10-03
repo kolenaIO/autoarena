@@ -6,6 +6,7 @@ type HeadToHeadVoteRequest = {
   response_a_id: number;
   response_b_id: number;
   winner: 'A' | 'B' | '-';
+  human_judge_name: string;
 };
 
 type Params = {

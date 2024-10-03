@@ -28,14 +28,12 @@ class ProjectService:
     @staticmethod
     def create_idempotent(request: api.CreateProjectRequest) -> api.Project:
         # TODO: should come up with a better way than this to have services point at one another, or remove the need
-        from autoarena.service.judge import JudgeService
 
         data_directory = DataDirectoryProvider.get()
         data_directory.mkdir(parents=True, exist_ok=True)
         path = data_directory / f"{request.name}.sqlite"
         slug = ProjectService._path_to_slug(path)
         ProjectService._setup_database(path)
-        JudgeService.create_human_judge(slug)
         return api.Project(slug=slug, filename=path.name, filepath=str(path))
 
     @staticmethod

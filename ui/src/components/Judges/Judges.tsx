@@ -1,4 +1,4 @@
-import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code } from '@mantine/core';
+import { Accordion, Anchor, Center, Divider, SimpleGrid, Stack, Title, Text, Code, Paper } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { ReactNode } from 'react';
 import { useJudges, useUrlState } from '../../hooks';
@@ -16,7 +16,8 @@ type Props = {
 export function Judges(props: Props) {
   const { enabledJudges } = usePropOverrides('Judges', props);
   const { projectSlug } = useUrlState();
-  const { data: judges } = useJudges(projectSlug);
+  const { data: queryJudges } = useJudges(projectSlug);
+  const judges = queryJudges ?? [];
 
   const availableJudges: { [judgeType in JudgeType]: () => ReactNode } = {
     custom: CreateFineTunedJudgeCard,
@@ -36,9 +37,17 @@ export function Judges(props: Props) {
       <Stack w={APP_CONTENT_WIDTH}>
         <Title order={5}>Configured Judges</Title>
         <Accordion variant="contained">
-          {(judges ?? []).map(judge => (
-            <JudgeAccordionItem key={judge.id} judge={judge} />
-          ))}
+          {judges.length > 0 ? (
+            judges.map(judge => <JudgeAccordionItem key={judge.id} judge={judge} />)
+          ) : (
+            <Paper withBorder p={24} /* 24px padding is very close to the size of a single accordion item */>
+              <Center>
+                <Text c="dimmed" fs="italic" size="sm">
+                  No judges configured
+                </Text>
+              </Center>
+            </Paper>
+          )}
         </Accordion>
 
         <Divider />

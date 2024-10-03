@@ -102,9 +102,8 @@ class JudgeService:
             n_votes=0,
         )
 
-    # TODO: is this necessary?
     @staticmethod
-    def create_human_judge(project_slug: str) -> api.Judge:
+    def create_human_judge(project_slug: str, name: str) -> None:
         with ProjectService.connect(project_slug, commit=True) as conn:
             conn.cursor().execute(
                 """
@@ -114,12 +113,10 @@ class JudgeService:
             """,
                 dict(
                     judge_type=api.JudgeType.HUMAN.value,
-                    name=api.JudgeType.HUMAN.value,
-                    description="Manual ratings submitted via the 'Head-to-Head' tab",
+                    name=name,
+                    description="Manual votes submitted via the 'Head-to-Head' tab",
                 ),
             )
-        # TODO: this is a little lazy but ¯\_(ツ)_/¯
-        return [j for j in JudgeService.get_all(project_slug) if j.judge_type is api.JudgeType.HUMAN][0]
 
     @staticmethod
     def update(project_slug: str, judge_id: int, request: api.UpdateJudgeRequest) -> api.Judge:

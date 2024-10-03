@@ -13,7 +13,12 @@ from tests.integration.conftest import assert_recent
 def n_model_a_votes(project_client: TestClient, model_id: int, model_b_id: int) -> int:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     for h in h2h:
-        request = dict(response_a_id=h["response_a_id"], response_b_id=h["response_b_id"], winner="A")
+        request = dict(
+            response_a_id=h["response_a_id"],
+            response_b_id=h["response_b_id"],
+            winner="A",
+            human_judge_name="human",
+        )
         assert project_client.post("/head-to-head/vote", json=request).json() is None
     return len(h2h)
 

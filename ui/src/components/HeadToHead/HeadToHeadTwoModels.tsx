@@ -11,7 +11,7 @@ import { Fragment, useEffect, useMemo, useState } from 'react';
 import { useDisclosure, useElementSize, useHotkeys } from '@mantine/hooks';
 import { useNavigate } from 'react-router-dom';
 import { useHeadToHeads, useUrlState, useSubmitHeadToHeadVote, useModel, useAppRoutes } from '../../hooks';
-import { pluralize } from '../../lib';
+import { pluralize, usePropOverrides } from '../../lib';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { NonIdealState } from '../NonIdealState.tsx';
 import { ControlBar } from './ControlBar.tsx';
@@ -21,8 +21,10 @@ type ShowMode = 'All' | 'With Votes' | 'Without Votes';
 type Props = {
   modelAId: number;
   modelBId: number;
+  humanJudgeName?: string;
 };
-export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
+export function HeadToHeadTwoModels(props: Props) {
+  const { modelAId, modelBId, humanJudgeName = 'AutoArena User' } = usePropOverrides('HeadToHeadTwoModels', props);
   const { projectSlug = '' } = useUrlState();
   const { appRoutes } = useAppRoutes();
   const navigate = useNavigate();
@@ -67,6 +69,7 @@ export function HeadToHeadTwoModels({ modelAId, modelBId }: Props) {
           response_a_id: headToHead.response_a_id,
           response_b_id: headToHead.response_b_id,
           winner: vote,
+          human_judge_name: humanJudgeName,
         });
         setHeadToHeadIndex(prev => prev + 1);
       }

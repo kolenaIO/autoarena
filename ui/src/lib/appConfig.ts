@@ -1,6 +1,6 @@
 import { fetchEventSource, FetchEventSourceInit } from '@microsoft/fetch-event-source';
 import { ComponentProps, Context, createContext, useContext } from 'react';
-import { CanAccessJudgeStatusIndicator, MainMenu, Judges } from '../components';
+import { CanAccessJudgeStatusIndicator, MainMenu, Judges, HeadToHeadTwoModels } from '../components';
 
 export type AppConfig = {
   baseApiUrl: string;
@@ -12,6 +12,7 @@ export type AppConfig = {
     MainMenu: Partial<ComponentProps<typeof MainMenu>>;
     Judges: Partial<ComponentProps<typeof Judges>>;
     CanAccessJudgeStatusIndicator: Partial<ComponentProps<typeof CanAccessJudgeStatusIndicator>>;
+    HeadToHeadTwoModels: Partial<ComponentProps<typeof HeadToHeadTwoModels>>;
   }>;
 };
 

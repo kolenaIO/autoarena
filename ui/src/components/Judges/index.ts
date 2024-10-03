@@ -9,4 +9,3 @@ export * from './JudgeAccordionItem';
 export * from './Judges';
 export * from './TriggerAutoJudgeModal';
 export * from './types';
-export * from './utils';

@@ -83,9 +83,7 @@ class AutoJudgeTask:
         except GracefulExit:
             pass
         except Exception as e:
-            TaskService.update(self.project_slug, self.task_id, f"Failed ({e})", status=api.TaskStatus.FAILED)
-            message = "See AutoArena service logs for more information"
-            TaskService.update(self.project_slug, self.task_id, message, status=api.TaskStatus.FAILED)
+            TaskService.update(self.project_slug, self.task_id, f"Failed: {e}", status=api.TaskStatus.FAILED)
             logger.error(f"Automated judgement failed: {e}")
             raise e
 

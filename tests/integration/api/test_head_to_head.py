@@ -62,8 +62,8 @@ def test__head_to_head__submit_vote__with_name(project_client: TestClient, model
     assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     judges = project_client.get("/judges").json()
-    assert len(judges) == 2
-    assert h2h[0]["history"] == [dict(judge_id=judges[1]["id"], judge_name=judges[1]["name"], winner="A")]
+    assert len(judges) == 1
+    assert h2h[0]["history"] == [dict(judge_id=judges[0]["id"], judge_name=judges[0]["name"], winner="A")]
     assert h2h[1]["history"] == []
 
 

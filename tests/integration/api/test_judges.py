@@ -8,13 +8,9 @@ from tests.integration.api.conftest import CREATE_JUDGE_REQUEST
 from tests.integration.conftest import assert_recent
 
 
-def test__judges__default_human_judge(project_client: TestClient) -> None:
-    default_project_judges = project_client.get("/judges").json()
-    assert len(default_project_judges) == 1
-    assert default_project_judges[0]["judge_type"] == "human"
-    assert default_project_judges[0]["enabled"]
-    assert default_project_judges[0]["n_votes"] == 0
-    assert_recent(default_project_judges[0]["created"])
+def test__judges__empty(project_client: TestClient) -> None:
+    default_project_judges = project_client.get("/judges").json()  # no judges created by default
+    assert len(default_project_judges) == 0
 
 
 def test__judges__default_system_prompt(project_client: TestClient) -> None:
@@ -28,7 +24,7 @@ def test__judges__create(project_client: TestClient) -> None:
     assert_recent(new_judge_dict["created"])
     for key in ["judge_type", "name", "model_name", "system_prompt", "description"]:
         assert new_judge_dict[key] == CREATE_JUDGE_REQUEST[key]
-    assert project_client.get("/judges").json()[1] == new_judge_dict
+    assert project_client.get("/judges").json() == [new_judge_dict]
 
     # create is not idempotent (POST)
     with pytest.raises(Exception):
@@ -94,9 +90,6 @@ def test__judges__download_votes_csv(project_client: TestClient, model_id: int, 
 
 
 def test__judges__delete(project_client: TestClient, judge_id: int) -> None:
-    assert project_client.delete(f"/judge/{judge_id}").json() is None
-    assert len(project_client.get("/judges").json()) == 1  # only default judge is left
-
-    # delete is idempotent
-    assert project_client.delete(f"/judge/{judge_id}").json() is None
-    assert len(project_client.get("/judges").json()) == 1
+    for _ in range(3):  # loop to test idempotence
+        assert project_client.delete(f"/judge/{judge_id}").json() is None
+        assert len(project_client.get("/judges").json()) == 0

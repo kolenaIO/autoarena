@@ -6,12 +6,7 @@ import { IconDownload, IconGavel, IconPrompt } from '@tabler/icons-react';
 import { Judge, useUpdateJudge, useUrlState, useDownloadFile, useAppRoutes } from '../../hooks';
 import { MarkdownContent } from '../MarkdownContent.tsx';
 import { pluralize } from '../../lib';
-import {
-  DEFAULT_HUMAN_JUDGE_NAME,
-  isDefaultHumanJudge,
-  judgeTypeIconComponent,
-  judgeTypeToHumanReadableName,
-} from './types.ts';
+import { isDefaultHumanJudge, judgeTypeIconComponent, judgeTypeToHumanReadableName } from './types.ts';
 import { DeleteJudgeButton } from './DeleteJudgeButton.tsx';
 import { CanAccessJudgeStatusIndicator } from './CanAccessJudgeStatusIndicator.tsx';
 import { TriggerAutoJudgeModal } from './TriggerAutoJudgeModal.tsx';
@@ -149,8 +144,10 @@ export function JudgeAccordionItem({ judge }: Props) {
                 </Link>{' '}
                 tab to provide ratings on head-to-head matchups between models.
               </Text>
-              {DownloadVotesComponent}
-              {!isDefaultHumanJudge(judge) && <DeleteJudgeButton judge={judge} />}
+              <Group>
+                {DownloadVotesComponent}
+                {!isDefaultHumanJudge(judge) && <DeleteJudgeButton judge={judge} />}
+              </Group>
             </Group>
           )}
           <Collapse in={showSystemPrompt} fz="sm">

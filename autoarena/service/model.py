@@ -96,13 +96,10 @@ class ModelService:
             raise BadRequestError(str(e))
         if len(df_response) == 0:
             raise BadRequestError("Responses must not be empty")
+        df_response = df_response.copy().replace({np.nan: ""})
         n_duplicate_prompts = len(df_response) - len(set(df_response["prompt"]))
         if n_duplicate_prompts > 0:
             raise BadRequestError(f"Each 'prompt' value must be unique (received {n_duplicate_prompts} duplicate(s))")
-        n_input = len(df_response)
-        df_response = df_response.copy().dropna(subset=["prompt", "response"])
-        if len(df_response) != n_input:
-            logger.warning(f"Dropped {n_input - len(df_response)} responses with empty prompt or response values")
         logger.info(f"Uploading {len(df_response)} responses from model '{model_name}'")
         with ProjectService.connect(project_slug, commit=True) as conn:
             cur = conn.cursor()

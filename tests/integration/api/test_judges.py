@@ -59,9 +59,19 @@ def test__judges__can_access__unrecognized__failed(project_client: TestClient) -
 
 def test__judges__download_votes_csv(project_client: TestClient, model_id: int, model_b_id: int) -> None:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
-    judge_request = dict(response_a_id=h2h[0]["response_a_id"], response_b_id=h2h[0]["response_b_id"], winner="A")
+    judge_request = dict(
+        response_a_id=h2h[0]["response_a_id"],
+        response_b_id=h2h[0]["response_b_id"],
+        winner="A",
+        human_judge_name="human",
+    )
     assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
-    judge_request = dict(response_a_id=h2h[1]["response_b_id"], response_b_id=h2h[1]["response_a_id"], winner="-")
+    judge_request = dict(
+        response_a_id=h2h[1]["response_b_id"],
+        response_b_id=h2h[1]["response_a_id"],
+        winner="-",
+        human_judge_name="human",
+    )
     assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
     judges = project_client.get("/judges").json()
     assert len(judges) == 1

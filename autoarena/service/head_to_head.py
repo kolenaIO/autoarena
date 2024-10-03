@@ -116,14 +116,14 @@ class HeadToHeadService:
                 INSERT INTO head_to_head (response_id_slug, response_a_id, response_b_id, judge_id, winner)
                 SELECT :response_id_slug, :response_a_id, :response_b_id, j.id, :winner
                 FROM judge j
-                WHERE j.judge_type = :judge_type
+                WHERE j.name = :judge_name
                 ON CONFLICT (response_id_slug, judge_id) DO UPDATE SET
                     winner = IIF(response_a_id = :response_b_id, invert_winner(EXCLUDED.winner), EXCLUDED.winner)
             """,
                 dict(
                     **dataclasses.asdict(request),
                     response_id_slug=id_slug(request.response_a_id, request.response_b_id),
-                    judge_type=api.JudgeType.HUMAN.value,
+                    judge_name=request.human_judge_name,
                 ),
             )
 

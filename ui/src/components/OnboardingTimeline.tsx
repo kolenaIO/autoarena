@@ -139,7 +139,7 @@ export function OnboardingTimeline({ dismissable = true }: Props) {
             bullet={<IconRobot {...iconProps} />}
             title={
               <TimelineItemTitle
-                title="Add responses from two models"
+                title="Add responses from two models to evaluate"
                 timestamp={modelsSorted[1]?.created}
                 action={activeStage === 1 ? <AddModelButton size="xs" /> : undefined}
               />

@@ -24,9 +24,14 @@ def get_database_connection(path: Path, commit: bool = False) -> Iterator[sqlite
         conn.create_function("invert_winner", 1, invert_winner)
         cur.execute("PRAGMA foreign_keys = ON")
         cur.execute("PRAGMA journal_mode = WAL")
+        if commit:
+            cur.execute("BEGIN TRANSACTION")
         yield conn
         if commit:
             conn.commit()
+    except Exception as e:
+        conn.rollback()
+        raise e
     finally:
         conn.close()
 

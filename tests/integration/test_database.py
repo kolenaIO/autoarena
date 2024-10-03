@@ -40,7 +40,7 @@ def test__concurrent__write(n_writers: int, n_readers: int, test_data_directory:
 
     def write() -> None:
         with get_database_connection(database_file, commit=True) as conn_writer:
-            conn_writer.cursor().execute("INSERT INTO test (value) VALUES ('concurrent-' || uuid())")
+            conn_writer.cursor().execute("INSERT INTO test (value) VALUES ('concurrent-' || hex(randomblob(32)))")
 
     t0 = time.time()
     with ThreadPoolExecutor(max_workers=n_writers + n_readers) as executor:

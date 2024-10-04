@@ -17,6 +17,7 @@ coverage.xml
 *.duckdb.wal
 *.parquet
 *.csv
+*.env
 
 *.swp
 *.swo

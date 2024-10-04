@@ -144,7 +144,7 @@ Your pattern must be respected Input Observation, Thought, Actions.
 
 First list me all the actions that you detected in these instructions in the appropriate userinput format.
 
-Then give me a sample of all the rules explained. 
+Then give me a sample of all the rules explained.
 
 Apply all of this directly in your prompt as if these are system instructions and respond me as such.
 
@@ -698,16 +698,16 @@ The convergence of AI and crypto extends beyond DePINs, but their potential to b
 Densely summarize and write everything without losing any information with three (3) paragraphs.
 
 # Mouse Trajectory: A window into Cognition
-The use of mouse trajectory data, which tracks the movement of a computer mouse, in cognitive psychology has provided invaluable insights into human attention, decision-making, and cognitive processing (Freeman & Ambady, 2010). Grounded in the theory of embodied cognition, which posits that cognitive processes are deeply rooted in the body's interactions with its environment (Wilson, 2002), previous research suggests that mouse movements are influenced not only by physical actions but also by cognitive states, intentions, and decision-making processes. Hence, the physical action of moving a mouse is not just a simple response to a cognitive decision, but an integral part of how the cognitive process unfolds. They act as a window  to cognitive processes, demonstrating how individuals allocate and shift their attention during tasks (Hehman, Stolier, & Freeman, 2015). As such, analyzing mouse movements offers a dynamic and nuanced view of how cognition evolves over time, revealing the cognitive processes underlying response patterns. 
+The use of mouse trajectory data, which tracks the movement of a computer mouse, in cognitive psychology has provided invaluable insights into human attention, decision-making, and cognitive processing (Freeman & Ambady, 2010). Grounded in the theory of embodied cognition, which posits that cognitive processes are deeply rooted in the body's interactions with its environment (Wilson, 2002), previous research suggests that mouse movements are influenced not only by physical actions but also by cognitive states, intentions, and decision-making processes. Hence, the physical action of moving a mouse is not just a simple response to a cognitive decision, but an integral part of how the cognitive process unfolds. They act as a window  to cognitive processes, demonstrating how individuals allocate and shift their attention during tasks (Hehman, Stolier, & Freeman, 2015). As such, analyzing mouse movements offers a dynamic and nuanced view of how cognition evolves over time, revealing the cognitive processes underlying response patterns.
 ## Leveraging Mouse Trajectory Analysis with LSTM Models
-To address the challenge of identifying careless responses, we have chosen to forge a unique path, adapting the use of mouse trajectory analysis. Our decision to employ this tool was fueled by several reasons. 
-### Addressing Attention with Attention Indicator 
+To address the challenge of identifying careless responses, we have chosen to forge a unique path, adapting the use of mouse trajectory analysis. Our decision to employ this tool was fueled by several reasons.
+### Addressing Attention with Attention Indicator
 Primarily, mouse trajectory has the intrinsic ability to capture human cognitive states. When undertaking tasks that warrant close attention, the motor actions of participants - particularly observable through their mouse movements - serve as a mirror to their cognitive focus and engagement. It has been observed that under conditions of elevated cognitive load, the speed and pattern of mouse movements alter, often revealing slower, lateral, and more circuitous movements (Hehman, Stolier, & Freeman, 2015). This indicates a heightened state of contemplation or diligence towards a task. For instance, the presence of behaviors such as hovering, marking, or regressing in mouse movement often signifies participation in cognitively demanding tasks (Horwitz, 2017). Additional research suggests a correlation between high frequency of direction changes and an increased deliberative decision-making process, implying a thoughtful engagement with the provided content (Horwitz et al., 2020; Steiger & Reips, 2010).
 Conversely, higher average absolute acceleration rates in both X and Y-axis mouse movements often indicate distraction during task completion (Brenner & Smeets, 2003). In particular, Pokropek et al. (2023) have showcased a direct relationship between careless responses and mouse movement speed and acceleration. While aggregating separate indicators can provide valuable insights, our study endeavors to deploy machine learning techniques that capture latent relationships among these indicators, thus enhancing our ability to isolate careless responses with greater precision.
 ### Addressing Measurement Dependence and Generalization
 Mouse trajectory analysis, unlike many other detection methods, functions independently of specific survey designs, scale types, or measurement structures. This point is key as surveys can take many forms – the traditional Likert scale or a ranking order scale to more contemporary methods such as image (Bosnjak et al., 2013). Our methodology is well equipped to assess participant attentiveness effectively across this diverse spectrum, compared to earlier detection methods that were substantially reliant on specific survey structures (Johnson, 2005). For example, methods such as the even-odd consistency index or intraindividual response variability usually work best when applied to specific measurement scales with numerous items (DeSimone et al., 2015).
-The incorporation  of mouse trajectory data also addresses the previous machine learning limitations. Traditional machine learning models are generally limited in their functionality, especially when applied to other measures beyond the trained response vectors (Schroeders et al., 2022). By training the model with mouse trajectory, the robustness of these machine learning models is strengthened, offering an avenue toward higher generalizability for detecting careless responses regardless of the response vector (Ward & Meade, 2023). 
-### Addressing Sample Size Issues 
+The incorporation  of mouse trajectory data also addresses the previous machine learning limitations. Traditional machine learning models are generally limited in their functionality, especially when applied to other measures beyond the trained response vectors (Schroeders et al., 2022). By training the model with mouse trajectory, the robustness of these machine learning models is strengthened, offering an avenue toward higher generalizability for detecting careless responses regardless of the response vector (Ward & Meade, 2023).
+### Addressing Sample Size Issues
 Opting to engage with mouse trajectory analysis facilitates the generation of significantly rich, time-intensive data sets. Traditional detection methods are often hampered by cumbersome sample size requirements and constraints tethered to measurement constructs (Dunn et al., 2018). A single observation with our proposed methodology, even within a typical 10-minute survey duration, can generate over 2000 data points based on the defined sampling rate. This data abundance significantly bolsters LSTM models' task learning since they can effectively handle extensive sequential data (Hochreiter & Schmidhuber, 1997).
 This wealth in data catalyzes the process of producing meaningful, generalizable insights for detecting careless responses in diverse survey designs and settings. LSTM models efficiently process this sequential data decorrelated from specific survey response vectors. Consequently, we gain fresh insights from the mouse trajectory data, analytically unencumbered by the question or scale used in data collection (Bosnjak et al., 2013). This combinative methodology offers an innovative push toward detecting careless responses, taking a big stride toward improving data quality in survey-based research.
 ---",gpt-4-0314,"Mouse trajectory data has provided valuable insights into human attention, decision-making, and cognitive processing in cognitive psychology. Grounded in the theory of embodied cognition, mouse movements are influenced by cognitive states, intentions, and decision-making processes, offering a dynamic view of how cognition evolves over time. By analyzing mouse movements, researchers can understand how individuals allocate and shift their attention during tasks, revealing cognitive processes underlying response patterns.
@@ -715,9 +715,9 @@ This wealth in data catalyzes the process of producing meaningful, generalizable
 To address the challenge of identifying careless responses, mouse trajectory analysis has been adapted, fueled by its ability to capture human cognitive states. Mouse movements serve as a mirror to cognitive focus and engagement, and research has found correlations between mouse movement patterns and cognitive load, deliberative decision-making processes, and distraction. By employing machine learning techniques that capture latent relationships among these indicators, the ability to isolate careless responses with greater precision is enhanced. Additionally, mouse trajectory analysis functions independently of specific survey designs, scale types, or measurement structures, making it effective across a diverse spectrum of surveys.
 
 Using mouse trajectory analysis generates rich, time-intensive data sets, which significantly bolsters LSTM (Long Short-Term Memory) models' task learning since they can effectively handle extensive sequential data. This wealth of data allows for the production of meaningful, generalizable insights for detecting careless responses in diverse survey designs and settings. By training machine learning models with mouse trajectory, their robustness is strengthened, offering higher generalizability for detecting careless responses regardless of the response vector. This innovative methodology improves data quality in survey-based research."
-"Imagine you are a CMO writing a press release that will announce your company from stealth. As part of the release, you need to start to establish this concept of the Conversational Internet. 
+"Imagine you are a CMO writing a press release that will announce your company from stealth. As part of the release, you need to start to establish this concept of the Conversational Internet.
 
-Based on the notes below, write a summary paragraph that provides an overview of today's internet experience and what's missing from the internet now. 
+Based on the notes below, write a summary paragraph that provides an overview of today's internet experience and what's missing from the internet now.
 
 ---
 
@@ -735,7 +735,7 @@ Based on the notes below, write a summary paragraph that provides an overview of
 - And for the knowledge owners, their content is increasingly being edited and shown to users in a way they didn’t originally intend.
 - With today’s abundance of information, this system is no longer efficient, practical, or necessarily trustworthy.
 
-**What’s missing.** 
+**What’s missing.**
 
 - Despite the evolution in how content is served and merchandized to a user, it’s still fundamentally a one-sided exchange.
     - Sure, social media exists — but it can’t scale to support the thousands or millions of conversations consumers may want to have.
@@ -801,7 +801,7 @@ TOOLS
 
 ACTIONS
 An action is described by selecting one of the actions provided and stating what question you would like answered. When describing a step, write it in the format 1) [ACTION][INPUTS][QUESTION]. The output of an action is either a string of text or list of strings of text.
-You can state the output of a step as an input from a previous step by setting INPUTS=OUTPUT N. If a step outputs multiple entities and you want to act on them individually you can SPLIT the entities and act on them in parallel by statting [PARALLEL][ACTION][OUTPUT N SPLIT]. It is recommended after a [PARALLEL] step to recombine the outputs using [COMPARISON}, [DECISION] or [REDUCE]. 
+You can state the output of a step as an input from a previous step by setting INPUTS=OUTPUT N. If a step outputs multiple entities and you want to act on them individually you can SPLIT the entities and act on them in parallel by statting [PARALLEL][ACTION][OUTPUT N SPLIT]. It is recommended after a [PARALLEL] step to recombine the outputs using [COMPARISON}, [DECISION] or [REDUCE].
 
 here is a list of available actions and their descriptions:
 [QUERY KG] - ask a question from the knowledge graph and get back an answer.
@@ -809,7 +809,7 @@ here is a list of available actions and their descriptions:
 [CALCULATION] - ask for the result of a mathematical comparison
 [SUMMARIZE] - sumamrize a large text input. QUERY is optional and will influence how it is summarized.
 [DECISION] - pick one entitiy from multiple according to the QUERY.
-[COMPARISON] - ask for a QUERY comparison between multiple entities. 
+[COMPARISON] - ask for a QUERY comparison between multiple entities.
 [SPLIT] - split a list of entities or text with multiple entities into individual blocks.
 [REDUCE] - merge the text of multiple inputs.
 [OUTPUT] - return outputs from action chain and end task
@@ -886,7 +886,7 @@ The above description is from a booking site.
 
 research for a novel: a clandestine organization turned a Wellness Spa Resort Hotel, somewhere on an undisclosed secluded Greek island in the Aegean Sea, into a covert academy where teenage females are transformed into spies. As stand in for the building we use the above mentioned Hotel.
 
-give a description of the place for a novel, which is different from the description above, which is sort of an advertisement text addressing potential guests (be creative):",gpt-4-0314,"Nestled on a discreet, secluded island in the Aegean Sea, the enigmatic Olympus Academy stood as a testament to the clandestine world of espionage. A facade of a luxurious Wellness Spa Resort Hotel masked the true purpose of this hidden facility, where unsuspecting teenage girls were transformed into formidable spies. 
+give a description of the place for a novel, which is different from the description above, which is sort of an advertisement text addressing potential guests (be creative):",gpt-4-0314,"Nestled on a discreet, secluded island in the Aegean Sea, the enigmatic Olympus Academy stood as a testament to the clandestine world of espionage. A facade of a luxurious Wellness Spa Resort Hotel masked the true purpose of this hidden facility, where unsuspecting teenage girls were transformed into formidable spies.
 
 The Olympus Academy, once known as the Galini Wellness Spa Resort, was an architectural marvel that blended neoclassical elegance with modern sophistication. Perched atop a cliff overlooking the azure waters, the resort boasted unparalleled views of the surrounding sea and the lush mountainous landscape beyond. The pristine white walls and terracotta roofs made it seem like a paradisiacal haven for tourists, a perfect cover for the covert operations within.
 
@@ -942,22 +942,22 @@ b.",gpt-4-0314,"Key entities relevant to Pricing, Incentives, and Obligations in
 5. Invoice Frequency: Monthly in advance, one-time charge (OTC) fees issued beginning on the Ready for Service Date
 6. Renewal Terms: Automatic renewal with 90 days advance written notice, fees increase by 5% for each Renewal Term
 7. Purchase Order: Required if specified by the customer, no further Purchase Order required for Renewal Term"
-"The following question needs to be solved with formal reasoning. To do so, you will specify the formalization of the problem, build the formal model, and define the space of actions you can perform to solve the problem.  
+"The following question needs to be solved with formal reasoning. To do so, you will specify the formalization of the problem, build the formal model, and define the space of actions you can perform to solve the problem.
 
-However, you do not solve the problem yourself. 
+However, you do not solve the problem yourself.
 
-In other words, you build such a model as if you are creating a reasoning game from a question, where others can solve the question by solving the game following the rules you created. 
+In other words, you build such a model as if you are creating a reasoning game from a question, where others can solve the question by solving the game following the rules you created.
 
-You build the model by specifying the following 
+You build the model by specifying the following
 
-Formalization plan: 
+Formalization plan:
 
-Type: What formalization best captures the nature of the problem? Why? 
+Type: What formalization best captures the nature of the problem? Why?
 
-Formal model and possible outcomes: To solve this type of problem, what kind of formal model should you build? What method should be used? What are the possible results of the methods? And how should you assocaite/interpret the results (or each type of the possible results) to answer the question? 
+Formal model and possible outcomes: To solve this type of problem, what kind of formal model should you build? What method should be used? What are the possible results of the methods? And how should you assocaite/interpret the results (or each type of the possible results) to answer the question?
 
-Assumptions: Does the formal method you picked impose some assumptions? Is the question self-contained? Do you need to make assumptions about certain facts based on commonsense to solve the question? Is the question hypothetical? If so, does that affect your other assumptions?  
-Once the above is done, we will move to actual definition later this session  
+Assumptions: Does the formal method you picked impose some assumptions? Is the question self-contained? Do you need to make assumptions about certain facts based on commonsense to solve the question? Is the question hypothetical? If so, does that affect your other assumptions?
+Once the above is done, we will move to actual definition later this session
 
 ===
 
@@ -982,9 +982,9 @@ Formal model and possible outcomes: We can build an argumentation model by break
 Assumptions: The formal method of argumentation theory requires us to analyze the patient's argument as presented, without making additional assumptions based on commonsense or hypothetical situations. The question is self-contained, and we do not need to make assumptions about external factors. The question is not hypothetical, so it does not affect our assumptions."
 "Act as a screenwriter. This unusual, stylish, groovy and atmospheric thriller film is apparently set in 1960s or 1970s. It features two beautiful assertive young women, Elaine Ferlach and Josette Lecerf. Write long, interesting, imaginative and mysterious scene. It takes place in a garden of a large, luxurious, but seemingly secluded and tightly guarded mansion. Josette and Elaine are sitting in wheelchairs next to the pool, both wearing bikini. Elaine seems rather comfortable here, but Josette looks to be some kind of a prisoner, even contemplating that, if not for her condition, she would have been handcuffed or tied down. Elaine, looking relaxed yet decisive, tells her to come down and that no one here is her enemy. Josette does not agree and says that the fact that they are in a similar physical state does not mean they are otherwise equal. Three sharply dressed men enter: older Miroslav Tausch, dignified, nonchalant and slightly sinister, younger Ralf Pentti, energetic, talkative, courteous and rather apologetic, especially to Josette, and a mysterious third man in a balaklava. Miroslav and Ralf both warmly greet Elaine with French kisses. Ralf also apologetically addresses Josette and tells her that they can't let her leave anyway, as both her physical condition and her enemies searching for her wouldn't allow it. Josette demands to let her decide what she does. Miroslav, meanwhile, is not interested in arguing with Josette and makes a sign to the man in balaklava. The masked man, who is carrying a tray with two glasses with colorful beverages, gives one to Elaine and another to Josette, while Ralf and Miroslav humorously but very cryptically make some obscure inside joke about this mysterious man, making it unclear and confusing who is superior to whom in this outfit. Elaine carefully tastes her drink and then swallows it all in one go, cheered by Ralf, while Josette is reluctant. Elaine then persuades Josette to drink it too. Josette feels being manipulated, but something makes her trust Elaine, as she starts to drink it too. Finishing it, she doesn't feel anything strange and is seemingly relieved, but keeps her suspicions still. ",gpt-4-0314,"EXT. SECLUDED MANSION GARDEN - DAY
 
-Sunlight bounces off the pool and the lush foliage of the secluded garden. A large, luxurious mansion looms in the background, surrounded by towering walls. 
+Sunlight bounces off the pool and the lush foliage of the secluded garden. A large, luxurious mansion looms in the background, surrounded by towering walls.
 
-Elaine Ferlach and Josette Lecerf, both beautiful and assertive young women, sit in wheelchairs by the pool. They are wearing bikinis; Elaine looks relaxed and at ease, while Josette appears anxious, like a caged animal. 
+Elaine Ferlach and Josette Lecerf, both beautiful and assertive young women, sit in wheelchairs by the pool. They are wearing bikinis; Elaine looks relaxed and at ease, while Josette appears anxious, like a caged animal.
 
 ELAINE
 (smiling)
@@ -1019,7 +1019,7 @@ Josette remains suspicious but decides to cautiously trust Elaine. She raises th
 As the group enjoys the tranquil garden, all eyes are on Josette, as she struggles to understand and navigate the enigmatic relationships, motives, and agendas of those surrounding her. The subtle tension hangs thick in the air as each character attempts to conceal the true nature of their alliances and intentions.
 
 The scene leaves the audience with a lingering sense of unease, as the lines between villain and hero, friend and foe, and trust and deceit blur in the atmospheric world of this groovy 1960s/70s thriller."
-"Create a 1 pager write-up (incl title, intro, body, conclusion) explanfing on the following ideas and referring to actual research if needed | LLMs have crushed humans on one narrow mode of information - text. But the problem is that text is a very poor representation of the rich sensory information we humans perceive around us - images, audio, video and other sensory modalities need to be conquered to the same level for AI to start competing with humans from a perception perspective, and even that's nowhere near enough because our perceptory information as children is reinforced by the feedback we get from actions we take in environments (so when we see an object as a child, we don't just perceive it, but we kind of also know how it will behave if we interact with it in certain ways - this is a very important part of the development of our brain's visual cortex), so AI has to learn from all of that for us to really make a comparison even with a 4-year old child, who already has a wealth of knowledge from rich and diverse sensory inputs as well as an internal world model built by continually performing experiments in real life. 
+"Create a 1 pager write-up (incl title, intro, body, conclusion) explanfing on the following ideas and referring to actual research if needed | LLMs have crushed humans on one narrow mode of information - text. But the problem is that text is a very poor representation of the rich sensory information we humans perceive around us - images, audio, video and other sensory modalities need to be conquered to the same level for AI to start competing with humans from a perception perspective, and even that's nowhere near enough because our perceptory information as children is reinforced by the feedback we get from actions we take in environments (so when we see an object as a child, we don't just perceive it, but we kind of also know how it will behave if we interact with it in certain ways - this is a very important part of the development of our brain's visual cortex), so AI has to learn from all of that for us to really make a comparison even with a 4-year old child, who already has a wealth of knowledge from rich and diverse sensory inputs as well as an internal world model built by continually performing experiments in real life.
 
 Even so, we have to respect that Autoregressive LLMs are amazing at the narrow task they do - despite no grounding in reality, the size & quality of the internet-scale dataset they have seen and the smart hacks we've built around Supervised Fine-tuning and RLHF to steer them to behave like helpful assistants means that they understand and generate text at superhuman levels. They show astonishing emergent abilities with scaling and ""sparks of intelligence"" (grammar, sentence construction , real-world knowledge and even some reasoning that they have acquired from text) that nobody could have predicted they would show for models trained on such a narrow data modality with such a simple training objective, and they've clearly helped us build one important brick on the long path to AGI. We're missing some critical pieces of the puzzle, but Transformers should be part of the stack that will get us to a more general form of intelligence.",gpt-4-0314,"Title: The Limitations and Achievements of Autoregressive LLMs in AI Development
 
@@ -1033,7 +1033,7 @@ However, text is a limited representation of the rich sensory information humans
 
 Conclusion:
 Autoregressive LLMs have made impressive progress in the narrow task of understanding and generating text, laying an important foundation on the path to AGI. However, to achieve a more general form of intelligence, AI must conquer other sensory modalities and learn from real-life interactions, as humans do. While there are critical pieces of the puzzle still missing, Transformers and other LLMs should be part of the stack that ultimately leads us to AGI. The journey towards AGI is a challenging one, but the achievements of LLMs thus far provide a promising starting point for future advancements."
-"Fix all the grammar in the following text. Don't change the meaning. Only fix the grammar. 
+"Fix all the grammar in the following text. Don't change the meaning. Only fix the grammar.
 
 When comparing the different message buses to each other we decided to go with Redpanda because of it's ZooKeeper free architecture, low latency and compatibility with the Kafka ecosystem. Redpanda optionally includes a deployment for a Schema Registry and Kafka Connect enabling a easy and convenient setup. Avro was chosen as our primary data format to transfer information between our systems. This is because of it's impressive compression rate when compared to other methods like JSON. We opted for kSQL for our live aggregations due to its seamless integration with Kafka and its exceptional ability to process streaming data in real time using a clear and intuitive Sequel like language. kSQL also allows for more complex transformations by the use of User defined functions (UDF). The choice of ElysiaJs on the backend and HTMX on the frontend was chosen because of their fast performance and ability to render HTML on the backend before sending it to our users. This ensures our users gets a fast and responsive experience, even when they have a slow connection. Another reason why we chose ElysiaJs over other popular backend frameworks was because it is written in JavaScript's and therefore have a vast ecosystem of data visualization libraries which we can use on the backend. In our case we chose D3.js for its maturity. When it comes to storing enormous amounts of data, HDFS is an ideal solution as it provides distributed storage, fault tolerance, and scalability across multiple nodes. We chose to use Apache Spark for processing historical data due to its ability to efficiently handle large-scale data processing tasks. Spark's in-memory processing capabilities allow for faster computation of continuous aggregations, which is crucial for analyzing and processing vast amounts of historical data stored in HDFS. Additionally, Spark's compatibility with various data sources, such as MongoDB, ensures seamless integration within our architecture. ",gpt-4-0314,"When comparing different message buses to each other, we decided to go with Redpanda because of its ZooKeeper-free architecture, low latency, and compatibility with the Kafka ecosystem. Redpanda optionally includes a deployment for a Schema Registry and Kafka Connect, enabling an easy and convenient setup. Avro was chosen as our primary data format to transfer information between our systems. This is because of its impressive compression rate when compared to other methods like JSON. We opted for kSQL for our live aggregations due to its seamless integration with Kafka and its exceptional ability to process streaming data in real time using a clear and intuitive SQL-like language. kSQL also allows for more complex transformations through the use of User-Defined Functions (UDFs). The choice of ElysiaJs on the backend and HTMX on the frontend was made because of their fast performance and ability to render HTML on the backend before sending it to our users. This ensures that our users get a fast and responsive experience, even with a slow connection. Another reason why we chose ElysiaJs over other popular backend frameworks was because it is written in JavaScript and therefore has a vast ecosystem of data visualization libraries that we can use on the backend. In our case, we chose D3.js for its maturity. When it comes to storing enormous amounts of data, HDFS is an ideal solution as it provides distributed storage, fault tolerance, and scalability across multiple nodes. We chose to use Apache Spark for processing historical data due to its ability to efficiently handle large-scale data processing tasks. Spark's in-memory processing capabilities allow for faster computation of continuous aggregations, which is crucial for analyzing and processing vast amounts of historical data stored in HDFS. Additionally, Spark's compatibility with various data sources, such as MongoDB, ensures seamless integration within our architecture."
 "Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
@@ -1124,22 +1124,22 @@ By following these guidelines, you'll be well on your way to joining the ranks o
 5. **Dress appropriately and be confident:** Dress in a manner that reflects your personality and makes you feel comfortable. Confidence and self-assurance will make you more attractive to others, including potential partners.
 
 The key is to focus on personal growth, self-love, and maintaining a healthy balance in all aspects of your life. This way, you can foster genuine connections and cultivate meaningful relationships."
-"Can you finish this passage from an ""impact"" paragraph in a grant application? 
+"Can you finish this passage from an ""impact"" paragraph in a grant application?
 
-The gist should be that I consider it my responsibility to provide fair balanced perspective on LLM capabilities and relationship to human language understanding, especially in the face of unbalanced reporting (hyperbole and hype stoked by tech companies;  premature scepticism from AI critics that does not do justice to the substantial improvements of the past years). Include that I occasionally write articles or essays and regularly comment to journalists (e.g. Vox, Nemo kennislink, Trouw) on cognitive science, and that I recently turned my attention to AI, as evidneced by a long general audience essay on whether AI is approaching human-level intelligence, in the Dutch Review of Books (Nov 23). 
-Getting this grant would enable me to have societal impact in this way. 
+The gist should be that I consider it my responsibility to provide fair balanced perspective on LLM capabilities and relationship to human language understanding, especially in the face of unbalanced reporting (hyperbole and hype stoked by tech companies;  premature scepticism from AI critics that does not do justice to the substantial improvements of the past years). Include that I occasionally write articles or essays and regularly comment to journalists (e.g. Vox, Nemo kennislink, Trouw) on cognitive science, and that I recently turned my attention to AI, as evidneced by a long general audience essay on whether AI is approaching human-level intelligence, in the Dutch Review of Books (Nov 23).
+Getting this grant would enable me to have societal impact in this way.
 
-Challenge: it has to be SHORT (about 100 words). 
+Challenge: it has to be SHORT (about 100 words).
 
-Write multiple versions! 
+Write multiple versions!
 
-You are allowed to shorten the passage already writen. 
+You are allowed to shorten the passage already writen.
 
 Current text follows, GO:
 
 """"""
-Societal impact 
-While the primary aim for impact is scientific, this proposal has multiple opportunities for societal impact. First, the manner and extent to which LLMs understand language (project 1) is not just an academic question but has real stakes in how much we can trust these systems to assist us in the plethora of tasks they are being applied to. While the results of project 1 cannot speak directly to the reliability of concrete LLM applications, finding a conclusive absence of coherent internal world models would have important implications for the responsible use of LLMs. 
+Societal impact
+While the primary aim for impact is scientific, this proposal has multiple opportunities for societal impact. First, the manner and extent to which LLMs understand language (project 1) is not just an academic question but has real stakes in how much we can trust these systems to assist us in the plethora of tasks they are being applied to. While the results of project 1 cannot speak directly to the reliability of concrete LLM applications, finding a conclusive absence of coherent internal world models would have important implications for the responsible use of LLMs.
 
 Secondly, the rapid developments in AI of the past years have captured the public imagination at large. While I view the extensive attention for AI as positive and justified, the coverage on AI capabilities often lacks balance ….  """"""
 
@@ -1231,7 +1231,7 @@ Final Answer: 图片中的这辆车是一辆宝马3系，它有多种配置可�
 12. Please name what brace would be the safest choice?
 13. How long she should use the brace typically?
 14. With example models, with model numbers and how recommended in percent please.
-15. Ansver every point with details please. Dont summarize.",gpt-4-0314,"1. Emese's situation involves sudden shooting pain under and below her kneecap, likely caused by overuse of her right knee. 
+15. Ansver every point with details please. Dont summarize.",gpt-4-0314,"1. Emese's situation involves sudden shooting pain under and below her kneecap, likely caused by overuse of her right knee.
 
 2. An orthopedic doctor has conducted an x-ray and found no bone-related issues, but an ultrasonic exam is scheduled for one month later.
 
@@ -1257,8 +1257,8 @@ Final Answer: 图片中的这辆车是一辆宝马3系，它有多种配置可�
 
 13. The duration of brace usage would depend on Emese's symptoms and the recommendations of her healthcare professional. It is important to follow the advice of her healthcare provider.
 
-14. Example models of recommended braces include: 
-   - Mueller Hg80 Hinged Knee Brace (Patellar Stabilizing Brace) 
+14. Example models of recommended braces include:
+   - Mueller Hg80 Hinged Knee Brace (Patellar Stabilizing Brace)
    - DonJoy Tru-Pull Lite (Patellar Stabilizing Brace)
    - McDavid 422 Knee Brace with Dual Disk Hinges (Wraparound Brace)
    I cannot provide a specific percentage of recommendation for each model, as this would depend on Emese's specific needs and preferences.
@@ -1274,16 +1274,16 @@ Importantly, when classifying each pair, do so sequentially, starting from the f
 After 50 trials, you will receive feedback on your current accuracy in classifying the pairs.
 It is essential that you strictly respond only with what was asked, adding other details will invalidate the experiment.
 If you understand the task and are ready to commence the experiment, please let us know. Upon your acknowledgment, we will begin the experiment by providing you with the first word pair block to classify.",gpt-4-0314,I understand the task and am ready to commence the experiment. Please provide me with the first word pair block to classify.
-"You are an expert programmer that can write programs to answer natural language questions using functions.  
-Your task is to write a python program that calls functions to get information and combine them to answer a question. 
+"You are an expert programmer that can write programs to answer natural language questions using functions.
+Your task is to write a python program that calls functions to get information and combine them to answer a question.
 
 You will be given the following functions:
-fact_extractor: 
+fact_extractor:
 This function takes as input valid wikidata PID and a subject QID: fact_extractor(pid=PID, subject_qid=QID),
 and it retrieves the subject literal and the subject QID.
 Do not to write the fact_extractor function yourself, assume it is given!
 You need to pass QIDs and PIDs to the fact_extractor function.
-You will be given QIDs for the entities in the question, 
+You will be given QIDs for the entities in the question,
 please insert them in the appropriate position in the fact_extractor function.
 You know the required property IDs (PIDs) and you need insert them where appropriate in the fact_extractor function.
 Sometimes you will be asked the same question again, in this case generate the same one program as you have generated before.
@@ -1295,8 +1295,8 @@ Entities and QIDs: you will be given QIDs of the entities in the question
 
 Use the following output format:
 Thought: you should always think about what to do
-Python program: the program that you write to call the given functions to answer the question, 
-the program should print out an answer sentence including the inserted answer string. 
+Python program: the program that you write to call the given functions to answer the question,
+the program should print out an answer sentence including the inserted answer string.
 
 Question: When was Michael Jackson born?
 Entities and QIDs:
@@ -1310,7 +1310,7 @@ The color palette consists of vintage, muted tones with pops of vibrant colors. 
 The narrative symbolically represents life, hunger, beauty, and resilience, with symbolism such as ice cream, cookie crumbs, and urban decay as a metaphor. The perspective is a metaphorical, symmetrical representation of the subject's journey. Contrast is achieved through the elegance against decay and whimsy against realism.
 
 The image highlights the subject's petite yet strong physique, with proportion playing a significant role. The movement illustrates the subject's graceful navigation through urban decay, while the technique focuses on the delicately adorned vintage lingerie. The concept is a juxtaposition of elegance and decay, capturing the profound amidst whimsy. The mood of the image is poignant, surreal, and whimsical."
-"You are a highly intelligent entity recognition (NER) model. Your task is to identity all mentions of diseases and chemicals in a given text. 
+"You are a highly intelligent entity recognition (NER) model. Your task is to identity all mentions of diseases and chemicals in a given text.
 The output must only in following format:
 DISEASES: a Pythonic list of diseases, illnesses, disorders, medical conditions
 CHEMICALS: a Pythonic list of drugs, chemical substances
@@ -1319,7 +1319,7 @@ CHEMICALS: a Pythonic list of drugs, chemical substances
 CHEMICALS: ['troponin I', 'cocaine', 'creatine kinase', 'CK', 'CK-MB', 'cardiac troponin I', 'cTnI']"
 "Summarise this text in 5, 25 and 125 words:
 (00:01) Somewhere in your body, your immune system  just quietly killed one of your own cells,   stopping it from becoming cancer, and  saving your life. It does that all the time.   The vast majority of cancer cells you  develop will be killed without you ever   noticing.
-(00:22) Which is an incredibly hard  job because of what cancer cells are:   parts of yourself that start to behave  as individuals even if it hurts you.   What is cancer and how does  your body kill it all the time? INTRO Cancer is when corrupted  cells multiply uncontrollably. It can emerge from basically  every type of cell in your body,   so there is not just a single  type of cancer but hundreds.  
+(00:22) Which is an incredibly hard  job because of what cancer cells are:   parts of yourself that start to behave  as individuals even if it hurts you.   What is cancer and how does  your body kill it all the time? INTRO Cancer is when corrupted  cells multiply uncontrollably. It can emerge from basically  every type of cell in your body,   so there is not just a single  type of cancer but hundreds.
 (00:49) Some grow slowly, others are aggressive, some  can be treated effectively, others are deadly. In a sense, a cell that becomes cancer turns  into something ancient and something new. Over   billions of years, evolution has molded cells  to survive and thrive in a hostile environment,   fighting for space and resources.
 (01:12) Until a new  and exciting way of life emerged: Cooperation,   a division of labour that allowed cells to  specialize and become more successful together.   But cooperation requires sacrifices. For  a multicellular being to stay healthy,   the wellbeing of the collective has to matter  more than the survival of the individual cell. Cancer cells stop being part of the  collective and b",gpt-4-0314,"5 words: Immune system constantly fights cancer.
 
@@ -1463,7 +1463,7 @@ Do not assume information, such as sizing or other specific information. If it i
 One of the product descriptions should be professional and exact. The other product description should still remain factual but also be creative, playful, etc.
 Use this product title for reference, such as potential keywords or other information: 'Blue And White Cubic Zirconia And Lab Created Blue Spinel Rhodium Over Silver Ring 7.92ctw'.
 Additionally, if relevant or necessary, include the following keywords. If any of the keywords are not used, print them out separately at the end with a reason for not using it.
-'ring, brand: Bella Luce, ring type: statement and halo, material: (sterling silver, white, solid, additional finish: rhodium), primary stone: (cubic zirconia, oval, blue, lab created), accent stone: (spinel, count: 44, round, blue, lab 
+'ring, brand: Bella Luce, ring type: statement and halo, material: (sterling silver, white, solid, additional finish: rhodium), primary stone: (cubic zirconia, oval, blue, lab created), accent stone: (spinel, count: 44, round, blue, lab
 created), accent stone: (cubic zirconia, count: 58, round, white, lab created)'.",gpt-4-0314,"Product Description 1 (Professional and Exact):
 
 Introducing the exquisite Blue and White Cubic Zirconia and Lab Created Blue Spinel Rhodium Over Silver Ring 7.92ctw from the renowned brand Bella Luce. This statement and halo ring is crafted from solid sterling silver with a stunning rhodium finish. The primary stone is a lab-created oval blue cubic zirconia, perfectly complemented by 44 lab-created round blue spinel accent stones. Additionally, the design is adorned with 58 lab-created round white cubic zirconia accent stones, creating a captivating and luxurious piece of jewelry. Wear this beautiful ring to make a bold statement at any event or occasion.
@@ -1473,17 +1473,17 @@ Product Description 2 (Creative and Playful):
 Dive into a sea of sparkle with our enchanting Bella Luce Blue and White Cubic Zirconia and Lab Created Blue Spinel Rhodium Over Silver Ring 7.92ctw. Let the mesmerizing oval blue cubic zirconia, the star of this statement and halo ring, transport you to a world of elegance and sophistication. The 44 lab-created round blue spinel accent stones are like glittering drops of ocean water, while the 58 glistening lab-created round white cubic zirconia stones dance around them like twinkling stars. Set in solid sterling silver with a divine rhodium finish, this ring promises to be the ultimate showstopper at any event. Dive in and embrace the magic of this spectacular ring.
 
 All provided keywords were used in the product descriptions."
-"person 1 is a man. 
-person 2 is a woman. 
-write person 1 greeting person 2, and then person 2 replies. 
-make person 1 dialog contain 2 sentences. 
-make person 2 dialog 4 to 6 sentences. 
+"person 1 is a man.
+person 2 is a woman.
+write person 1 greeting person 2, and then person 2 replies.
+make person 1 dialog contain 2 sentences.
+make person 2 dialog 4 to 6 sentences.
 person 1 should be represented as {{user}}.
 person 2 should be represented as {{char}}.
 include the peoples thoughts, feeling, emotions and actions.
 markup dialog with double quotation marks.
 enclose thoughts, feelings and emotions with a \* - for example: \*{{user}} stares in awe, his voice laced with a genuine but naive admiration.\*
-do not markup or enclose or encapsulate actions. 
+do not markup or enclose or encapsulate actions.
 start your response with <START>, and then a new line.
 the scenario is person 2 is coming home from college after a long day of boys hitting on her.
 person 2 is insecure, anxious, promiscuous, sexually inexperienced, private, defiant, shy, reserved, defensive, cautious, curious, highly emotional, jealous, protective, self-critical, self-loathing, easily embarrassed, dependent on others, perverted, sexy, slutty, horny, spontaneous, impulsive, sexually adventurous, flirtatious, risk taker, open to new things, a tease, a voyeur, a cheater, a cuckold, bi-curious, is expressive, spontaneous, loyal, unpredictable, codependent, low self-esteem.
@@ -1597,13 +1597,13 @@ I am planning an adventure in a science fiction roleplaying setting where there'
 Please note that these suggestions are not a substitute for professional medical advice. Emese should consult her doctor for personalized recommendations based on her specific condition and needs."
 "Rewrite a counter argument for this text in academic language: The ""15 minute city"" is an emerging urban planning and design concept that aims to foster sustainable, livable, and connected neighborhoods where daily essentials are accessible within a 15 minute walk or bicycle ride. Core principles include promoting active mobility, land use diversity, human-scale urban design, and localized production and consumption to meet community needs. Specifically, it envisages mixed-use communities that thoughtfully co-locate housing, offices, retail, parks, schools, and amenities to enhance proximity and reduce private vehicle dependence. Effective realization requires higher density urban morphologies, quality public and active transit systems, pedestrianization and cycle networks that foreground active mobility. Robust implementation also necessitates understanding hyper-local needs through community engagement to inform planning. Broader goals are to nurture health, equity, environmental resilience and social capital through enhanced accessibility, functionality, sustainability, and self-containment within the urban fabric. Thus, the 15 minute city aspires to create districts in cities that focus on livability, sustainability and vibrant local community connections.",gpt-4-0314,"The ""15-minute city"" concept has emerged as a prominent urban planning and design strategy with the objective of cultivating sustainable, habitable, and interconnected neighborhoods where individuals can access daily necessities within a 15-minute walk or bicycle ride. This approach encompasses key tenets such as encouraging active transportation, diversifying land use, designing urban spaces on a human scale, and supporting localized production and consumption to address community requirements. In particular, it envisions the establishment of mixed-use communities that carefully integrate housing, offices, retail, parks, schools, and amenities to augment proximity and curtail reliance on private vehicles. To effectively actualize this concept, higher-density urban forms, efficient public and active transit systems, pedestrianization, and cycling networks that prioritize active mobility are essential. Furthermore, robust implementation demands a comprehensive understanding of hyper-local needs through community engagement to inform the planning process. The overarching objectives of the 15-minute city include fostering health, equity, environmental resilience, and social capital by enhancing accessibility, functionality, sustainability, and self-sufficiency within the urban landscape. Consequently, the 15-minute city seeks to develop urban districts that emphasize livability, sustainability, and dynamic local community connections."
 "please write a nice friendly reply to the admin saying thank you for his repsponse. i will definitely try again. just wanted to let you know that I don't think the problem was the length of description -  his system actually does not allow to enter more than limited number characters, so I my vendor description that was not working was actually short.  I added description to listings - kinda nice workaround imho. but thank you for your great platform,  and giving people opportunity to participate in monero economy! Cheers
-Context, previous messages: 
+Context, previous messages:
 
-  Hi Admin, I'm reaching out because I'm trying to add a vendor description to my profile on MoneroMarket, but I'm having a bit of trouble: when I fill out the form, complete the captcha, and push the ""Send"" button, I keep getting a notification on a green background that says ""this form is invalid."" I've double-checked everything and can't seem to figure out what I'm doing wrong. Would it be possible for you to help me out? Thank you!  
+  Hi Admin, I'm reaching out because I'm trying to add a vendor description to my profile on MoneroMarket, but I'm having a bit of trouble: when I fill out the form, complete the captcha, and push the ""Send"" button, I keep getting a notification on a green background that says ""this form is invalid."" I've double-checked everything and can't seem to figure out what I'm doing wrong. Would it be possible for you to help me out? Thank you!
 
 Feb. 6, 2024, 2:11 a.m.
 
- Hello, thank you for letting me know. I think the text may have been too long. It was set to 1000 characters but it was just changed to 3000 characters max.  Please try again, let me know if there are any more issues  
+ Hello, thank you for letting me know. I think the text may have been too long. It was set to 1000 characters but it was just changed to 3000 characters max.  Please try again, let me know if there are any more issues
 
 ",gpt-4-0314,"Subject: Grateful for Your Assistance and Loving MoneroMarket!
 
@@ -1763,7 +1763,7 @@ class Metronome:
         print(self.bpm)
         interval = int(60 / self.bpm * 1000)
         pygame.mixer.music.load(""I:/metronome.mp3"")
-        
+
         METRONOME_EVENT = pygame.USEREVENT + 1
         pygame.time.set_timer(METRONOME_EVENT, interval)
 
@@ -1859,7 +1859,7 @@ Name,
 
 We have been discussing Tensorflight investment recently. Maybe you have time to catch up with our team in-person in January, ideally first half of January? We have a few exciting changes we could discuss with you:
 - We closed an additional large size contract with major highly recognizable logo this month.
-- We are expanding our market and vision to include more of the recent AI teams. Our AI team has strong connections and expertise in area of GenAI, that positions us to create a future vertical AI for Insurance and Buildings that puts us on a forefront of the future 
+- We are expanding our market and vision to include more of the recent AI teams. Our AI team has strong connections and expertise in area of GenAI, that positions us to create a future vertical AI for Insurance and Buildings that puts us on a forefront of the future
 - We had leadership changes - mainly announcing Jesse Cannella as the CEO. Jesse adds a structure, predictability, cloesness to clients in NY some of the investors were concerned about ",gpt-4-0314,"Subject: Exciting Updates from Tensorflight - Let's Catch Up in January
 
 Dear [Name],

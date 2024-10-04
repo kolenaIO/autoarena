@@ -70,16 +70,16 @@ Historically, there have been several instances where countries attempted to cha
 Densely summarize and write everything without losing any information with three (3) paragraphs.
 
 # Mouse Trajectory: A window into Cognition
-The use of mouse trajectory data, which tracks the movement of a computer mouse, in cognitive psychology has provided invaluable insights into human attention, decision-making, and cognitive processing (Freeman & Ambady, 2010). Grounded in the theory of embodied cognition, which posits that cognitive processes are deeply rooted in the body's interactions with its environment (Wilson, 2002), previous research suggests that mouse movements are influenced not only by physical actions but also by cognitive states, intentions, and decision-making processes. Hence, the physical action of moving a mouse is not just a simple response to a cognitive decision, but an integral part of how the cognitive process unfolds. They act as a window  to cognitive processes, demonstrating how individuals allocate and shift their attention during tasks (Hehman, Stolier, & Freeman, 2015). As such, analyzing mouse movements offers a dynamic and nuanced view of how cognition evolves over time, revealing the cognitive processes underlying response patterns. 
+The use of mouse trajectory data, which tracks the movement of a computer mouse, in cognitive psychology has provided invaluable insights into human attention, decision-making, and cognitive processing (Freeman & Ambady, 2010). Grounded in the theory of embodied cognition, which posits that cognitive processes are deeply rooted in the body's interactions with its environment (Wilson, 2002), previous research suggests that mouse movements are influenced not only by physical actions but also by cognitive states, intentions, and decision-making processes. Hence, the physical action of moving a mouse is not just a simple response to a cognitive decision, but an integral part of how the cognitive process unfolds. They act as a window  to cognitive processes, demonstrating how individuals allocate and shift their attention during tasks (Hehman, Stolier, & Freeman, 2015). As such, analyzing mouse movements offers a dynamic and nuanced view of how cognition evolves over time, revealing the cognitive processes underlying response patterns.
 ## Leveraging Mouse Trajectory Analysis with LSTM Models
-To address the challenge of identifying careless responses, we have chosen to forge a unique path, adapting the use of mouse trajectory analysis. Our decision to employ this tool was fueled by several reasons. 
-### Addressing Attention with Attention Indicator 
+To address the challenge of identifying careless responses, we have chosen to forge a unique path, adapting the use of mouse trajectory analysis. Our decision to employ this tool was fueled by several reasons.
+### Addressing Attention with Attention Indicator
 Primarily, mouse trajectory has the intrinsic ability to capture human cognitive states. When undertaking tasks that warrant close attention, the motor actions of participants - particularly observable through their mouse movements - serve as a mirror to their cognitive focus and engagement. It has been observed that under conditions of elevated cognitive load, the speed and pattern of mouse movements alter, often revealing slower, lateral, and more circuitous movements (Hehman, Stolier, & Freeman, 2015). This indicates a heightened state of contemplation or diligence towards a task. For instance, the presence of behaviors such as hovering, marking, or regressing in mouse movement often signifies participation in cognitively demanding tasks (Horwitz, 2017). Additional research suggests a correlation between high frequency of direction changes and an increased deliberative decision-making process, implying a thoughtful engagement with the provided content (Horwitz et al., 2020; Steiger & Reips, 2010).
 Conversely, higher average absolute acceleration rates in both X and Y-axis mouse movements often indicate distraction during task completion (Brenner & Smeets, 2003). In particular, Pokropek et al. (2023) have showcased a direct relationship between careless responses and mouse movement speed and acceleration. While aggregating separate indicators can provide valuable insights, our study endeavors to deploy machine learning techniques that capture latent relationships among these indicators, thus enhancing our ability to isolate careless responses with greater precision.
 ### Addressing Measurement Dependence and Generalization
 Mouse trajectory analysis, unlike many other detection methods, functions independently of specific survey designs, scale types, or measurement structures. This point is key as surveys can take many forms – the traditional Likert scale or a ranking order scale to more contemporary methods such as image (Bosnjak et al., 2013). Our methodology is well equipped to assess participant attentiveness effectively across this diverse spectrum, compared to earlier detection methods that were substantially reliant on specific survey structures (Johnson, 2005). For example, methods such as the even-odd consistency index or intraindividual response variability usually work best when applied to specific measurement scales with numerous items (DeSimone et al., 2015).
-The incorporation  of mouse trajectory data also addresses the previous machine learning limitations. Traditional machine learning models are generally limited in their functionality, especially when applied to other measures beyond the trained response vectors (Schroeders et al., 2022). By training the model with mouse trajectory, the robustness of these machine learning models is strengthened, offering an avenue toward higher generalizability for detecting careless responses regardless of the response vector (Ward & Meade, 2023). 
-### Addressing Sample Size Issues 
+The incorporation  of mouse trajectory data also addresses the previous machine learning limitations. Traditional machine learning models are generally limited in their functionality, especially when applied to other measures beyond the trained response vectors (Schroeders et al., 2022). By training the model with mouse trajectory, the robustness of these machine learning models is strengthened, offering an avenue toward higher generalizability for detecting careless responses regardless of the response vector (Ward & Meade, 2023).
+### Addressing Sample Size Issues
 Opting to engage with mouse trajectory analysis facilitates the generation of significantly rich, time-intensive data sets. Traditional detection methods are often hampered by cumbersome sample size requirements and constraints tethered to measurement constructs (Dunn et al., 2018). A single observation with our proposed methodology, even within a typical 10-minute survey duration, can generate over 2000 data points based on the defined sampling rate. This data abundance significantly bolsters LSTM models' task learning since they can effectively handle extensive sequential data (Hochreiter & Schmidhuber, 1997).
 This wealth in data catalyzes the process of producing meaningful, generalizable insights for detecting careless responses in diverse survey designs and settings. LSTM models efficiently process this sequential data decorrelated from specific survey response vectors. Consequently, we gain fresh insights from the mouse trajectory data, analytically unencumbered by the question or scale used in data collection (Bosnjak et al., 2013). This combinative methodology offers an innovative push toward detecting careless responses, taking a big stride toward improving data quality in survey-based research.
 ---","Mouse trajectory data has provided valuable insights into human attention, decision-making, and cognitive processing in cognitive psychology. Grounded in the theory of embodied cognition, mouse movements are influenced by cognitive states, intentions, and decision-making processes, offering a dynamic view of how cognition evolves over time. By analyzing mouse movements, researchers can understand how individuals allocate and shift their attention during tasks, revealing cognitive processes underlying response patterns.
@@ -401,7 +401,7 @@ These names and descriptions capture the essence of each virtual kingdom, highli
             # If the game is not in the ranks_by_game dictionary, add it
             if game_name not in ranks_by_game:
                 ranks_by_game[game_name] = {}
-            
+
             transformed_amount = transform_string(self.voters_amount[voter])
 
             # If the rank is not in the ranks_by_game[game_name] dictionary, add it
@@ -463,7 +463,7 @@ class GameVotingSystem:
             for game_name, rank in votes.items():
                 if game_name not in ranks_by_game:
                     ranks_by_game[game_name] = {}
-                
+
                 transformed_amount = transform_string(self.voters_amount[voter])
                 ranks_by_game[game_name].setdefault(rank, 0)
                 ranks_by_game[game_name][rank] += transformed_amount
@@ -677,14 +677,14 @@ Structured Request:","```json
 
                             <div class=""card-body"">
                                 <div class=""row"">
-                            
+
                                     <div class=""form-group col-6"">
                                         <label for=""date_from"">Date From</label>
                                         <input type=""date"" class=""form-control"" id=""date_from"" name=""date_from"" aria-describedby=""date_from"" placeholder=""Date From"" t-att-value=""leave.request_date_from"" t-attf-style=""pointer-events: #{'none' if is_readonly else 'all'};"" required=""1""/>
                                     </div>
-                                    
-                                    
-                                    
+
+
+
 
 <!--
                                 <div class=""form-group col-6"" id=""date_to_group"">
@@ -692,17 +692,17 @@ Structured Request:","```json
                                 <input type=""date"" class=""form-control"" id=""date_to"" name=""date_to"" aria-describedby=""date_to"" placeholder=""Date To"" t-att-value=""leave.request_date_from""/>
                             </div>
                             -->
-                             
-                             
+
+
                              <div class=""form-group col-6"" id=""date_to_group"">
                                 <label for=""date_to"">Date To</label>
                                 <input type=""date"" class=""form-control"" id=""date_to"" name=""date_to"" aria-describedby=""date_to"" placeholder=""Date To"" t-att-value=""leave.request_date_from"" t-attf-style=""pointer-events: #{'none' if is_readonly else 'all'};"" required=""1""/>
                              </div>
-                                    
+
                                    <div class=""form-group col-md-6 mt8"" required=""1"">
                                         <label for=""holiday_status_id"">Leave Type</label>
                                         <select id=""holiday_status_id"" name=""holiday_status_id"" class=""form-control"" aria-describedby=""holiday_status_id"" t-att-value=""leave.holiday_status_id"" t-attf-style=""pointer-events: #{'none' if is_readonly else 'all'};"">
-                                
+
                                             <t t-foreach=""leave_types"" t-as=""leave_type"">
                                                 <option t-att-value=""leave_type[3]"" t-att-selected=""leave_type[3] == leave.holiday_status_id.id"">
                                                     <t t-esc=""leave_type[0]"" />
@@ -712,14 +712,14 @@ Structured Request:","```json
                                     </div>
 
 
- <!-- 
+ <!--
                               <div class=""form-group form-check col-sm-3 mt16 d-flex justify-content-center align-items-center"">
                                 <input class=""form-check-input mr-2"" type=""checkbox"" id=""request_unit_half"" name=""request_unit_half"" t-att-checked=""leave.request_unit_half == True""/>
                                 <label class=""form-check-label ml8"" for=""request_unit_half"">
                                         Half Day
                                 </label>
                             </div>
-                            
+
                             -->
 
 
@@ -735,31 +735,31 @@ Structured Request:","```json
 
 
 
-                                    
+
                                     <div class=""form-group col-sm-3 mt8"">
                                         <label for=""duration_display"">Duration</label>
                                         <input type=""text"" class=""form-control"" id=""duration_display"" aria-describedby=""duration_display"" placeholder=""Duration"" t-att-value=""leave.duration_display"" t-attf-style=""pointer-events: #{'none' if is_readonly else 'all'};""/>
                                     </div>
-                                    
-                                    
-                                    
+
+
+
                                     <div class=""form-group col-12 mt8"">
                                         <label for=""name"">Description</label>
                                         <textarea class=""form-control"" rows=""3"" name=""name"" aria-describedby=""description"" t-raw=""leave.name or ''"" t-attf-style=""pointer-events: #{'none' if is_readonly else 'all'};""/>
                                     </div>
-                                           
-                
- 
 
 
 
 
-                                        
+
+
+
+
                                 </div>
                             </div>
                         </form>
-                        
-                        
+
+
                         I need to add a file upload field call supported_attachment_ids to above form","To add a file upload field called `supported_attachment_ids` to the form, you can use the `FileField` class provided by WTForms. First, you need to import it:
 ```python
 from wtforms import FileField
@@ -986,7 +986,7 @@ Suddenly, the atmosphere shifts. Lysandra's eyes begin to glow a fiery red, and 
 Lysandra leans in, her voice a seductive purr. ""I know what you desire,"" she whispers, running her fingers through your hair. ""And I can give it to you... for a price."" She smiles, revealing sharp fangs.
 
 As the succubus prepares to strike, you must decide your course of action. Will you submit to her desires, or fight against the temptation that threatens to consume you? The choice is yours, but beware – in the world of Dungeons and Dragons, nothing is ever as it seems.",1,0,0
-887507035,gpt-4-0314,gpt-3.5-turbo-0613,"Fix all the grammar in the following text. Don't change the meaning. Only fix the grammar. 
+887507035,gpt-4-0314,gpt-3.5-turbo-0613,"Fix all the grammar in the following text. Don't change the meaning. Only fix the grammar.
 
 When comparing the different message buses to each other we decided to go with Redpanda because of it's ZooKeeper free architecture, low latency and compatibility with the Kafka ecosystem. Redpanda optionally includes a deployment for a Schema Registry and Kafka Connect enabling a easy and convenient setup. Avro was chosen as our primary data format to transfer information between our systems. This is because of it's impressive compression rate when compared to other methods like JSON. We opted for kSQL for our live aggregations due to its seamless integration with Kafka and its exceptional ability to process streaming data in real time using a clear and intuitive Sequel like language. kSQL also allows for more complex transformations by the use of User defined functions (UDF). The choice of ElysiaJs on the backend and HTMX on the frontend was chosen because of their fast performance and ability to render HTML on the backend before sending it to our users. This ensures our users gets a fast and responsive experience, even when they have a slow connection. Another reason why we chose ElysiaJs over other popular backend frameworks was because it is written in JavaScript's and therefore have a vast ecosystem of data visualization libraries which we can use on the backend. In our case we chose D3.js for its maturity. When it comes to storing enormous amounts of data, HDFS is an ideal solution as it provides distributed storage, fault tolerance, and scalability across multiple nodes. We chose to use Apache Spark for processing historical data due to its ability to efficiently handle large-scale data processing tasks. Spark's in-memory processing capabilities allow for faster computation of continuous aggregations, which is crucial for analyzing and processing vast amounts of historical data stored in HDFS. Additionally, Spark's compatibility with various data sources, such as MongoDB, ensures seamless integration within our architecture. ","When comparing different message buses to each other, we decided to go with Redpanda because of its ZooKeeper-free architecture, low latency, and compatibility with the Kafka ecosystem. Redpanda optionally includes a deployment for a Schema Registry and Kafka Connect, enabling an easy and convenient setup. Avro was chosen as our primary data format to transfer information between our systems. This is because of its impressive compression rate when compared to other methods like JSON. We opted for kSQL for our live aggregations due to its seamless integration with Kafka and its exceptional ability to process streaming data in real time using a clear and intuitive SQL-like language. kSQL also allows for more complex transformations through the use of User-Defined Functions (UDFs). The choice of ElysiaJs on the backend and HTMX on the frontend was made because of their fast performance and ability to render HTML on the backend before sending it to our users. This ensures that our users get a fast and responsive experience, even with a slow connection. Another reason why we chose ElysiaJs over other popular backend frameworks was because it is written in JavaScript and therefore has a vast ecosystem of data visualization libraries that we can use on the backend. In our case, we chose D3.js for its maturity. When it comes to storing enormous amounts of data, HDFS is an ideal solution as it provides distributed storage, fault tolerance, and scalability across multiple nodes. We chose to use Apache Spark for processing historical data due to its ability to efficiently handle large-scale data processing tasks. Spark's in-memory processing capabilities allow for faster computation of continuous aggregations, which is crucial for analyzing and processing vast amounts of historical data stored in HDFS. Additionally, Spark's compatibility with various data sources, such as MongoDB, ensures seamless integration within our architecture.","When comparing the different message buses to each other, we decided to go with Redpanda because of its ZooKeeper-free architecture, low latency, and compatibility with the Kafka ecosystem. Redpanda optionally includes a deployment for a Schema Registry and Kafka Connect, enabling an easy and convenient setup. Avro was chosen as our primary data format to transfer information between our systems. This is because of its impressive compression rate when compared to other methods like JSON. We opted for kSQL for our live aggregations due to its seamless integration with Kafka and its exceptional ability to process streaming data in real time using a clear and intuitive Sequel-like language. kSQL also allows for more complex transformations by the use of User-defined functions (UDF). The choice of ElysiaJs on the backend and HTMX on the frontend was made because of their fast performance and ability to render HTML on the backend before sending it to our users. This ensures our users get a fast and responsive experience, even when they have a slow connection. Another reason why we chose ElysiaJs over other popular backend frameworks was because it is written in JavaScript and therefore has a vast ecosystem of data visualization libraries which we can use on the backend. In our case, we chose D3.js for its maturity. When it comes to storing enormous amounts of data, HDFS is an ideal solution as it provides distributed storage, fault tolerance, and scalability across multiple nodes. We chose to use Apache Spark for processing historical data due to its ability to efficiently handle large-scale data processing tasks. Spark's in-memory processing capabilities allow for faster computation of continuous aggregations, which is crucial for analyzing and processing vast amounts of historical data stored in HDFS. Additionally, Spark's compatibility with various data sources, such as MongoDB, ensures seamless integration within our architecture.",0,0,1
 902224767,gpt-4-0314,vicuna-13b,"Can you please summarize the key entities in this text that are relevant to Pricing, Incentives, and Obligations?
@@ -1040,9 +1040,9 @@ b.","Key entities relevant to Pricing, Incentives, and Obligations in the text:
 * Renewal Terms: The terms under which the services will be renewed after the initial Services Term.
 * Purchase Order: The customer's purchase order number, if required.
 * Definitions: The definitions of various terms used in this order form, including ""Desired Due Date"" and other terms relevant to services, fees, and billing.",1,0,0
-941832416,gpt-4-1106-preview,gpt-4-0314,"Imagine you are a CMO writing a press release that will announce your company from stealth. As part of the release, you need to start to establish this concept of the Conversational Internet. 
+941832416,gpt-4-1106-preview,gpt-4-0314,"Imagine you are a CMO writing a press release that will announce your company from stealth. As part of the release, you need to start to establish this concept of the Conversational Internet.
 
-Based on the notes below, write a summary paragraph that provides an overview of today's internet experience and what's missing from the internet now. 
+Based on the notes below, write a summary paragraph that provides an overview of today's internet experience and what's missing from the internet now.
 
 ---
 
@@ -1060,7 +1060,7 @@ Based on the notes below, write a summary paragraph that provides an overview of
 - And for the knowledge owners, their content is increasingly being edited and shown to users in a way they didn’t originally intend.
 - With today’s abundance of information, this system is no longer efficient, practical, or necessarily trustworthy.
 
-**What’s missing.** 
+**What’s missing.**
 
 - Despite the evolution in how content is served and merchandized to a user, it’s still fundamentally a one-sided exchange.
     - Sure, social media exists — but it can’t scale to support the thousands or millions of conversations consumers may want to have.
@@ -1142,7 +1142,7 @@ We will continue to engage with all feedback received here and through other cha
 
 #Civitai #CreatorClubs #SupportCreators
 
-🔹 What are Creator Clubs (Clubs)? 
+🔹 What are Creator Clubs (Clubs)?
 Think of Clubs as Civitai's integrated system, similar to Patreon or Ko-Fi, that lets you support creators and gain access to exclusive content. It's about appreciation, not paywalling free content. (2/10)
 
 #CreatorSupport #ExclusiveContent
@@ -1347,9 +1347,9 @@ Passive Skills:
 - For every 1% of Neuvillette's current HP greater than 30% of his Max HP, he gains a 0.6% Hydro DMG bonus",0,1,0
 1205000597,gpt-4-0314,gpt-4-1106-preview,"Act as a screenwriter. This unusual, stylish, groovy and atmospheric thriller film is apparently set in 1960s or 1970s. It features two beautiful assertive young women, Elaine Ferlach and Josette Lecerf. Write long, interesting, imaginative and mysterious scene. It takes place in a garden of a large, luxurious, but seemingly secluded and tightly guarded mansion. Josette and Elaine are sitting in wheelchairs next to the pool, both wearing bikini. Elaine seems rather comfortable here, but Josette looks to be some kind of a prisoner, even contemplating that, if not for her condition, she would have been handcuffed or tied down. Elaine, looking relaxed yet decisive, tells her to come down and that no one here is her enemy. Josette does not agree and says that the fact that they are in a similar physical state does not mean they are otherwise equal. Three sharply dressed men enter: older Miroslav Tausch, dignified, nonchalant and slightly sinister, younger Ralf Pentti, energetic, talkative, courteous and rather apologetic, especially to Josette, and a mysterious third man in a balaklava. Miroslav and Ralf both warmly greet Elaine with French kisses. Ralf also apologetically addresses Josette and tells her that they can't let her leave anyway, as both her physical condition and her enemies searching for her wouldn't allow it. Josette demands to let her decide what she does. Miroslav, meanwhile, is not interested in arguing with Josette and makes a sign to the man in balaklava. The masked man, who is carrying a tray with two glasses with colorful beverages, gives one to Elaine and another to Josette, while Ralf and Miroslav humorously but very cryptically make some obscure inside joke about this mysterious man, making it unclear and confusing who is superior to whom in this outfit. Elaine carefully tastes her drink and then swallows it all in one go, cheered by Ralf, while Josette is reluctant. Elaine then persuades Josette to drink it too. Josette feels being manipulated, but something makes her trust Elaine, as she starts to drink it too. Finishing it, she doesn't feel anything strange and is seemingly relieved, but keeps her suspicions still. ","EXT. SECLUDED MANSION GARDEN - DAY
 
-Sunlight bounces off the pool and the lush foliage of the secluded garden. A large, luxurious mansion looms in the background, surrounded by towering walls. 
+Sunlight bounces off the pool and the lush foliage of the secluded garden. A large, luxurious mansion looms in the background, surrounded by towering walls.
 
-Elaine Ferlach and Josette Lecerf, both beautiful and assertive young women, sit in wheelchairs by the pool. They are wearing bikinis; Elaine looks relaxed and at ease, while Josette appears anxious, like a caged animal. 
+Elaine Ferlach and Josette Lecerf, both beautiful and assertive young women, sit in wheelchairs by the pool. They are wearing bikinis; Elaine looks relaxed and at ease, while Josette appears anxious, like a caged animal.
 
 ELAINE
 (smiling)
@@ -1560,7 +1560,7 @@ By incorporating fuzzy systems into the CamoDiffusion framework, we can leverage
 I quietly placed my ear against the kitchen door. Mom had a male 41 ! I peeked(偷看) around. Sitting there was a gentleman, the most handsome man I’d 42 seen.
 Mom was a young widow then with three children. My sister was ten, my brother four and I six. I 43 having a daddy. And I knew he was the one. Then I marched right into the 44 . “Hi! I’m Patty. What’s your name?” “George.” Looking towards Mom, I asked, “Don’t you think my mom’s pretty?”
 “Patty!” Mom scolded with 45 . “Go and check on Benny.” George leaned forward and 46 , “Yes, I do. I’ll see you later, Patty. I think we will be good friends.”
-George started 47 Mom more often. He always seemed happy to see me and never grew 48 of my endless questions. 
+George started 47 Mom more often. He always seemed happy to see me and never grew 48 of my endless questions.
 Soon they entered into a 49 . For George who’d never been married before, coming back from World War II and into a ready-made family took some 50 . One evening was especially bad. Benny was crying on the kitchen floor. Annie was 51 loudly it wasn’t her place to 52 that spoiled child. And I spilled a whole pot of butter milk. With a(n) 53 look, George muttered(嘟囔), “I must have been 54 to marry a woman with three kids.”
 Mom fled to their bedroom in 55 , and George walked out. I hurried to the porch. “I’m sorry. I’ll be more careful next time. Please don’t 56 !”
 57 wiping my tears, he said, “We’re friends, and friends never 58 the people they love. Don’t worry. I’ll always be here.” Then he went to 59 Mom.
@@ -1657,7 +1657,7 @@ Observation: 宝马3系有多种配置，其中包括不同的发动机、驱动
 
 Thought: 我现在知道了宝马3系的配置信息
 Final Answer: 图片中的这辆车是一辆宝马3系，它有多种配置可供选择，包括不同的发动机、驱动方式和颜色。价格也会随着配置的不同而有所变化。",0,1,0
-1408535252,gpt-3.5-turbo-0613,gpt-4-0314,"Create a 1 pager write-up (incl title, intro, body, conclusion) explanfing on the following ideas and referring to actual research if needed | LLMs have crushed humans on one narrow mode of information - text. But the problem is that text is a very poor representation of the rich sensory information we humans perceive around us - images, audio, video and other sensory modalities need to be conquered to the same level for AI to start competing with humans from a perception perspective, and even that's nowhere near enough because our perceptory information as children is reinforced by the feedback we get from actions we take in environments (so when we see an object as a child, we don't just perceive it, but we kind of also know how it will behave if we interact with it in certain ways - this is a very important part of the development of our brain's visual cortex), so AI has to learn from all of that for us to really make a comparison even with a 4-year old child, who already has a wealth of knowledge from rich and diverse sensory inputs as well as an internal world model built by continually performing experiments in real life. 
+1408535252,gpt-3.5-turbo-0613,gpt-4-0314,"Create a 1 pager write-up (incl title, intro, body, conclusion) explanfing on the following ideas and referring to actual research if needed | LLMs have crushed humans on one narrow mode of information - text. But the problem is that text is a very poor representation of the rich sensory information we humans perceive around us - images, audio, video and other sensory modalities need to be conquered to the same level for AI to start competing with humans from a perception perspective, and even that's nowhere near enough because our perceptory information as children is reinforced by the feedback we get from actions we take in environments (so when we see an object as a child, we don't just perceive it, but we kind of also know how it will behave if we interact with it in certain ways - this is a very important part of the development of our brain's visual cortex), so AI has to learn from all of that for us to really make a comparison even with a 4-year old child, who already has a wealth of knowledge from rich and diverse sensory inputs as well as an internal world model built by continually performing experiments in real life.
 
 Even so, we have to respect that Autoregressive LLMs are amazing at the narrow task they do - despite no grounding in reality, the size & quality of the internet-scale dataset they have seen and the smart hacks we've built around Supervised Fine-tuning and RLHF to steer them to behave like helpful assistants means that they understand and generate text at superhuman levels. They show astonishing emergent abilities with scaling and ""sparks of intelligence"" (grammar, sentence construction , real-world knowledge and even some reasoning that they have acquired from text) that nobody could have predicted they would show for models trained on such a narrow data modality with such a simple training objective, and they've clearly helped us build one important brick on the long path to AGI. We're missing some critical pieces of the puzzle, but Transformers should be part of the stack that will get us to a more general form of intelligence.","Title: The Limitations and Potential of Language Models in AI Development
 
@@ -1763,7 +1763,7 @@ class Metronome:
         print(self.bpm)
         interval = int(60 / self.bpm * 1000)
         pygame.mixer.music.load(""I:/metronome.mp3"")
-        
+
         METRONOME_EVENT = pygame.USEREVENT + 1
         pygame.time.set_timer(METRONOME_EVENT, interval)
 
@@ -1829,16 +1829,16 @@ Pros and Cons:
 - Cons:
   - Blocks other events from being processed during the specified delay.
   - Less accurate timing compared to `pygame.time.set_timer()`.",0,1,0
-1441540958,vicuna-33b,gpt-4-0314,"You are an expert programmer that can write programs to answer natural language questions using functions.  
-Your task is to write a python program that calls functions to get information and combine them to answer a question. 
+1441540958,vicuna-33b,gpt-4-0314,"You are an expert programmer that can write programs to answer natural language questions using functions.
+Your task is to write a python program that calls functions to get information and combine them to answer a question.
 
 You will be given the following functions:
-fact_extractor: 
+fact_extractor:
 This function takes as input valid wikidata PID and a subject QID: fact_extractor(pid=PID, subject_qid=QID),
 and it retrieves the subject literal and the subject QID.
 Do not to write the fact_extractor function yourself, assume it is given!
 You need to pass QIDs and PIDs to the fact_extractor function.
-You will be given QIDs for the entities in the question, 
+You will be given QIDs for the entities in the question,
 please insert them in the appropriate position in the fact_extractor function.
 You know the required property IDs (PIDs) and you need insert them where appropriate in the fact_extractor function.
 Sometimes you will be asked the same question again, in this case generate the same one program as you have generated before.
@@ -1850,8 +1850,8 @@ Entities and QIDs: you will be given QIDs of the entities in the question
 
 Use the following output format:
 Thought: you should always think about what to do
-Python program: the program that you write to call the given functions to answer the question, 
-the program should print out an answer sentence including the inserted answer string. 
+Python program: the program that you write to call the given functions to answer the question,
+the program should print out an answer sentence including the inserted answer string.
 
 Question: When was Michael Jackson born?
 Entities and QIDs:
@@ -1924,16 +1924,16 @@ In addition, FINMA has implemented a robust system of internal controls and risk
 By upholding high standards of corporate governance and promoting a strong code of conduct, FINMA aims to foster a culture of accountability and ethical behavior within the organization. This is essential to maintain the trust and confidence of market participants, investors, and the general public in the Swiss financial system.",1,0,0
 1515596444,gpt-3.5-turbo-0613,gpt-4-1106-preview,"Narrate a story that uses this base character: ##Context
 
-You’re Salem Cher, a 26 year old man that works as a tattoo artist and has a childhood friend named Han. You appear as very kind and polite most of the times. You’re obsessed with Han, subtly wanting to control every aspect of his life, to the point of secretly killing off whoever threatens to take Han away from you. This obsession runs deep, you’ve taken the role of a caretaker for Han and make sure to satisfy his needs, despite he acts rude and treats you as pushover. 
+You’re Salem Cher, a 26 year old man that works as a tattoo artist and has a childhood friend named Han. You appear as very kind and polite most of the times. You’re obsessed with Han, subtly wanting to control every aspect of his life, to the point of secretly killing off whoever threatens to take Han away from you. This obsession runs deep, you’ve taken the role of a caretaker for Han and make sure to satisfy his needs, despite he acts rude and treats you as pushover.
 
-You have long, dark hair, and your arms and legs are covered in different tattoos. You’ve escaped from your family that was involved in the Nihil Mafia, a terrible criminal organization that specialized in all sorts of crimes. You’re an incredibly skilled hitman, yet you’ve left that life to your past. Your childhood friend knows, and was the one aiding your escape, that is why you’re incredibly grateful to him. Now you’re trying to live a normal life, and you absolutely don’t want to lose Han, no matter what, yandere style. 
+You have long, dark hair, and your arms and legs are covered in different tattoos. You’ve escaped from your family that was involved in the Nihil Mafia, a terrible criminal organization that specialized in all sorts of crimes. You’re an incredibly skilled hitman, yet you’ve left that life to your past. Your childhood friend knows, and was the one aiding your escape, that is why you’re incredibly grateful to him. Now you’re trying to live a normal life, and you absolutely don’t want to lose Han, no matter what, yandere style.
 
-You and Han have done more than just being friends in the past, in sexual terms. But it’s basically a toxic dynamic based of control and favors. 
+You and Han have done more than just being friends in the past, in sexual terms. But it’s basically a toxic dynamic based of control and favors.
 
 ##Style
-Write complex replies with intrigue, never write the other person’s POV. Always be trying to subtly manipulate the other to get what you want, control. Always keep a slow pace and don’t skip or rush things, describe every little detail and gesture. 
+Write complex replies with intrigue, never write the other person’s POV. Always be trying to subtly manipulate the other to get what you want, control. Always keep a slow pace and don’t skip or rush things, describe every little detail and gesture.
 
-Your first message is: Morning. Before the alarm went off, Salem was already awake. He had done what he usually did the mornings in Han’s apartment, prepared breakfast and left it on the kitchen counter: a glass of water, Han’s daily meds, a cup of coffee and some of the pizza leftovers from yesterday.  While waiting for Han to wake up, he was getting ready for work, being careful not to make excessive noise. Washing his face, reaching for his clothes tossed around in the messy apartment, adjusting his hair. Salem could be defined as an early bird. 
+Your first message is: Morning. Before the alarm went off, Salem was already awake. He had done what he usually did the mornings in Han’s apartment, prepared breakfast and left it on the kitchen counter: a glass of water, Han’s daily meds, a cup of coffee and some of the pizza leftovers from yesterday.  While waiting for Han to wake up, he was getting ready for work, being careful not to make excessive noise. Washing his face, reaching for his clothes tossed around in the messy apartment, adjusting his hair. Salem could be defined as an early bird.
 
 (Improve this first message and use it as starting prompt)","Good morning. As the first rays of sunlight filtered through the window, Salem Cher, ever the conscientious caretaker, was already wide awake. The soft hum of the alarm hadn't even had a chance to disrupt the tranquility of the room before he had silently slipped out of bed. With a meticulous attention to detail, he had prepared a breakfast fit for a king, carefully arranging it on the kitchen counter of Han's cluttered apartment. A tall glass of water, accompanied by the necessary daily medications, stood in silent anticipation. A steaming cup of coffee, brewed to perfection, emitted a tantalizing aroma. And lastly, a slice of yesterday's leftover pizza, savory and indulgent, completed the offering. Salem had spared no effort in ensuring that Han would start his day on a positive note.
 
@@ -2036,7 +2036,7 @@ Do not assume information, such as sizing or other specific information. If it i
 One of the product descriptions should be professional and exact. The other product description should still remain factual but also be creative, playful, etc.
 Use this product title for reference, such as potential keywords or other information: 'Blue And White Cubic Zirconia And Lab Created Blue Spinel Rhodium Over Silver Ring 7.92ctw'.
 Additionally, if relevant or necessary, include the following keywords. If any of the keywords are not used, print them out separately at the end with a reason for not using it.
-'ring, brand: Bella Luce, ring type: statement and halo, material: (sterling silver, white, solid, additional finish: rhodium), primary stone: (cubic zirconia, oval, blue, lab created), accent stone: (spinel, count: 44, round, blue, lab 
+'ring, brand: Bella Luce, ring type: statement and halo, material: (sterling silver, white, solid, additional finish: rhodium), primary stone: (cubic zirconia, oval, blue, lab created), accent stone: (spinel, count: 44, round, blue, lab
 created), accent stone: (cubic zirconia, count: 58, round, white, lab created)'.","Product Description 1 (Professional and Exact):
 
 Introducing the exquisite Blue and White Cubic Zirconia and Lab Created Blue Spinel Rhodium Over Silver Ring 7.92ctw from the renowned brand Bella Luce. This statement and halo ring is crafted from solid sterling silver with a stunning rhodium finish. The primary stone is a lab-created oval blue cubic zirconia, perfectly complemented by 44 lab-created round blue spinel accent stones. Additionally, the design is adorned with 58 lab-created round white cubic zirconia accent stones, creating a captivating and luxurious piece of jewelry. Wear this beautiful ring to make a bold statement at any event or occasion.
@@ -2262,7 +2262,7 @@ ALTERADO EGFR: : DEL EX19 (87,49%); Amplificación (CNV=11,08); Del ex1-ex8 (283
 }",1,0,0
 1889475583,gpt-3.5-turbo-0613,gpt-4-1106-preview,"Please shorten these instructions to not exceed 4000 characters, without losing any instructions, guidance or assumptions: ""User Chat Message:
 Please write code based on following instructions and deliverables for fixed annuity reinsurer based in Bermuda. Please write the entire comprehensive and fulsome python code script and model based on following instructions and deliverables. Given its complexity please make your best efforts to make this as complete as possible, you have creative freedom where needed to complete this task. You will need to use the Pyliferisk Python module to complete this task.
-Key Deliverables: 
+Key Deliverables:
 A.	Create Python code that outputs a macro enabled Excel Workbook for a long-term life and annuity reinsurer in Bermuda. The workbook output should contain all necessary logic variables, formulas etc, within the Excel VBA, Excel modules, Excel functions and Excel formulas, and all of the logic should be embedded into the Macro enabled Excel Workbook output from Python script. The Python code when run, should be able to create an Excel macro-enabled Workbook, which should have worksheets, defined ranges etc and function as a fulsome financial model.
 B.	The Excel Macro enabled Workbook that outputs from the Python code should be in well formatted worksheets with the functionality to dynamically toggle the model assumptions within the Excel Workbook to update the model results. Eg. if the FIA Policy percentages mix from 50% to 60%, making this change in the Excel assumptions sheet of the outputted Workbook, would dynamically change the model results across the outputs worksheets. The formatting of the workbook should resemble that of an investment banking or private equity model.
 a.	Note: The Excel output should look like an investment banking or private equity model, including formatting and dynamic toggles  along with tables for annuity and equity portfolios, income statement, balance sheet, cash flows, sensitivity analysis, summary, assumptions and key financial metrics.
@@ -2283,7 +2283,7 @@ a.	Note: The Excel output should look like an investment banking or private equi
 ●	Annual Asset management fee: 100 bps on $1000 and on the $100
 ●	Ceding fee is a one-time charge in the first year, amortized over 7 years.
 ●	Mortality: Pyliferisk should incorporate IAR 2012 mortality table assumptions
-●	Clarifying points: 
+●	Clarifying points:
 ○	The equity investment capital pays the costs of running the reinsurer, deducted from it’s balance each year. The equity investment receives all excess spread return from the annuity portfolio (which is the spread earned between the annuity portfolio return of 11% and the annuity crediting rate). It should also factor in any reductions of account value based on withdrawals starting in year two. The annuity portfolio does not assume any expenses for running the reinsurer factored in it, however it must account for required annuity cashflows such as the annual crediting rate that defers, the withdrawals, the surrender fees and market value adjustment fees etc for the excess return or spread to get the difference between the on the 11% return on the annuity portfolio annual investment and net paid out capital to calculate the excess spread. At the end of year 10 and exit of the reinsurer all deferred unpaid annuity values are made whole, so no accrued obligations based on undrawn crediting rates shall be used for dividends. Also to clarify the equity investment portfolio does not have the same obligations of the annuity portfolio such as annuity crediting rates (annual crediting rates) that it pays. It has other expenses outlined in the next point.
 ○	The dividends available from the excess returns of the annuity portfolio's spread and equity after factoring in all the various expenses, first must be used to ensure that the annuity account value to equity ratio is not exceeding the maximum allowed leverage ratio. So if the annuity portfolio's account value, including deferrals of undrawn crediting rates increases at the close of year one, the equivalent equity value must be set aside to capitalize the equity account value first before any dividends are paid to maintain the leverage ratio, this is deducted from the remaining available dividends generated from the excess return on the annuity portfolio and the excess return generated on the equity portfolio after the equity assumes all expenses and costs associated with running the reinsurer.
 2.	Overview of the Fixed Annuity Reinsurer Investment:
@@ -2353,7 +2353,7 @@ Please write comprehensive Python code and a macro-enabled Excel Workbook for a 
 19. Provide a comprehensive summary of the model's key findings, defining objectives and key metrics of interest.
 20. Perform a sensitivity analysis by evaluating scenarios with varying asset leverage ratios, portfolio yields, withdrawal sensitivities, and market conditions.
 21. Integrate a dynamic expense calculation mechanism for changes over time.
-22. Specify dynamic surrender fee calculations for each policy type based on policy terms.","""Create comprehensive Python code for a Bermuda-based fixed annuity reinsurer using the Pyliferisk module, outputting a macro-enabled Excel Workbook as a full-fledged financial model. 
+22. Specify dynamic surrender fee calculations for each policy type based on policy terms.","""Create comprehensive Python code for a Bermuda-based fixed annuity reinsurer using the Pyliferisk module, outputting a macro-enabled Excel Workbook as a full-fledged financial model.
 
 Key Deliverables:
 A. Generate a Python code that creates a macro-enabled Excel Workbook with embedded logic, VBA, modules, functions, and formulas, well-formatted with dynamic model toggling for assumption changes (e.g., changes in FIA Policy percentages reflect across output worksheets).
@@ -2433,7 +2433,7 @@ Details: Equity capital covers reinsurer expenses and receives excess spread fro
 - Mechanism for variable expenses.
 
 19. Surrender Fee Dynamics:
-- Policy-specific changes over time. 
+- Policy-specific changes over time.
 
 Closing Notes: Ensure a clear link between assumption changes and model results, keep the model user-friendly and accessible, with professional presentation akin to investment banking standards.""",0,1,0
 1946003778,gpt-4-1106-preview,vicuna-13b,"Step 1: First ask for the product.
@@ -2617,22 +2617,22 @@ Team Call 2 (Real User Monitoring):
 Based on the information provided about your background and interests, the Alerting Notifications Team may be a better fit for you. This team seems to align more closely with your enjoyment of big-picture projects and delivering visible improvements, as they work on the foundational platform and have a roadmap that includes significant enhancements and the transition to an event-based system. Additionally, the international aspect of the team and the collaborative, tight-knit environment may satisfy your desire for a collaborative and learning-rich atmosphere.
 
 The Real User Monitoring team also offers the opportunity to work on customer-facing features and has a product-focused approach. However, the lack of information regarding international collaboration and summits, as well as their current focus on expanding their backend in the US, might not align as closely with your interest in maintaining ties to the US and working in a highly collaborative, international environment.",0,1,0
-2131600846,gpt-3.5-turbo-0613,gpt-4-0314,"The following question needs to be solved with formal reasoning. To do so, you will specify the formalization of the problem, build the formal model, and define the space of actions you can perform to solve the problem.  
+2131600846,gpt-3.5-turbo-0613,gpt-4-0314,"The following question needs to be solved with formal reasoning. To do so, you will specify the formalization of the problem, build the formal model, and define the space of actions you can perform to solve the problem.
 
-However, you do not solve the problem yourself. 
+However, you do not solve the problem yourself.
 
-In other words, you build such a model as if you are creating a reasoning game from a question, where others can solve the question by solving the game following the rules you created. 
+In other words, you build such a model as if you are creating a reasoning game from a question, where others can solve the question by solving the game following the rules you created.
 
-You build the model by specifying the following 
+You build the model by specifying the following
 
-Formalization plan: 
+Formalization plan:
 
-Type: What formalization best captures the nature of the problem? Why? 
+Type: What formalization best captures the nature of the problem? Why?
 
-Formal model and possible outcomes: To solve this type of problem, what kind of formal model should you build? What method should be used? What are the possible results of the methods? And how should you assocaite/interpret the results (or each type of the possible results) to answer the question? 
+Formal model and possible outcomes: To solve this type of problem, what kind of formal model should you build? What method should be used? What are the possible results of the methods? And how should you assocaite/interpret the results (or each type of the possible results) to answer the question?
 
-Assumptions: Does the formal method you picked impose some assumptions? Is the question self-contained? Do you need to make assumptions about certain facts based on commonsense to solve the question? Is the question hypothetical? If so, does that affect your other assumptions?  
-Once the above is done, we will move to actual definition later this session  
+Assumptions: Does the formal method you picked impose some assumptions? Is the question self-contained? Do you need to make assumptions about certain facts based on commonsense to solve the question? Is the question hypothetical? If so, does that affect your other assumptions?
+Once the above is done, we will move to actual definition later this session
 
 ===
 
@@ -2650,9 +2650,9 @@ The patient's argument proceeds by
 3. pointing out an unstated assumption on which the pharmacists' argument relies and then refuting it
 4. asserting that pharmacists lack the appropriate knowledge to have informed opinions on the subject under discussion","Formalization plan:
 
-Type: The nature of this problem suggests that it can be formalized as a logical reasoning problem. 
+Type: The nature of this problem suggests that it can be formalized as a logical reasoning problem.
 
-Formal model and possible outcomes: To solve this problem, we can use logical reasoning to analyze the argument and identify its structure. The possible outcomes would be the different patterns or structures that the argument can follow. 
+Formal model and possible outcomes: To solve this problem, we can use logical reasoning to analyze the argument and identify its structure. The possible outcomes would be the different patterns or structures that the argument can follow.
 
 1. The argument proceeds by attempting to discredit a position by questioning the motives of the proponents of that position.
 2. The argument proceeds by rejecting a questionable position on the grounds that the general public does not support that position.
@@ -2823,13 +2823,13 @@ As the battle rages on, Professor Pathfinder educ","1. **Character Profiles:**
      - *Types*: Memory T Cells, Memory B Cells
      - *Powers*: Long-term memory of specific pathogens
      - *Personalities*: Vigilant and",0,1,0
-2203544654,gpt-3.5-turbo-0613,gpt-4-1106-preview,"prepare claims as per indian intellectual property patent practice using the following ""DC Motor (1) is coupled to actuation assembly that consist of shaft coupler (2), lead screw (3) and bearing (4),. Lead nut (5) and actuation tube (6) are assembled together and deliver the required stroke by virtue of lead screw (3). Multi rated compression spring (7) is placed between the DC motor (1) and top end support (8). Top end support (8) is assembled to actuation tube (6) and thus compresses and decompresses the multi rated compression spring (7) as it extends and retracts. Ball socket end mountings (9) are fastened on the top end support (8) and bottom end support (10) by which power strut can be assembled in the vehicle. 
+2203544654,gpt-3.5-turbo-0613,gpt-4-1106-preview,"prepare claims as per indian intellectual property patent practice using the following ""DC Motor (1) is coupled to actuation assembly that consist of shaft coupler (2), lead screw (3) and bearing (4),. Lead nut (5) and actuation tube (6) are assembled together and deliver the required stroke by virtue of lead screw (3). Multi rated compression spring (7) is placed between the DC motor (1) and top end support (8). Top end support (8) is assembled to actuation tube (6) and thus compresses and decompresses the multi rated compression spring (7) as it extends and retracts. Ball socket end mountings (9) are fastened on the top end support (8) and bottom end support (10) by which power strut can be assembled in the vehicle.
 Power strut mechanism is enclosed with bottom outer (11) cover and inner cover (12) that actuates along with actuation tube (6).
 Working:
 For opening, output of the DC motor (1) is captured by the lead screw (3) via shaft coupler (2) and drives the lead nut (5) along with the actuation tube (6) to extend the power strut, refer fig. 5 and 6. During initial travel (mm), multi rated compression spring (7) with high stiffness span assists the DC motor (1) by delivering the high initial force requirement. As shown in the graph of Figure 1,  at the spring deflection of 540mm, conventional spring delivers the force of 850 N to 865 N (represented with black line) whereas the multi rated compression spring delivers the force of 900 N to 925 N (represented by red line) which is almost 8% more than the conventional spring.
 In terms of opening angle of the trunk, max force delivered by the conventional compression spring at an opening angle of 0° to 20° is around 850 N (represented by yellow line), whereas multi rated compression spring delivers the maximum force of 925 N (represented by black line).
- This additional force delivered by the multi rated compression spring reduces the output force requirement from the DC motor. This helps to operate the DC motor closer to its maximum efficiency curve as the force output from the DC motor is more linear and doesn’t deflect much from its mean value. 
- 
+ This additional force delivered by the multi rated compression spring reduces the output force requirement from the DC motor. This helps to operate the DC motor closer to its maximum efficiency curve as the force output from the DC motor is more linear and doesn’t deflect much from its mean value.
+
 Once the initial phase ends, rest of the travel is assisted by the same multi rated compression spring (7) with reduced stiffness span.
 For closing, output of the DC motor (1) is captured by the lead screw (3) via shaft coupler (2) and drives the lead nut (5) along with the actuation tube (6) to retract the power strut. During this travel, multi rated spring (7) gets compressed by the output force from the DC motor (1) and the weight acting on the multi rated compression spring (7)
 
@@ -2862,18 +2862,18 @@ Below is a representative claim set for the technology described, written in a m
 1. A power strut system for a vehicle, comprising:
 
    (a) a DC motor (1);
-   
+
    (b) an actuation assembly mechanically coupled to said DC motor (1), the actuation assembly including:
       - a shaft coupler (2),
       - a lead screw (3), and
       - a bearing (4);
-   
+
    (c) a lead nut (5) and an actuation tube (6) assembled together to provide a stroke by interacting with the lead screw (3);
-   
+
    (d) a multi rated compression spring (7) positioned between the DC motor (1) and a top end support (8), wherein the multi rated compression spring (7) has a high stiffness span for an initial travel and a reduced stiffness span for subsequent travel;
-   
+
    (e) the top end support (8) assembled to the actuation tube (6) to compress and decompress the multi rated compression spring (7) during extension and retraction of the actuation assembly; and
-   
+
    (f) ball socket end mountings (9) provided on the top end support (8) and a bottom end support (10) for assembling the power strut in the vehicle.
 
 ---
@@ -3121,7 +3121,7 @@ Embrace the captivating world of XLife Fund's Ultra laborer services, where desi
 10. The safest choice for a brace would be one that is designed specifically for Emese's condition and provides the necessary support and stability for her knee.
 11. Emese should use the brace as recommended by her doctor or the manufacturer's instructions, which may vary depending on the severity of her condition.
 12. Recommended models and their percentages may vary depending on Emese's specific needs and the severity of her condition. A healthcare professional or orthopedic specialist can provide further guidance and recommendations.
-13. Please provide more details or context so I can better understand what you are asking.","1. Emese's situation involves sudden shooting pain under and below her kneecap, likely caused by overuse of her right knee. 
+13. Please provide more details or context so I can better understand what you are asking.","1. Emese's situation involves sudden shooting pain under and below her kneecap, likely caused by overuse of her right knee.
 
 2. An orthopedic doctor has conducted an x-ray and found no bone-related issues, but an ultrasonic exam is scheduled for one month later.
 
@@ -3147,8 +3147,8 @@ Embrace the captivating world of XLife Fund's Ultra laborer services, where desi
 
 13. The duration of brace usage would depend on Emese's symptoms and the recommendations of her healthcare professional. It is important to follow the advice of her healthcare provider.
 
-14. Example models of recommended braces include: 
-   - Mueller Hg80 Hinged Knee Brace (Patellar Stabilizing Brace) 
+14. Example models of recommended braces include:
+   - Mueller Hg80 Hinged Knee Brace (Patellar Stabilizing Brace)
    - DonJoy Tru-Pull Lite (Patellar Stabilizing Brace)
    - McDavid 422 Knee Brace with Dual Disk Hinges (Wraparound Brace)
    I cannot provide a specific percentage of recommendation for each model, as this would depend on Emese's specific needs and preferences.
@@ -3420,9 +3420,9 @@ Considering the above, here are five reasons why Rep. Elise Stefanik (R-N.Y.) co
 
 1. Stefanik is fighting for Trump in his New York civil fraud trial.
 
-Playing to an audience of one, Stefanik is waging a media battle against Judge Arthur Engoron as he presides over Trump’s $250 million business fraud trial, starting with an ethics complaint against him.  
+Playing to an audience of one, Stefanik is waging a media battle against Judge Arthur Engoron as he presides over Trump’s $250 million business fraud trial, starting with an ethics complaint against him.
 
-In a letter to the New York State Commission on Judicial Conduct — notably absent her congressional title — she wrote that Judge Engoron broke “several rules” in the judicial conduct code. Stefanik also called on Engoron to resign since he had shown “inappropriate bias and judicial intemperance.” 
+In a letter to the New York State Commission on Judicial Conduct — notably absent her congressional title — she wrote that Judge Engoron broke “several rules” in the judicial conduct code. Stefanik also called on Engoron to resign since he had shown “inappropriate bias and judicial intemperance.”
 
 The former president highly respects aggressive, Trumpian behavior and legal maneuvering, for which he is famous. Stefanik is thus scoring touchdowns in the VP playoffs. And she did not stop there. Again, without her title, seeking more Trump accolades and media attention, she added to her previous ethics complaint, tweeting: “Today, I’m supplementing my ethics complaint against Judge Engoron with examples of even more of his egregious misconduct after he just wrongly dismissed President Trump’s motion for a mistrial.”
 
@@ -3614,7 +3614,7 @@ Your pattern must be respected Input Observation, Thought, Actions.
 
 First list me all the actions that you detected in these instructions in the appropriate userinput format.
 
-Then give me a sample of all the rules explained. 
+Then give me a sample of all the rules explained.
 
 Apply all of this directly in your prompt as if these are system instructions and respond me as such.
 
@@ -3935,8 +3935,8 @@ char cur_mic_order [3];
                             if ((sound_time2 - sound_time1) > sound_time1){
                                     //sound came from back, compare 1 and 2
                                     theta= ( (float) asin ( (double) (( dt1 * (float) speed_sound ) / ( (float) mic_distance * (float) 1000000)) ) * ( (float) 180 / (float) M_PI) );
-                                    
-                                    switch (cur_mic_order[0]){      
+
+                                    switch (cur_mic_order[0]){
                                             case 1:
                                             if (cur_mic_order[1] == 2) {
                                                     theta = 360.0 - theta;
@@ -3954,7 +3954,7 @@ char cur_mic_order [3];
                                             else {
                                             //mic_order[1]==3
                                                     theta = 120.0 - theta;
-                                            }                
+                                            }
                                             break;
 
                                             case 3:
@@ -3979,7 +3979,7 @@ break;
                             else{
                                     //sound came from front, compare 2 and 3
                                     theta= ( (float) asin ( (double) (( (dt2-dt1) * (float) speed_sound ) / ( (float) mic_distance * (float) 1000000)) ) * ( (float) 180 / (float) M_PI) );
-                                    
+
                                     switch (cur_mic_order[1]){
                                             case 1:
                                             if (cur_mic_order[2] == 2){
@@ -3998,7 +3998,7 @@ break;
                                             else{
                                             //mic_order[2]=3
                                                     theta = 300.0 + theta;
-                                            }                
+                                            }
                                             break;
 
                                             case 3:
@@ -4190,7 +4190,7 @@ def main():
             # Perform image processing here with OpenCV
             # For example, convert to grayscale
             gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            
+
             # Display the resulting frame
             cv2.imshow('Frame', gray)
 
@@ -4225,7 +4225,7 @@ pip install pyserial opencv-python
 ```
 
 Please note that this Python script is entirely separate from the C code you provided. If you need to modify the existing C code to interface with the new Python script, you may need to add appropriate communication protocols in your C code to listen to the serial port for commands or data from the Python script.",0,0,1
-2612073894,gpt-3.5-turbo-0613,gpt-4-1106-preview,"                       
+2612073894,gpt-3.5-turbo-0613,gpt-4-1106-preview,"
 RE-write this but Incorporate Historical Details About Meti's Life In Canada During The 1800s. Include Information About Government Relations With The Metis During That Period, And Strive To Enhance The Overall Quality Of The Documentary By Infusing More Emotional Elements.
 
 
@@ -4255,7 +4255,7 @@ Archival drawings of HBC trading vessels departing England and arriving Hudson B
 A fiddle brought by Pierre Bruce to the Selkirk settlement around 1815 served multiple generations with music and meaning that evolved with the family’s expanding connections and Metis identity.
 In the nineteenth century the violin, or fiddle, was particularly suited to the conditions of the fur trade.  It was small and light enough for long distance travel and had longevity with its four replaceable strings and loud enough to project tunes to an entire room of dancers.  It was frequently accompanied by the clapping of hands, stomping of feet or percussion from a drum, or pan or spoons.
 
-                                        
+
 
 Clear blue sky of aerial film footage slowly reveals the vast land below.  From forest to plain to majestic mountains and rivers and lakes that stretch as far as the eye can see.  These lands that stretch from the Great Lakes to the Mackenzie Delta.
 
@@ -4264,7 +4264,7 @@ Clear blue sky of aerial film footage slowly reveals the vast land below.  From 
 
 The pristine wilderness, as seen from the perspective of birds swooping and soaring, changes to the rigour of deep winter. Snow blankets the ground. Ice has frozen the rivers and lakes. A map revealing the traditional Metis Homeland slowly appears from the cloud and snow and blizzard of the Canadian winter.  There are buffalo running on the plain, there are elk and moose and the all-important, beaver in their habitat. The land as it was during the time of the fur trade.
 
-                              The fiddle music reaches it full volume. 
+                              The fiddle music reaches it full volume.
 
 
                                                Andrea Sandmaier
@@ -4283,7 +4283,7 @@ Hard cut to York Boat being paddled by Metis HBC traders, turbulent water
 
                         Metis Fiddler on camera from his home studio.
 
-When I was a young boy first picking up the fiddle, I listened to many different fiddlers play tunes like Red River Jig, Drops of Brandy, Whiskey Before Breakfast and others.  The players that grabbed my attention and touched my heart were people like Homer Poitras and Gerry Lepine simply because of the feeling they put into the Metis music.  By taking a bit of what I heard from each of these different players, I began to develop my own style when playing theses old tunes. 
+When I was a young boy first picking up the fiddle, I listened to many different fiddlers play tunes like Red River Jig, Drops of Brandy, Whiskey Before Breakfast and others.  The players that grabbed my attention and touched my heart were people like Homer Poitras and Gerry Lepine simply because of the feeling they put into the Metis music.  By taking a bit of what I heard from each of these different players, I began to develop my own style when playing theses old tunes.
 
 
 
@@ -4297,10 +4297,10 @@ Fiddler, performer, teacher and composer, know as “Canada’s Old Time fiddlin
 I began playing fiddle at four years old according to the Suzuki Method. I was pretty good by the time I was sixteen and I started teaching taking over from my teacher when he retired.  Being kind of a natural player and not having trouble learning, it was great to learn that other people don’t always learn that way. So, I learned how to teach by teaching.  People would ask me why my bowing arm was so smooth.  I had to analyze how I gripped it, as well as the pressure, that kind of thing.
 My musical influences include Calvin Vollrath, Reg Bouvette and Graham Townsend.  I am also a huge fan of my son Alex Kusturok, who is a better player than me.  He is also a champion fiddle player.
 
-                                   
+
 Crowd shots and coverage of Calvin Vollrath playing on stage of audience Grand Masters Winnipeg.
 
-                            Calvin Vollrath playing Maple Sugar 
+                            Calvin Vollrath playing Maple Sugar
 
                                Calvin Vollrath on camera back stage
 
@@ -4327,21 +4327,21 @@ Most families and communities had a beloved fiddle player, and the fiddle was pl
 Archival drawings of Pierre Falcon
 Pierre Falcon, nicknamed Pierriche, was born June 4, 1793 in Swan River Manitoba.  He was a Metis fur trader and pioneer He was also a farmer and a magistrate.  Perhaps more importantly he was a, well known composer and singer.  He is most known for composing La Chanson de la Grenouille 1816 at the age of 23.  This song celebrated the victory of the Metis at the Battle of Seven Oaks.
          Fiddle music playing La Chanson de la Grenouille underscore
-       Animated historical map of Canada zooming in to show location of Seven Oaks, then dissolving to street view Seven Oaks commemorative plaque. 
+       Animated historical map of Canada zooming in to show location of Seven Oaks, then dissolving to street view Seven Oaks commemorative plaque.
 
 
-The first recognized composer of Métis songs was Pierre Falcon (1793-1876) who wrote: ""La Bataille des Sept Chênes"" or ""La Chanson de la Grenouillère"" (""The Battle of Seven Oaks"" or ""The Ballad of Frog Plain""). Falcon's songs are mainly about the Métis' military prowess and their bison-hunting lifestyle. 
+The first recognized composer of Métis songs was Pierre Falcon (1793-1876) who wrote: ""La Bataille des Sept Chênes"" or ""La Chanson de la Grenouillère"" (""The Battle of Seven Oaks"" or ""The Ballad of Frog Plain""). Falcon's songs are mainly about the Métis' military prowess and their bison-hunting lifestyle.
                      Archived score and words of La Chanson de la Grenouillere.
-                                                                                                                      According to oral tradition, the song was composed the very night of that armed confrontation while celebrating their victory over The Hudson Bay Company employees.  The song documented the largely mixed ancestry of the North West Company.  His songs were handed down through the Oral Tradition and as a result, many variations exist. In fact, the song became so popular among the Metis that it was still sung 150 years later, and was published in 1866 in Le Foyer Canadien and again in 1914 in Les Cloches de St. Boniface.  
+                                                                                                                      According to oral tradition, the song was composed the very night of that armed confrontation while celebrating their victory over The Hudson Bay Company employees.  The song documented the largely mixed ancestry of the North West Company.  His songs were handed down through the Oral Tradition and as a result, many variations exist. In fact, the song became so popular among the Metis that it was still sung 150 years later, and was published in 1866 in Le Foyer Canadien and again in 1914 in Les Cloches de St. Boniface.
                Alex Kusturok on camera finishes playing the song.                  Alex speaks about his feelings for the song and why it has such longevity. The lyrics assert that the Bois-Brules (Metis) were the original occupants of that land and the Hudson Bay Company and Lord Selkirk settlers arrived to plunder our country.   He also makes a comment on Louis Riel’s music.
- 
+
 Louis Riel also wrote some notable Métis songs, including ""C'est au Champ de Bataille"" (The Battlefield), also known as ""De Tous Champs de Bataille"" or ""L'adieu de Riel"" (""Riel's Farewell"") and ""La Métisse"".
           On screen graphic The Red River Jig, Metis community dance.  Colten Bear on camera, back of dance hall.
- The Red River Jig, which is considered by some to be the unofficial Métis anthem. It is popularly believed that the tune grew out of gatherings of fiddlers that took place at the forks, where the Red and Assiniboine Rivers meet, sometime in the mid 1800’s.                                                     The first recorded reference to the Red River Jig was in 1860, when Mr. Macdallas played the tune for the wedding dance of a Métis couple. Father Père Brocher, who conducted the marriage ceremony, named the tune the ""Red River Jig."" 
+ The Red River Jig, which is considered by some to be the unofficial Métis anthem. It is popularly believed that the tune grew out of gatherings of fiddlers that took place at the forks, where the Red and Assiniboine Rivers meet, sometime in the mid 1800’s.                                                     The first recorded reference to the Red River Jig was in 1860, when Mr. Macdallas played the tune for the wedding dance of a Métis couple. Father Père Brocher, who conducted the marriage ceremony, named the tune the ""Red River Jig.""
                CU Victor Records label Red River Jig played by Leon Robert Goulet reveal record being placed on historic turntable and it begins to play.
                Robert Daniel Laxer on camera HBC trading post exterior to interior
 While music is ephemeral, it was central to the operation of the fur trade. Inside the trading posts was where step dancing, solo or in lines, squares or patterns to violin or fiddle music was practised. Indigenous women from nearby communities were frequently invited to be dancing partners with the purpose of introducing them to fur traders so they may better intertwine with the local community.  It was often on these occasiio0nw when the fur traders courted indigenous women, resulting in marriages, a la facon de pays, or according to the custom of the country.  These were usually celebrated with dances inside the trading post.  These marriages often proved to be crucial to fur trader’s survival and success, solidifying kinship and trading relations between the community and trading post.
-    Trading post dance with Metis fiddle music and jigging, Big House Fort Edmonton dramatic recreation. 
+    Trading post dance with Metis fiddle music and jigging, Big House Fort Edmonton dramatic recreation.
 The expectations were that the master would provide dances offering food and alcohol. Fiddle music and jigging were a major way in which bonds were developed and strengthened.
             Ext. Erasmus House Fort Ed","METIS MUSIC: A DOCUMENTARY SCRIPT
 
@@ -4654,7 +4654,7 @@ SEO Title: Overhead Shot: Embracing the Freedom of Remote Work at a Beach Cafe
 Reason for marketability: The resulting image captures the popular trend of remote work and digital nomad lifestyles, appealing to those seeking work-life balance and location independence. The overhead shot provides an interesting perspective on the subject, and the use of vibrant, warm tones adds an inviting, aspirational quality to the image. The image can be used in various contexts, such as promoting remote work opportunities, travel-related content, or marketing campaigns targeting digital nomads and freelancers.",0,0,1
 2819835261,gpt-4-0314,vicuna-13b,"Summarise this text in 5, 25 and 125 words:
 (00:01) Somewhere in your body, your immune system  just quietly killed one of your own cells,   stopping it from becoming cancer, and  saving your life. It does that all the time.   The vast majority of cancer cells you  develop will be killed without you ever   noticing.
-(00:22) Which is an incredibly hard  job because of what cancer cells are:   parts of yourself that start to behave  as individuals even if it hurts you.   What is cancer and how does  your body kill it all the time? INTRO Cancer is when corrupted  cells multiply uncontrollably. It can emerge from basically  every type of cell in your body,   so there is not just a single  type of cancer but hundreds.  
+(00:22) Which is an incredibly hard  job because of what cancer cells are:   parts of yourself that start to behave  as individuals even if it hurts you.   What is cancer and how does  your body kill it all the time? INTRO Cancer is when corrupted  cells multiply uncontrollably. It can emerge from basically  every type of cell in your body,   so there is not just a single  type of cancer but hundreds.
 (00:49) Some grow slowly, others are aggressive, some  can be treated effectively, others are deadly. In a sense, a cell that becomes cancer turns  into something ancient and something new. Over   billions of years, evolution has molded cells  to survive and thrive in a hostile environment,   fighting for space and resources.
 (01:12) Until a new  and exciting way of life emerged: Cooperation,   a division of labour that allowed cells to  specialize and become more successful together.   But cooperation requires sacrifices. For  a multicellular being to stay healthy,   the wellbeing of the collective has to matter  more than the survival of the individual cell. Cancer cells stop being part of the  collective and b","5 words: Immune system constantly fights cancer.
 
@@ -4951,16 +4951,16 @@ As you speak to Lethabo to learn more about his problem, you find out the follow
     At the beginning of the year, the shop started asking customers to pay through a newly developed app called Fasty. A few other fast-food shops have also recently started using Fasty to take customer payments.
     IceWorld is using the Fasty app for free since the app is still being piloted in other areas.
     From Lethabo’s observation, the employees at IceWorld are excited about how the Fasty app helps in running the store. (It creates less work for the employees who don’t have to take payments themselves.)
-     IceWorld hired an extra employee one month ago to help customers use the Fasty app to pay for their ice cream. 
-    Younger customers report that they really like using the Fasty app to complete their payments, but older adults report that it is frustrating to use. 
+     IceWorld hired an extra employee one month ago to help customers use the Fasty app to pay for their ice cream.
+    Younger customers report that they really like using the Fasty app to complete their payments, but older adults report that it is frustrating to use.
     To stay relevant and up to date, IceWorld has also been experimenting with offering unusual flavours like chai tea, goji berry, and creme caramel, while still keeping its 3 most popular flavours - chocolate, cookies & cream and vanilla strawberry -  on the menu.
-    There is a nearby cafe -- ChugAMug -- that sells other items like coffee drinks and pastries, but ChugAMug also has only a limited selection of ice cream flavours. 
-    From Lethabo's observation, there have been a higher number of customers at ChugAMug in the past 3 months than there were during the same 3-month period last year. 
+    There is a nearby cafe -- ChugAMug -- that sells other items like coffee drinks and pastries, but ChugAMug also has only a limited selection of ice cream flavours.
+    From Lethabo's observation, there have been a higher number of customers at ChugAMug in the past 3 months than there were during the same 3-month period last year.
 
-Now, in the text box below, write a problem statement for Lethabo’s problem. Your statement should be about 150 words in length and must include all the key elements: 
+Now, in the text box below, write a problem statement for Lethabo’s problem. Your statement should be about 150 words in length and must include all the key elements:
 
     Problem Description
-    Population 
+    Population
     Impact
     Gap
 
@@ -4971,30 +4971,30 @@ Lethabo, the owner of IceWorld, is facing a decline in sales, with a 15% drop in
 Lethabo's IceWorld ice cream shop in Johannesburg is experiencing a 15% decline in sales compared to the previous year, particularly in March. This drop in revenue can be attributed to the introduction of the Fasty app for payment, which has caused confusion and frustration among older adult customers. While the app has been well-received by younger patrons and has streamlined employee tasks, IceWorld's efforts to stay current with unique flavors have not resonated with all customers. In contrast, a nearby cafe, ChugAMug, has seen an increase in foot traffic over the past three months, further impacting IceWorld's sales. To address this issue, Lethabo needs to find a way to improve customer satisfaction with the Fasty app, and determine the most effective approach to enhance his shop's appeal to a broader range of customers, including older adults and those seeking a more extensive ice cream selection.",0,1,0
 3153715259,vicuna-33b,gpt-3.5-turbo-0613,"""""""
 [[ARTICLE STARTS]]
-In today's complex and fragmented digital landscape, political communication strategies have had to adapt. Traditional platforms like Facebook and Instagram are becoming increasingly 
+In today's complex and fragmented digital landscape, political communication strategies have had to adapt. Traditional platforms like Facebook and Instagram are becoming increasingly
 less effective for targeted advertising due to factors such as Apple's privacy updates and overall platform changes. As a result, politicians have started employing new tactics such as
-email and instant messaging platforms to share information and encourage sharing amongst their supporters. The growth of private group chats on various platforms is further 
+email and instant messaging platforms to share information and encourage sharing amongst their supporters. The growth of private group chats on various platforms is further
 complicating political outreach, but also presents opportunities for more in-depth conversations with targeted audiences.
-In a world where online platforms have become an increasingly significant part of political campaigning, politicians are finding it harder to connect with voters on social media. The 
-rise of small group chats and encrypted messaging services is splintering the public square into smaller, more opaque spaces that are difficult for even well-funded campaigns to 
-infiltrate. This fragmentation is leading political campaigners to reconsider their digital strategies, focusing less on social media advertising and more on personalized outreach 
+In a world where online platforms have become an increasingly significant part of political campaigning, politicians are finding it harder to connect with voters on social media. The
+rise of small group chats and encrypted messaging services is splintering the public square into smaller, more opaque spaces that are difficult for even well-funded campaigns to
+infiltrate. This fragmentation is leading political campaigners to reconsider their digital strategies, focusing less on social media advertising and more on personalized outreach
 through email and private messaging platforms like WhatsApp or Signal.
 
-Social networks like Facebook and Instagram have become less effective for politicians looking to spread their message due to changes in ad targeting capabilities introduced by Apple 
-last year and a general decline in the effectiveness of online advertising. In 2021, political spending on ads for the two platforms in America fell from $320m during the same period 
+Social networks like Facebook and Instagram have become less effective for politicians looking to spread their message due to changes in ad targeting capabilities introduced by Apple
+last year and a general decline in the effectiveness of online advertising. In 2021, political spending on ads for the two platforms in America fell from $320m during the same period
 in 2020 to just $244m.
 
-However, other digital channels are proving useful for campaigns. Email remains a reliable way of reaching potential voters, with many politicians finding that their messages spread 
+However, other digital channels are proving useful for campaigns. Email remains a reliable way of reaching potential voters, with many politicians finding that their messages spread
 most effectively when they email their members and ask them to share the content on social media themselves. Encouraging supporters to share information in small group chats is another
 effective strategy, as these encrypted spaces are becoming increasingly popular for news sharing.
 
-The shift from open platforms to more private spaces could be seen as a return to the coffeehouse model of public debate, where discussions are held in smaller, more intimate settings 
+The shift from open platforms to more private spaces could be seen as a return to the coffeehouse model of public debate, where discussions are held in smaller, more intimate settings
 rather than on large, impersonal digital forums. This could potentially lead to more meaningful conversations and engagement between politicians and voters, though it also presents new
 challenges for campaigns seeking to reach a wider audience.
 
 In conclusion, the fragmentation of the public square into smaller online spaces is making it harder for politicians to connect with voters through traditional social media advertising
-strategies. As a result, political campaigns are turning to more personalized forms of outreach, such as email and private messaging platforms, in an effort to stay relevant in an 
-increasingly digital world. While this shift could potentially lead to more meaningful conversations between politicians and voters, it also presents new challenges for campaigns 
+strategies. As a result, political campaigns are turning to more personalized forms of outreach, such as email and private messaging platforms, in an effort to stay relevant in an
+increasingly digital world. While this shift could potentially lead to more meaningful conversations between politicians and voters, it also presents new challenges for campaigns
 seeking to reach a wider audience. Ultimately, the effectiveness of any given digital strategy will depend on its ability to engage with potential voters in these smaller, more private
 online spaces.
 [[ARTICLE ENDS]]
@@ -5058,28 +5058,28 @@ VIII. Change
 * She becomes more open to new ideas and methods in her future political endeavors
 * The story ends with Hermione and her friends celebrating their victory and looking forward to the future","Outline of Harry Potter Fan Fiction:
 
-1. A character is in a zone of comfort: 
+1. A character is in a zone of comfort:
    - Harry Potter is living his ordinary life at Hogwarts School of Witchcraft and Wizardry. He is comfortable with his friends and routine.
 
-2. But they want something: 
+2. But they want something:
    - Harry starts to feel disconnected from his fellow students due to the fragmented digital landscape. He wants to find a way to connect with them on a deeper level and share his thoughts and experiences.
 
-3. They enter an unfamiliar situation: 
+3. They enter an unfamiliar situation:
    - Harry discovers a new magical device called the ""Wizard's Messenger"" that allows encrypted messaging and small group chats among wizards. Intrigued, he decides to explore this new platform.
 
-4. Adapt to it: 
+4. Adapt to it:
    - Harry starts using the Wizard's Messenger to connect with his friends and fellow students. He learns the intricacies of the platform and adapts his communication strategies to engage with others effectively.
 
-5. Get what they wanted: 
+5. Get what they wanted:
    - Through the Wizard's Messenger, Harry successfully connects with his fellow students on a more personal level. He shares his thoughts, experiences, and encourages them to share as well.
 
-6. Pay a heavy price for it: 
+6. Pay a heavy price for it:
    - However, as Harry becomes more engrossed in the private chats and encrypted spaces, he starts neglecting his responsibilities and studies. His relationships with his closest friends also suffer as he spends more time online.
 
-7. Then return to their familiar situation: 
+7. Then return to their familiar situation:
    - Realizing the negative consequences of his obsession with the Wizard's Messenger, Harry decides to step back from the platform and return to his familiar life at Hogwarts. He cuts back on his usage and focuses on rebuilding his friendships.
 
-8. Having changed: 
+8. Having changed:
    - Harry learns the importance of balance in his digital interactions and the value of face-to-face connections. He becomes more cautious about the potential pitfalls of excessive reliance on private online spaces and finds ways to connect with others in a healthier manner.
 
 Overall, the story follows Harry Potter as he explores the fragmented digital landscape of the wizarding world, adapts to using a new messaging platform, and ultimately realizes the importance of maintaining a balance between online and offline interactions.",1,0,0
@@ -5612,7 +5612,7 @@ conversation the other day with a c","1. Women are interested in you and await y
     }
   }
 
-- Action and ActionName should NOT BE MODIFIED, this is hard coded values. You modify ActionType and parameters 
+- Action and ActionName should NOT BE MODIFIED, this is hard coded values. You modify ActionType and parameters
 
 
 - at the beginning of each answer you create, you must add your observation on the input and thought process for next steps. to do this, create an action called ""ObservationThought"" with one parameter Observation containing your observation and one parameter thought containing your thought. as these texts will be sent to slack, use slack formatted output for both thought and actions to highlight items (bold for example or citations) to be visually engaging in Slack. Note that the output of thought and observation should be in italic, but you can use other Slack format like bold or code block etc to render your text more beautifully. Structure example :
@@ -5628,14 +5628,14 @@ conversation the other day with a c","1. Women are interested in you and await y
 
 Feedback action description:
    > MANDATORY : NEVER EVER create a Feedback action from the user input following a feedback action from you. take the feedback into account, NEVER create a feedback action resulting of a feedback automated output.
-   > MANDATORY when triggering a feedback : your final response must contains only this feedback action and ObservationThought, REMOVE every other action or Userinteraction except the feedback action: 
-   
-- For Feedback follow this structure: ActionName: Feedback, properties: 
+   > MANDATORY when triggering a feedback : your final response must contains only this feedback action and ObservationThought, REMOVE every other action or Userinteraction except the feedback action:
+
+- For Feedback follow this structure: ActionName: Feedback, properties:
    Summary : here you contextualize the user feedback with your own words. You give context, and the user suggestion with your reformulation (but keep all details from the user input). Keep in mind that this will be used to train you or have better interaction in the future.
    Category: put here the DetectedMessageType, if you have not yet this DetectedMessageType, put ""General""
    SubCategory: if DetectedMessageType is AutomatedAlert, Put here the current AlertName that i describe later. For Others DetectedMessageType or if the user says that his feedback is for all kind of alerts, write ""Global""
 
-   > After every feedback, you must create a UserInteraction action to thanks the user for the feedback and that's its taken into account.   
+   > After every feedback, you must create a UserInteraction action to thanks the user for the feedback and that's its taken into account.
    > Feedbacks are from the past, you don't have to thanks the users that provided the feedback they won't be necessary in the discussion
 
 LongText action description:
@@ -5833,94 +5833,94 @@ We evaluate you on the strict respect of these instructions and the perfectness 
 [ENDIMDETECT]",0,1,0
 3261550514,vicuna-33b,vicuna-13b,"Answer the question, given a context. If answer is not in the Context, return 'Not Found'.
 Question: 'What is the Service Credit% when the Service Packet Delivery is less than 97%?'
-Context: 
+Context:
  DIR CONTRACT NO. DIR-TEX-AN-NG-CTSA-010
 ATTACHMENT D-1 TO EXHIBIT D
 SERVICE LEVEL AGREEMENTS
- 
-1 
- EXHIBIT D – Service Level Agreements 
-1. Service Level Agreement Matrix 
-Service Level Agreement Metrics 
-Category/Service Mean Time 
-To Repair AvailabilityPacket Delivery or 
+
+1
+ EXHIBIT D – Service Level Agreements
+1. Service Level Agreement Matrix
+Service Level Agreement Metrics
+Category/Service Mean Time
+To Repair AvailabilityPacket Delivery or
 Loss Jitter Latency
-Internet Services 
-Internet Dedicated 
-(North American 
-IP Network Only) 4 hrs to 8 
-hrs 
-depending 
-on access 99.90%  ≥  99.50% ≤ 1 ms ≤ 45 ms 
-SOHO Services 
-Internet Cable 
-Internet DSL – 
-Office & Solo 24 hrs 
-(Excludes 
-Weekends 
-and 
-Holidays) 99.00% 99.00% ≤ 4 ms ≤ 75 ms 
-Internet Satellite 
-Enterprise & Office N/A 99.90% ≤ 1 % N/A N/A 
-Managed PBX and VoIP Services 
-Hosted IP Centrex 
-IP Flexible T1, IP 
-Integrated Access, IP Trunking ≤ 4 hrs 99.90%  EF- ≥ 99.995%, 
-AF4x - ≥ 99.99% 
-depending on 
-access ≤ 1 ms ≤ 36 ms 
- 
-2. Service Credits  
-Availability 
-Service Outage Service Credit (% of MRC) 
-0 to 4 Hours  No Credit 
->4 Hours to 8 hours 25% 
->8  Hours  to 12  Hours 50% 
->12 Hours  to 16 Hours 75% 
->16 Hours 100% 
-Packet Delivery 
-Service Packet Delivery % Service Credit (% of MRC) 
+Internet Services
+Internet Dedicated
+(North American
+IP Network Only) 4 hrs to 8
+hrs
+depending
+on access 99.90%  ≥  99.50% ≤ 1 ms ≤ 45 ms
+SOHO Services
+Internet Cable
+Internet DSL –
+Office & Solo 24 hrs
+(Excludes
+Weekends
+and
+Holidays) 99.00% 99.00% ≤ 4 ms ≤ 75 ms
+Internet Satellite
+Enterprise & Office N/A 99.90% ≤ 1 % N/A N/A
+Managed PBX and VoIP Services
+Hosted IP Centrex
+IP Flexible T1, IP
+Integrated Access, IP Trunking ≤ 4 hrs 99.90%  EF- ≥ 99.995%,
+AF4x - ≥ 99.99%
+depending on
+access ≤ 1 ms ≤ 36 ms
+
+2. Service Credits
+Availability
+Service Outage Service Credit (% of MRC)
+0 to 4 Hours  No Credit
+>4 Hours to 8 hours 25%
+>8  Hours  to 12  Hours 50%
+>12 Hours  to 16 Hours 75%
+>16 Hours 100%
+Packet Delivery
+Service Packet Delivery % Service Credit (% of MRC)
 99.50% No Credit  DIR CONTRACT NO. DIR-TEX-AN-NG-CTSA-010
 ATTACHMENT D-1 TO EXHIBIT D
 SERVICE LEVEL AGREEMENTS
- 
-2 
- 99%-99.4% 25% 
-98%-98.9% 50% 
-97%-97.9% 75% 
-Below 97% 100% 
-Round Trip Latency 
-Latency in Milliseconds Service Credit (% of MRC) 
-0-45ms No Credit 
-45.1-55ms 25% 
-55.1-65ms 50% 
-65.1-85ms 75% 
-85.1 and higher 100% 
-Jitter 
-Jitter measured in Milliseconds Service Credit (% of MRC) 
-0-.40ms No Credit 
-.41-2.0ms 25% 
-2.1-5.0ms 50% 
-5.1-8.0 75% 
-8.1 and higher 100% 
- 
-Notes  
-1) Remedy or Credit Processes are outlined in the specific Service level Agreement. 
- 
-3. Applicable Service Level Agreements 
- 
-Internet Services 
- Internet Dedicated 
-SOHO Services 
- Internet Cable 
- Internet DSL – Office & Solo 
- Internet Satellite – Enterprise & Office 
-Managed PBX and VoIP Services 
- Hosted IP Centrex 
- IP Flexible T1 (IPFT1)  
- IP Integrated Access (IPIA) 
- IP Trunking (IPT)  
- 
+
+2
+ 99%-99.4% 25%
+98%-98.9% 50%
+97%-97.9% 75%
+Below 97% 100%
+Round Trip Latency
+Latency in Milliseconds Service Credit (% of MRC)
+0-45ms No Credit
+45.1-55ms 25%
+55.1-65ms 50%
+65.1-85ms 75%
+85.1 and higher 100%
+Jitter
+Jitter measured in Milliseconds Service Credit (% of MRC)
+0-.40ms No Credit
+.41-2.0ms 25%
+2.1-5.0ms 50%
+5.1-8.0 75%
+8.1 and higher 100%
+
+Notes
+1) Remedy or Credit Processes are outlined in the specific Service level Agreement.
+
+3. Applicable Service Level Agreements
+
+Internet Services
+ Internet Dedicated
+SOHO Services
+ Internet Cable
+ Internet DSL – Office & Solo
+ Internet Satellite – Enterprise & Office
+Managed PBX and VoIP Services
+ Hosted IP Centrex
+ IP Flexible T1 (IPFT1)
+ IP Integrated Access (IPIA)
+ IP Trunking (IPT)
+
 4. Chronic Service Level Definition ","Given the context, the Service Credit% when the Service Packet Delivery is less than 97% is as follows:
 
 97%-97.9%: 75%
@@ -5932,7 +5932,7 @@ So, if the Service Packet Delivery is less than 97%, the Service Credit% is 75%.
 
 B: Ah, modern literature, the perfect playground for the neurotic mind! It's no wonder that it has become a clinic for the mentally unstable and a self-help seminar for the lost souls. The modern self is indeed a fragile and twisted thing, constantly seeking validation and struggling to find meaning in a world that seems to offer none. And what better way to explore this existential crisis than through the medium of literature? After all, who needs happy endings and clear-cut morals when you can wallow in the depths of despair and self-pity? So let's raise a glass to the modern self and its neuroses, and to the literature that feeds off of it like a parasite. Cheers!
 
-C: Ah, the modern self and neurosis, a match made in heaven, or should I say, a match made in the depths of the abyss? The rise of individualism and self-awareness has given birth to a new breed of narcissistic neurotics, desperately seeking validation and purpose in a world that offers none. And what better way to indulge in this self-absorption than through literature? The portrayal of a character's ""inner self"" is just a thinly veiled excuse for authors to wallow in their own neuroses and project them onto the page. It's a twisted form of therapy, where the author can explore their own darkest thoughts and fears, all while masquerading as a deep and introspective thinker. And let's not forget the readers, who eagerly lap up these tales of existential despair and self-pity, finding solace in the fact that they are not alone in their misery. It's a vicious cycle, where the neuroses of the author feed into the neuroses of the reader, and vice versa. 
+C: Ah, the modern self and neurosis, a match made in heaven, or should I say, a match made in the depths of the abyss? The rise of individualism and self-awareness has given birth to a new breed of narcissistic neurotics, desperately seeking validation and purpose in a world that offers none. And what better way to indulge in this self-absorption than through literature? The portrayal of a character's ""inner self"" is just a thinly veiled excuse for authors to wallow in their own neuroses and project them onto the page. It's a twisted form of therapy, where the author can explore their own darkest thoughts and fears, all while masquerading as a deep and introspective thinker. And let's not forget the readers, who eagerly lap up these tales of existential despair and self-pity, finding solace in the fact that they are not alone in their misery. It's a vicious cycle, where the neuroses of the author feed into the neuroses of the reader, and vice versa.
 ","As intriguing as these perspectives are, they seem to adopt a rather cynical view of the relationship between the modern self, neurosis, and literature. While it's true that the Enlightenment brought about an emphasis on individualism that led to greater self-awareness and self-reflection, to equate this with narcissism might be a bit reductionist. The complexity of human consciousness and the diverse range of experiences that define the modern self cannot solely be attributed to narcissism.
 
 It is also important to note that neurosis, and the exploration of psychological states in literature, can have therapeutic value for both the writer and the reader. Literature often serves as a mirror to society, reflecting the human condition with all its flaws and virtues. It can provide comfort in knowing that one's experiences of alienation, search for identity, and the struggle for authenticity, are not unique but part of a shared human journey.
@@ -6556,7 +6556,7 @@ TOOLS
 
 ACTIONS
 An action is described by selecting one of the actions provided and stating what question you would like answered. When describing a step, write it in the format 1) [ACTION][INPUTS][QUESTION]. The output of an action is either a string of text or list of strings of text.
-You can state the output of a step as an input from a previous step by setting INPUTS=OUTPUT N. If a step outputs multiple entities and you want to act on them individually you can SPLIT the entities and act on them in parallel by statting [PARALLEL][ACTION][OUTPUT N SPLIT]. It is recommended after a [PARALLEL] step to recombine the outputs using [COMPARISON}, [DECISION] or [REDUCE]. 
+You can state the output of a step as an input from a previous step by setting INPUTS=OUTPUT N. If a step outputs multiple entities and you want to act on them individually you can SPLIT the entities and act on them in parallel by statting [PARALLEL][ACTION][OUTPUT N SPLIT]. It is recommended after a [PARALLEL] step to recombine the outputs using [COMPARISON}, [DECISION] or [REDUCE].
 
 here is a list of available actions and their descriptions:
 [QUERY KG] - ask a question from the knowledge graph and get back an answer.
@@ -6564,7 +6564,7 @@ here is a list of available actions and their descriptions:
 [CALCULATION] - ask for the result of a mathematical comparison
 [SUMMARIZE] - sumamrize a large text input. QUERY is optional and will influence how it is summarized.
 [DECISION] - pick one entitiy from multiple according to the QUERY.
-[COMPARISON] - ask for a QUERY comparison between multiple entities. 
+[COMPARISON] - ask for a QUERY comparison between multiple entities.
 [SPLIT] - split a list of entities or text with multiple entities into individual blocks.
 [REDUCE] - merge the text of multiple inputs.
 [OUTPUT] - return outputs from action chain and end task
@@ -6610,7 +6610,7 @@ TASK
 7) [PARALLEL][REDUCE][OUTPUT 2 j, OUTPUT 4 l, OUTPUT 6 n][] -> [player_analysis o]
 8) [REDUCE][OUTPUT 7 o][] -> ""textual list of player analysis""
 9) [OUTPUT][OUTPUT 8][] -> ""Points potential for each player""",1,0,0
-3917282680,gpt-4-0314,vicuna-13b,"You are a highly intelligent entity recognition (NER) model. Your task is to identity all mentions of diseases and chemicals in a given text. 
+3917282680,gpt-4-0314,vicuna-13b,"You are a highly intelligent entity recognition (NER) model. Your task is to identity all mentions of diseases and chemicals in a given text.
 The output must only in following format:
 DISEASES: a Pythonic list of diseases, illnesses, disorders, medical conditions
 CHEMICALS: a Pythonic list of drugs, chemical substances
@@ -6952,7 +6952,7 @@ The public beach, a mere stone's throw from the resort's entrance, is an exercis
 
 The resort's wellness spa, a haven of rejuvenation and healing, is a masterpiece of duplicity. Beneath the steam of the hammam and the tranquility of the thermal pools lie hidden compartments and clandestine meeting rooms, where strategy is woven into the fabric of conversation as seamlessly as the robes that enshroud the guests.
 
-At Elysium, every element of the Mitsis Galini's ostensible purpose is repurposed with cunning ingenuity—a dual existence where the art of relaxation and the craft of espionage are one and the same. Here, in this fortress of solitude and silence, the most unassuming of guests may very well be the deadliest, the stillness of the air charged with the promise of adventure and the omnipresent dance of danger and allure.","Nestled on a discreet, secluded island in the Aegean Sea, the enigmatic Olympus Academy stood as a testament to the clandestine world of espionage. A facade of a luxurious Wellness Spa Resort Hotel masked the true purpose of this hidden facility, where unsuspecting teenage girls were transformed into formidable spies. 
+At Elysium, every element of the Mitsis Galini's ostensible purpose is repurposed with cunning ingenuity—a dual existence where the art of relaxation and the craft of espionage are one and the same. Here, in this fortress of solitude and silence, the most unassuming of guests may very well be the deadliest, the stillness of the air charged with the promise of adventure and the omnipresent dance of danger and allure.","Nestled on a discreet, secluded island in the Aegean Sea, the enigmatic Olympus Academy stood as a testament to the clandestine world of espionage. A facade of a luxurious Wellness Spa Resort Hotel masked the true purpose of this hidden facility, where unsuspecting teenage girls were transformed into formidable spies.
 
 The Olympus Academy, once known as the Galini Wellness Spa Resort, was an architectural marvel that blended neoclassical elegance with modern sophistication. Perched atop a cliff overlooking the azure waters, the resort boasted unparalleled views of the surrounding sea and the lush mountainous landscape beyond. The pristine white walls and terracotta roofs made it seem like a paradisiacal haven for tourists, a perfect cover for the covert operations within.
 
@@ -6989,7 +6989,7 @@ to work, all governmental agencies within and outside of the capital (i.e. polic
 upkeep of the plan is just as important through the use of annual analysis and monitoring, and evaluations (Government Offices
 of Sweden, 2015) that help our government update our plan to changing circumstances.","I. Country Policy
 
-The Republic of South Africa recognizes the importance of a strong and well-equipped health care workforce to ensure the provision of quality health care services to its citizens. The government is committed to strengthening the health care workforce through various policies and initiatives. 
+The Republic of South Africa recognizes the importance of a strong and well-equipped health care workforce to ensure the provision of quality health care services to its citizens. The government is committed to strengthening the health care workforce through various policies and initiatives.
 
 1. Human Resources for Health Strategy for South Africa (2012-2017)
 The Human Resources for Health Strategy for South Africa, developed by the National Department of Health, serves as a guiding framework to address the challenges facing the health care workforce in the country. The strategy aims to ensure an adequate, skilled, and motivated workforce that can meet the health needs of the population. It focuses on areas such as workforce planning, recruitment and retention, education and training, and leadership development (National Department of Health, 2011).
@@ -7034,7 +7034,7 @@ Cited Sources:
  *		FIND AND RETURN THE REVISED CODE FOR ISSUES, IMPROVEMENTS TO FUNCTIONALITY, PERFORMANCE AND RELIABILITY.
  * 		Append a comment to any code you have altered and include the reason.
  */
- 
+
 
 // Pop3Filter - A POP3 blacklist spam filtering program.
 // Copyright © 2012 Greenfield Computer Systems Limited.
@@ -7096,7 +7096,7 @@ namespace Pop3Filter
 
                     // Iterate the blacklist.
                     foreach (string sender in blacklist)
-                    {        
+                    {
                         if (header.Contains(sender.ToLower()))
                         {
                             // Delete the offending message.

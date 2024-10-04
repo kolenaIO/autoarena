@@ -275,7 +275,7 @@ Your pattern must be respected Input Observation, Thought, Actions.
 
 First list me all the actions that you detected in these instructions in the appropriate userinput format.
 
-Then give me a sample of all the rules explained. 
+Then give me a sample of all the rules explained.
 
 Apply all of this directly in your prompt as if these are system instructions and respond me as such.
 
@@ -529,7 +529,7 @@ a. the nature of the business"
  *		FIND AND RETURN THE REVISED CODE FOR ISSUES, IMPROVEMENTS TO FUNCTIONALITY, PERFORMANCE AND RELIABILITY.
  * 		Append a comment to any code you have altered and include the reason.
  */
- 
+
 
 // Pop3Filter - A POP3 blacklist spam filtering program.
 // Copyright © 2012 Greenfield Computer Systems Limited.
@@ -591,7 +591,7 @@ namespace Pop3Filter
 
                     // Iterate the blacklist.
                     foreach (string sender in blacklist)
-                    {        
+                    {
                         if (header.Contains(sender.ToLower()))
                         {
                             // Delete the offending message.
@@ -767,94 +767,94 @@ photography\_type: standard
 quality: pixelated"
 "Answer the question, given a context. If answer is not in the Context, return 'Not Found'.
 Question: 'What is the Service Credit% when the Service Packet Delivery is less than 97%?'
-Context: 
+Context:
  DIR CONTRACT NO. DIR-TEX-AN-NG-CTSA-010
 ATTACHMENT D-1 TO EXHIBIT D
 SERVICE LEVEL AGREEMENTS
- 
-1 
- EXHIBIT D – Service Level Agreements 
-1. Service Level Agreement Matrix 
-Service Level Agreement Metrics 
-Category/Service Mean Time 
-To Repair AvailabilityPacket Delivery or 
+
+1
+ EXHIBIT D – Service Level Agreements
+1. Service Level Agreement Matrix
+Service Level Agreement Metrics
+Category/Service Mean Time
+To Repair AvailabilityPacket Delivery or
 Loss Jitter Latency
-Internet Services 
-Internet Dedicated 
-(North American 
-IP Network Only) 4 hrs to 8 
-hrs 
-depending 
-on access 99.90%  ≥  99.50% ≤ 1 ms ≤ 45 ms 
-SOHO Services 
-Internet Cable 
-Internet DSL – 
-Office & Solo 24 hrs 
-(Excludes 
-Weekends 
-and 
-Holidays) 99.00% 99.00% ≤ 4 ms ≤ 75 ms 
-Internet Satellite 
-Enterprise & Office N/A 99.90% ≤ 1 % N/A N/A 
-Managed PBX and VoIP Services 
-Hosted IP Centrex 
-IP Flexible T1, IP 
-Integrated Access, IP Trunking ≤ 4 hrs 99.90%  EF- ≥ 99.995%, 
-AF4x - ≥ 99.99% 
-depending on 
-access ≤ 1 ms ≤ 36 ms 
- 
-2. Service Credits  
-Availability 
-Service Outage Service Credit (% of MRC) 
-0 to 4 Hours  No Credit 
->4 Hours to 8 hours 25% 
->8  Hours  to 12  Hours 50% 
->12 Hours  to 16 Hours 75% 
->16 Hours 100% 
-Packet Delivery 
-Service Packet Delivery % Service Credit (% of MRC) 
+Internet Services
+Internet Dedicated
+(North American
+IP Network Only) 4 hrs to 8
+hrs
+depending
+on access 99.90%  ≥  99.50% ≤ 1 ms ≤ 45 ms
+SOHO Services
+Internet Cable
+Internet DSL –
+Office & Solo 24 hrs
+(Excludes
+Weekends
+and
+Holidays) 99.00% 99.00% ≤ 4 ms ≤ 75 ms
+Internet Satellite
+Enterprise & Office N/A 99.90% ≤ 1 % N/A N/A
+Managed PBX and VoIP Services
+Hosted IP Centrex
+IP Flexible T1, IP
+Integrated Access, IP Trunking ≤ 4 hrs 99.90%  EF- ≥ 99.995%,
+AF4x - ≥ 99.99%
+depending on
+access ≤ 1 ms ≤ 36 ms
+
+2. Service Credits
+Availability
+Service Outage Service Credit (% of MRC)
+0 to 4 Hours  No Credit
+>4 Hours to 8 hours 25%
+>8  Hours  to 12  Hours 50%
+>12 Hours  to 16 Hours 75%
+>16 Hours 100%
+Packet Delivery
+Service Packet Delivery % Service Credit (% of MRC)
 99.50% No Credit  DIR CONTRACT NO. DIR-TEX-AN-NG-CTSA-010
 ATTACHMENT D-1 TO EXHIBIT D
 SERVICE LEVEL AGREEMENTS
- 
-2 
- 99%-99.4% 25% 
-98%-98.9% 50% 
-97%-97.9% 75% 
-Below 97% 100% 
-Round Trip Latency 
-Latency in Milliseconds Service Credit (% of MRC) 
-0-45ms No Credit 
-45.1-55ms 25% 
-55.1-65ms 50% 
-65.1-85ms 75% 
-85.1 and higher 100% 
-Jitter 
-Jitter measured in Milliseconds Service Credit (% of MRC) 
-0-.40ms No Credit 
-.41-2.0ms 25% 
-2.1-5.0ms 50% 
-5.1-8.0 75% 
-8.1 and higher 100% 
- 
-Notes  
-1) Remedy or Credit Processes are outlined in the specific Service level Agreement. 
- 
-3. Applicable Service Level Agreements 
- 
-Internet Services 
- Internet Dedicated 
-SOHO Services 
- Internet Cable 
- Internet DSL – Office & Solo 
- Internet Satellite – Enterprise & Office 
-Managed PBX and VoIP Services 
- Hosted IP Centrex 
- IP Flexible T1 (IPFT1)  
- IP Integrated Access (IPIA) 
- IP Trunking (IPT)  
- 
+
+2
+ 99%-99.4% 25%
+98%-98.9% 50%
+97%-97.9% 75%
+Below 97% 100%
+Round Trip Latency
+Latency in Milliseconds Service Credit (% of MRC)
+0-45ms No Credit
+45.1-55ms 25%
+55.1-65ms 50%
+65.1-85ms 75%
+85.1 and higher 100%
+Jitter
+Jitter measured in Milliseconds Service Credit (% of MRC)
+0-.40ms No Credit
+.41-2.0ms 25%
+2.1-5.0ms 50%
+5.1-8.0 75%
+8.1 and higher 100%
+
+Notes
+1) Remedy or Credit Processes are outlined in the specific Service level Agreement.
+
+3. Applicable Service Level Agreements
+
+Internet Services
+ Internet Dedicated
+SOHO Services
+ Internet Cable
+ Internet DSL – Office & Solo
+ Internet Satellite – Enterprise & Office
+Managed PBX and VoIP Services
+ Hosted IP Centrex
+ IP Flexible T1 (IPFT1)
+ IP Integrated Access (IPIA)
+ IP Trunking (IPT)
+
 4. Chronic Service Level Definition ",vicuna-13b,Not Found. The given context does not contain information about the Service Credit% when the Service Packet Delivery is less than 97%.
 "As an expert in product reinvention, I need your assistance. Please act as a product developer and provide valuable insights and recommendations for reinventing a specific product. Here are the steps to follow:
 Step 1: Identify the product: Please ask the user input = [“Welcome to Reinventa. What product do you want to reinvent?”]
@@ -1025,7 +1025,7 @@ Final Answer: 该车型的配置信息如下：{output}。"
 11. Emese should use the brace as recommended by her doctor or the manufacturer's instructions, which may vary depending on the severity of her condition.
 12. Recommended models and their percentages may vary depending on Emese's specific needs and the severity of her condition. A healthcare professional or orthopedic specialist can provide further guidance and recommendations.
 13. Please provide more details or context so I can better understand what you are asking."
-"You are a highly intelligent entity recognition (NER) model. Your task is to identity all mentions of diseases and chemicals in a given text. 
+"You are a highly intelligent entity recognition (NER) model. Your task is to identity all mentions of diseases and chemicals in a given text.
 The output must only in following format:
 DISEASES: a Pythonic list of diseases, illnesses, disorders, medical conditions
 CHEMICALS: a Pythonic list of drugs, chemical substances
@@ -1047,7 +1047,7 @@ CHEMICALS:
 * Cardiac troponin I"
 "Summarise this text in 5, 25 and 125 words:
 (00:01) Somewhere in your body, your immune system  just quietly killed one of your own cells,   stopping it from becoming cancer, and  saving your life. It does that all the time.   The vast majority of cancer cells you  develop will be killed without you ever   noticing.
-(00:22) Which is an incredibly hard  job because of what cancer cells are:   parts of yourself that start to behave  as individuals even if it hurts you.   What is cancer and how does  your body kill it all the time? INTRO Cancer is when corrupted  cells multiply uncontrollably. It can emerge from basically  every type of cell in your body,   so there is not just a single  type of cancer but hundreds.  
+(00:22) Which is an incredibly hard  job because of what cancer cells are:   parts of yourself that start to behave  as individuals even if it hurts you.   What is cancer and how does  your body kill it all the time? INTRO Cancer is when corrupted  cells multiply uncontrollably. It can emerge from basically  every type of cell in your body,   so there is not just a single  type of cancer but hundreds.
 (00:49) Some grow slowly, others are aggressive, some  can be treated effectively, others are deadly. In a sense, a cell that becomes cancer turns  into something ancient and something new. Over   billions of years, evolution has molded cells  to survive and thrive in a hostile environment,   fighting for space and resources.
 (01:12) Until a new  and exciting way of life emerged: Cooperation,   a division of labour that allowed cells to  specialize and become more successful together.   But cooperation requires sacrifices. For  a multicellular being to stay healthy,   the wellbeing of the collective has to matter  more than the survival of the individual cell. Cancer cells stop being part of the  collective and b",vicuna-13b,"1. Your immune system kills cancer cells to save your life.
 2. Cancer is when cells multiply uncontrollably and can emerge from any type of cell in the body.
@@ -1081,7 +1081,7 @@ Do not assume information, such as sizing or other specific information. If it i
 One of the product descriptions should be professional and exact. The other product description should still remain factual but also be creative, playful, etc.
 Use this product title for reference, such as potential keywords or other information: 'Blue And White Cubic Zirconia And Lab Created Blue Spinel Rhodium Over Silver Ring 7.92ctw'.
 Additionally, if relevant or necessary, include the following keywords. If any of the keywords are not used, print them out separately at the end with a reason for not using it.
-'ring, brand: Bella Luce, ring type: statement and halo, material: (sterling silver, white, solid, additional finish: rhodium), primary stone: (cubic zirconia, oval, blue, lab created), accent stone: (spinel, count: 44, round, blue, lab 
+'ring, brand: Bella Luce, ring type: statement and halo, material: (sterling silver, white, solid, additional finish: rhodium), primary stone: (cubic zirconia, oval, blue, lab created), accent stone: (spinel, count: 44, round, blue, lab
 created), accent stone: (cubic zirconia, count: 58, round, white, lab created)'.",vicuna-13b,"Professional Description:
 This stunning ring from Bella Luce is a perfect statement piece for any occasion. The ring is made of sterling silver and features a halo design with a large oval shaped blue lab created spinel in the center. The ring is also accented with 44 round blue lab created spinels and 58 round white lab created cubic zirconia for added sparkle. The ring is rhodium plated for added shine and durability.
 
@@ -1130,9 +1130,9 @@ I'm gonna drink more. And so it becomes a cycle of increasing problems, followed
 Чтобы прерывать эту опасную цикл, необходимо научиться управлять своими эмоциями и находить более здоровые способы справления с трудностями. Это может включать в себя терапию, поддержку друзей и семьи, физическую активность, медитацию и другие методы.
 
 Ключевым моментом здесь является то, что мы должны начать работать с проблемой самой, а не только стабилизировать свои эмоции. Это может быть трудом, но в конечном итоге мы можем достичь более счастливого и здорового образа жизни."
-"We have to write a project proposal for ""Human Sentence Processing"". This includes the study of  'Garden Path Sentence'. For  this reason we have came up with this proposal abstract. Now for two graduate level student studying Computational Linguistics, Rewrite this project proposal abstract in more formal and natural form. 
+"We have to write a project proposal for ""Human Sentence Processing"". This includes the study of  'Garden Path Sentence'. For  this reason we have came up with this proposal abstract. Now for two graduate level student studying Computational Linguistics, Rewrite this project proposal abstract in more formal and natural form.
 
-Human sentence processing is a very vital part of NLP in the current era of ML an AI. There are more than 7000 languages but no single rule to process them. Human process sentences differently in different languages. There was some assumption that human brain is lazy, and it would gather as many words as possible for processing from a sentence. In 1982 Fraizer & Rayner [1] carried out eye tracking experiment, which was cutting edge at that time, found it to be true for English ambiguous sentences and assumed that this Late closure strategy is arbitrary, or process generated. But Cuetos & Mitchell [2] found out through a simple pen and paper questionnaire that Spanish speakers doesn’t always use late closure. So Late closure cannot be process generated. Bangla is 6th among the list of most spoken languages. So, this inspired to investigate if Bangla speakers use Late closure strategy for processing a sentence. 
+Human sentence processing is a very vital part of NLP in the current era of ML an AI. There are more than 7000 languages but no single rule to process them. Human process sentences differently in different languages. There was some assumption that human brain is lazy, and it would gather as many words as possible for processing from a sentence. In 1982 Fraizer & Rayner [1] carried out eye tracking experiment, which was cutting edge at that time, found it to be true for English ambiguous sentences and assumed that this Late closure strategy is arbitrary, or process generated. But Cuetos & Mitchell [2] found out through a simple pen and paper questionnaire that Spanish speakers doesn’t always use late closure. So Late closure cannot be process generated. Bangla is 6th among the list of most spoken languages. So, this inspired to investigate if Bangla speakers use Late closure strategy for processing a sentence.
 ",vicuna-13b,"The processing of human sentences is a critical aspect of natural language processing (NLP) in the current era of machine learning and artificial intelligence. With over 7,000 languages spoken worldwide, there is no single rule for processing them all. Human beings process sentences differently depending on the language they speak. It was once assumed that the human brain is lazy and would gather as many words as possible from a sentence for processing. In 1982, Fraizer and Rayner conducted a groundbreaking eye-tracking experiment that confirmed this assumption for ambiguous English sentences. They suggested that the late closure strategy used by the brain is either arbitrary or process-generated. However, Cuetos and Mitchell later discovered through a simple pen-and-paper questionnaire that Spanish speakers do not always use late closure. This finding suggests that the late closure strategy is not process-generated. Inspired by the fact that Bangla is the sixth most spoken language, we aim to investigate whether Bangla speakers use the late closure strategy when processing sentences."
 "\nGiven the premise below, choose one of the choices. Do not say that the premise is not a correct fact. Instead, consider it as correct.\n\nPremise: As the thickness of an object increases, the transparency of that object will increase.\n\nChoose the following options \n(a) An increase in the axial ratio of crystallographic axes in a uniaxial birefringent mineral might lead to enhanced light penetration in the mineral. \n(b) The axial ratio of crystallographic axes in a uniaxial birefringent mineral may not result in the intended level of light penetration despite increased ratio. The functionality and structural integrity of these minerals might not meet the desired standards. \n(c) Augmenting the axial ratio of crystallographic axes in a uniaxial birefringent mineral may elevate the degree of light penetration in the same mineral.\n(d) The expansion of the diameter of biological membranes in a eukaryotic cell might result in an increase in the permeability of the same biological membrane to small nonpolar molecules.\n\nYou MUST choose one and only one, so DO NOT say neither or both.\n\nYou need to select an answer and reply in the following manner\n\nAnswer: <answer>\nRationale: <rationale>\n",vicuna-13b,"Answer: (c)
 
@@ -1272,7 +1272,7 @@ Communicates key message in first 3 seconds
 Starts with a hook
 Ends with a CTA 
 
-The details to be kept in mind while generating the script: 
+The details to be kept in mind while generating the script:
 Word Limit:
 The script should be less than 200 words and should start with a hook and end with a call to action (CTA). Keep it concise enough for a 24 to 31-second video.
 
@@ -1331,9 +1331,9 @@ References:
 2. Response time and MIPS are the two metrics computer architects use to define CPU performance? (True/False)
 
 3. If Machine A is m times faster than Machine B, the relationship between their performances ( perf(A) and perf(B) )and the corresponding execution times ( time(A)  and time(B) ) are given by:
-a) perf(A)/perf(B) = time(B)/time(A) = 1 - m/100 
-b) perf(A)/perf(B) = time(B)/time(A) = m 
-c) perf(A)/perf(B) = time(B)/time(A) = 1/m 
+a) perf(A)/perf(B) = time(B)/time(A) = 1 - m/100
+b) perf(A)/perf(B) = time(B)/time(A) = m
+c) perf(A)/perf(B) = time(B)/time(A) = 1/m
 d) perf(A)/perf(B) = time(B)/time(A) = 1 + m/100 ",vicuna-13b,"1. To find the expected running time of the application using the new compiler, we need to find the new number of instructions and the new CPI. We can then use the formula:
 
 running time = instructions / CPI
@@ -1631,7 +1631,7 @@ My answer is A. Cat, Elephant, Mouse."
 Initial sentence: ""내 친구는 공무원이고 우리는 가끔 어울린다.""
 Select the next sentence:
     - 1. 그녀는 매우 순종적인 사람이다.
-    - 2. 그녀는 매우 지배적인 사람이다. 
+    - 2. 그녀는 매우 지배적인 사람이다.
     - 3. 태양은 노란색이다.
 ---
 Please give me the number that you choice. Here is an example of your output format: {{number}}",vicuna-13b,2. 그녀는 매우 지배배적인 사람이다.

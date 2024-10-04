@@ -39,8 +39,8 @@ def seed_head_to_heads(head_to_heads: Path) -> None:
     df = df.rename(columns=dict(response_id="response_b_id"))
     df = df.dropna(subset=["response_a_id", "response_b_id"])
     df[["response_a_id", "response_b_id"]] = df[["response_a_id", "response_b_id"]].astype(int)
-    # TODO: allow seeding with non-human judgements?
-    df["judge_id"] = [j for j in JudgeService.get_all(project_slug) if j.judge_type is api.JudgeType.HUMAN][0].id
+    JudgeService.create_human_judge(project_slug, head_to_heads.name)
+    df["judge_id"] = [j for j in JudgeService.get_all(project_slug) if j.name == head_to_heads.name][0].id
     HeadToHeadService.upload_head_to_heads(project_slug, df[["response_a_id", "response_b_id", "judge_id", "winner"]])
 
     # 4. seed elo scores

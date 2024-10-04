@@ -13,7 +13,12 @@ from tests.integration.conftest import assert_recent
 def n_model_a_votes(project_client: TestClient, model_id: int, model_b_id: int) -> int:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
     for h in h2h:
-        request = dict(response_a_id=h["response_a_id"], response_b_id=h["response_b_id"], winner="A")
+        request = dict(
+            response_a_id=h["response_a_id"],
+            response_b_id=h["response_b_id"],
+            winner="A",
+            human_judge_name="human",
+        )
         assert project_client.post("/head-to-head/vote", json=request).json() is None
     return len(h2h)
 
@@ -54,19 +59,30 @@ def test__models__upload__missing_columns(project_client: TestClient, df_bad: pd
 
 
 @pytest.mark.parametrize(
-    "df,n_dropped",
+    "df",
     [
-        (pd.DataFrame([("p", "r"), ("p2", "")], columns=["prompt", "response"]), 1),
-        (pd.DataFrame([("p", "r"), ("", "r")], columns=["prompt", "response"]), 1),
-        (pd.DataFrame([("p", ""), ("p2", "")], columns=["prompt", "response"]), 2),
-        (pd.DataFrame([("", "r"), ("p2", "")], columns=["prompt", "response"]), 2),
+        # many empty responses are fine
+        pd.DataFrame([("p", "r"), ("p2", ""), ("p3", None), ("p4", pd.NA)], columns=["prompt", "response"]),
+        # empty prompts are fine, treated as empty strings
+        pd.DataFrame([("p", "r"), (None, "r")], columns=["prompt", "response"]),
+        pd.DataFrame([("p", "r"), (pd.NA, "r")], columns=["prompt", "response"]),
+        pd.DataFrame([("p", "r"), ("", "r")], columns=["prompt", "response"]),
     ],
 )
-def test__models__upload__missing_values(project_client: TestClient, df: pd.DataFrame, n_dropped: int) -> None:
+def test__models__upload__missing_values(project_client: TestClient, df: pd.DataFrame) -> None:
     body = construct_upload_model_body(dict(example=df))
     models = project_client.post("/model", data=body.data, files=body.files).json()
     assert len(models) == 1
-    assert models[0]["n_responses"] == len(df) - n_dropped
+    assert models[0]["n_responses"] == len(df)
+
+
+def test__models__upload__missing_multiple_prompts(project_client: TestClient) -> None:
+    # empty prompts are treated as empty strings -- should fail due to duplicates
+    df = pd.DataFrame([(None, "r"), ("", "r2")], columns=["prompt", "response"])
+    body = construct_upload_model_body(dict(example=df))
+    response = project_client.post("/model", data=body.data, files=body.files)
+    assert response.status_code == 400
+    assert "Each 'prompt' value must be unique" in response.json()["detail"]
 
 
 def test__models__upload__duplicate_prompts(project_client: TestClient) -> None:

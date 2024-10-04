@@ -60,16 +60,10 @@ export function JudgeAccordionItem({ judge }: Props) {
         <Group justify="space-between" pl="xs" pr="lg">
           <Stack gap={0}>
             <Text c={!isEnabled ? 'gray.6' : undefined}>
-              {judge_type !== 'human' ? (
-                <>
-                  {name}{' '}
-                  <Text span c="dimmed">
-                    ({judgeTypeToHumanReadableName(judge_type)})
-                  </Text>
-                </>
-              ) : (
-                'Human'
-              )}
+              {name}{' '}
+              <Text span c="dimmed">
+                ({judgeTypeToHumanReadableName(judge_type)})
+              </Text>
             </Text>
             <Text c="dimmed" size="xs">
               {description}
@@ -144,7 +138,10 @@ export function JudgeAccordionItem({ judge }: Props) {
                 </Link>{' '}
                 tab to provide ratings on head-to-head matchups between models.
               </Text>
-              {DownloadVotesComponent}
+              <Group>
+                {DownloadVotesComponent}
+                <DeleteJudgeButton judge={judge} />
+              </Group>
             </Group>
           )}
           <Collapse in={showSystemPrompt} fz="sm">

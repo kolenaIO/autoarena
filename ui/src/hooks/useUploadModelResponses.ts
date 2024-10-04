@@ -61,9 +61,15 @@ export function useUploadModelResponses({ projectSlug, options }: Params) {
           ? `Added responses from ${models.length.toLocaleString()} models`
           : 'Added responses from model';
       const nResponses = models.reduce((acc, { n_responses }) => acc + n_responses, 0);
+      const maxModelNames = 6;
+      const nExtraModels = models.length - maxModelNames;
+      const extraModels = nExtraModels > 0 ? ` and ${pluralize(nExtraModels, 'other')}` : '';
       const message =
         models.length > 1
-          ? `Created models ${models.map(({ name }) => name).join(', ')} with ${nResponses.toLocaleString()} total responses`
+          ? `Created models ${models
+              .slice(0, maxModelNames)
+              .map(({ name }) => `'${name}'`)
+              .join(', ')}${extraModels} with ${nResponses.toLocaleString()} total responses`
           : `Created model '${models[0]?.name}' with ${nResponses.toLocaleString()} responses`;
       notifications.show({ title, message, color: 'green' });
     },

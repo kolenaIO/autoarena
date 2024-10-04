@@ -74,14 +74,15 @@ export function CreateJudgeModal({ judgeType, recommendedModels, isOpen, onClose
       onClose={handleClose}
       centered
       title={<Text fw={500}>Create {judgeTypeToHumanReadableName(judgeType)} Judge</Text>}
+      size="auto"
     >
       <form onSubmit={form.onSubmit(handleSubmit)}>
-        <Stack fz="sm">
+        <Stack fz="sm" w={500}>
           <Text inherit>Call the {judgeTypeToHumanReadableName(judgeType)} API as a judge.</Text>
           {extraCopy}
           <Autocomplete
-            label="Model Name"
-            placeholder="Enter model name"
+            label="Judge Model"
+            placeholder="Enter judge model..."
             data={modelNameSuggestions}
             flex={1}
             key={form.key('modelName')}
@@ -92,7 +93,7 @@ export function CreateJudgeModal({ judgeType, recommendedModels, isOpen, onClose
               <TextInput
                 style={transitionStyle}
                 label="Name"
-                description="Change this to use the same model with different system prompts"
+                description="Change this to use the same judge model with different system prompts"
                 defaultValue={modelName}
                 placeholder="Enter name"
                 flex={1}

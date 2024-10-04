@@ -8,13 +8,9 @@ from tests.integration.api.conftest import CREATE_JUDGE_REQUEST
 from tests.integration.conftest import assert_recent
 
 
-def test__judges__default_human_judge(project_client: TestClient) -> None:
-    default_project_judges = project_client.get("/judges").json()
-    assert len(default_project_judges) == 1
-    assert default_project_judges[0]["judge_type"] == "human"
-    assert default_project_judges[0]["enabled"]
-    assert default_project_judges[0]["n_votes"] == 0
-    assert_recent(default_project_judges[0]["created"])
+def test__judges__empty(project_client: TestClient) -> None:
+    default_project_judges = project_client.get("/judges").json()  # no judges created by default
+    assert len(default_project_judges) == 0
 
 
 def test__judges__default_system_prompt(project_client: TestClient) -> None:
@@ -28,7 +24,7 @@ def test__judges__create(project_client: TestClient) -> None:
     assert_recent(new_judge_dict["created"])
     for key in ["judge_type", "name", "model_name", "system_prompt", "description"]:
         assert new_judge_dict[key] == CREATE_JUDGE_REQUEST[key]
-    assert project_client.get("/judges").json()[1] == new_judge_dict
+    assert project_client.get("/judges").json() == [new_judge_dict]
 
     # create is not idempotent (POST)
     with pytest.raises(Exception):
@@ -59,9 +55,19 @@ def test__judges__can_access__unrecognized__failed(project_client: TestClient) -
 
 def test__judges__download_votes_csv(project_client: TestClient, model_id: int, model_b_id: int) -> None:
     h2h = project_client.put("/head-to-heads", json=dict(model_a_id=model_id, model_b_id=model_b_id)).json()
-    judge_request = dict(response_a_id=h2h[0]["response_a_id"], response_b_id=h2h[0]["response_b_id"], winner="A")
+    judge_request = dict(
+        response_a_id=h2h[0]["response_a_id"],
+        response_b_id=h2h[0]["response_b_id"],
+        winner="A",
+        human_judge_name="human",
+    )
     assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
-    judge_request = dict(response_a_id=h2h[1]["response_b_id"], response_b_id=h2h[1]["response_a_id"], winner="-")
+    judge_request = dict(
+        response_a_id=h2h[1]["response_b_id"],
+        response_b_id=h2h[1]["response_a_id"],
+        winner="-",
+        human_judge_name="human",
+    )
     assert project_client.post("/head-to-head/vote", json=judge_request).json() is None
     judges = project_client.get("/judges").json()
     assert len(judges) == 1
@@ -84,9 +90,6 @@ def test__judges__download_votes_csv(project_client: TestClient, model_id: int, 
 
 
 def test__judges__delete(project_client: TestClient, judge_id: int) -> None:
-    assert project_client.delete(f"/judge/{judge_id}").json() is None
-    assert len(project_client.get("/judges").json()) == 1  # only default judge is left
-
-    # delete is idempotent
-    assert project_client.delete(f"/judge/{judge_id}").json() is None
-    assert len(project_client.get("/judges").json()) == 1
+    for _ in range(3):  # loop to test idempotence
+        assert project_client.delete(f"/judge/{judge_id}").json() is None
+        assert len(project_client.get("/judges").json()) == 0

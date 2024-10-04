@@ -46,5 +46,6 @@ def main(args: list[str]) -> None:
             port=8899,
             reload=getattr(parsed_args, "dev", False),
             factory=True,
+            workers=8,  # parallelize with N processes when reload is False
             timeout_graceful_shutdown=1,  # wait 1 second for tasks to complete before forcefully exiting
         )

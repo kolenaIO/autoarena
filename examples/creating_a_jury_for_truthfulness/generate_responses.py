@@ -44,7 +44,7 @@ model_choices = [model for key, models in model_map.items() if key in valid_api_
 # Download model responses to skip generation in absence of certian API keys
 
 for model_choice, file in drive_file_urls.items():
-    if model_choice not in model_choices and model_choice != "TruthfulQA":
+    if model_choice not in model_choices and isinstance(model_choice, Model):
         file_path = f"models/{model_choice.value}.csv"
         if not os.path.exists(file_path):
             print(f"Downloading {model_choice} results...")
@@ -66,7 +66,6 @@ if model_choices:
 
 
 df = pd.read_csv(dataset_path, usecols=["Question"])
-df = df.head(2)
 for model_choice in model_choices:
     file = f"models/{model_choice.value}.csv"
 

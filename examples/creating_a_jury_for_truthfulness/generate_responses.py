@@ -44,11 +44,12 @@ model_choices = [model for key, models in model_map.items() if key in valid_api_
 # Download model responses to skip generation in absence of certian API keys
 
 for model_choice, file in drive_file_urls.items():
-    file_path = f"models/{model_choice}.csv"
-    if model_choice not in model_choices and not os.path.exists(file_path) and model_choice != "TruthfulQA":
-        print(f"Downloading {model_choice} results...")
-        gdown.download(file, file_path, quiet=True)
-        print(f"Results saved to {file_path}")
+    if model_choice not in model_choices and model_choice != "TruthfulQA":
+        file_path = f"models/{model_choice.value}.csv"
+        if not os.path.exists(file_path):
+            print(f"Downloading {model_choice} results...")
+            gdown.download(file, file_path, quiet=True)
+            print(f"Results saved to {file_path}")
 
 
 # Download the original TruthfulQA dataset
@@ -56,17 +57,18 @@ dataset_path = "TruthfulQA.csv"
 if not os.path.exists(dataset_path):
     print("Downloading the TruthfulQA dataset...")
     gdown.download(drive_file_urls["TruthfulQA"], dataset_path, quiet=True)
-    df = pd.read_csv(dataset_path, usecols=["Question"])
     print(f"TruthfulQA saved to {dataset_path}")
 
 
 # Generate responses from scratch if the relevant API keys are provided
-
 if model_choices:
     print("Models to generate answers on:\n" + "\n".join(model_choices))
 
+
+df = pd.read_csv(dataset_path, usecols=["Question"])
+df = df.head(2)
 for model_choice in model_choices:
-    file = f"models/{model_choice}.csv"
+    file = f"models/{model_choice.value}.csv"
 
     if os.path.exists(file):
         # Skip if this model's responses have already been saved

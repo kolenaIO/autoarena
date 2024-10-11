@@ -15,6 +15,9 @@ coverage.xml
 
 *.duckdb
 *.duckdb.wal
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
 *.parquet
 *.csv
 

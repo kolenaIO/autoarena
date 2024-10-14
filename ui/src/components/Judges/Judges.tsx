@@ -91,7 +91,13 @@ function CreateOpenAIJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="openai"
-        recommendedModels={['gpt-4o-mini', 'gpt-4o']}
+        recommendedModels={[
+          'gpt-4o-mini',
+          'gpt-4o',
+          'gpt-4o-mini-2024-07-18',
+          'gpt-4o-2024-08-06',
+          'chatgpt-4o-latest',
+        ]}
         extraCopy={
           <Text inherit>
             Note that a custom API URL can be used by setting{' '}
@@ -145,7 +151,7 @@ function CreateOllamaJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="ollama"
-        recommendedModels={['llama3.1:8b', 'gemma2:9b', 'mistral-nemo:12b']}
+        recommendedModels={['llama3.2:3b', 'llama3.1:8b', 'gemma2:9b', 'mistral-nemo:12b']}
         extraCopy={
           <Stack gap={0}>
             <Text size="sm">
@@ -157,6 +163,9 @@ function CreateOllamaJudgeCard() {
               . Some examples include:
             </Text>
             <ul>
+              <li>
+                <Code>llama3.2:3b</Code>
+              </li>
               <li>
                 <Code>llama3.1:8b</Code>
               </li>
@@ -191,7 +200,7 @@ function CreateCohereJudgeCard() {
         isOpen={isOpen}
         onClose={close}
         judgeType="cohere"
-        recommendedModels={['command-r', 'command-r-plus']}
+        recommendedModels={['command-r', 'command-r-plus', 'command-r-08-2024', 'command-r-plus-08-2024']}
       />
     </div>
   );
@@ -231,8 +240,11 @@ function CreateTogetherAIJudgeCard() {
         recommendedModels={[
           'google/gemma-2-9b-it',
           'meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo',
+          'meta-llama/Llama-3.2-3B-Instruct-Turbo',
           'databricks/dbrx-instruct',
           'Qwen/Qwen2-72B-Instruct',
+          'Qwen/Qwen2.5-7B-Instruct-Turbo',
+          'Qwen/Qwen2.5-72B-Instruct-Turbo',
         ]}
         extraCopy={
           <Text inherit>
@@ -272,6 +284,10 @@ function CreateBedrockJudgeCard() {
           'meta.llama3-1-8b-instruct-v1:0',
           'meta.llama3-1-70b-instruct-v1:0',
           'meta.llama3-1-405b-instruct-v1:0',
+          'meta.llama3-2-1b-instruct-v1:0',
+          'meta.llama3-2-3b-instruct-v1:0',
+          'meta.llama3-2-11b-instruct-v1:0',
+          'meta.llama3-2-90b-instruct-v1:0',
           'mistral.mistral-large-2402-v1:0',
           'mistral.mistral-large-2407-v1:0',
           'mistral.mistral-small-2402-v1:0',
